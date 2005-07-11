@@ -645,6 +645,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
 	}
 
 	public void paint(Graphics g) {
+		if (g==null) return;
 		if (histogram!=null) {
 			if (os==null && hmax>0) {
 				os = createImage(WIDTH,HEIGHT);

@@ -93,7 +93,8 @@ public class TiffEncoder {
 			descriptionSize = writeDescription(out);
 		if (fi.unit!=null && fi.pixelWidth!=0 && fi.pixelHeight!=0)
 			scaleSize = writeScale(out);
-		byte[] filler = new byte[IMAGE_START - (HDR_SIZE+ifdSize+bpsSize+descriptionSize+scaleSize)];
+		int fillerSize = IMAGE_START - (HDR_SIZE+ifdSize+bpsSize+descriptionSize+scaleSize);
+		byte[] filler = new byte[fillerSize];
 		out.write(filler); // force image to start at offset 768
 		//ij.IJ.write("filler: "+filler.length);
 		new ImageWriter(fi).write(out);

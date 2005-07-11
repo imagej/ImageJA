@@ -582,12 +582,12 @@ public class PolygonRoi extends Roi {
 	public boolean contains(int x, int y) {
 		if (!super.contains(x, y))
 			return false;
-		else if (xScreenSpline!=null) {
-			Polygon poly = new Polygon(xScreenSpline, yScreenSpline, splinePoints);
-			return poly.contains(ic.screenX(x), ic.screenY(y));
+		if (xScreenSpline!=null) {
+			Polygon poly = new Polygon(xSpline, ySpline, splinePoints);
+			return poly.contains(x-this.x, y-this.y);
 		} else {
-			Polygon poly = new Polygon(xp2, yp2, nPoints);
-			return poly.contains(ic.screenX(x), ic.screenY(y));
+			Polygon poly = new Polygon(xp, yp, nPoints);
+			return poly.contains(x-this.x, y-this.y);
 		}
 	}
 	

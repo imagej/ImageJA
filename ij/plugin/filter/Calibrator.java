@@ -19,8 +19,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 	private static final String INVERTER = "Pixel Inverter";
 	private static final String UNCALIBRATED_OD = "Uncalibrated OD";
 	private static boolean showSettings;
-	static boolean global;
-	private static boolean oldGlobal;
+	private boolean global1, global2;
     private ImagePlus imp;
 	private int choiceIndex;
 	private String[] functions;
@@ -45,25 +44,10 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 	}
 
 	public void run(ImageProcessor ip) {
-		oldGlobal = global;
+		global1 = imp.getGlobalCalibration()!=null;
 		if (!showDialog(imp))
 			return;
 		calibrate(imp);
-		if (global || global!=oldGlobal) {
-			int[] list = WindowManager.getIDList();
-			if (list==null)
-				return;
-			for (int i=0; i<list.length; i++) {
-				ImagePlus imp2 = WindowManager.getImage(list[i]);
-				if (imp2!=null) {
-					ImageWindow win = imp2.getWindow();
-					if (win!=null) win.repaint();
-				}
-			}
-		} else {
-			ImageWindow win = imp.getWindow();
-			if (win!=null) win.repaint();
-		}
 	}
 
 	public boolean showDialog(ImagePlus imp) {
@@ -94,7 +78,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		gd.addTextAreas(xText, yText, 20, 14);
 		//gd.addMessage("Left column contains uncalibrated measured values,\n right column contains known values (e.g., OD).");
 		gd.addPanel(makeButtonPanel(gd));
-		gd.addCheckbox("Global Calibration", global);
+		gd.addCheckbox("Global Calibration", global1);
 		//gd.addCheckbox("Show Simplex Settings", showSettings);
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -104,7 +88,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			unit = gd.getNextString();
 			xText = gd.getNextText();
 			yText = gd.getNextText();
-			global = gd.getNextBoolean();
+			global2 = gd.getNextBoolean();
 			//showSettings = gd.getNextBoolean();
 			return true;
 		}
@@ -125,11 +109,12 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 	
 	public void calibrate(ImagePlus imp) {
 		Calibration cal = imp.getCalibration();
+		Calibration calOrig = cal.copy();
 		int function = Calibration.NONE;
 		boolean is16Bits = imp.getType()==ImagePlus.GRAY16;
 		double[] parameters = null;
 		double[] x=null, y=null;
-		boolean zeroClip=false;;
+		boolean zeroClip=false;
 		if (choiceIndex<=0) {
 			if (oldFunction==Calibration.NONE&&!yText.equals("")&&!xText.equals(""))
 				IJ.error("Calibrator", "Please select a function");
@@ -168,12 +153,13 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 			unit = "Uncalibrated OD";
 		}
 		cal.setFunction(function, parameters, unit, zeroClip);
-		if (global)
-			imp.setGlobalCalibration(cal);
-		else {
+		if (!cal.equals(calOrig))
 			imp.setCalibration(cal);
-			imp.setGlobalCalibration(null);
-		}
+		imp.setGlobalCalibration(global2?cal:null);
+		if (global2 || global2!=global1)
+			WindowManager.repaintImageWindows();
+		else
+			imp.repaintWindow();
 		if (function!=Calibration.NONE)
 			showPlot(x, y, cal, sumResiduals, fitGoodness);
 		//IJ.write("cal: "+cal);

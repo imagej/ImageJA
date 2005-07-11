@@ -5,6 +5,7 @@ import java.io.*;
 import ij.*;
 import ij.io.*;
 import ij.process.*;
+import ij.util.Tools;
 
 
 /** This plugin opens a tab-delimeted text file as an image. */
@@ -51,6 +52,7 @@ public class TextReader implements PlugIn {
             float[] pixels = new float[width*lines];
             ip = new FloatProcessor(width, lines, pixels, null);
             read(r, width*lines, pixels);
+            r.close();
             ip.resetMinAndMax();
         }
         catch (IOException e) {
@@ -106,15 +108,15 @@ public class TextReader implements PlugIn {
         tok.resetSyntax();
         tok.wordChars(33, 255);
         tok.whitespaceChars(0, ' ');
-        tok.parseNumbers();
+        //tok.parseNumbers();
 
         int i = 0;
         int inc = size/20;
         if (inc<1)
             inc = 1;
         while (tok.nextToken() != StreamTokenizer.TT_EOF) {
-            if (tok.ttype==StreamTokenizer.TT_NUMBER) {
-                pixels[i++] = (float)tok.nval;
+            if (tok.ttype==StreamTokenizer.TT_WORD) {
+                pixels[i++] = (float)Tools.parseDouble(tok.sval, 0.0);
                  if (i==size)
                      break;
                  if (i%inc==0)

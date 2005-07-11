@@ -567,7 +567,6 @@ public class FloatProcessor extends ImageProcessor {
 	
     public void noise(double range) {
 		Random rnd=new Random();
-
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y * width + roiX;
 			for (int x=roiX; x<(roiX+roiWidth); x++) {
@@ -575,10 +574,8 @@ public class FloatProcessor extends ImageProcessor {
 				pixels[i] = pixels[i] + RandomBrightness;
 				i++;
 			}
-			if (y%20==0)
-				showProgress((double)(y-roiY)/roiHeight);
 		}
-		findMinAndMax();
+		resetMinAndMax();
     }
 
 	public ImageProcessor crop() {
@@ -723,6 +720,10 @@ public class FloatProcessor extends ImageProcessor {
 	/** Sets the default fill/draw value. */
 	public void setValue(double value) {
 		fillColor = (float)value;
+	}
+
+	/** Does nothing. The rotate() and scale() methods always zero fill. */
+	public void setBackgroundValue(double value) {
 	}
 
 	public void setThreshold(double minThreshold, double maxThreshold, int lutUpdate) {

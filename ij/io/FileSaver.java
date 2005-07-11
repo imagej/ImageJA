@@ -473,6 +473,8 @@ public class FileSaver {
 					sb.append("c"+i+"="+fi.coefficients[i]+"\n");
 			}
 			sb.append("vunit="+fi.valueUnit+"\n");
+			Calibration cal = imp.getCalibration();
+			if (cal.zeroClip()) sb.append("zeroclip=true\n");
 		}
 		
 		// get stack z-spacing and fps

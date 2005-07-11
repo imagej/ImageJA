@@ -104,6 +104,13 @@ public abstract class ImageProcessor extends Object {
 			return cm;
 	}
 
+	/** Returns the current color model, which may have
+		been modified by setMinAndMax() or setThreshold(). */
+	public ColorModel getCurrentColorModel() {
+		if (cm==null) makeDefaultColorModel();
+		return cm;
+	}
+
 	/** Sets the color model. Must be an IndexColorModel (aka LUT)
 		for all processors except the ColorProcessor. */
 	public void setColorModel(ColorModel cm) {
@@ -293,6 +300,9 @@ public abstract class ImageProcessor extends Object {
 	/** Sets the default fill/draw value. */
 	public abstract void setValue(double value);
 
+	/** Sets the background fill value used by the rotate() and scale() methods. */
+	public abstract void setBackgroundValue(double value);
+
 	/** Returns the smallest displayed pixel value. */
 	public abstract double getMin();
 
@@ -408,6 +418,12 @@ public abstract class ImageProcessor extends Object {
 	/** Returns the upper threshold level. */
 	public double getMaxThreshold() {
 		return maxThreshold;
+	}
+	
+	/** Returns the LUT update mode, which can be RED_LUT, BLACK_AND_WHITE_LUT, 
+		OVER_UNDER_LUT or NO_LUT_UPDATE. */
+	public int getLutUpdateMode() {
+		return lutUpdateMode;
 	}
 
 	/** Defines a rectangular region of interest and sets the mask 

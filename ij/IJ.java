@@ -41,6 +41,7 @@ public class IJ {
 	private static long maxMemory;
 	private static boolean escapePressed;
 	private static boolean redirectErrorMessages;
+	private static boolean brokenNewPixels;
 			
 	static {
 		osname = System.getProperty("os.name");
@@ -50,6 +51,7 @@ public class IJ {
 		// JVM on Sharp Zaurus PDA claims to be "3.1"!
 		isJava2 = version.compareTo("1.1")>0 && version.compareTo("2.9")<=0;
 		isJava14 = version.compareTo("1.3")>0 && version.compareTo("2.9")<=0;
+		brokenNewPixels = (isMac&&!isJava2) || version.startsWith("1.4") || osname.startsWith("Linux");
 	}
 			
 	static void init(ImageJ imagej, Applet theApplet) {
@@ -291,7 +293,9 @@ public class IJ {
 	}
 	
     /** Runs an ImageJ command. Does not return until 
-    	the command has finished executing. */
+    	the command has finished executing. To avoid "image locked",
+    	errors, plugins that call this method should implement
+    	the PlugIn interface instead of PlugInFilter. */
 	public static void run(String command) {
 		run(command, null);
 	}
@@ -612,10 +616,12 @@ public class IJ {
 	public static String d2s(double n, int decimalPlaces) {
 		if (n==Float.MAX_VALUE) // divide by 0 in FloatProcessor
 			return "3.4e38";
+		double np = n;
 		boolean negative = n<0.0;
-		if (negative)
-			n = -n;
-		double whole = Math.round(n * Math.pow(10, decimalPlaces));
+		if (negative) np = -n;
+		if (np<0.001 && np!=0.0 && np<1.0/Math.pow(10,decimalPlaces))
+			return Float.toString((float)n); // use scientific notation
+		double whole = Math.round(np * Math.pow(10, decimalPlaces));
 		double rounded = whole/Math.pow(10, decimalPlaces);
 		if (negative)
 			rounded = -rounded;
@@ -635,6 +641,7 @@ public class IJ {
 				case 9: df.applyPattern("0.000000000"); dfDigits=9; break;
 			}
 		String s = df.format(rounded);
+		if (s.length()>12) s = Float.toString((float)n); // use scientific notation
 		return s;
 	}
 
@@ -956,6 +963,8 @@ public class IJ {
 	public static int doWand(int x, int y) {
 		ImagePlus img = getImage();
 		ImageProcessor ip = img.getProcessor();
+		if ((img.getType()==ImagePlus.GRAY32) && Double.isNaN(ip.getPixelValue(x,y)))
+			return 0;
 		Wand w = new Wand(ip);
 		double t1 = ip.getMinThreshold();
 		if (t1==ip.NO_THRESHOLD)
@@ -1016,8 +1025,9 @@ public class IJ {
 		return ImageJ.VERSION;
 	}
 	
-	/** Returns the path to the plugins, macros, temp or image directory if <code>title</code> 
-		is "plugins", "macros", "temp" or "image", otherwise, displays a dialog 
+	/** Returns the path to the home ("user.home"), startup ("user.dir"), plugins, macros, 
+		temp or image directory if <code>title</code> is "home", "startup", 
+		"plugins", "macros", "temp" or "image", otherwise, displays a dialog 
 		and returns the path to the directory selected by the user. 
 		Returns null if the specified directory is not found or the user
 		cancels the dialog box. Also aborts the macro if the user cancels
@@ -1027,6 +1037,10 @@ public class IJ {
 			return Menus.getPlugInsPath();
 		else if (title.equals("macros"))
 			return Menus.getMacrosPath();
+		else if (title.equals("home"))
+			return System.getProperty("user.home") + File.separator;
+		else if (title.equals("startup"))
+			return System.getProperty("user.dir") + File.separator;
 		else if (title.equals("temp")) {
 			String dir = System.getProperty("java.io.tmpdir");
 			if (dir!=null && !dir.endsWith(File.separator)) dir += File.separator;
@@ -1197,6 +1211,11 @@ public class IJ {
 		redirectErrorMessages = true;
 	}
 	
+	/** Returns true if animated MemoryImageSources do not work correctly. */
+	public static boolean brokenNewPixels() {
+		return brokenNewPixels;
+	}
+
 	static void abort() {
 		throw new RuntimeException(Macro.MACRO_CANCELED);
 	}

@@ -615,6 +615,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if ((type==Roi.POLYGON || type==Roi.POLYLINE || type==Roi.ANGLE)
 			&& roi.getState()==roi.CONSTRUCTING)
 				return;
+			if (Toolbar.getToolId()==Toolbar.POLYGON) {
+				imp.killRoi();
+				return;
+			}
 		}
 		imp.createNewRoi(ox,oy);
 	}

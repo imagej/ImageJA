@@ -133,6 +133,8 @@ public class Functions implements MacroConstants, Measurements {
 			case SET_VOXEL_SIZE: setVoxelSize(); break;
 			case GET_LOCATION_AND_SIZE: getLocationAndSize(); break;
 			case GET_DATE_AND_TIME: getDateAndTime(); break;
+			case SET_METADATA: setMetadata(); break;
+			case CALCULATOR: imageCalculator(); break;
 		}
 	}
 	
@@ -201,6 +203,7 @@ public class Functions implements MacroConstants, Measurements {
 			case TO_STRING: str = getStringArg(); break;
 			case REPLACE: str = replace(); break;
 			case DIALOG: str = doDialog(); break;
+			case GET_METADATA: str = getMetadata(); break;
 			default:
 				str="";
 				interp.error("String function expected");
@@ -416,8 +419,11 @@ public class Functions implements MacroConstants, Measurements {
 	String[] getStringArray() {
 		Variable[] a1 = getArray();
 		String[] a2 = new String[a1.length];
-		for (int i=0; i<a1.length; i++)
-			a2[i] = a1[i].getString();
+		for (int i=0; i<a1.length; i++) {
+			String s = a1[i].getString();
+			if (s==null) s = "" + a1[i].getValue();
+			a2[i] = s;
+		}
 		return a2;
 	}
 
@@ -1919,6 +1925,7 @@ public class Functions implements MacroConstants, Measurements {
 	void setBatchMode() {
 		boolean b =getBooleanArg();
 		interp.setBatchMode(b);
+		interp.calledMacro = false;
 		if (!b) {
 			resetImage();
 			ImagePlus imp2 = WindowManager.getCurrentImage();
@@ -2266,8 +2273,14 @@ public class Functions implements MacroConstants, Measurements {
 				String prompt = getFirstString();
 				interp.getComma();
 				String[] choices = getStringArray();
+				String defaultChoice = null;
+				if (interp.nextNonEolToken()==',') {
+					interp.getComma();
+					defaultChoice = getString();
+				} else
+					defaultChoice = choices[0];
 				interp.getRightParen();
-				gd.addChoice(prompt, choices, choices[0]);
+				gd.addChoice(prompt, choices, defaultChoice);
 			} else if (name.equals("show")) {
 				interp.getParens();
 				gd.showDialog();
@@ -2313,6 +2326,59 @@ public class Functions implements MacroConstants, Measurements {
 		minute.setValue(date.get(Calendar.MINUTE));
 		second.setValue(date.get(Calendar.SECOND));
 		millisecond.setValue(date.get(Calendar.MILLISECOND));
+	}
+	
+	void setMetadata() {
+		String metadata = getStringArg();
+		ImagePlus imp = getImage();
+		boolean isImageMetaData = false;
+		if (metadata.startsWith("Info:")) {
+			metadata = metadata.substring(5);
+			isImageMetaData = true;
+		}
+		if (imp.getStackSize()==1 || isImageMetaData)
+			imp.setProperty("Info", metadata);
+		else {
+			imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
+			if (!Interpreter.isBatchMode())
+				imp.repaintWindow();
+		}
+	}
+
+	String getMetadata() {
+		interp.getParens();
+		ImagePlus imp = getImage();
+		String metadata;
+		if (imp.getStackSize()==1) 
+			metadata = (String)imp.getProperty("Info");
+		else
+			metadata = imp.getStack().getSliceLabel(imp.getCurrentSlice());
+		if (metadata==null) metadata = "";
+		return metadata;
+	}
+
+	ImagePlus getImageArg() {
+		ImagePlus img = null;
+		if (isStringArg()) {
+			String title = getString();
+			img = WindowManager.getImage(title);
+		} else {
+			int id = (int)interp.getExpression();
+			img = WindowManager.getImage(id);
+		}
+		if (img==null) interp.error("Image not found");
+		return img;
+	}
+
+	void imageCalculator() {
+		String operator = getFirstString();
+		interp.getComma();
+		ImagePlus img1 = getImageArg();
+		interp.getComma();
+		ImagePlus img2 = getImageArg();
+		interp.getRightParen();
+		ImageCalculator ic = new ImageCalculator();
+		ic.calculate(operator, img1, img2);
 	}
 
 } // class Functions

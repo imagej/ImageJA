@@ -102,6 +102,11 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 		textArea.append(method+"(\""+arg1+"\", \""+arg2+"\");\n");
 	}
 
+	public static void record(String method, String arg1, String arg2, String arg3) {
+		if (textArea==null) return;
+		textArea.append(method+"(\""+arg1+"\", \""+arg2+"\",\""+arg3+"\");\n");
+	}
+
 	public static void record(String method, int a1) {
 		if (textArea==null) return;
 		textArea.append(method+"("+a1+");\n");
@@ -217,6 +222,8 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 					textArea.append("setSlice("+strip(commandOptions)+");\n");
 				else if (commandName.equals("Rename..."))
 					textArea.append("rename(\""+strip(commandOptions)+"\");\n");
+				else if (commandName.equals("Image Calculator..."))
+					textArea.append("//run(\""+commandName+"\", \""+commandOptions+"\");\n");
 				else 
 					textArea.append("run(\""+commandName+"\", \""+commandOptions+"\");\n");
 			} else {

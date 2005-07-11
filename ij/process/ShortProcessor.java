@@ -771,6 +771,10 @@ public class ShortProcessor extends ImageProcessor {
 			if (fgColor>65535) fgColor = 65535;
 	}
 
+	/** Does nothing. The rotate() and scale() methods always zero fill. */
+	public void setBackgroundValue(double value) {
+	}
+
 	/** Returns 65536 bin histogram of the current ROI, which
 		can be non-rectangular. */
 	public int[] getHistogram() {
@@ -825,21 +829,24 @@ public class ShortProcessor extends ImageProcessor {
 
     public void noise(double range) {
 		Random rnd=new Random();
-		int v;
+		int v, ran;
+		boolean inRange;
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y * width + roiX;
 			for (int x=roiX; x<(roiX+roiWidth); x++) {
-				int RandomBrightness = (int)Math.round(rnd.nextGaussian()*range);
-				v = (pixels[i] & 0xffff) + RandomBrightness;
-				if (v < 0) v = 0;
-				if (v > 65535) v = 65535;
-				pixels[i] = (short)v;
+				inRange = false;
+				do {
+					ran = (int)Math.round(rnd.nextGaussian()*range);
+					v = (pixels[i] & 0xffff) + ran;
+					inRange = v>=0 && v<=65535;
+					if (inRange) pixels[i] = (short)v;
+				} while (!inRange);
 				i++;
 			}
 		}
-		findMinAndMax();
+		resetMinAndMax();
     }
-
+    
 	public void threshold(int level) {
 		for (int i=0; i<width*height; i++) {
 			if ((pixels[i]&0xffff)<=level)

@@ -330,6 +330,11 @@ public class Calibration {
 			&& coefficients[0]==-32768.0 && coefficients[1]==1.0);
  	}
 
+ 	/** Returns true if zero clipping is enabled. */
+ 	public boolean zeroClip() {
+ 		return zeroClip;
+ 	}
+ 	
     public String toString() {
     	return
     		"w=" + pixelWidth

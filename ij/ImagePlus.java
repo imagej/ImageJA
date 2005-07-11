@@ -308,6 +308,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				win = new StackWindow(this);
 			else
 				win = new ImageWindow(this);
+			if (roi!=null) roi.setImage(this);
 			draw();
 			IJ.showStatus(statusMessage);
 			if (IJ.macroRunning()) { // wait for image to become activated
@@ -699,6 +700,12 @@ public class ImagePlus implements ImageObserver, Measurements {
 	/** Returns the dimensions of this image (width, height, nChannels, 
 		nSlices, nFrames) as a 5 element int array. */
 	public int[] getDimensions() {
+		int stackSize = getImageStackSize();
+		if (nChannels*nSlices*nFrames!=stackSize) {
+			nSlices = stackSize;
+			nChannels = 1;
+			nFrames = 1;
+		}
 		int[] d = new int[5];
 		d[0] = width;
 		d[1] = height;
@@ -869,6 +876,16 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return s;
 	}
 	
+	/** Returns the base image stack. */ 
+	public ImageStack getImageStack() {
+		if (stack==null)
+			return getStack();
+		else {
+			stack.update(ip);
+			return stack;
+		}
+	}
+
 	/** Returns the current stack slice number or 1 if
 		this is a single image. */
 	public int getCurrentSlice() {
@@ -928,6 +945,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		ROI is deleted if <code>roi</code> is null or its width or height is zero. */
 	public void setRoi(Roi roi) {
 		killRoi();
+		if (roi.isVisible())
+			roi = (Roi)roi.clone();
 		if (roi==null)
 			return;
 		Rectangle bounds = roi.getBounds();
@@ -1235,6 +1254,11 @@ public class ImagePlus implements ImageObserver, Measurements {
 			globalCalibration = global.copy();
     }
     
+    /** Returns the system-wide calibration, or null. */
+    public Calibration getGlobalCalibration() {
+			return globalCalibration;
+    }
+
     /** Displays the cursor coordinates and pixel value in the status bar.
     	Called by ImageCanvas when the mouse moves. Can be overridden by
     	ImagePlus subclasses.
@@ -1406,6 +1430,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 			} else
 				setRoi(xCenter-w/2, yCenter-h/2, w, h);
 			roi = getRoi();
+		} else if (cRoi!=null && cRoi.getType()!=Roi.RECTANGLE && r!=null && w==r.width && h==r.height) {
+ 				cRoi.setLocation(r.x, r.y);
+				setRoi(cRoi);
+				roi = getRoi();
 		}
 		if (IJ.macroRunning()) {
 			//non-interactive paste

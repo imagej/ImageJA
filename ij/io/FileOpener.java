@@ -247,17 +247,22 @@ public class FileOpener {
 	}
 	
 	void setCalibration(ImagePlus imp) {
-		Calibration cal = imp.getCalibration();
 		if (fi.fileType==FileInfo.GRAY16_SIGNED) {
 			if (IJ.debugMode) IJ.log("16-bit signed");
 			double[] coeff = new double[2];
 			coeff[0] = -32768.0;
 			coeff[1] = 1.0;
- 			cal.setFunction(Calibration.STRAIGHT_LINE, coeff, "gray value");
+			if (imp.getGlobalCalibration()!=null) {
+				// signed 16-bit images and global galibration cannot coexist
+				imp.setGlobalCalibration(null);
+				WindowManager.repaintImageWindows();
+				IJ.error("FileOpener", "Global calibration disabled");
+			}
+ 			imp.getCalibration().setFunction(Calibration.STRAIGHT_LINE, coeff, "gray value");
 		}
 		
 		Properties props = decodeDescriptionString();
-
+		Calibration cal = imp.getCalibration();
 		if (fi.pixelWidth>0.0 && fi.unit!=null) {
 			cal.pixelWidth = fi.pixelWidth;
 			cal.pixelHeight = fi.pixelHeight;
@@ -268,8 +273,10 @@ public class FileOpener {
 		if (fi.valueUnit!=null) {
 			int f = fi.calibrationFunction;
 			if ((f>=Calibration.STRAIGHT_LINE && f<=Calibration.LOG2 && fi.coefficients!=null)
-			||f==Calibration.UNCALIBRATED_OD)
-				cal.setFunction(f, fi.coefficients, fi.valueUnit);
+			|| f==Calibration.UNCALIBRATED_OD) {
+				boolean zeroClip = props.getProperty("zeroclip", "false").equals("true");	
+				cal.setFunction(f, fi.coefficients, fi.valueUnit, zeroClip);
+			}
 		}
 		
 		if (fi.frameInterval!=0.0)
@@ -396,7 +403,7 @@ public class FileOpener {
 		return pixels;
 	}
 
-	public Properties decodeDescriptionString() {
+	Properties decodeDescriptionString() {
 		if (fi.description==null || fi.description.length()<7)
 			return null;
 		if (IJ.debugMode)

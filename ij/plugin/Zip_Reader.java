@@ -39,6 +39,10 @@ public class Zip_Reader extends ImagePlus implements PlugIn {
 		if (imp!=null) {
 			setStack(tifName, imp.getStack());
 			setCalibration(imp.getCalibration());
+			if (imp.getStackSize()>1) {
+				int[] dim = imp.getDimensions();
+				setDimensions(dim[2], dim[3], dim[4]);
+			}
 			if (arg.equals("")) show();
 		}
 	}

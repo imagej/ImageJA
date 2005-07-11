@@ -500,7 +500,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	protected void handleMouseDown(int sx, int sy) {
-		if (state==NORMAL) {
+		if (state==NORMAL && ic!=null) {
 			state = MOVING;
 			startX = ic.offScreenX(sx);
 			startY = ic.offScreenY(sy);
@@ -747,6 +747,11 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			default: s="Rectangle"; break;
 		}
 		return s;
+	}
+	
+	/** Returns true if this ROI is currently displayed on an image. */
+	public boolean isVisible() {
+		return ic!=null;
 	}
 
 	public String toString() {

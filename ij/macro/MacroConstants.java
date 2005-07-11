@@ -33,7 +33,7 @@ public interface MacroConstants {
 		SET_KEY_DOWN=364, OPEN=365, SET_FONT=366, GET_MIN_AND_MAX=367, CLOSE=368, SET_SLICE=369,
 		NEW_IMAGE=370, SAVE_AS=371, SAVE=372, SET_AUTO_THRESHOLD=373, RENAME=374, GET_BOUNDS=375, FILL_RECT=376,
 		GET_RAW_STATISTICS=377, FLOOD_FILL=378, RESTORE_PREVIOUS_TOOL=379, SET_VOXEL_SIZE=380, GET_LOCATION_AND_SIZE=381,
-		GET_DATE_AND_TIME=382;
+		GET_DATE_AND_TIME=382, SET_METADATA=383, CALCULATOR=384;
 	static final String[] functions = {"run","invert","selectWindow","wait", "beep", "resetMinAndMax", "resetThreshold",
 		"print", "write", "doWand", "setMinAndMax", "setThreshold", "setTool",
 		"setForegroundColor", "setBackgroundColor", "makeLine", "makeOval", "makeRectangle",
@@ -47,7 +47,7 @@ public interface MacroConstants {
 		"setKeyDown", "open", "setFont", "getMinAndMax", "close", "setSlice",
 		"newImage", "saveAs", "save", "setAutoThreshold", "rename", "getSelectionBounds", "fillRect",
 		"getRawStatistics", "floodFill", "restorePreviousTool", "setVoxelSize", "getLocationAndSize",
-		"getDateAndTime"};
+		"getDateAndTime", "setMetadata", "imageCalculator"};
 	static final int[] functionIDs = {RUN, INVERT, SELECT, WAIT, BEEP, RESET_MIN_MAX, RESET_THRESHOLD,
 		PRINT, WRITE,	 DO_WAND, SET_MIN_MAX, SET_THRESHOLD, SET_TOOL,
 		SET_FOREGROUND, SET_BACKGROUND, MAKE_LINE, MAKE_OVAL, MAKE_RECTANGLE,
@@ -61,7 +61,7 @@ public interface MacroConstants {
 		SET_KEY_DOWN, OPEN, SET_FONT, GET_MIN_AND_MAX, CLOSE, SET_SLICE,
 		NEW_IMAGE, SAVE_AS, SAVE, SET_AUTO_THRESHOLD, RENAME, GET_BOUNDS, FILL_RECT,
 		GET_RAW_STATISTICS, FLOOD_FILL, RESTORE_PREVIOUS_TOOL, SET_VOXEL_SIZE, GET_LOCATION_AND_SIZE,
-		GET_DATE_AND_TIME};
+		GET_DATE_AND_TIME, SET_METADATA, CALCULATOR};
 
 	// Numeric functions
 	static final int GET_PIXEL=1000, ABS=1001, COS=1002, EXP=1003, FLOOR=1004, LOG=1005, MAX_OF=1006, MIN_OF=1007, POW=1008,
@@ -93,15 +93,15 @@ public interface MacroConstants {
 	static final int D2S=2000, TO_HEX=2001, TO_BINARY=2002, GET_TITLE=2003, GET_STRING=2004, SUBSTRING=2005,
 		FROM_CHAR_CODE=2006, GET_INFO=2007, GET_DIRECTORY=2008, GET_ARGUMENT=2009, GET_IMAGE_INFO=2010,
 		TO_LOWER_CASE=2011, TO_UPPER_CASE=2012, RUN_MACRO=2013, EVAL=2014, TO_STRING=2015, REPLACE=2016,
-		DIALOG=2017;
+		DIALOG=2017, GET_METADATA=2018;
 	static final String[] stringFunctions = {"d2s", "toHex", "toBinary", "getTitle", "getString", "substring",
 		"fromCharCode", "getInfo", "getDirectory", "getArgument", "getImageInfo", 
 		"toLowerCase", "toUpperCase", "runMacro", "eval", "toString", "replace",
-		"Dialog"};
+		"Dialog", "getMetadata"};
 	static final int[] stringFunctionIDs = {D2S, TO_HEX, TO_BINARY, GET_TITLE, GET_STRING, SUBSTRING,
 		FROM_CHAR_CODE, GET_INFO, GET_DIRECTORY, GET_ARGUMENT, GET_IMAGE_INFO,
 		TO_LOWER_CASE, TO_UPPER_CASE, RUN_MACRO, EVAL, TO_STRING, REPLACE,
-		DIALOG};
+		DIALOG, GET_METADATA};
 
 	// Array functions
 	static final int GET_PROFILE=3000, NEW_ARRAY=3001, SPLIT=3002, GET_FILE_LIST=3003;

@@ -69,7 +69,7 @@ public class WindowManager {
 			ImageWindow win = (ImageWindow)imageList.elementAt(imageList.size()-1);
 			return win.getImagePlus();
 		} else
-			return null;
+			return Interpreter.getLastBatchModeImage(); 
 	}
 
 	/** Returns the number of open image windows. */
@@ -154,6 +154,18 @@ public class WindowManager {
 			}
 		}
 		return imp;
+	}
+	
+	/** Returns the first image that has the specified title or null if it is not found. */
+	public synchronized static ImagePlus getImage(String title) {
+		int[] wList = getIDList();
+		if (wList==null) return null;
+		for (int i=0; i<wList.length; i++) {
+			ImagePlus imp = getImage(wList[i]);
+			if (imp!=null && imp.getTitle().equals(title))
+				return imp;
+		}
+		return null;
 	}
 
 	/** Adds the specified window to the Window menu. */
@@ -323,7 +335,20 @@ public class WindowManager {
 		}
     }
     
-    static void showList() {
+    /** Repaints all open image windows. */
+    public synchronized static void repaintImageWindows() {
+		int[] list = getIDList();
+		if (list==null) return;
+		for (int i=0; i<list.length; i++) {
+			ImagePlus imp2 = getImage(list[i]);
+			if (imp2!=null) {
+				ImageWindow win = imp2.getWindow();
+				if (win!=null) win.repaint();
+			}
+		}
+	}
+    
+	static void showList() {
 		if (IJ.debugMode) {
 			for (int i=0; i<imageList.size(); i++) {
 				ImageWindow win = (ImageWindow)imageList.elementAt(i);

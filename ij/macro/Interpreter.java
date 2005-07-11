@@ -1493,11 +1493,13 @@ public class Interpreter implements MacroConstants {
 	/** Aborts currently running macro. */
 	public static void abort() {
 		if (instance!=null) {
+			if (!instance.calledMacro) {
+				batchMode = false;
+				imageTable = null;
+			}
 			instance.done = true;
 			IJ.showStatus("Macro aborted");
 		}
-		batchMode = false;
-		imageTable = null;
 	}
 	
 	public static Interpreter getInstance() {
@@ -1560,7 +1562,14 @@ public class Interpreter implements MacroConstants {
 		return null;
 	}
 	
-} // class Interpreter
+	public static ImagePlus getLastBatchModeImage() { 
+		if (!batchMode || imageTable==null) return null; 
+		int size = imageTable.size(); 
+		if (size==0) return null; 
+		return (ImagePlus)imageTable.elementAt(size-1); 
+	} 
+ 
+ } // class Interpreter
 
 
 

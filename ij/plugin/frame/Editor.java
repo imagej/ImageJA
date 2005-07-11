@@ -202,7 +202,7 @@ TextListener, ClipboardOwner, MacroConstants {
 
 	public void display(String title, String text) {
 		ta.selectAll();
-		ta.replaceRange(text,ta.getSelectionStart(),ta.getSelectionEnd());
+		ta.replaceRange(text, ta.getSelectionStart(), ta.getSelectionEnd());
 		ta.setCaretPosition(0);
 		setWindowTitle(title);
 		changes = false;
@@ -606,6 +606,8 @@ TextListener, ClipboardOwner, MacroConstants {
 		NewPlugin np = (NewPlugin)IJ.runPlugIn("ij.plugin.NewPlugin", new String(sb));
 		Editor ed = np.getEditor();
 		String title = getTitle();
+		if (title.equals("Macro.txt"))
+			title = "Converted_Macro";
 		if (title.endsWith(".txt")) title = title.substring(0, title.length()-4);
 		if (title.indexOf('_')==-1) title += "_";
 		title += ".java";

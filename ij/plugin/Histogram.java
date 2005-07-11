@@ -60,7 +60,7 @@ public class Histogram implements PlugIn, TextListener {
 			xMax = max;
 		}
 		defaultMin = IJ.d2s(xMin,2);
-		defaultMax = IJ.d2s(xMax,2);;
+		defaultMax = IJ.d2s(xMax,2);
 		imageID = imp.getID();
 		int stackSize = imp.getStackSize();
 		GenericDialog gd = new GenericDialog("Histogram");
@@ -68,8 +68,11 @@ public class Histogram implements PlugIn, TextListener {
 		gd.addCheckbox("Use min/max or:", useImageMinAndMax);
 		//gd.addMessage("          or");
 		gd.addMessage("");
-		gd.addNumericField("X_Min:", xMin, 2);
-		gd.addNumericField("X_Max:", xMax, 2);
+		int fwidth = 6;
+		int nwidth = Math.max(IJ.d2s(xMin,2).length(), IJ.d2s(xMax,2).length());
+		if (nwidth>fwidth) fwidth = nwidth;
+		gd.addNumericField("X_Min:", xMin, 2, fwidth, null);
+		gd.addNumericField("X_Max:", xMax, 2, fwidth, null);
 		gd.addMessage(" ");
 		gd.addStringField("Y_Max:", yMax, 6);
 		if (stackSize>1)

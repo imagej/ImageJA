@@ -111,6 +111,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private ImageProcessor mask;
 	private double totalArea;
 	private FloodFiller ff;
+	private Polygon polygon;
 
 	
 	/** Construct a ParticleAnalyzer.
@@ -150,6 +151,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		processStack = (flags&DOES_STACKS)!=0;
 		slice = 0;
         saveRoi = imp.getRoi();
+        if (saveRoi!=null && saveRoi.getType()!=Roi.RECTANGLE && saveRoi.isArea())
+        	polygon = saveRoi.getPolygon();
 		imp.startTiming();
 		return flags;
 	}
@@ -303,9 +306,10 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 					totalArea = r.width*calibration.pixelWidth*r.height*calibration.pixelHeight;
 			}
 		}
-		if (r.width<width || r.height<height || mask!=null)
-			eraseOutsideRoi(ip, r, mask);
 		minX=r.x; maxX=r.x+r.width; minY=r.y; maxY=r.y+r.height;
+		if (r.width<width || r.height<height || mask!=null) {
+			if (!eraseOutsideRoi(ip, r, mask)) return false;
+		}
 		int offset;
 		double value;
 		int inc = Math.max(r.height/25, 1);
@@ -393,17 +397,35 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			tw.append(aLine);
 	}
 
-	void eraseOutsideRoi(ImageProcessor ip, Rectangle r, ImageProcessor mask) {
+	boolean eraseOutsideRoi(ImageProcessor ip, Rectangle r, ImageProcessor mask) {
 		int width = ip.getWidth();
 		int height = ip.getHeight();
 		ip.setRoi(r);
+ 		if (excludeEdgeParticles && polygon!=null) {
+			ImageStatistics stats = ImageStatistics.getStatistics(ip, MIN_MAX, null);
+			if (fillColor>=stats.min && fillColor<=stats.max) {
+				double replaceColor = level1-1.0;
+				if (replaceColor<0.0 || replaceColor==fillColor) {
+					replaceColor = level2+1.0;
+					int maxColor = imageType==BYTE?255:65535;
+					if (replaceColor>maxColor || replaceColor==fillColor) {
+						IJ.error("Particle Analyzer", "Unable to remove edge particles");
+						return false;
+					}
+				}
+				for (int y=minY; y<maxY; y++) {
+					for (int x=minX; x<maxX; x++) {
+						int v  = ip.getPixel(x, y);
+						if (v==fillColor) ip.putPixel(x, y, (int)replaceColor);
+					}
+				}
+			}
+ 		}
 		ip.setValue(fillColor);		
 		if (mask!=null) {
 			mask = mask.duplicate();
 			mask.invert();
- 			ip.setMask(mask);
-			ip.fill();
- 			ip.reset(mask);
+			ip.fill(mask);
  		} 		
  		ip.setRoi(0, 0, r.x, height);
  		ip.fill();
@@ -414,6 +436,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
  		ip.setRoi(r.x+r.width, 0, width-(r.x+r.width), height);
  		ip.fill();
  		ip.resetRoi();
+		//IJ.log("erase: "+fillColor+"  "+level1+"  "+level2+"  "+excludeEdgeParticles);
+		//(new ImagePlus("ip2", ip.duplicate())).show();
+		return true;
 	}
 
 	boolean setThresholdLevels(ImagePlus imp, ImageProcessor ip) {
@@ -476,6 +501,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		return true;
 	}
 	
+	int counter = 0;
+	
 	void analyzeParticle(int x, int y, ImagePlus imp, ImageProcessor ip) {
 		//Wand wand = new Wand(ip);
 		ImageProcessor ip2 = redirectIP!=null?redirectIP:ip;
@@ -494,9 +521,25 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		ip.setValue(fillColor);
 		ImageStatistics stats = getStatistics(ip2, measurements, calibration);
 		boolean include = true;
-		if (excludeEdgeParticles &&
-		(r.x==minX||r.y==minY||r.x+r.width==maxX||r.y+r.height==maxY))
+		if (excludeEdgeParticles) {
+			if (r.x==minX||r.y==minY||r.x+r.width==maxX||r.y+r.height==maxY)
 				include = false;
+			if (polygon!=null) {
+				Rectangle bounds = roi.getBounds();
+				int x1=bounds.x+wand.xpoints[wand.npoints-1];
+				int y1=bounds.y+wand.ypoints[wand.npoints-1];
+				int x2, y2;
+				for (int i=0; i<wand.npoints; i++) {
+					x2=bounds.x+wand.xpoints[i];
+					y2=bounds.y+wand.ypoints[i];
+					if (!polygon.contains(x2, y2))
+						{include = false; break;}
+					if ((x1==x2 && ip.getPixel(x1,y1-1)==fillColor) || (y1==y2 && ip.getPixel(x1-1,y1)==fillColor))
+						{include = false; break;}
+					x1=x2; y1=y2;
+				}
+			}
+		}
 		ImageProcessor mask = ip2.getMask();
 		if (stats.pixelCount>=minSize && stats.pixelCount<=maxSize && include) {
 			particleCount++;

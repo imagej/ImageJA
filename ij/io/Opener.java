@@ -15,6 +15,7 @@ import ij.plugin.frame.*;
 import ij.plugin.Zip_Reader;
 import ij.text.TextWindow;
 import ij.util.Java2;
+import java.awt.event.KeyEvent;
 
 /** Opens tiff (and tiff stacks), dicom, fits, pgm, jpeg, bmp or
 	gif images, and look-up tables, using a file open dialog or a path.
@@ -109,6 +110,11 @@ public class Opener {
 					IJ.runPlugIn("ij.plugin.RoiReader", path);
 					break;
 				case JAVA_OR_TEXT: case TEXT:
+					if (IJ.altKeyDown()) { // open in TextWindow if alt key down
+						new TextWindow(path,400,450);
+						IJ.setKeyUp(KeyEvent.VK_ALT);
+						break;
+					}
 					File file = new File(path);
 					boolean betterTextArea = IJ.isJava2() || IJ.isMacintosh();
 					int maxSize = 250000;

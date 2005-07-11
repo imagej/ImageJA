@@ -93,7 +93,7 @@ public class ImageWriter {
 			int j = bytesWritten/4;
 			if (fi.intelByteOrder)
 				for (int i=0; i < count; i+=4) {
-					tmp = Float.floatToIntBits(pixels[j]);
+					tmp = Float.floatToRawIntBits(pixels[j]); // not in Java 1.1
 					buffer[i]   = (byte)tmp;
 					buffer[i+1] = (byte)(tmp>>8);
 					buffer[i+2] = (byte)(tmp>>16);
@@ -102,7 +102,7 @@ public class ImageWriter {
 				}
 			else
 				for (int i=0; i < count; i+=4) {
-					tmp = Float.floatToIntBits(pixels[j]);
+					tmp = Float.floatToRawIntBits(pixels[j]); // not in Java 1.1
 					buffer[i]   = (byte)(tmp>>24);
 					buffer[i+1] = (byte)(tmp>>16);
 					buffer[i+2] = (byte)(tmp>>8);

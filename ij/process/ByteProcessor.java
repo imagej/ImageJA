@@ -15,9 +15,9 @@ public class ByteProcessor extends ImageProcessor {
 	protected byte[] pixels;
 	protected byte[] snapshotPixels;
 	private int bgColor = 255; //white
+	private boolean bgColorSet;
 	private int min=0, max=255;
-	private boolean brokenNewPixels = ij.IJ.isMacintosh()&&!ij.IJ.isJava2()
-		|| System.getProperty("java.version").startsWith("1.4");
+	private boolean brokenNewPixels = ij.IJ.brokenNewPixels();
     private int binaryCount, binaryBackground;
 
 	/**Creates a ByteProcessor from an 8-bit, indexed color AWT Image. */
@@ -217,6 +217,14 @@ public class ByteProcessor extends ImageProcessor {
 		fgColor = (int)value;
 		if (fgColor<0) fgColor = 0;
 		if (fgColor>255) fgColor = 255;
+	}
+
+	/** Sets the background fill value, where 0<=value<=255. */
+	public void setBackgroundValue(double value) {
+		bgColor = (int)value;
+		if (bgColor<0) bgColor = 0;
+		if (bgColor>255) bgColor = 255;
+		bgColorSet = true;
 	}
 
 	/** Stores the specified real value at (x,y). Does
@@ -708,21 +716,21 @@ public class ByteProcessor extends ImageProcessor {
 
     public void noise(double range) {
 		Random rnd=new Random();
-		int v;
-
+		int v, ran;
+		boolean inRange;
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y * width + roiX;
 			for (int x=roiX; x<(roiX+roiWidth); x++) {
-				int RandomBrightness = (int)Math.round(rnd.nextGaussian()*range);
-				v = (pixels[i] & 0xff) + RandomBrightness;
-				if (v < 0)
-					v = 0;
-				if (v > 255)
-					v = 255;
-				pixels[i] = (byte)v;
+				inRange = false;
+				do {
+					ran = (int)Math.round(rnd.nextGaussian()*range);
+					v = (pixels[i] & 0xff) + ran;
+					inRange = v>=0 && v<=255;
+					if (inRange) pixels[i] = (byte)v;
+				} while (!inRange);
 				i++;
 			}
-			if (y%10==0)
+			if (y%20==0)
 				showProgress((double)(y-roiY)/roiHeight);
 		}
 		hideProgress();
@@ -735,7 +743,7 @@ public class ByteProcessor extends ImageProcessor {
 		double xCenter = roiX + roiWidth/2.0;
 		double yCenter = roiY + roiHeight/2.0;
 		int xmin, xmax, ymin, ymax;
-		if (isInvertedLut()) bgColor = 0;
+		if (!bgColorSet && isInvertedLut()) bgColor = 0;
 		
 		if ((xScale>1.0) && (yScale>1.0)) {
 			//expand roi
@@ -860,7 +868,7 @@ public class ByteProcessor extends ImageProcessor {
 		double centerX = roiX + (roiWidth-1)/2.0;
 		double centerY = roiY + (roiHeight-1)/2.0;
 		int xMax = roiX + this.roiWidth - 1;
-		if (isInvertedLut()) bgColor = 0;
+		if (!bgColorSet && isInvertedLut()) bgColor = 0;
 		
 		double angleRadians = -angle/(180.0/Math.PI);
 		double ca = Math.cos(angleRadians);
