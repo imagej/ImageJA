@@ -9,8 +9,9 @@ esac
 
 [ -z "$(git-diff-cache -M HEAD)" ] || exit 2
 git checkout -f master || exit 3
+git-ls-files | while read f; do rm -f $f; done
 find * -type f -exec rm {} \;
-rm -rf .F* .gdb*
+rm -f .F* .gd*
 (cd ..; unzip $zipfile )
 #perl $HOME/my/tools/mac2unix.pl --add-last-newline $(find * -type f)
 perl $HOME/my/tools/mac2unix.pl $(find * -type f)
