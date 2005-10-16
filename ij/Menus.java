@@ -134,7 +134,6 @@ public class Menus {
 		addSubMenu(image, "Adjust");
 		addPlugInItem(image, "Show Info...", "ij.plugin.filter.Info", KeyEvent.VK_I, false);
 		addPlugInItem(image, "Properties...", "ij.plugin.filter.ImageProperties", KeyEvent.VK_P, true);
-		//addSubMenu(image, "Benchmarks");
 		addSubMenu(image, "Color");
 		addSubMenu(image, "Stacks");
 		image.addSeparator();
@@ -179,12 +178,12 @@ public class Menus {
 		addSubMenu(analyze, "Gels");
 		toolsMenu = addSubMenu(analyze, "Tools");
 
-		//window = new Menu("Window");
-		//addItem(window, "ImageJA [enter]", 0, false);
-		//addItem(window, "Put Behind [tab]", 0, false);
-		//addPlugInItem(window, "Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
-		//addPlugInItem(window, "Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
-		//window.addSeparator();
+		window = new Menu("Window");
+		addItem(window, "ImageJA [enter]", 0, false);
+		addItem(window, "Put Behind [tab]", 0, false);
+		addPlugInItem(window, "Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
+		addPlugInItem(window, "Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
+		window.addSeparator();
 
 		Menu help = new Menu("Help");
 		aboutMenu = addSubMenu(help, "About Plugins");
