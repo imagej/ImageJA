@@ -58,7 +58,7 @@ public class ImageJ extends Frame implements ActionListener,
 	/** Creates a new ImageJ frame running as an applet
 		if the 'applet' argument is not null. */
 	public ImageJ(java.applet.Applet applet) {
-		super("ImageJ");
+		super("ImageJA");
 		this.applet = applet;
 		String err1 = Prefs.load(this, applet);
 		Menus m = new Menus(this, applet);
@@ -352,8 +352,8 @@ public class ImageJ extends Frame implements ActionListener,
 		ImagePlus imp = WindowManager.getCurrentImage();
 		boolean imageWithChanges = imp!=null && imp.changes;
 		if (!imageWithChanges && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS) {
-			GenericDialog gd = new GenericDialog("ImageJ", this);
-			gd.addMessage("Are you sure you want to quit ImageJ?");
+			GenericDialog gd = new GenericDialog("ImageJA", this);
+			gd.addMessage("Are you sure you want to quit ImageJA?");
 			gd.showDialog();
 			quit = !gd.wasCanceled();
 		}

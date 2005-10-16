@@ -117,7 +117,7 @@ public class Executer implements Runnable {
 			copy(imp, true);
 		else if (cmd.equals("Copy"))
 			copy(imp, false);
-		else if (cmd.equals("ImageJ [enter]"))
+		else if (cmd.equals("ImageJA [enter]"))
 			ij.toFront();
 		else if (cmd.equals("Put Behind [tab]"))
 			WindowManager.putBehind();
