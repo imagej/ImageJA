@@ -166,8 +166,11 @@ public class BrowserLauncher implements PlugIn {
 	private static final int WINDOWS = 5;
 	
 	/** JVM constant for any Mac OS X JVM */
-    private static final int MACOSX = 6;
+    	private static final int MACOSX = 6;
 
+	/** JVM constant for any LINUX JVM */
+	private static final int LINUX = 7;
+	
 	/** JVM constant for any other platform */
 	private static final int OTHER = -1;
 
@@ -376,6 +379,8 @@ public class BrowserLauncher implements PlugIn {
 			case WINDOWS:
 				browser = "";	// not used; return something non-null
 				break;
+			case LINUX:
+				browser = "mozilla";
 			case OTHER:
 			default:
 				browser = "netscape";
