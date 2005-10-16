@@ -180,7 +180,7 @@ public class Menus {
 		toolsMenu = addSubMenu(analyze, "Tools");
 
 		window = new Menu("Window");
-		addItem(window, "ImageJ [enter]", 0, false);
+		addItem(window, "ImageJA [enter]", 0, false);
 		addItem(window, "Put Behind [tab]", 0, false);
 		addPlugInItem(window, "Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
 		addPlugInItem(window, "Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
@@ -189,9 +189,9 @@ public class Menus {
 		Menu help = new Menu("Help");
 		aboutMenu = addSubMenu(help, "About Plugins");
 		help.addSeparator();
-		addPlugInItem(help, "ImageJ Web Site...", "ij.plugin.BrowserLauncher", 0, false);
+		addPlugInItem(help, "ImageJA Web Site...", "ij.plugin.BrowserLauncher", 0, false);
 		addPlugInItem(help, "Online Docs...", "ij.plugin.BrowserLauncher(\"online\")", 0, false);
-		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
+		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBoxJA", 0, false);
 				
 		addPluginsMenu();
 		if (applet==null)
