@@ -283,6 +283,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case 'd': return 13;
 			case 'e': return 14;
 			case 'f': return 15;
+			case 'g': return 16;
 			default: return 0;
 		}
 	}
@@ -335,6 +336,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				return;
 			case ANGLE:
 				IJ.showStatus("Angle tool");
+				return;
+			case RETRACT:
+				IJ.showStatus("Retract tool");
 				return;
 			default:
 				IJ.showStatus("");
@@ -507,6 +511,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				case DROPPER:
 					IJ.doCommand("Color Picker...");
 					setTool2(mpPrevious);
+					break;
+				case RETRACT:
+					IJ.doCommand("Retract Tool...");
 					break;
 				default:
 			}
