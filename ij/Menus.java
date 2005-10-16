@@ -87,7 +87,7 @@ public class Menus {
 		Menu file = new Menu("File");
 		addItem(file, "New...", KeyEvent.VK_N, false);
 		addItem(file, "Open...", KeyEvent.VK_O, false);
-		addSubMenu(file, "Open Samples");
+		//addSubMenu(file, "Open Samples");
 		addOpenRecentSubMenu(file);
 		importMenu = addSubMenu(file, "Import");
 		file.addSeparator();
@@ -144,8 +144,8 @@ public class Menus {
 		addPlugInItem(image, "Scale...", "ij.plugin.filter.Scaler", KeyEvent.VK_E, false);
 		addSubMenu(image, "Rotate");
 		addSubMenu(image, "Zoom");
-		image.addSeparator();
-		addSubMenu(image, "Lookup Tables");
+		//image.addSeparator();
+		//addSubMenu(image, "Lookup Tables");
 		
 		Menu process = new Menu("Process");
 		addPlugInItem(process, "Smooth", "ij.plugin.filter.Filters(\"smooth\")", KeyEvent.VK_S, true);
@@ -179,12 +179,12 @@ public class Menus {
 		addSubMenu(analyze, "Gels");
 		toolsMenu = addSubMenu(analyze, "Tools");
 
-		window = new Menu("Window");
-		addItem(window, "ImageJA [enter]", 0, false);
-		addItem(window, "Put Behind [tab]", 0, false);
-		addPlugInItem(window, "Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
-		addPlugInItem(window, "Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
-		window.addSeparator();
+		//window = new Menu("Window");
+		//addItem(window, "ImageJA [enter]", 0, false);
+		//addItem(window, "Put Behind [tab]", 0, false);
+		//addPlugInItem(window, "Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
+		//addPlugInItem(window, "Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
+		//window.addSeparator();
 
 		Menu help = new Menu("Help");
 		aboutMenu = addSubMenu(help, "About Plugins");
@@ -204,7 +204,7 @@ public class Menus {
 		mbar.add(process);
 		mbar.add(analyze);
 		mbar.add(pluginsMenu);
-		mbar.add(window);
+		//mbar.add(window);
 		mbar.setHelpMenu(help);
 		if (ij!=null)
 			ij.setMenuBar(mbar);
