@@ -26,7 +26,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int DROPPER = 13;
 	public static final int ANGLE = 14;
 	public static final int SPARE2 = 15;
-	public static final int SPARE3 = 16;
+	public static final int RETRACT = 16;
 	public static final int SPARE4 = 17;
 	public static final int SPARE5 = 18;
 	public static final int SPARE6 = 19;
@@ -210,6 +210,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				m(10,11); d(10,8); m(9,7); d(9,6); m(8,5); d(8,5);
 				//m(0,9); d(14,0); m(0,9); d(16,9); 
 				//m(12,9); d(12,7); m(11,7); d(11,5); m(10,4); d(10,3);
+				return;
+
+			case RETRACT:
+				g.drawRect(x+1, y+2, 14, 11);
 				return;
 		}
 	}
