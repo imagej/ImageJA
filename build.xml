@@ -2,12 +2,15 @@
 
 <project name="ImageJ" default="run">
 
+  <target name="jar" depends="build" description="build for netbeans 5" />
+
+
   <target name="compile" description="Compile everything.">
     <!-- First, ensure the build directory exists. -->
     <mkdir dir="build" />
     <mkdir dir="dist" />
     <!-- Build everything; add debug="on" to debug -->
-    <javac srcdir="." destdir="build" optimize="on" debug="on" target="1.1">
+    <javac srcdir="." destdir="build" optimize="on" debug="on" source="1.1" target="1.1">
       <!-- The plugins directory only needs to be present at runtime,
            not at build time. -->
       <exclude name="plugins/**" />
@@ -36,6 +39,7 @@
     </copy>
 
     <copy file="ij.html" tofile="dist/ij.html" />
+    <delete dir="dist/ij" />
   </target>
 
 
