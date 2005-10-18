@@ -4,9 +4,10 @@
 
   <target name="compile" description="Compile everything.">
     <!-- First, ensure the build directory exists. -->
+    <mkdir dir="build" />
     <mkdir dir="dist" />
     <!-- Build everything; add debug="on" to debug -->
-    <javac srcdir="." destdir="dist" optimize="on" debug="on" target="1.1">
+    <javac srcdir="." destdir="build" optimize="on" debug="on" target="1.1">
       <!-- The plugins directory only needs to be present at runtime,
            not at build time. -->
       <exclude name="plugins/**" />
@@ -14,26 +15,38 @@
   </target>
   
 
-  <target name="dist" depends="compile" description="Build ij.jar.">
+  <target name="build" depends="compile" description="Build ij.jar.">
     <!-- Copy needed files into the build directory. -->
-    <copy file="IJ_Props.txt" todir="dist" />
-    <copy file="images/microscope.gif" tofile="dist/microscope.gif" />
-    <copy file="images/about.jpg" tofile="dist/about.jpg" />
-    <copy file="images/aboutja.jpg" tofile="dist/aboutja.jpg" />
-    <copy todir="dist/macros"><fileset dir="macros"/></copy>
+    <copy file="IJ_Props.txt" todir="build" />
+    <copy file="images/microscope.gif" tofile="build/microscope.gif" />
+    <copy file="images/about.jpg" tofile="build/about.jpg" />
+    <copy file="images/aboutja.jpg" tofile="build/aboutja.jpg" />
+    <copy todir="build/macros"><fileset dir="macros"/></copy>
     <!-- Build ij.jar. -->
-    <jar jarfile="ij.jar" basedir="dist"
+    <jar jarfile="ij.jar" basedir="build"
          manifest="MANIFEST.MF" />
+    <copy file="ij.jar" tofile="dist/ij.jar" />
+    <mkdir dir="dist/images" />
+    <copy todir="dist/images/">
+	<fileset dir="images/" />
+    </copy>
+    <mkdir dir="dist/plugins" />
+    <copy todir="dist/plugins/">
+	<fileset dir="plugins/" />
+    </copy>
+
+    <copy file="ij.html" tofile="dist/ij.html" />
   </target>
 
 
   <target name="clean" description="Delete the build files.">
+    <delete dir="build" />
     <delete dir="dist" />
     <delete file="ij.jar" />
   </target>
 
 
-  <target name="run" depends="dist" description="Build and run ImageJ.">
+  <target name="run" depends="build" description="Build and run ImageJ.">
     <java jar="ij.jar" fork="yes" />
   </target>
   
