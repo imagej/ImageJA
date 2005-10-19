@@ -16,7 +16,7 @@ for i in .git/refs/heads/*; do
 		echo "found $waitFor"
 		waitFor=""
 	fi
-	if [ -z "$waitFor" -a $name != cumul -a $name != master -a $name != tools ]; then
+	if [ -z "$waitFor" -a $name != cumul -a $name != master -a $name != tools -a $name != imageja ]; then
 		echo "Compiling $name"
 		git checkout $name || exit 1
 		#sh .git/cleanup.sh || exit 2

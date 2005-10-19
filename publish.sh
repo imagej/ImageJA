@@ -15,7 +15,7 @@ version=$(git-cat-file commit master | \
 
 for i in .git/refs/heads/*; do
 	name=$(basename $i)
-	if [ $name != master -a $name != tools ]; then
+	if [ $name != master -a $name != tools -a $name != imageja ]; then
 		git diff master..${name} > "$destdir"/ij$version-$name.patch || exit 1
 		git-tar-tree $name | gzip -9 > "$destdir"/ij$version-$name.tar.gz || exit 2
 	fi
