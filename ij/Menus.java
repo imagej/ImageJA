@@ -1037,6 +1037,10 @@ public class Menus {
 		return popup;
 	}
 	
+	public static Menu getSaveAsMenu() {
+		return saveAsMenu;
+	}
+	
 	/** Adds a plugin based command to the end of a specified menu.
 	* @param plugin			the plugin (e.g. "Inverter_", "Inverter_("arg")")
 	* @param menuCode		PLUGINS_MENU, IMPORT_MENU, SAVE_AS_MENU or HOT_KEYS
@@ -1225,6 +1229,7 @@ public class Menus {
 			key = "recent"+key;
 			prefs.put(key, Prefs.escapeBackSlashes(openRecentMenu.getItem(i).getLabel()));
 		}
+	    
 	}
 
 }
