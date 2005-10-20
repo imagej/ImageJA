@@ -58,7 +58,7 @@ public class Menus {
 	private static Hashtable pluginsTable;
 	
 	static Menu window, openRecentMenu;
-	int nPlugins, nMacros;
+	static int nPlugins, nMacros;
 	private static Hashtable shortcuts = new Hashtable();
 	private static Hashtable macroShortcuts;
 	private static Vector pluginsPrefs = new Vector(); // commands saved in IJ_Prefs
@@ -582,7 +582,7 @@ public class Menus {
 		return name;
     }
 
-	void addItemSorted(Menu menu, MenuItem item, int startingIndex) {
+	static void addItemSorted(Menu menu, MenuItem item, int startingIndex) {
 		String itemLabel = item.getLabel();
 		int count = menu.getItemCount();
 		boolean inserted = false;
@@ -748,6 +748,10 @@ public class Menus {
 	/** Installs a plugin in the Plugins menu using the class name,
 		with underscores replaced by spaces, as the command. */
 	void installUserPlugin(String className) {
+		installUserPlugin(className, false);
+	}
+
+	public static void installUserPlugin(String className, boolean force) {
 		Menu menu = pluginsMenu;
 		int slashIndex = className.indexOf('/');
 		if (slashIndex>0) {
@@ -766,12 +770,20 @@ public class Menus {
 		}
 		String command = className.replace('_',' ');
 		command.trim();
-		if (pluginsTable.get(command)!=null)  // duplicate command?
+
+		boolean itemExists = (pluginsTable.get(command)!=null);
+		pluginsTable.put(command, className);
+		if(force && itemExists)
+			return;
+
+		if (!force && itemExists)  // duplicate command?
 			command = command + " Plugin";
 		MenuItem item = new MenuItem(command);
-		menu.add(item);
+		if(force)
+			addItemSorted(menu,item,0);
+		else
+			menu.add(item);
 		item.addActionListener(ij);
-		pluginsTable.put(command, className);
 		nPlugins++;
 	}
 	

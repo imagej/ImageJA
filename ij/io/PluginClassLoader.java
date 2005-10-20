@@ -205,12 +205,29 @@ public class PluginClassLoader extends ClassLoader {
      *        resolveIt a boolean (should almost always be true)
      */
     public synchronized Class loadClass(String className, boolean resolveIt) throws ClassNotFoundException {
+		return loadClass(className, resolveIt, false);
+    }
+
+    /**
+     * Returns a Class from the path or JAR files. Classes are resolved if resolveIt is true. The cache is ignored if forceLoad is true.
+     * @param className a String class name without the .class extension.
+     * @param resolveIt a boolean (should almost always be true)
+     * @param forceLoad a boolean (should almost always be false)
+     */
+    public synchronized Class loadClass(String className, boolean resolveIt, boolean forceLoad) throws ClassNotFoundException {
 
         Class   result;
         byte[]  classBytes;
 
         // try the local cache of classes
         result = (Class)cache.get(className);
+	if(forceLoad && result!=null) {
+		PluginClassLoader loader = new PluginClassLoader(path);
+		result = loader.loadClass(className, resolveIt);
+		cache.put(className,result);
+		return result;
+	}
+
         if (result != null) {
             return result;
         }

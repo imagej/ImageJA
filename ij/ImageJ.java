@@ -113,7 +113,7 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		}
 		m.installStartupMacroSet();
-		String str = m.nMacros==1?" macro)":" macros)";
+		String str = (m.nMacros==1?" macro)":" macros)");
 		IJ.showStatus("Version "+VERSION + " ("+ m.nPlugins + " commands, " + m.nMacros + str);
 		// Toolbar.getInstance().addTool("Spare tool [Cf0fG22ccCf00E22cc]"); 
 	}

@@ -244,6 +244,17 @@ public class IJ {
 		imp.unlock();
 	}
         
+	public static ClassLoader getClassLoader() {
+		if (classLoader==null) {
+			String pluginsDir = Menus.getPlugInsPath();
+			if (pluginsDir==null)
+				return ClassLoader.getSystemClassLoader();
+			else
+				classLoader = new PluginClassLoader(pluginsDir);
+		}
+		return classLoader;
+	}
+
 	static Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
 		if (applet!=null)
 			return null;
