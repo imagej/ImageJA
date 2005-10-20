@@ -1,10 +1,12 @@
 package ij.gui;
+
+import ij.IJ;
 import java.awt.*;
 import java.awt.event.*;
 
 /** A modal dialog box that displays information. Based on the
 	InfoDialogclass from "Java in a Nutshell" by David Flanagan. */
-public class MessageDialog extends Dialog implements ActionListener {
+public class MessageDialog extends Dialog implements ActionListener, KeyListener {
     protected Button button;
     protected MultiLineLabel label;
 
@@ -28,6 +30,7 @@ public class MessageDialog extends Dialog implements ActionListener {
         	setResizable(false);
         pack();
 		GUI.center(this);
+	addKeyListener(this);
         show();
     }
     
@@ -37,4 +40,15 @@ public class MessageDialog extends Dialog implements ActionListener {
 		dispose();
 	}
 
+ 	public void keyPressed(KeyEvent e) {
+		int keyCode = e.getKeyCode();
+		IJ.setKeyDown(keyCode);
+		if (keyCode==KeyEvent.VK_ENTER) {
+			setVisible(false);
+			dispose();
+		}
+	}
+
+ 	public void keyTyped(KeyEvent e) { }
+ 	public void keyReleased(KeyEvent e) { }
 }
