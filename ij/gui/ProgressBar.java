@@ -18,7 +18,7 @@ public class ProgressBar extends Canvas {
 	private boolean showBar;
 	private boolean negativeProgress;
 	private static boolean macroMode;
-	
+
 	private Color barColor = Color.gray;
 	private Color fillColor = new Color(204,204,255);
 	private Color backgroundColor = ij.ImageJ.backgroundColor;
@@ -51,6 +51,8 @@ public class ProgressBar extends Canvas {
 		The bar is erased if <code>currentValue&gt;=finalValue</code>. 
 		Does nothing if the ImageJ window is not present. */
 	public void show(int currentValue, int finalValue) {
+                if (Interpreter.isBatchMode())
+                        return;
 		if (currentValue>=finalValue) {
 			showBar = false;
 			macroMode = false;
@@ -67,38 +69,32 @@ public class ProgressBar extends Canvas {
 		the time between the first and second calls to 'show'
 		is less than 30 milliseconds. It is erased when show
 		is passed a percent value >= 1.0. */
-	public void show(double percent) {
-		if (macroMode) {
-			if (percent>=1.0 && !Interpreter.isBatchMode() && !IJ.noGUI)
-				macroMode = false;
-			else
-				return;
-		}
-		count++;
-    	if (count==1) {
-			//ij.IJ.log("");
-			//ij.IJ.log("1st call");
-    		startTime = System.currentTimeMillis();
-    		showBar = false;
-    	}
-		else if (count==2) {
-			long time2 = System.currentTimeMillis();
-			//ij.IJ.log("2nd call: "+(time2 - startTime) + "ms");
-			if ((time2 - startTime)>=30)
-				showBar = true;
-		}
-		
-		negativeProgress = percent<this.percent;
-		this.percent = percent;
-    	if (percent>=1.0) {
-			//ij.IJ.log("total calls: "+count);
-			count = 0;
-			percent = 0.0;
-			showBar = false;
-			repaint();
-    	} else if (showBar)
-    		repaint();
-	}
+
+        public void show(double percent) {
+               if (Interpreter.isBatchMode())
+                       return;
+               count++;
+               if (count==1) {
+                       startTime = System.currentTimeMillis();
+                       showBar = false;
+               }
+               else if (count==2) {
+                       long time2 = System.currentTimeMillis();
+                       if ((time2 - startTime)>=30)
+                               showBar = true;
+               }
+
+               negativeProgress = percent<this.percent;
+               this.percent = percent;
+               if (percent>=1.0) {
+                       //ij.IJ.log("total calls: "+count);
+                       count = 0;
+                       percent = 0.0;
+                       showBar = false;
+                       repaint();
+               } else if (showBar)
+                       repaint();
+       }
 
 	public void update(Graphics g) {
 		paint(g);
