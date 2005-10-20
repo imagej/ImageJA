@@ -138,5 +138,11 @@ public class Macro {
 		return key;
 	}
 
+	public static void setLocalVariable(String key,String value) {
+		Interpreter i=Interpreter.getInstance();
+		if(i==null)
+			return;
+		i.setLocalVariable(key,value);
+	}
 }
 
