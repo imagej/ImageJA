@@ -20,15 +20,17 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int POINT = 7, CROSSHAIR = 7;
 	public static final int WAND = 8;
 	public static final int TEXT = 9;
-	public static final int SPARE1 = 10;
+	public static final int SPARE1 = 19;
 	public static final int MAGNIFIER = 11;
 	public static final int HAND = 12;
 	public static final int DROPPER = 13;
 	public static final int ANGLE = 14;
-	public static final int SPARE2 = 15;
+	public static final int SPARE2 = 19;
+
 	public static final int RETRACT = 16;
-	public static final int SPARE4 = 17;
-	public static final int SPARE5 = 18;
+	public static final int ROTATERIGHT = 17;
+	public static final int ROTATE180 = 18;
+
 	public static final int SPARE6 = 19;
 	public static final int SPARE7 = 20;
 	//public static final int NONE = 100;
@@ -215,6 +217,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case RETRACT:
 				g.drawRect(x+1, y+2, 14, 11);
 				return;
+
+			case ROTATERIGHT:
+				g.drawRect(x+1, y+2, 14, 11);
+				return;
+			case ROTATE180:
+				g.drawRect(x+1, y+2, 14, 11);
+				return;
+
+
 		}
 	}
 	
@@ -340,6 +351,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case RETRACT:
 				IJ.showStatus("Retract tool");
 				return;
+
+			case ROTATERIGHT:
+				IJ.showStatus("Rotate image 90 right");
+				return;
+
+			case ROTATE180:
+				IJ.showStatus("Rotate image 180 right");
+				return;
+
 			default:
 				IJ.showStatus("");
 				return;
@@ -380,9 +400,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private void setTool2(int tool) {
 		if (tool==current || tool<0 || tool>=NUM_TOOLS)
 			return;
-		if ((tool==SPARE1||(tool>=SPARE2&&tool<=SPARE7)) && names[tool]==null)
+		if ((tool==SPARE2||tool==SPARE7||tool==SPARE6||tool==SPARE1||(tool>=SPARE2&&tool<=SPARE7)) && names[tool]==null)
 			return;
 		current = tool;
+
 		down[current] = true;
 		down[previous] = false;
 		Graphics g = this.getGraphics();
@@ -500,6 +521,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					setTool2(mpPrevious);
 					break;
 				case LINE: case POLYLINE: case FREELINE:
+					
 					IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
 					break;
 				case POINT:
@@ -515,6 +537,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				case RETRACT:
 					IJ.doCommand("Retract Tool...");
 					break;
+				case ROTATERIGHT:
+					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
+					break;
+				case ROTATE180:
+					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
+					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
+
+					break;
+
 				default:
 			}
 		}

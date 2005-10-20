@@ -54,27 +54,27 @@ save14="Text...",ij.plugin.TextWriter
 selection01="Select All[a]",ij.plugin.Selection("all")
 selection02="Select None[A]",ij.plugin.Selection("none")
 selection03="Restore Selection[E]",ij.plugin.Selection("restore")
-selection04="Fit Spline",ij.plugin.Selection("spline")
-selection05="Fit Ellipse",ij.plugin.Selection("ellipse")
-selection06="Convex Hull",ij.plugin.Selection("hull")
-selection07="Create Mask",ij.plugin.Selection("mask")
+#selection04="Fit Spline",ij.plugin.Selection("spline")
+#selection05="Fit Ellipse",ij.plugin.Selection("ellipse")
+#selection06="Convex Hull",ij.plugin.Selection("hull")
+#selection07="Create Mask",ij.plugin.Selection("mask")
 selection08="Make Inverse",ij.plugin.Selection("inverse")
 selection09=-
 selection10="Rotate...",ij.plugin.Selection("rotate")
 selection11="Enlarge...",ij.plugin.Selection("enlarge")
-selection12="Make Band...",ij.plugin.Selection("band")
-selection13="Specify...",ij.plugin.filter.SpecifyROI
+#selection12="Make Band...",ij.plugin.Selection("band")
+#selection13="Specify...",ij.plugin.filter.SpecifyROI
 
 # Plugins installed in the Edit/Options submenu
 options01="Line Width...",ij.plugin.Options("line")
 options02="JPEG Quality...",ij.plugin.Options("quality")
 options03="Fonts...",ij.plugin.frame.Fonts
-options04="Profile Plot Options...",ij.plugin.filter.Profiler("set")
-options05="Point Tool...",ij.plugin.Options("point")
+#options04="Profile Plot Options...",ij.plugin.filter.Profiler("set")
+#options05="Point Tool...",ij.plugin.Options("point")
 options06="Colors...",ij.plugin.Colors
 options07="Image...",ij.plugin.Options("image")
 options08="Conversions...",ij.plugin.Options("conv")
-options09="Memory...",ij.plugin.Memory
+#options09="Memory...",ij.plugin.Memory
 options10="Misc...",ij.plugin.Options("misc")
 
 # Plugins installed in the Image/Adjust submenu
@@ -94,20 +94,20 @@ color05="Edit LUT...",ij.plugin.LUT_Editor
 color06="Color Picker...[K]",ij.plugin.ColorPicker
 
 # Plugins installed in the Image/Stacks submenu
-stacks01="Add Slice",ij.plugin.StackEditor("add")
-stacks02="Delete Slice",ij.plugin.StackEditor("delete")
-stacks03="Next Slice [>]",ij.plugin.Animator("next")
-stacks04="Previous Slice [<]",ij.plugin.Animator("previous")
-stacks05="Set Slice...",ij.plugin.Animator("set")
-stacks06=-
-stacks07="Convert Images to Stack",ij.plugin.StackEditor("tostack")
-stacks08="Convert Stack to Images",ij.plugin.StackEditor("toimages")
-stacks09="Make Montage...",ij.plugin.MontageMaker
-stacks10="Reslice [/]...",ij.plugin.Slicer
-stacks11="Z Project...",ij.plugin.ZProjector
-stacks12="3D Project...",ij.plugin.filter.Projector
-stacks13="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
-stacks14=-
+#stacks01="Add Slice",ij.plugin.StackEditor("add")
+#stacks02="Delete Slice",ij.plugin.StackEditor("delete")
+#stacks03="Next Slice [>]",ij.plugin.Animator("next")
+#stacks04="Previous Slice [<]",ij.plugin.Animator("previous")
+#stacks05="Set Slice...",ij.plugin.Animator("set")
+#stacks06=-
+#stacks07="Convert Images to Stack",ij.plugin.StackEditor("tostack")
+#stacks08="Convert Stack to Images",ij.plugin.StackEditor("toimages")
+#stacks09="Make Montage...",ij.plugin.MontageMaker
+#stacks10="Reslice [/]...",ij.plugin.Slicer
+#stacks11="Z Project...",ij.plugin.ZProjector
+#stacks12="3D Project...",ij.plugin.filter.Projector
+#stacks13="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
+#stacks14=-
 stacks15="Start Animation[\\]",ij.plugin.Animator("start")
 stacks16="Stop Animation",ij.plugin.Animator("stop")
 stacks17="Animation Options...",ij.plugin.Animator("options")
@@ -283,36 +283,9 @@ about02="MemoryMonitor...",ij.plugin.MemoryMonitor("about")
 # URL of directory containing the sample images
 # Used when Image/J is running as an application,
 # otherwise applet.getDocumentBase()+"/images" is used.
-images.location=http://rsb.info.nih.gov/ij/images/
+images.location=http://imageja.sf.net/demoImages/
 
 # Images installed in the Open Samples submenu
 # RawReader expects a string with "name width height nImages bitsPerPixel offset [white]"
-open01="2D Gel (38K)",ij.plugin.URLOpener("2D_Gel.jpg")
-open02="AuPbSn 40 (56K)",ij.plugin.URLOpener("AuPbSn40.jpg")
-open03="Bat Cochlea Volume (19K)",ij.plugin.URLOpener("bat-cochlea-volume.zip")
-open04="Blobs (25K)[B]",ij.plugin.URLOpener("blobs.gif")
-open05="Boats (356K)",ij.plugin.URLOpener("boats.gif")
-open06="Bridge (174K)",ij.plugin.URLOpener("bridge.gif")
-open07="Cell Colony (31K)",ij.plugin.URLOpener("Cell_Colony.jpg")
-open08="Ceretec Sagittals (12K)",ij.plugin.URLOpener("cer-sag.gif")
-open09="Clown (14K)",ij.plugin.URLOpener("clown.jpg")
-open10="Diatoms (60K)",ij.plugin.URLOpener("Diatoms.jpg")
-open11="Dot Blot (7K)",ij.plugin.URLOpener("Dot_Blot.jpg")
-open12="Embryos (42K)",ij.plugin.URLOpener("embryos.jpg")
-open13="Enhance Me (25K)",ij.plugin.URLOpener("enhance-me.gif")
-open14="Fibroblast Cell Nucleus (17K)",ij.plugin.URLOpener("Fibroblast_Cell_Nucleus.jpg")
-open15="Fluorescent Cells (58K)",ij.plugin.URLOpener("FluorescentCells.jpg")
-open16="Gel (105K)",ij.plugin.URLOpener("gel.gif")
-open17="Leaf (36K)",ij.plugin.URLOpener("leaf.jpg")
-open18="Lena (47K)",ij.plugin.URLOpener("lena.gif")
-open19="Line Graph (21K)",ij.plugin.URLOpener("LineGraph.jpg")
-open20="Mandrill (70K)",ij.plugin.URLOpener("baboon.jpg")
-open21="MRI Scan (48K)",ij.plugin.URLOpener("mri.gif")
-open22="MRI Stack (528K)",ij.plugin.URLOpener("mri-stack.zip")
-open23="M51 Galaxy (177K, 16-bits)",ij.plugin.URLOpener("m51.zip")
-open24="Particles (75K)",ij.plugin.URLOpener("particles.gif")
-open25="PET Scan (11K)",ij.plugin.URLOpener("PET_Scan.gif")
-open26="Scala Media Stack (48K)",ij.plugin.URLOpener("scala-media.zip")
-open27="TEM Filter (112K)",ij.plugin.URLOpener("TEM_filter_sample.jpg")
-open28="Tree Rings (48K)",ij.plugin.URLOpener("Tree_Rings.jpg")
+open01="Steve",ij.plugin.URLOpener("steve.jpg")
 
