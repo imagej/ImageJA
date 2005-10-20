@@ -128,10 +128,8 @@ public class Macro {
 	}
 	
 	public static String trimKey(String key) {
-		int index = key.indexOf(" ");
-		if (index>-1)
-			key = key.substring(0,index);
-		index = key.indexOf(":");
+		key = key.replace(' ','_');
+		int index = key.indexOf(":");
 		if (index>-1)
 			key = key.substring(0,index);
 		key = key.toLowerCase(Locale.US);
