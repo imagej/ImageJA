@@ -22,6 +22,11 @@ public class WindowManager {
 
 	/** Makes the specified image active. */
 	public synchronized static void setCurrentWindow(ImageWindow win) {
+		setCurrentWindow(win,false);
+	}
+
+	/** Makes the specified image active. */
+	public synchronized static void setCurrentWindow(ImageWindow win,boolean suppressRecording) {
 		if (win==null || win.isClosed() || win.getImagePlus()==null) // deadlock-"wait to lock"
 			return;
 		setWindow(win);
@@ -43,6 +48,8 @@ public class WindowManager {
 		}
 		Undo.reset();
 		currentWindow = win;
+		if (!suppressRecording && Recorder.record)
+			Recorder.record("selectWindow", win.getTitle());
 		Menus.updateMenus();
 	}
 	
@@ -184,7 +191,7 @@ public class WindowManager {
 	private static void addImageWindow(ImageWindow win) {
 		imageList.addElement(win);
         Menus.addWindowMenuItem(win.getImagePlus());
-        setCurrentWindow(win);
+        setCurrentWindow(win,true);
     }
 
 	/** Removes the specified window from the Window menu. */
@@ -328,8 +335,6 @@ public class WindowManager {
 					MenuItem mi = Menus.window.getItem(j);
 					((CheckboxMenuItem)mi).setState((j-start)==index);						
 				}
-				if (Recorder.record)
-					Recorder.record("selectWindow", title);
 				break;
 			}
 		}
