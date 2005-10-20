@@ -795,6 +795,10 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		IJ.setKeyDown(keyCode);
 		if (keyCode==KeyEvent.VK_ENTER && textArea1==null)
 			closeDialog();
+		if (keyCode==KeyEvent.VK_ESCAPE && textArea1==null) {
+			wasCanceled = true;
+			closeDialog();
+		}
 	}
 
 	public void keyReleased(KeyEvent e) {
