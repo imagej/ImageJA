@@ -70,7 +70,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		down[0] = true;
 		setForeground(foregroundColor);
 		setBackground(gray);
-		//setBackground(Color.red);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		instance = this;
@@ -216,15 +215,22 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 
 			case RETRACT:
 				g.drawRect(x+1, y+2, 14, 11);
+				xOffset = x+1; yOffset = y+2;
 				return;
 
 			case ROTATERIGHT:
-				g.drawRect(x+1, y+2, 14, 11);
-				return;
-			case ROTATE180:
-				g.drawRect(x+1, y+2, 14, 11);
+				xOffset = x+1; yOffset = y+2;
+				m(0,6); d(15,6); 
+				m(8,2); d(15,6);
+				m(8,10); d(15,6);
 				return;
 
+			case ROTATE180:
+				xOffset = x+1; yOffset = y+2;
+				m(0,6); d(15,6); 
+				m(8,2); d(15,6);
+				m(8,10); d(15,6);
+				return;
 
 		}
 	}
