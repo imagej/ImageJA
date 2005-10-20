@@ -19,7 +19,7 @@ public class MacroRunner implements Runnable {
 		this.macro = macro;
 		thread = new Thread(this, "Macro$"); 
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
-		thread.start();
+		start();
 	}
 
 	/** Create a new object that interprets macro source in a separate thread. */
@@ -46,7 +46,7 @@ public class MacroRunner implements Runnable {
 		}
 		thread = new Thread(this, "Macro$"); 
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
-		thread.start();
+		start();
 	}
 
 	/** Create a new object that runs a tokenized macro in a separate thread. */
@@ -56,7 +56,14 @@ public class MacroRunner implements Runnable {
 		this.name = name;
 		thread = new Thread(this, name+"_Macro$");
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
-		thread.start();
+		start();
+	}
+
+	void start() {
+		if(IJ.noGUI)
+			thread.run();
+		else
+			thread.start();
 	}
 
 	public void run() {

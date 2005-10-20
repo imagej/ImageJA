@@ -183,7 +183,7 @@ public class Executer implements Runnable {
 	
 	void close(ImagePlus imp) {
 		Frame frame = WindowManager.getFrontWindow();
-		if (frame==null || (Interpreter.isBatchMode() && frame instanceof ImageWindow))
+		if (frame==null || ((Interpreter.isBatchMode() || IJ.noGUI) && frame instanceof ImageWindow))
 			closeImage(imp);
 		else if (frame instanceof PlugInFrame)
 			((PlugInFrame)frame).close();

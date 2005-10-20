@@ -102,7 +102,8 @@ public class ImageJ extends Frame implements ActionListener,
 		setLocation(loc.x, loc.y);
 		pack();
 		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-		show();
+		if(!IJ.noGUI)
+			show();
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null)
@@ -151,7 +152,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 	
 	void showStatus(String s) {
-        statusLine.setText(s);
+	        statusLine.setText(s);
 	}
 
 	public ProgressBar getProgressBar() {
@@ -414,6 +415,18 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public static void main(String args[]) {
+		for(int i=0;i<args.length;i++)
+			System.err.println("arg "+i+": "+args[i]);
+		try {
+			if(args!=null && args[0].equals("-nogui")) {
+				IJ.noGUI = true;
+				String[] newArgs = new String[args.length-1];
+				System.arraycopy(args,1,newArgs,0,args.length-1);
+				args = newArgs;
+			}
+		} catch (Exception e) {
+			System.out.println("No command line arguments.");
+		}
 		ImageJ ij = IJ.getInstance();    	
 		if (ij==null || (ij!=null && !ij.isShowing())) {
 			if (IJ.isMacOSX()) {
@@ -439,10 +452,12 @@ public class ImageJ extends Frame implements ActionListener,
 					Opener opener = new Opener();
 					ImagePlus imp = opener.openImage(args[i]);
 					if (imp!=null)
-					imp.show();
+						imp.show();
 				}
 			}
 		}
+		if(IJ.noGUI)
+			System.exit(0);
 	}
 
 } //class ImageJ

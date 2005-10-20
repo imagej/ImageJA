@@ -2,10 +2,12 @@ package ij.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.io.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
 import ij.util.Tools;
+import ij.macro.Interpreter;
 
 /**
  * This class is a customizable modal dialog box. Here is an example
@@ -659,6 +661,40 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		sfIndex = 0;
 		cbIndex = 0;
 		choiceIndex = 0;
+		if(IJ.noGUI && !Interpreter.isBatchMode()) {
+			for(int i=0;i<getComponentCount();i++) {
+				Component c = getComponent(i);
+				String message = c.getName()+": ";
+				if(c instanceof Label) {
+					System.out.print(((Label)c).getText());
+				} else if(c instanceof Checkbox) {
+					Checkbox check = (Checkbox)c;
+					System.out.print(check.getLabel()+" (y/n)?");
+					try {
+						while(true) {
+							BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+							int response = in.read();
+							if(response=='y' || response=='n') {
+								check.setState(response=='y');
+								break;
+							}
+							System.out.print("? ("+response+") ");
+						}
+					} catch(Exception e) {}
+				} else if(c instanceof TextField) {
+					TextField text = (TextField)c;
+					System.out.print(" ?");
+					BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+					try {
+						text.setText(in.readLine());
+					} catch(Exception e) {}
+				} else {
+					message += "<unknown ("+c.getClass().toString()+")>";
+					System.out.println(message);
+				}
+			}
+			return;
+		}
 		if (macro) {
 			//IJ.write("showDialog: "+macroOptions);
 			dispose();

@@ -1,4 +1,5 @@
 package ij.gui;
+import ij.IJ;
 import ij.macro.Interpreter;
 
 import java.awt.*;
@@ -56,7 +57,8 @@ public class ProgressBar extends Canvas {
 		} else {
 			percent = Math.min((currentValue+1)/(double)finalValue, 1.0);
 			showBar = true;
-			if (Interpreter.isBatchMode()) macroMode = true;
+			if (Interpreter.isBatchMode() || IJ.noGUI)
+				macroMode = true;
 		}
 		repaint();
 	}
@@ -67,7 +69,7 @@ public class ProgressBar extends Canvas {
 		is passed a percent value >= 1.0. */
 	public void show(double percent) {
 		if (macroMode) {
-			if (percent>=1.0 && !Interpreter.isBatchMode())
+			if (percent>=1.0 && !Interpreter.isBatchMode() && !IJ.noGUI)
 				macroMode = false;
 			else
 				return;

@@ -594,7 +594,7 @@ public class Functions implements MacroConstants, Measurements {
 	ImagePlus getImage() {
 		if (defaultImp==null)
 			defaultImp = IJ.getImage();
-		if (defaultImp.getWindow()==null && IJ.getInstance()!=null && !interp.isBatchMode())
+		if (defaultImp.getWindow()==null && IJ.getInstance()!=null && !interp.isBatchMode() && !IJ.noGUI)
 			throw new RuntimeException(Macro.MACRO_CANCELED);			
 		return defaultImp;
 	}
@@ -1901,7 +1901,7 @@ public class Functions implements MacroConstants, Measurements {
 	}
 	
 	void selectImage(String title) {
-		if (Interpreter.isBatchMode()) {
+		if (Interpreter.isBatchMode() || IJ.noGUI) {
 			if (Interpreter.imageTable!=null) {
 				for (Enumeration en=Interpreter.imageTable.elements(); en.hasMoreElements();) {
 					ImagePlus imp = (ImagePlus)en.nextElement();
@@ -2388,7 +2388,7 @@ public class Functions implements MacroConstants, Measurements {
 			imp.setProperty("Info", metadata);
 		else {
 			imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
-			if (!Interpreter.isBatchMode())
+			if (!Interpreter.isBatchMode() && !IJ.noGUI)
 				imp.repaintWindow();
 		}
 	}
