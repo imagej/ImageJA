@@ -21,8 +21,7 @@
   <target name="build" depends="compile" description="Build ij.jar.">
     <!-- Copy needed files into the build directory. -->
     <copy file="IJ_Props.txt" todir="build" />
-    <copy file="images/microscope.gif" tofile="build/microscope.gif" />
-    <copy file="images/about.jpg" tofile="build/about.jpg" />
+    <copy file="images/icon.gif" tofile="build/icon.gif" />
     <copy file="images/aboutja.jpg" tofile="build/aboutja.jpg" />
     <copy todir="build/macros"><fileset dir="macros"/></copy>
     <!-- Build ij.jar. -->
