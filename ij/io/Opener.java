@@ -48,7 +48,8 @@ public class Opener {
 			String path = directory+name;
 			error = false;
 			open(path);
-			if (!error) Menus.addOpenRecentItem(path);
+			if (!error)
+				record(path);
 		}
 	}
 
@@ -143,6 +144,8 @@ public class Opener {
 					break;
 			}
 		}
+		if(!error)
+			record(path);
 	}
 
 	/** Attempts to open the specified file as a tiff, bmp, dicom, fits,
@@ -672,4 +675,9 @@ public class Opener {
 		silentMode = mode;
 	}
 
+	public void record(String path) {
+		Menus.addOpenRecentItem(path);
+		if(Recorder.record)
+			Recorder.record("open",path);
+	}
 }

@@ -221,9 +221,7 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 	public static void saveCommand() {
 		if (commandName!=null) {
 			if (commandOptions!=null) {
-				if (commandName.equals("Open..."))
-					textArea.append("open(\""+strip(commandOptions)+"\");\n");
-				else if (isSaveAs()) {
+				if (isSaveAs()) {
 							if (commandName.endsWith("..."))
 									commandName= commandName.substring(0, commandName.length()-3);
 							String path = strip(commandOptions);
