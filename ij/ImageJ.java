@@ -120,7 +120,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
     	
 	void setIcon() {
-		URL url = this.getClass().getResource("/microscope.gif"); 
+		URL url = this.getClass().getResource("/icon.gif"); 
 		if (url==null)
 			return;
 		Image img = null;
