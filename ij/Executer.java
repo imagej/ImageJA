@@ -83,6 +83,7 @@ public class Executer implements Runnable {
 				new TextWindow("Exception", s, 350, 250);
 				if (ij==null) IJ.wait(10000);
 			}
+			IJ.abort();
 		}
 	}
 	
