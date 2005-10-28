@@ -495,8 +495,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				if (Recorder.record && npoints>0)
 					Recorder.record("doWand", ox, oy);
 				break;
-			case Toolbar.SPARE1: case Toolbar.SPARE2:
-			case Toolbar.SPARE4: case Toolbar.SPARE5: case Toolbar.SPARE6:
+			//case Toolbar.SPARE1: case Toolbar.SPARE2:
+			//case Toolbar.SPARE4: case Toolbar.SPARE5: case Toolbar.SPARE6:
 			case Toolbar.SPARE7:
 				Toolbar.getInstance().runMacroTool(toolID);
 				break;
