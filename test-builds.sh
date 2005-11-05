@@ -1,7 +1,12 @@
 #!/bin/bash
 
 function readLink () {
-	ls -l "$@" | sed "s/^.*-> //"
+	x=$(ls -l "$@" 2>/dev/null | sed "s/^.*-> //")
+	if [ -z "$x" ]; then
+		echo "$1"
+	else
+		echo "$x"
+	fi
 }
 
 if [ -z "$1" ]; then
