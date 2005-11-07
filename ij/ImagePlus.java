@@ -586,17 +586,16 @@ public class ImagePlus implements ImageObserver, Measurements {
 
 	/** Returns an ImageStatistics object generated using the
 		specified measurement options, histogram bin count and histogram range. 
-		Note: except for float images, the number of bins
-		is currently fixed at 256 and the histogram range must be
-		the same as the image range.
+		Note: for 8-bit and RGB images, the number of bins
+		is fixed at 256 and the histogram range is always 0-255.
 	*/
 	public ImageStatistics getStatistics(int mOptions, int nBins, double histMin, double histMax) {
 		setupProcessor();
 		ip.setRoi(roi);
 		ip.setHistogramSize(nBins);
 		Calibration cal = getCalibration();
-		if (cal.isSigned16Bit() && !(histMin==0.0&&histMax==0.0))
-			{histMin+=32768; histMax+=32768;}
+		if (getType()==GRAY16&& !(histMin==0.0&&histMax==0.0))
+			{histMin=cal.getRawValue(histMin); histMax=cal.getRawValue(histMax);}
 		ip.setHistogramRange(histMin, histMax);
 		ImageStatistics stats = ImageStatistics.getStatistics(ip, mOptions, cal);
 		ip.setHistogramSize(256);

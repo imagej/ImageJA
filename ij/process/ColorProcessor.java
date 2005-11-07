@@ -637,6 +637,12 @@ public class ColorProcessor extends ImageProcessor {
 		return new ColorProcessor(roiWidth, roiHeight, pixels2);
 	}
 	
+	/** Returns a duplicate of this image. */ 
+	public synchronized ImageProcessor duplicate() { 
+		int[] pixels2 = new int[width*height]; 
+		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
+		return new ColorProcessor(width, height, pixels2); 
+	} 
 
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). */
 	public int getInterpolatedRGBPixel(double x, double y) {

@@ -169,9 +169,11 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
     private void saveLabel(Component component, String label) {
     	if (labels==null)
     		labels = new Hashtable();
-    	if (label.charAt(0)==' ')
-    		label = label.trim();
-		labels.put(component, label);
+    	if (label.length()>0) {
+    		if (label.charAt(0)==' ')
+    			label = label.trim();
+			labels.put(component, label);
+		}
     }
     
 	/** Adds an 8 column text field.
@@ -831,9 +833,10 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		IJ.setKeyDown(keyCode);
 		if (keyCode==KeyEvent.VK_ENTER && textArea1==null)
 			closeDialog();
-		if (keyCode==KeyEvent.VK_ESCAPE && textArea1==null) {
+		else if (keyCode==KeyEvent.VK_ESCAPE) {
 			wasCanceled = true;
 			closeDialog();
+			IJ.resetEscape();
 		}
 	}
 

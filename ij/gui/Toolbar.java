@@ -34,6 +34,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int SPARE6 = 19;
 	public static final int SPARE7 = 20;
 	//public static final int NONE = 100;
+	
+	public static final int DOUBLE_CLICK_THRESHOLD = 650;
 
 	private static final int NUM_TOOLS = 21;
 	private static final int SIZE = 22;
@@ -315,7 +317,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				IJ.showStatus("Rectangular selections");
 				return;
 			case OVAL:
-				IJ.showStatus("Oval selections");
+				IJ.showStatus("Elliptical selections");
 				return;
 			case POLYGON:
 				IJ.showStatus("Polygon selections");
@@ -495,7 +497,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (x>i*SIZE && x<i*SIZE+SIZE)
 				newTool = toolID(i);
 		}
-		boolean doubleClick = newTool==current && (System.currentTimeMillis()-mouseDownTime)<=500;
+		boolean doubleClick = newTool==current && (System.currentTimeMillis()-mouseDownTime)<=DOUBLE_CLICK_THRESHOLD;
  		mouseDownTime = System.currentTimeMillis();
 		if (!doubleClick) {
 			if (isMacroTool(newTool)) {

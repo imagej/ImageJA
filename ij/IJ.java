@@ -8,6 +8,7 @@ import ij.plugin.filter.*;
 import ij.util.Tools;
 import ij.plugin.frame.Recorder;
 import ij.macro.Interpreter;
+import ij.measure.Calibration;
 import java.awt.event.*;
 import java.text.*;
 import java.util.Locale;	
@@ -510,7 +511,7 @@ public class IJ {
 	/**	Displays a message in a dialog box with the specified title.
 		If a macro is running, it is aborted. Writes to the Java  
 		console if ImageJ is not present. */
-	public static void error(String title, String msg) {
+	public static synchronized void error(String title, String msg) {
 		showMessage(title, msg);
 		Macro.abort();
 	}
@@ -828,8 +829,11 @@ public class IJ {
 	/** Sets the minimum and maximum displayed pixel values. */
 	public static void setMinAndMax(double min, double max) {
 		ImagePlus img = getImage();
-		if (img.getCalibration().isSigned16Bit())
-			{min+=32768; max+=32768;}
+		if (img.getBitDepth()==16) {
+			Calibration cal = img.getCalibration();
+			min = cal.getRawValue(min); 
+			max = cal.getRawValue(max); 
+		}
 		img.getProcessor().setMinAndMax(min, max);
 		img.updateAndDraw();
 	}
@@ -862,19 +866,24 @@ public class IJ {
 				mode = ImageProcessor.NO_LUT_UPDATE;
 		}
 		ImagePlus img = getImage();
-		if (img.getCalibration().isSigned16Bit()) {
-			lowerThreshold += 32768.0;
-			upperThreshold += 32768.0;
+		if (img.getBitDepth()==16) {
+			Calibration cal = img.getCalibration();
+			lowerThreshold = cal.getRawValue(lowerThreshold); 
+			upperThreshold = cal.getRawValue(upperThreshold); 
 		}
 		img.getProcessor().setThreshold(lowerThreshold, upperThreshold, mode);
-		if (mode != ImageProcessor.NO_LUT_UPDATE)
+		if (mode != ImageProcessor.NO_LUT_UPDATE) {
+			img.getProcessor().setLutAnimation(true);
 			img.updateAndDraw();
+		}
 	}
 
 	/** Disables thresholding. */
 	public static void resetThreshold() {
 		ImagePlus img = getImage();
-		img.getProcessor().resetThreshold();
+		ImageProcessor ip = img.getProcessor();
+		ip.resetThreshold();
+		ip.setLutAnimation(true);
 		img.updateAndDraw();
 	}
 	

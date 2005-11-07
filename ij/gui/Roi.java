@@ -198,8 +198,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected void grow(int xNew, int yNew) {
 		if (clipboard!=null)
 			return;
-		if (xNew < 0) xNew = 0;
-		if (yNew < 0) yNew = 0;
+		if (type==RECTANGLE) {
+			if (xNew < 0) xNew = 0;
+			if (yNew < 0) yNew = 0;
+		}
 		if (constrain) {
 			// constrain selection to be square
 			int dx, dy, d;
@@ -223,10 +225,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			height = Math.abs(yNew - startY);
 			x = (xNew>=startX)?startX:startX - width;
 			y = (yNew>=startY)?startY:startY - height;
-			if ((x+width) > xMax)
-				width = xMax-x;
-			if ((y+height) > yMax)
-				height = yMax-y;
+			if (type==RECTANGLE) {
+				if ((x+width) > xMax) width = xMax-x;
+				if ((y+height) > yMax) height = yMax-y;
+			}
 		}
 		updateClipRect();
 		imp.draw(clipX, clipY, clipWidth, clipHeight);

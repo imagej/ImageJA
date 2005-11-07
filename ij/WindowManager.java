@@ -16,6 +16,7 @@ public class WindowManager {
 	private static ImageWindow currentWindow;			 // active image window
 	private static Frame frontWindow;
 	private static ImagePlus tempCurrentImage;
+	public static boolean checkForDuplicateName;
 	
 	private WindowManager() {
 	}
@@ -189,10 +190,54 @@ public class WindowManager {
     }
 
 	private static void addImageWindow(ImageWindow win) {
+		ImagePlus imp = win.getImagePlus();
+		if (imp==null) return;
+		checkForDuplicateName(imp);
 		imageList.addElement(win);
-        Menus.addWindowMenuItem(win.getImagePlus());
-        setCurrentWindow(win,true);
-    }
+		Menus.addWindowMenuItem(win.getImagePlus());
+		setCurrentWindow(win,true);
+	}
+
+	static void checkForDuplicateName(ImagePlus imp) {
+		if (checkForDuplicateName) {
+			String name = imp.getTitle();
+			if (isDuplicateName(name))
+				imp.setTitle(getUniqueName(name));
+		} 
+		checkForDuplicateName = false;
+	}
+
+	static boolean isDuplicateName(String name) {
+		int n = imageList.size();
+		for (int i=0; i<n; i++) {
+			ImageWindow win = (ImageWindow)imageList.elementAt(i);
+			String name2 = win.getImagePlus().getTitle();
+			if (name.equals(name2))
+				return true;
+		}
+		return false;
+	}
+
+	static String getUniqueName(String name) {
+		String name2 = name;
+		String extension = "";
+		int len = name2.length();
+		int lastDot = name2.lastIndexOf(".");
+		if (lastDot!=-1 && len-lastDot<6 && lastDot!=len-1) {
+			extension = name2.substring(lastDot, len);
+			name2 = name2.substring(0, lastDot);
+		}
+		int lastDash = name2.lastIndexOf("-");
+		if (lastDash!=-1 && name2.length()-lastDash<4)
+			name2 = name2.substring(0, lastDash);
+		for (int i=1; i<=99; i++) {
+			String name3 = name2+"-"+ i + extension;
+			//IJ.log(i+" "+name3);
+			if (!isDuplicateName(name3))
+				return name3;
+		}
+		return name;
+	}
 
 	/** Removes the specified window from the Window menu. */
 	public synchronized static void removeWindow(Frame win) {

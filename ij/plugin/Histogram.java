@@ -36,8 +36,12 @@ public class Histogram implements PlugIn, TextListener {
  			if (flags==PlugInFilter.DONE) return;
 			stackHistogram = flags==PlugInFilter.DOES_STACKS;
  			nBins = 256;
- 			xMin = 0.0;
- 			xMax = 0.0;
+			if (stackHistogram && (bitDepth==8||bitDepth==24)) {
+				xMin = 0.0;
+				xMax = 256.0;
+				useImageMinAndMax = false;
+			} else
+				useImageMinAndMax = true;
  			yMax = "Auto";
  		}
  		ImageStatistics stats = null;

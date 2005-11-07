@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.URL;
+import java.net.*;
 import java.awt.image.*;
 import ij.gui.*;
 import ij.process.*;
@@ -28,10 +28,12 @@ offer your changes to me so I can possibly add them to the "official" version.
 public class ImageJ extends Frame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener {
 
-	public static final String VERSION = "1.35d";
+	public static final String VERSION = "1.35g";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
+	/** Address of socket where Image accepts commands */
+	public static final int PORT = 57294;
 
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static final String RESULTS_X="results.x",RESULTS_Y="results.y",
@@ -108,8 +110,13 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.error(err1);
 		if (err2!=null)
 			IJ.error(err2);
-		if (IJ.isMacintosh())
-			IJ.runPlugIn("QuitHandler", "");
+		if (IJ.isMacintosh()) {
+			Object qh = null;
+			if (IJ.isJava14())
+				qh = IJ.runPlugIn("MacAdapter", "");
+			if (qh==null)
+				IJ.runPlugIn("QuitHandler", "");
+		}
 		if (IJ.isJava2() && applet==null) {
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		}
@@ -415,8 +422,6 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public static void main(String args[]) {
-		for(int i=0;i<args.length;i++)
-			System.err.println("arg "+i+": "+args[i]);
 		try {
 			if(args!=null && args[0].equals("-nogui")) {
 				IJ.noGUI = true;
@@ -426,6 +431,11 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		} catch (Exception e) {
 			System.out.println("No command line arguments.");
+		}
+		if (!IJ.isMacintosh() && args!=null && args.length>0) {
+			// If ImageJ is already running then isRunning()
+			// will pass the arguments to it using sockets.
+			if (isRunning(args)) return;
 		}
 		ImageJ ij = IJ.getInstance();    	
 		if (ij==null || (ij!=null && !ij.isShowing())) {
@@ -437,27 +447,44 @@ public class ImageJ extends Frame implements ActionListener,
 				ij = new ImageJ(null);
 			ij.exitWhenQuiting = true;
 		}
-		boolean macroStarted = false;
+		int macros = 0;
 		if (args!=null) {
 			for (int i=0; i<args.length; i++) {
-				//IJ.log(i+" "+args[i]);
-				if (args[i].endsWith(".txt")) {
-					if (macroStarted)
-						new Opener().open(args[i]);
-					else {
-       					new ij.macro.MacroRunner(new File(args[i]));
-       					macroStarted = true;
-       				}
-				} else {
-					Opener opener = new Opener();
-					ImagePlus imp = opener.openImage(args[i]);
-					if (imp!=null)
-						imp.show();
-				}
+				if (macros==0 && (args[i].endsWith(".ijm") || args[i].endsWith(".txt"))) {
+					IJ.runMacroFile(args[i]);
+					macros++;
+				} else
+					IJ.open(args[i]);
 			}
 		}
 		if(IJ.noGUI)
 			System.exit(0);
+	}
+       
+	static boolean isRunning(String args[]) {
+		int macros = 0;
+		try {
+			for (int i=0; i<args.length; i++) {
+				String cmd = args[i];
+				if (macros==0 && cmd.endsWith(".ijm")) {
+					cmd = "macro " + cmd;
+					macros++;
+				} else
+					cmd = "open " + cmd;
+				sendArgument(cmd);
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
+	static void sendArgument(String arg) throws IOException {
+		Socket socket = new Socket("localhost", PORT);
+		PrintWriter out = new PrintWriter (new OutputStreamWriter(socket.getOutputStream()));
+		out.println(arg);
+		out.close();
+		socket.close();
 	}
 
 } //class ImageJ

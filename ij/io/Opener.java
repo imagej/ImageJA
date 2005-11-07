@@ -31,6 +31,9 @@ public class Opener {
 	private boolean error;
 	private boolean isRGB48;
 	private boolean silentMode;
+	private String omDirectory;
+	private File[] omFiles;
+
 
 	public Opener() {
 	}
@@ -58,30 +61,38 @@ public class Opener {
 		the user. Displays error messages if one or more of the selected 
 		files is not in one of the supported formats. This is the method
 		that ImageJ's File/Open command uses to open files if
-		"Use JFileChooser" is checked in EditOptions/Miscellaneous. */
+		"Open/Save Using JFileChooser" is checked in EditOptions/Misc. */
 	public void openMultiple() {
 		if (!IJ.isJava2()) return;
 		Java2.setSystemLookAndFeel();
-		JFileChooser fc = new JFileChooser();
-		fc.setMultiSelectionEnabled(true);
-		File dir = null;
-		String sdir = OpenDialog.getDefaultDirectory();
-		if (sdir!=null)
-			dir = new File(sdir);
-		if (dir!=null)
-			fc.setCurrentDirectory(dir);
-		int returnVal = fc.showOpenDialog(IJ.getInstance());
-		if (returnVal!=JFileChooser.APPROVE_OPTION)
-			return;
-		File[] files = fc.getSelectedFiles();
-		if (files.length==0) { // getSelectedFiles does not work on some JVMs
-			files = new File[1];
-			files[0] = fc.getSelectedFile();
-		}
-		String directory = fc.getCurrentDirectory().getPath()+File.separator;
-		OpenDialog.setDefaultDirectory(directory);
-		for (int i=0; i<files.length; i++) {
-			String path = directory + files[i].getName();
+		// run JFileChooser in a separate thread to avoid possible thread deadlocks
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					JFileChooser fc = new JFileChooser();
+					fc.setMultiSelectionEnabled(true);
+					File dir = null;
+					String sdir = OpenDialog.getDefaultDirectory();
+					if (sdir!=null)
+						dir = new File(sdir);
+					if (dir!=null)
+						fc.setCurrentDirectory(dir);
+					int returnVal = fc.showOpenDialog(IJ.getInstance());
+					if (returnVal!=JFileChooser.APPROVE_OPTION)
+						return;
+					omFiles = fc.getSelectedFiles();
+					if (omFiles.length==0) { // getSelectedFiles does not work on some JVMs
+						omFiles = new File[1];
+						omFiles[0] = fc.getSelectedFile();
+					}
+					omDirectory = fc.getCurrentDirectory().getPath()+File.separator;
+				}
+			});
+		} catch (Exception e) {}
+		if (omDirectory==null) return;
+		OpenDialog.setDefaultDirectory(omDirectory);
+		for (int i=0; i<omFiles.length; i++) {
+			String path = omDirectory + omFiles[i].getName();
 			open(path);
 			if (i==0 && Recorder.record)
 				Recorder.recordPath("open", path);
@@ -98,6 +109,7 @@ public class Opener {
 		long start = System.currentTimeMillis();
 		ImagePlus imp = openImage(path);
 		if (imp!=null) {
+			WindowManager.checkForDuplicateName = true;
 			if (isRGB48)
 				openRGB48(imp);
 			else

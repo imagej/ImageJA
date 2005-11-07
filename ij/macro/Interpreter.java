@@ -682,6 +682,8 @@ public class Interpreter implements MacroConstants {
 			{putTokenBack(); getFactor(); return;}
 		int index = getIndex();
 		int expressionType = getExpressionType();
+		if (expressionType==Variable.ARRAY) 
+			error("Arrays of arrays not supported");
 		getToken();
 		int op = token;
 		if (!(op=='='||op==PLUS_EQUAL||op==MINUS_EQUAL||op==MUL_EQUAL||op==DIV_EQUAL))

@@ -336,8 +336,8 @@ public class TiffDecoder {
 						fi.stripOffsets = new int[count];
 						for (int c=0; c<count; c++) {
 							fi.stripOffsets[c] = getInt();
-							if (c > 0 && fi.stripOffsets[c] < fi.stripOffsets[c - 1])
-								error("Images not in order");
+							if (c > 0 && fi.stripOffsets[c] < fi.stripOffsets[c - 1] && fi.stripOffsets[c]!=0)
+								error("Strip offsets are not in order");
 						}
 						in.seek(saveLoc);
 					}

@@ -30,7 +30,8 @@ public class FileSaver {
 	public boolean save() {
 		FileInfo ofi = null;
 		if (imp!=null) ofi = imp.getOriginalFileInfo();
-		if (ofi!=null && ofi.fileFormat==FileInfo.TIFF && imp.getStackSize()==1 && ofi.nImages==1 && (ofi.url==null||ofi.url.equals(""))) {
+		boolean validName = ofi!=null && imp.getTitle().equals(ofi.fileName);
+		if (validName && ofi.fileFormat==FileInfo.TIFF && imp.getStackSize()==1 && ofi.nImages==1 && (ofi.url==null||ofi.url.equals(""))) {
             name = imp.getTitle();
             directory = ofi.directory;
 			String path = directory+name;

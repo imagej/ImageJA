@@ -383,7 +383,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				rt.addValue(ResultsTable.PERIMETER,perimeter);
 			if ((measurements&CIRCULARITY)!=0) {
 				double circularity = perimeter==0.0?0.0:4.0*Math.PI*(stats.area/(perimeter*perimeter));
-				if (circularity>1.)
+				if (circularity>1.0)
 					circularity = -1.0;
 				rt.addValue(ResultsTable.CIRCULARITY, circularity);
 			}

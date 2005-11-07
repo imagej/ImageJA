@@ -15,7 +15,9 @@ import javax.swing.filechooser.*;
  
  	/** Display a dialog using the specified title. */
  	public DirectoryChooser(String title) {
- 		if (IJ.isJava2())
+ 		if (IJ.isMacOSX() && IJ.isJava14())
+			getDirectoryUsingFileDialog(title);
+ 		else if (IJ.isJava2())
  			getDirectoryUsingJFileChooser(title);
  		else {
 			OpenDialog od = new OpenDialog(title, null);
@@ -23,6 +25,7 @@ import javax.swing.filechooser.*;
 		}
  	}
  	
+	// runs JFileChooser in a separate thread to avoid possible thread deadlocks
  	void getDirectoryUsingJFileChooser(final String title) {
 		Java2.setSystemLookAndFeel();
 		try {
@@ -48,6 +51,17 @@ import javax.swing.filechooser.*;
 		} catch (Exception e) {}
 	}
  
+ 	// On Mac OS X, we can select directories using the native file open dialog
+ 	void getDirectoryUsingFileDialog(String title) {
+ 		boolean saveUseJFC = Prefs.useJFileChooser;
+ 		Prefs.useJFileChooser = false;
+		System.setProperty("apple.awt.fileDialogForDirectories", "true");
+		OpenDialog od = new OpenDialog(title, null);
+		directory = od.getDirectory() + od.getFileName() + "/";
+		System.setProperty("apple.awt.fileDialogForDirectories", "false");
+ 		Prefs.useJFileChooser = saveUseJFC;
+	}
+
  	/** Returns the directory selected by the user. */
  	public String getDirectory() {
  		//IJ.log("getDirectory: "+directory);

@@ -89,12 +89,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				imageUpdated = false;
 				imp.updateImage();
 			}
-			if (IJ.isJava2()) {
-				if (magnification<1.0)
-					 Java2.setBilinearInterpolation(g, true);
-				else if (IJ.isMacOSX())
-					Java2.setBilinearInterpolation(g, false);
-			}
+			if (IJ.isJava2())
+				Java2.setBilinearInterpolation(g, Prefs.interpolateScaledImages);
 			Image img = imp.getImage();
 			if (img!=null)
  				g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
@@ -615,7 +611,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if ((type==Roi.POLYGON || type==Roi.POLYLINE || type==Roi.ANGLE)
 			&& roi.getState()==roi.CONSTRUCTING)
 				return;
-			if (Toolbar.getToolId()==Toolbar.POLYGON) {
+			if (Toolbar.getToolId()==Toolbar.POLYGON && !(IJ.shiftKeyDown()||IJ.altKeyDown())) {
 				imp.killRoi();
 				return;
 			}

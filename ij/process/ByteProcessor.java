@@ -92,6 +92,14 @@ public class ByteProcessor extends ImageProcessor {
         return ip2;
 	}
 	
+	/** Returns a duplicate of this image. */ 
+	public synchronized ImageProcessor duplicate() { 
+		ImageProcessor ip2 = createProcessor(width, height); 
+		byte[] pixels2 = (byte[])ip2.getPixels(); 
+		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
+		return ip2; 
+	} 
+
 	/**Make a snapshot of the current image.*/
 	public void snapshot() {
 		snapshotWidth=width;

@@ -24,6 +24,7 @@ public class URLOpener implements PlugIn {
 			ImagePlus imp = new ImagePlus(url);
 			if (imp.getType()==ImagePlus.COLOR_RGB)
 				Opener.convertGrayJpegTo8Bits(imp);
+			WindowManager.checkForDuplicateName = true;
 			imp.show();
 			return;
 		}
@@ -43,6 +44,7 @@ public class URLOpener implements PlugIn {
 		else {
 			IJ.showStatus("Opening: " + url);
 			ImagePlus imp = new ImagePlus(url);
+			WindowManager.checkForDuplicateName = true;
 			imp.show();
 			IJ.showStatus("");
 		}

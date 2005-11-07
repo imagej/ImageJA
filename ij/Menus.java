@@ -166,6 +166,7 @@ public class Menus {
 		addPlugInItem(analyze, "Measure", "ij.plugin.filter.Analyzer", KeyEvent.VK_M, false);
 		addPlugInItem(analyze, "Analyze Particles...", "ij.plugin.filter.ParticleAnalyzer", 0, false);
 		addPlugInItem(analyze, "Summarize", "ij.plugin.filter.Analyzer(\"sum\")", 0, false);
+		addPlugInItem(analyze, "Distribution...", "ij.plugin.Distribution", 0, false);
 		addPlugInItem(analyze, "Label", "ij.plugin.filter.Filler(\"label\")", 0, false);
 		addPlugInItem(analyze, "Clear Results", "ij.plugin.filter.Analyzer(\"clear\")", 0, false);
 		addPlugInItem(analyze, "Set Measurements...", "ij.plugin.filter.Analyzer(\"set\")", 0, false);
@@ -197,6 +198,7 @@ public class Menus {
 			installPlugins();
 		
 		mbar = new MenuBar();
+		//mbar.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		mbar.add(file);
 		mbar.add(edit);
 		mbar.add(image);

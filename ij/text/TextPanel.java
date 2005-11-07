@@ -9,6 +9,7 @@ import ij.*;
 import ij.plugin.filter.Analyzer;
 import ij.io.SaveDialog;
 import ij.measure.ResultsTable;
+import ij.util.Tools;
 
 
 /**
@@ -25,9 +26,9 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	int iGridWidth,iGridHeight;
 	int iX,iY;
 	// data
-	String sColHead[];
+	String[] sColHead;
 	Vector vData;
-	int iColWidth[];
+	int[] iColWidth;
 	int iColCount,iRowCount;
 	int iRowHeight,iFirstRow;
 	// scrolling
@@ -108,11 +109,8 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			sColHead=new String[1];
 			sColHead[0] = "";
 		} else {
-        	StringTokenizer t = new StringTokenizer(labels, "\t");
-        	iColCount = t.countTokens();
-			sColHead=new String[iColCount];
-        	for(int i=0; i<iColCount; i++)
-				sColHead[i] = t.nextToken();
+			sColHead = Tools.split(labels, "\t");
+        	iColCount = sColHead.length;
 		}
 		flush();
 		vData=new Vector();

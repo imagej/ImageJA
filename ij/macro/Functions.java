@@ -208,6 +208,7 @@ public class Functions implements MacroConstants, Measurements {
 			case REPLACE: str = replace(); break;
 			case DIALOG: str = doDialog(); break;
 			case GET_METADATA: str = getMetadata(); break;
+			case FILE: str = doFile(); break;
 			case RUN_JAVA: str = runJava(); break;
 			default:
 				str="";
@@ -1055,20 +1056,9 @@ public class Functions implements MacroConstants, Measurements {
 		else
 			s2 = getLastString();
 		if (s1==null) return null;
-		StringTokenizer t = s2==null||s2.equals("")?new StringTokenizer(s1):new StringTokenizer(s1, s2);
-		int tokens = t.countTokens();
-		String[] strings;
-		if (tokens>0) {
-       		strings = new String[tokens];
-        	for(int i=0; i<tokens; i++) 
-        		strings[i] = t.nextToken();
-        } else {
-        	strings = new String[1];
-        	strings[0] = s1;
-        	tokens = 1;
-        }
-    	Variable[] array = new Variable[tokens];
-    	for (int i=0; i<tokens; i++)
+		String[] strings = (s2==null||s2.equals(""))?Tools.split(s1):Tools.split(s1, s2);
+    	Variable[] array = new Variable[strings.length];
+    	for (int i=0; i<strings.length; i++)
     		array[i] = new Variable(0, 0.0, strings[i]);
     	return array;
 	}
@@ -1295,16 +1285,17 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		double histMin=0.0, histMax=0.0;
 		boolean setMinMax = false;
+		int bitDepth = imp.getBitDepth();
 		if (interp.nextToken()==',') {
 			histMin = getNextArg();
 			histMax = getLastArg();
-			if (imp.getBitDepth()!=32) interp.error("32-bit image required to set min and max");
+			if (bitDepth==8 || bitDepth==24)
+				interp.error("16 or 32-bit image required to set histMin and histMax");
 			setMinMax = true;
 		} else 
 			interp.getRightParen();
-		int bitDepth = imp.getBitDepth();
-		if (((bitDepth==8||bitDepth==24) && nBins!=256) || (bitDepth==16 && !(nBins==256||nBins==65536)))
-			interp.error("Bin count ("+nBins+") must be 256 for byte and RGB images, \nor 256 or 65536 for 16-bit images");
+		if ((bitDepth==8||bitDepth==24) && nBins!=256)
+			interp.error("Bin count ("+nBins+") must be 256 for 8-bit and RGB images");
 		if (nBins==65536 && bitDepth==16) {
 			Variable[] array = counts.getArray();
 			int[] hist = getProcessor().getHistogram();
@@ -1390,13 +1381,19 @@ public class Functions implements MacroConstants, Measurements {
 	void getThreshold() {
 		Variable lower = getFirstVariable();
 		Variable upper = getLastVariable();
+		ImagePlus imp = getImage();
 		ImageProcessor ip = getProcessor();
 		double t1 = ip.getMinThreshold();
 		double t2 = ip.getMaxThreshold();
 		if (t1==ImageProcessor.NO_THRESHOLD) {
 			t1 = -1;
 			t2 = -1;
+		} else if (imp.getBitDepth()==16) {
+			Calibration cal = imp.getCalibration();
+			t1 = cal.getCValue(t1); 
+			t2 = cal.getCValue(t2); 
 		}
+
 		lower.setValue(t1);
 		upper.setValue(t2);
 	}
@@ -1882,8 +1879,11 @@ public class Functions implements MacroConstants, Measurements {
 		ImageProcessor ip = imp.getProcessor();
 		double v1 = ip.getMin();
 		double v2 = ip.getMax();
-		if (imp.getCalibration().isSigned16Bit())
-			{v1-=32768; v2-=32768;}
+		if (imp.getBitDepth()==16) {
+			Calibration cal = imp.getCalibration();
+			v1 = cal.getCValue(v1); 
+			v2 = cal.getCValue(v2); 
+		}
 		min.setValue(v1);
 		max.setValue(v2);
 	}
@@ -2059,6 +2059,11 @@ public class Functions implements MacroConstants, Measurements {
 				upper = min + (upper/255.0)*(max-min);
 			} else
 				lower = ImageProcessor.NO_THRESHOLD;
+		}
+		if (imp.getBitDepth()==16) {
+			Calibration cal = imp.getCalibration();
+			lower = cal.getCValue(lower); 
+			upper = cal.getCValue(upper); 
 		}
 		IJ.setThreshold(lower, upper);
 		resetImage();
@@ -2538,6 +2543,48 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("More than "+max+" points");
 		getImage().setRoi(new PolygonRoi(x, y, n, Roi.POLYGON));
 		resetImage(); 
+	}
+	
+	String doFile() {
+		interp.getToken();
+		if (interp.token!='.')
+			interp.error("'.' expected");
+		interp.getToken();
+		if (!(interp.token==WORD || interp.token==STRING_FUNCTION || interp.token==NUMERIC_FUNCTION))
+			interp.error("Function name expected: ");
+		String name = interp.tokenString;
+		if (name.equals("separator")) {
+			interp.getParens();
+			return File.separator;
+		}
+		File f = new File(getStringArg());
+		if (name.equals("getLength")||name.equals("length"))
+			return ""+f.length();
+		else if (name.equals("getName"))
+			return f.getName();
+		else if (name.equals("getAbsolutePath"))
+			return f.getAbsolutePath();
+		else if (name.equals("getParent"))
+			return f.getParent();
+		else if (name.equals("exists"))
+			return f.exists()?"1":"0";
+		else if (name.equals("isDirectory"))
+			return f.isDirectory()?"1":"0";
+		else if (name.equals("makeDirectory")||name.equals("mkdir")) {
+			f.mkdir(); return null;
+		} else if (name.equals("lastModified"))
+			return ""+f.lastModified();
+		else if (name.equals("dateLastModified"))
+			return (new Date(f.lastModified())).toString();
+		else if (name.equals("delete")) {
+			String path = f.getAbsolutePath();
+			if (!(path.indexOf("ImageJ")!=-1||path.startsWith(System.getProperty("java.io.tmpdir"))))
+				interp.error("File must be in ImageJ or temp directory");
+			f.delete();
+			return null;
+		} else
+			interp.error("Unrecognized File function "+name);
+		return null;
 	}
 
 } // class Functions

@@ -68,14 +68,12 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Create an 8-bit AWT image by scaling pixels in the range min-max to 0-255. */
 	public Image createImage() {
-		//ij.IJ.log("createImage: "+min+" "+max);
 		boolean firstTime = pixels8==null;
 		if (firstTime || !lutAnimation) {
 			// scale from 16-bits to 8-bits
 			int size = width*height;
 			if (pixels8==null)
 				pixels8 = new byte[size];
-				
 			int value;
 			double scale = 256.0/(max-min+1);
 			for (int i=0; i<size; i++) {
@@ -751,6 +749,14 @@ public class ShortProcessor extends ImageProcessor {
         return ip2;
 	}
 	
+	/** Returns a duplicate of this image. */ 
+	public synchronized ImageProcessor duplicate() { 
+		ImageProcessor ip2 = createProcessor(width, height); 
+		short[] pixels2 = (short[])ip2.getPixels(); 
+		System.arraycopy(pixels, 0, pixels2, 0, width*height); 
+		return ip2; 
+	} 
+
 	/** Sets the foreground fill/draw color. */
 	public void setColor(Color color) {
 		int bestIndex = getBestIndex(color);

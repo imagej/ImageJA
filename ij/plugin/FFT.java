@@ -19,6 +19,10 @@ in the public domain by Stanford University in 1995 and is now freely available.
 */
 public class FFT implements  PlugIn, Measurements {
 
+	public static boolean displayRawPS;
+	public static boolean displayFHT;
+	public static String fileName;
+	
 	private ImagePlus imp;
 	private String arg;
 	private FHT transform;
@@ -31,6 +35,8 @@ public class FFT implements  PlugIn, Measurements {
 	private int slice = 1;
 
 	public void run(String arg) {
+		if (arg.equals("options"))
+ 			{showDialog(); return;}
 		imp = IJ.getImage();
 		if (arg.equals("redisplay"))
  			{redisplayPowerSpectrum(); return;}
@@ -53,8 +59,11 @@ public class FFT implements  PlugIn, Measurements {
 		}
 		if (inverse)
 			doInverseTransform(fht, ip);
-		else
-			doForewardTransform(fht, ip);		 
+		else {
+			if (displayRawPS || displayFHT)
+				fileName = imp.getTitle();
+			doForewardTransform(fht, ip);	
+		}	 
 		IJ.showProgress(1.0);
 	}
 	
@@ -204,6 +213,18 @@ public class FFT implements  PlugIn, Measurements {
 			{IJ.error("FFT", "Frequency domain image required"); return;}
 		ImageProcessor ps = fht.getPowerSpectrum();
 		imp.setProcessor(null, ps);
+	}
+	
+	void showDialog() {
+		GenericDialog gd = new GenericDialog("FFT Options");
+		gd.addMessage("Display:");
+		gd.addCheckbox("Raw 32-bit Power Spectrum", displayRawPS);
+		gd.addCheckbox("Fast Hartley Transform", displayFHT);
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return;
+		displayRawPS = gd.getNextBoolean();
+		displayFHT = gd.getNextBoolean();
 	}
 	
 }

@@ -34,7 +34,7 @@ public abstract class ImageProcessor extends Object {
 	static final int INVERT=0, FILL=1, ADD=2, MULT=3, AND=4, OR=5,
 		XOR=6, GAMMA=7, LOG=8, MINIMUM=9, MAXIMUM=10, SQR=11, SQRT=12;
 	static final int BLUR_MORE=0, FIND_EDGES=1, MEDIAN_FILTER=2, MIN=3, MAX=4;
-	static final String WRONG_LENGTH = "(width*height) != pixels.length";
+	static final String WRONG_LENGTH = "width*height!=pixels.length";
 	
 	int fgColor = 0;
 	protected int lineWidth = 1;
@@ -1068,6 +1068,7 @@ public abstract class ImageProcessor extends Object {
 	/** Set the number of bins to be used for histograms of float images. */
 	public void setHistogramSize(int size) {
 		histogramSize = size;
+		if (histogramSize<1) histogramSize = 1;
 	}
 
 	/**	Returns the number of float image histogram bins. The bin
@@ -1248,15 +1249,7 @@ public abstract class ImageProcessor extends Object {
 	public abstract void threshold(int level);
 
 	/** Returns a duplicate of this image. */
-	public ImageProcessor duplicate() {
-		Rectangle saveRoi = getRoi();
-		ImageProcessor saveMask= getMask();
-		resetRoi();
-		ImageProcessor ip2 = crop();
-		setRoi(saveRoi);
-		setMask(saveMask);
-		return ip2;
-	}
+	public abstract ImageProcessor duplicate();
 
 	/** Scales the image by the specified factors. Does not
 		change the image size.
