@@ -77,6 +77,7 @@ public class FileOpener {
 			case FileInfo.GRAY32_INT:
 			case FileInfo.GRAY32_UNSIGNED:
 			case FileInfo.GRAY32_FLOAT:
+			case FileInfo.GRAY24_UNSIGNED:
 				pixels = readPixels(fi);
 				if (pixels==null) return null;
 	    		ip = new FloatProcessor(width, height, (float[])pixels, cm);

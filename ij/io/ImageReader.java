@@ -422,8 +422,6 @@ public class ImageReader {
 		if ((nPixels&1)==1) nBytes++; // add 1 if odd
 		byte[] buffer = new byte[nBytes];
 		short[] pixels = new short[nPixels];
-		int totalRead = 0;
-		int count, actuallyRead;		
 		DataInputStream dis = new DataInputStream(in);
 		dis.readFully(buffer);
 		int i = 0;
@@ -432,6 +430,25 @@ public class ImageReader {
 			pixels[j++] = (short)(((buffer[i]&0xff)*16) + ((buffer[i+1]>>4)&0xf));
 			pixels[j++] = (short)(((buffer[i+1]&0xf)*256) + (buffer[i+2]&0xff));
 			i += 3;
+		}
+		return pixels;
+	}
+
+	float[] read24bitImage(InputStream in) throws IOException {
+		byte[] buffer = new byte[width*3];
+		float[] pixels = new float[nPixels];
+		int b1, b2, b3;
+		DataInputStream dis = new DataInputStream(in);
+		for (int y=0; y<height; y++) {
+			//IJ.log("read24bitImage: ");
+			dis.readFully(buffer);
+			int b = 0;
+			for (int x=0; x<width; x++) {
+				b1 = buffer[b++]&0xff;
+				b2 = buffer[b++]&0xff;
+				b3 = buffer[b++]&0xff;
+				pixels[x+y*width] = (b3<<16) | (b2<<8) | b1;
+			}
 		}
 		return pixels;
 	}
@@ -511,12 +528,15 @@ public class ImageReader {
 					skip(in);
 					short[] data = read12bitImage(in);
 					return (Object)data;
+				case FileInfo.GRAY24_UNSIGNED:
+					skip(in);
+					return (Object)read24bitImage(in);
 				default:
 					return null;
 			}
 		}
 		catch (IOException e) {
-			IJ.write("" + e);
+			IJ.log("" + e);
 			return null;
 		}
 	}
@@ -544,9 +564,9 @@ public class ImageReader {
 		java.net.URL theURL;
 		InputStream is;
 		try {theURL = new URL(url);}
-		catch (MalformedURLException e) {IJ.write(""+e); return null;}
+		catch (MalformedURLException e) {IJ.log(""+e); return null;}
 		try {is = theURL.openStream();}
-		catch (IOException e) {IJ.write(""+e); return null;}
+		catch (IOException e) {IJ.log(""+e); return null;}
 		return readPixels(is);
 	}
 	

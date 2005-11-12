@@ -228,8 +228,8 @@ public class LutLoader extends ImagePlus implements PlugIn {
 		try {
 			if (length>768)
 				size = openBinaryLut(fi, isURL, false); // attempt to read NIH Image LUT
-			if (size==0 && (length==0||length==768))
-				size = openBinaryLut(fi, isURL, true); // otherwise read 768 byte raw LUT
+			if (size==0 && (length==0||length==768||length==970))
+				size = openBinaryLut(fi, isURL, true); // otherwise read raw LUT
 			if (size==0 && length>768)
 				size = openTextLut(fi);
 			if (size==0)
@@ -241,7 +241,7 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	}
 	
 	void error() {
-		IJ.error("This is not an ImageJ or NIH Image LUT, a 768 byte \nbinary LUT, or a LUT in text format.");
+		IJ.error("This is not an ImageJ or NIH Image LUT, a 768 byte \nraw LUT, or a LUT in text format.");
 	}
 
 	/** Opens an NIH Image LUT or a 768 byte binary LUT. */
@@ -280,6 +280,7 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	
 	int openTextLut(FileInfo fi) throws IOException {
 		TextReader tr = new TextReader();
+		tr.hideErrorMessages();
 		ImageProcessor ip = tr.open(fi.directory+fi.fileName);
 		if (ip==null)
 			return 0;

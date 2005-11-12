@@ -398,6 +398,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		mag = ic.getMagnification();
 		int sw = (int)(width*mag);
 		int sh = (int)(height*mag);
+		//if (x+width==imp.getWidth()) sw -= 1;
+		//if (y+height==imp.getHeight()) sh -= 1;
 		int sx1 = ic.screenX(x);
 		int sy1 = ic.screenY(y);
 		int sx2 = sx1+sw/2;
@@ -475,7 +477,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	/** Returns a handle number if the specified screen coordinates are  
 		inside or near a handle, otherwise returns -1. */
 	public int isHandle(int sx, int sy) {
-		if (clipboard!=null) return -1;
+		if (clipboard!=null || ic==null) return -1;
 		double mag = ic.getMagnification();
 		int size = HANDLE_SIZE+3;
 		int halfSize = size/2;

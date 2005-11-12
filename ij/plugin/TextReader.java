@@ -12,6 +12,7 @@ import ij.util.Tools;
 public class TextReader implements PlugIn {
     int words = 0, chars = 0, lines = 0, width=1;;
     String directory, name, path;
+    boolean hideErrorMessages;
     
     public void run(String arg) {
         if (showDialog()) {
@@ -59,12 +60,17 @@ public class TextReader implements PlugIn {
             String msg = e.getMessage();
             if (msg==null || msg.equals(""))
                 msg = ""+e;
-            IJ.error("TextReader", msg);
+            if (!hideErrorMessages) 
+            	IJ.error("TextReader", msg);
             ip = null;
         }
         return ip;
     }
     
+    public void hideErrorMessages() {
+        hideErrorMessages = true;
+    }
+
     /** Returns the file name. */
     public String getName() {
         return name;

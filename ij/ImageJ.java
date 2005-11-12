@@ -28,7 +28,7 @@ offer your changes to me so I can possibly add them to the "official" version.
 public class ImageJ extends Frame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener {
 
-	public static final String VERSION = "1.35g";
+	public static final String VERSION = "1.35h";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -453,7 +453,7 @@ public class ImageJ extends Frame implements ActionListener,
 				if (macros==0 && (args[i].endsWith(".ijm") || args[i].endsWith(".txt"))) {
 					IJ.runMacroFile(args[i]);
 					macros++;
-				} else
+				} else if (args[i].indexOf("ij.ImageJ")==-1) 
 					IJ.open(args[i]);
 			}
 		}
@@ -469,7 +469,7 @@ public class ImageJ extends Frame implements ActionListener,
 				if (macros==0 && cmd.endsWith(".ijm")) {
 					cmd = "macro " + cmd;
 					macros++;
-				} else
+				} else if (cmd.indexOf("ij.ImageJ")==-1)
 					cmd = "open " + cmd;
 				sendArgument(cmd);
 			}
