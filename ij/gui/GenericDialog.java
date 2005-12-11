@@ -725,8 +725,7 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		c.insets = new Insets(15, 0, 0, 0);
 		grid.setConstraints(buttons, c);
 		add(buttons);
-        if (IJ.isMacintosh() && !IJ.isJava14())
-        	setResizable(false);
+        setResizable(false);
 		pack();
 		setup();
 		GUI.center(this);

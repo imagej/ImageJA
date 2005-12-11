@@ -20,6 +20,8 @@ popup08=Fill
 popup09=Draw
 popup10=-
 popup11=Rename...
+popup12=Duplicate...
+
 
 # Plugins installed in the File/Import submenu
 import01="Image Sequence...",ij.plugin.FolderOpener

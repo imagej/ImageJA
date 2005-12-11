@@ -62,6 +62,8 @@ public class Interpreter implements MacroConstants {
 	public String run(String macro, String arg) {
 		argument = arg;
 		calledMacro = true;
+		if (IJ.getInstance()==null)
+			setBatchMode(true);
 		run(macro);
 		return returnValue;
 	}

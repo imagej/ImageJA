@@ -668,21 +668,19 @@ public abstract class ImageProcessor extends Object {
 		double[] data = new double[n];
 		double rx = x1;
 		double ry = y1;
-		if (interpolate)
+		if (interpolate) {
 			for (int i=0; i<n; i++) {
-				if (cTable!=null)
-					data[i] = getInterpolatedValue(rx, ry);
-				else
-					data[i] = getInterpolatedPixel(rx, ry);
+				data[i] = getInterpolatedValue(rx, ry);
 				rx += xinc;
 				ry += yinc;
 			}
-		else
+		} else {
 			for (int i=0; i<n; i++) {
 				data[i] = getPixelValue((int)(rx+0.5), (int)(ry+0.5));
 				rx += xinc;
 				ry += yinc;
 			}
+		}
 		return data;
 	}
 	
@@ -1133,12 +1131,28 @@ public abstract class ImageProcessor extends Object {
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). */
 	public abstract double getInterpolatedPixel(double x, double y);
 
-	/** For color and float images, this is the same as getInterpolatedPixel(). */
-	public double getInterpolatedValue(double x, double y) {
-		return getInterpolatedPixel(x, y);
+	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). 
+		Returns zero if the (x, y) is not inside the image. */
+	public final double getInterpolatedValue(double x, double y) {
+		int xbase = (int)x;
+		int ybase = (int)y;
+		double xFraction = x - xbase;
+		double yFraction = y - ybase;
+		if (xFraction<0.0) xFraction = 0.0;
+		if (yFraction<0.0) yFraction = 0.0;
+		double lowerLeft = getPixelValue(xbase, ybase);
+		double lowerRight = getPixelValue(xbase+1, ybase);
+		double upperRight = getPixelValue(xbase+1, ybase+1);
+		double upperLeft = getPixelValue(xbase, ybase+1);
+		double upperAverage = upperLeft + xFraction * (upperRight - upperLeft);
+		double lowerAverage = lowerLeft + xFraction * (lowerRight - lowerLeft);
+		return lowerAverage + yFraction * (upperAverage - lowerAverage);
 	}
 
-	/** Stores the specified value at (x,y). For RGB images, the
+	/** Stores the specified value at (x,y). Does
+		nothing if (x,y) is outside the image boundary.
+		For 8-bit and 16-bit images, out of range values
+		are clipped. For RGB images, the
 		argb values are packed in 'value'. For float images,
 		'value' is expected to be a float converted to an int
 		using Float.floatToIntBits(). */

@@ -86,6 +86,7 @@ public class FileOpener {
 			case FileInfo.RGB:
 			case FileInfo.BGR:
 			case FileInfo.ARGB:
+			case FileInfo.BARG:
 			case FileInfo.RGB_PLANAR:
 				pixels = readPixels(fi);
 				if (pixels==null) return null;
@@ -406,7 +407,10 @@ public class FileOpener {
 				PrintWriter pw = new PrintWriter(caw);
 				e.printStackTrace(pw);
 				String s = caw.toString();
-				new ij.text.TextWindow("Exception", s, 350, 250);
+				if (IJ.getInstance()!=null)
+					new ij.text.TextWindow("Exception", s, 350, 250);
+				else
+					IJ.log(s);
 			}
 		}
 		return pixels;

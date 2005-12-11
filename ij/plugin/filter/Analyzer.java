@@ -21,8 +21,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 	// Order must agree with order of checkboxes in Set Measurements dialog box
 	private static final int[] list = {AREA,MEAN,STD_DEV,MODE,MIN_MAX,
 		CENTROID,CENTER_OF_MASS,PERIMETER,RECT,ELLIPSE,CIRCULARITY, FERET,
-		INTEGRATED_DENSITY,MEDIAN,SKEWNESS,KURTOSIS,AREA_FRACTION,LIMIT,
-		LABELS,INVERT_Y};
+		INTEGRATED_DENSITY,MEDIAN,SKEWNESS,KURTOSIS,AREA_FRACTION,SLICE,
+		LIMIT,LABELS,INVERT_Y};
 
 	private static final int UNDEFINED=0,AREAS=1,LENGTHS=2,ANGLES=3,POINTS=4;
 	private static int mode = AREAS;
@@ -100,8 +100,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 		String target = tImp!=null?tImp.getTitle():NONE;
 		
  		GenericDialog gd = new GenericDialog("Set Measurements", IJ.getInstance());
-		String[] labels = new String[17];
-		boolean[] states = new boolean[17];
+		String[] labels = new String[18];
+		boolean[] states = new boolean[18];
 		labels[0]="Area"; states[0]=(systemMeasurements&AREA)!=0;
 		labels[1]="Mean Gray Value"; states[1]=(systemMeasurements&MEAN)!=0;
 		labels[2]="Standard Deviation"; states[2]=(systemMeasurements&STD_DEV)!=0;
@@ -119,6 +119,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		labels[14]="Skewness"; states[14]=(systemMeasurements&SKEWNESS)!=0;
 		labels[15]="Kurtosis"; states[15]=(systemMeasurements&KURTOSIS)!=0;
 		labels[16]="Area_Fraction"; states[16]=(systemMeasurements&AREA_FRACTION)!=0;
+		labels[17]="Slice Number"; states[17]=(systemMeasurements&SLICE)!=0;
 		gd.addCheckboxGroup(10, 2, labels, states);
 		labels = new String[3];
 		states = new boolean[3];
@@ -407,6 +408,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if ((measurements&SKEWNESS)!=0) rt.addValue(ResultsTable.SKEWNESS, stats.skewness);
 		if ((measurements&KURTOSIS)!=0) rt.addValue(ResultsTable.KURTOSIS, stats.kurtosis);
 		if ((measurements&AREA_FRACTION)!=0) rt.addValue(ResultsTable.AREA_FRACTION, stats.areaFraction);
+		if ((measurements&SLICE)!=0) rt.addValue(ResultsTable.SLICE, imp!=null?imp.getCurrentSlice():1.0);
 	}
 	
 	// Update centroid and center of mass y-coordinate

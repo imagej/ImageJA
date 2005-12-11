@@ -308,7 +308,7 @@ public class TiffDecoder {
 	
 		int tag, fieldType, count, value;
 		int nEntries = getShort();
-		if (nEntries<1)
+		if (nEntries<1 || nEntries>1000)
 			return null;
 		ifdCount++;
 		FileInfo fi = new FileInfo();
@@ -485,6 +485,8 @@ public class TiffDecoder {
  					getMetaData(value, fi);
  					break;
 				default:
+					if (tag>10000 && tag<32768 && ifdCount>1)
+						return null;
 			}
 		}
 		fi.fileFormat = fi.TIFF;
@@ -597,10 +599,11 @@ public class TiffDecoder {
 		while (ifdOffset>0) {
 			in.seek(ifdOffset);
 			FileInfo fi = OpenIFD();
-			//ij.IJ.write(""+fi);
-			if (fi!=null)
+			if (fi!=null) {
 				info.addElement(fi);
-			ifdOffset = getInt();
+				ifdOffset = getInt();
+			} else
+				ifdOffset = 0;
 			if (debugMode && ifdCount<10) dInfo += "  nextIFD=" + ifdOffset + "\n";
 			if (fi!=null) {
 				if (fi.nImages>1) // ignore extra IFDs in ImageJ and NIH Image stacks

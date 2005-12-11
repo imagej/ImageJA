@@ -80,8 +80,10 @@ public class Executer implements Runnable {
 						return;
 					s = Tools.fixNewLines(s);
 				}
-				new TextWindow("Exception", s, 350, 250);
-				if (ij==null) IJ.wait(10000);
+				if (ij!=null)
+					new TextWindow("Exception", s, 350, 250);
+				else
+					IJ.log(s);
 			}
 			IJ.abort();
 		}

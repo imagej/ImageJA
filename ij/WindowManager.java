@@ -218,25 +218,26 @@ public class WindowManager {
 		return false;
 	}
 
-	static String getUniqueName(String name) {
-		String name2 = name;
-		String extension = "";
-		int len = name2.length();
-		int lastDot = name2.lastIndexOf(".");
-		if (lastDot!=-1 && len-lastDot<6 && lastDot!=len-1) {
-			extension = name2.substring(lastDot, len);
-			name2 = name2.substring(0, lastDot);
-		}
-		int lastDash = name2.lastIndexOf("-");
-		if (lastDash!=-1 && name2.length()-lastDash<4)
-			name2 = name2.substring(0, lastDash);
-		for (int i=1; i<=99; i++) {
-			String name3 = name2+"-"+ i + extension;
-			//IJ.log(i+" "+name3);
-			if (!isDuplicateName(name3))
-				return name3;
-		}
-		return name;
+	/** Returns a unique name by adding, before the extension,  -1, -2, etc. as needed. */
+	public static String getUniqueName(String name) {
+        String name2 = name;
+        String extension = "";
+        int len = name2.length();
+        int lastDot = name2.lastIndexOf(".");
+        if (lastDot!=-1 && len-lastDot<6 && lastDot!=len-1) {
+            extension = name2.substring(lastDot, len);
+            name2 = name2.substring(0, lastDot);
+        }
+        int lastDash = name2.lastIndexOf("-");
+        if (lastDash!=-1 && name2.length()-lastDash<4)
+            name2 = name2.substring(0, lastDash);
+        for (int i=1; i<=99; i++) {
+            String name3 = name2+"-"+ i + extension;
+            //IJ.log(i+" "+name3);
+            if (!isDuplicateName(name3))
+                return name3;
+        }
+        return name;
 	}
 
 	/** Removes the specified window from the Window menu. */

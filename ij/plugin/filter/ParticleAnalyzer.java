@@ -231,6 +231,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		maxCircularity = Double.isNaN(maxc)?1.0:maxc;
 		if (minCircularity<0.0 || minCircularity>1.0) minCircularity = 0.0;
 		if (maxCircularity<minCircularity || maxCircularity>1.0) maxCircularity = 1.0;
+		if (minCircularity==1.0 && maxCircularity==1.0) minCircularity = 0.0;
 		
 		if (gd.invalidNumber()) {
 			IJ.error("Bins invalid.");
@@ -505,9 +506,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			ImageStatistics stats = imp.getStatistics();
 			if (imageType!=BYTE || (stats.histogram[0]+stats.histogram[255]!=stats.pixelCount)) {
 				IJ.error("Particle Analyzer",
-					"A thresholded image or an 8-bit binary image is\n"
-					+"required. Refer to Image->Adjust->Threshold\n"
-					+"or to Process->Binary->Threshold.");
+					"A thresholded image or 8-bit binary image is\n"
+					+"required. Threshold levels can be set using\n"
+					+"the Image->Adjust->Threshold tool.");
 				canceled = true;
 				return false;
 			}

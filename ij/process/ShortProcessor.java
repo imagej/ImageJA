@@ -203,16 +203,6 @@ public class ShortProcessor extends ImageProcessor {
 		return getInterpolatedPixel(x, y, pixels);
 	}
 
-	/** Uses bilinear interpolation to find the calibrated
-		pixel value at real coordinates (x,y). */
-		public double getInterpolatedValue(double x, double y) {
-			double value = getInterpolatedPixel(x, y);
-			if (cTable==null)
-				return value;
-			else
-				return cTable[(int)(value+0.5)]; 
-		}
-
 	/** Stores the specified value at (x,y). Does
 		nothing if (x,y) is outside the image boundary.
 		Values outside the range 0-65535 are clipped.

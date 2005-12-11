@@ -139,6 +139,7 @@ public class Functions implements MacroConstants, Measurements {
 			case CALCULATOR: imageCalculator(); break;
 			case SET_RGB_WEIGHTS: setRGBWeights(); break;
 			case MAKE_POLYGON: makePolygon(); break;
+			case SET_SELECTION_NAME: setSelectionName(); break;
 		}
 	}
 	
@@ -180,6 +181,7 @@ public class Functions implements MacroConstants, Measurements {
 			case SCREEN_WIDTH: case SCREEN_HEIGHT: value = getScreenDimension(type); break;
 			case CALIBRATE: value = getImage().getCalibration().getCValue(getArg()); break;
 			case ROI_MANAGER: value = roiManager(); break;
+			case TOOL_ID: interp.getParens(); value = Toolbar.getToolId(); break;
 			default:
 				interp.error("Numeric function expected");
 		}
@@ -209,6 +211,7 @@ public class Functions implements MacroConstants, Measurements {
 			case DIALOG: str = doDialog(); break;
 			case GET_METADATA: str = getMetadata(); break;
 			case FILE: str = doFile(); break;
+			case SELECTION_NAME: str = selectionName(); break;
 			case RUN_JAVA: str = runJava(); break;
 			default:
 				str="";
@@ -596,8 +599,10 @@ public class Functions implements MacroConstants, Measurements {
 	ImagePlus getImage() {
 		if (defaultImp==null)
 			defaultImp = IJ.getImage();
-		if (defaultImp.getWindow()==null && IJ.getInstance()!=null && !interp.isBatchMode() && !IJ.noGUI)
-			throw new RuntimeException(Macro.MACRO_CANCELED);			
+		if (defaultImp==null)
+			{interp.error("No image"); return null;}	
+		if (defaultImp.getWindow()==null && IJ.getInstance()!=null && !interp.isBatchMode())
+			throw new RuntimeException(Macro.MACRO_CANCELED);
 		return defaultImp;
 	}
 	
@@ -2585,6 +2590,24 @@ public class Functions implements MacroConstants, Measurements {
 		} else
 			interp.error("Unrecognized File function "+name);
 		return null;
+	}
+	
+	void setSelectionName() {
+		Roi roi = getImage().getRoi();
+		if (roi==null)
+			interp.error("No selection");
+		else
+			roi.setName(getStringArg());
+	}
+
+	String selectionName() {
+		Roi roi = getImage().getRoi();
+		String name = null;
+		if (roi==null)
+			interp.error("No selection");
+		else
+			name = roi.getName();
+		return name!=null?name:"";
 	}
 
 } // class Functions

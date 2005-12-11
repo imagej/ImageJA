@@ -167,6 +167,14 @@ public class ByteProcessor extends ImageProcessor {
 			return 0;
 	}
 	
+	public int get(int x, int y) {
+		return pixels[y*width+x]&0xff;
+	}
+
+	public void set(int x, int y, int value) {
+		pixels[y*width + x] = (byte)value;
+	}
+
 	static double oldx, oldy;
 
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). */
@@ -176,31 +184,6 @@ public class ByteProcessor extends ImageProcessor {
 		if (y<0.0) y = 0.0;
 		if (y>=height-1.0) y = height-1.001;
 		return getInterpolatedPixel(x, y, pixels);
-	}
-
-	/** Uses bilinear interpolation to find the calibrated
-		pixel value at real coordinates (x,y). */
-		public double getInterpolatedValue(double x, double y) {
-		if (cTable==null)
-			return getInterpolatedPixel(x, y);
-		if (x<0.0) x = 0.0;
-		if (x>=width-1.0) x = width-1.001;
-		if (y<0.0) y = 0.0;
-		if (y>=height-1.0) y = height-1.001;
-		int xbase = (int)x;
-		int ybase = (int)y;
-		double xFraction = x - xbase;
-		double yFraction = y - ybase;
-		int offset = ybase * width + xbase;
-		double lowerLeft = cTable[pixels[offset]&255];
-		//if ((xbase>=(width-1))||(ybase>=(height-1)))
-		//	return lowerLeft;
-		double lowerRight = cTable[pixels[offset + 1]&255];
-		double upperRight = cTable[pixels[offset + width + 1]&255];
-		double upperLeft = cTable[pixels[offset + width]&255];
-		double upperAverage = upperLeft + xFraction * (upperRight - upperLeft);
-		double lowerAverage = lowerLeft + xFraction * (lowerRight - lowerLeft);
-		return lowerAverage + yFraction * (upperAverage - lowerAverage);
 	}
 
 	public float getPixelValue(int x, int y) {

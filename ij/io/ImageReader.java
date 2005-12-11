@@ -269,11 +269,28 @@ public class ImageReader {
 			boolean bgr = fi.fileType==FileInfo.BGR;
 			int j = 0;
 			for (int i=base; i<(base+pixelsRead); i++) {
-				if (bytesPerPixel==4)
-					j++; // ignore alfa byte
-				r = buffer[j++]&0xff;
-				g = buffer[j++]&0xff;
-				b = buffer[j++]&0xff;
+				if (bytesPerPixel==4) {
+					if (fi.fileType==FileInfo.BARG) {  // MCID
+						b = buffer[j++]&0xff;
+						j++; // ignore alfa byte
+						r = buffer[j++]&0xff;
+						g = buffer[j++]&0xff;
+					} else if (fi.intelByteOrder) {
+						b = buffer[j++]&0xff;
+						g = buffer[j++]&0xff;
+						r = buffer[j++]&0xff;
+						j++; // ignore alfa byte
+					} else {
+						j++; // ignore alfa byte
+						r = buffer[j++]&0xff;
+						g = buffer[j++]&0xff;
+						b = buffer[j++]&0xff;
+					}
+				} else {
+					r = buffer[j++]&0xff;
+					g = buffer[j++]&0xff;
+					b = buffer[j++]&0xff;
+				}
 				if (bgr)
 					pixels[i] = 0xff000000 | (b<<16) | (g<<8) | r;
 				else
@@ -507,7 +524,8 @@ public class ImageReader {
 				case FileInfo.RGB:
 				case FileInfo.BGR:
 				case FileInfo.ARGB:
-					bytesPerPixel = fi.fileType==FileInfo.ARGB?4:3;
+				case FileInfo.BARG:
+					bytesPerPixel = fi.getBytesPerPixel();
 					skip(in);
 					return (Object)readChunkyRGB(in);
 				case FileInfo.RGB_PLANAR:

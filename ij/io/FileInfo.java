@@ -53,6 +53,9 @@ public class FileInfo {
 	/** 24-bit unsigned integer. Import only. */
 	public static final int GRAY24_UNSIGNED = 14;	
 
+	/** 32-bit interleaved BARG (MCID). Import only. */
+	public static final int BARG  = 15;	
+
 	// File formats
 	public static final int UNKNOWN = 0;
 	public static final int RAW = 1;
@@ -130,7 +133,7 @@ public class FileInfo {
 		switch (fileType) {
 			case GRAY8: case COLOR8: case BITMAP: return 1;
 			case GRAY16_SIGNED: case GRAY16_UNSIGNED: return 2;
-			case GRAY32_INT: case GRAY32_UNSIGNED: case GRAY32_FLOAT: case ARGB: case GRAY24_UNSIGNED: return 4;
+			case GRAY32_INT: case GRAY32_UNSIGNED: case GRAY32_FLOAT: case ARGB: case GRAY24_UNSIGNED: case BARG: return 4;
 			case RGB: case RGB_PLANAR: case BGR: return 3;
 			case RGB48: return 6;
 			default: return 0;
@@ -168,6 +171,7 @@ public class FileInfo {
 			case BITMAP: return "bitmap";
 			case ARGB: return "ARGB";
 			case BGR: return "BGR";
+			case BARG: return "BARG";
 			default: return "";
     	}
     }

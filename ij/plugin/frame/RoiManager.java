@@ -316,47 +316,42 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}		
 	}
 	
-	void openZip(String path) {
-		ZipInputStream in = null;
-		ByteArrayOutputStream out;
-		try {
-			in = new ZipInputStream(new FileInputStream(path));
-			byte[] buf = new byte[1024];
-			int len;
-			boolean firstTime = true;
-			while (true) {
-				ZipEntry entry = in.getNextEntry();
-				if (entry==null)
-					{in.close(); return;}
-				String name = entry.getName();
-				if (!name.endsWith(".roi")) {
-					error("This ZIP archive does not appear to contain \".roi\" files");
-				}
-				out = new ByteArrayOutputStream();
-				while ((len = in.read(buf)) > 0)
-					out.write(buf, 0, len);
-				out.close();
-				byte[] bytes = out.toByteArray();
-				RoiDecoder rd = new RoiDecoder(bytes, name);
-				Roi roi = rd.getRoi();
-				if (roi!=null) {
-					if (firstTime) {
-						if (list.getItemCount()>0) delete(true);
-						if (canceled) 
-							{in.close(); return;}
-						firstTime = false;
-					}
-					if (name.endsWith(".roi"))
-						name = name.substring(0, name.length()-4);
-					name = getUniqueName(name);
-					list.add(name);
-					rois.put(name, roi);
-				}
-			}
-		} catch (IOException e) {
-			error(""+e);
-		}
-	}
+	// Modified on 2005/11/15 by Ulrik Stervbo to only read .roi files and to not empty the current list
+	void openZip(String path) { 
+		ZipInputStream in = null; 
+		ByteArrayOutputStream out; 
+		int nRois = 0; 
+		try { 
+			in = new ZipInputStream(new FileInputStream(path)); 
+			byte[] buf = new byte[1024]; 
+			int len; 
+			ZipEntry entry = in.getNextEntry(); 
+			while (entry!=null) { 
+				String name = entry.getName(); 
+				if (name.endsWith(".roi")) { 
+					out = new ByteArrayOutputStream(); 
+					while ((len = in.read(buf)) > 0) 
+						out.write(buf, 0, len); 
+					out.close(); 
+					byte[] bytes = out.toByteArray(); 
+					RoiDecoder rd = new RoiDecoder(bytes, name); 
+					Roi roi = rd.getRoi(); 
+					if (roi!=null) { 
+						name = name.substring(0, name.length()-4); 
+						name = getUniqueName(name); 
+						list.add(name); 
+						rois.put(name, roi); 
+						nRois++;
+					} 
+				} 
+				entry = in.getNextEntry(); 
+			} 
+			in.close(); 
+		} catch (IOException e) {error(e.toString());} 
+		if(nRois==0)
+				error("This ZIP archive does not appear to contain \".roi\" files");
+	} 
+
 
 	String getUniqueName(String name) {
 			String name2 = name;
@@ -375,31 +370,6 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			}
 			return name2;
 	}
-
-	/*
-	void openAll() {
-		IJ.setKeyUp(KeyEvent.VK_ALT);
-		Macro.setOptions(null);
-		String dir  = IJ.getDirectory("Open All...");
-		if (dir==null) return;
-		String[] files = new File(dir).list();
-		if (files==null) return;
-		for (int i=0; i<files.length; i++) {
-			File f = new File(dir+files[i]);
-			if (!f.isDirectory() && files[i].endsWith(".roi")) {
-                Roi roi = new Opener().openRoi(dir+files[i]);
-  				if (roi!=null) {
-  					String name = files[i];
-					if (name.endsWith(".roi"))
-						name = name.substring(0, name.length()-4);
-					name = getUniqueName(name);
-					list.add(name);
-					rois.put(name, roi);
-				}
-			}
-		}
-	}
-	*/
 	
 	boolean save() {
 		if (list.getItemCount()==0)

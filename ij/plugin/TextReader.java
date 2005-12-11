@@ -81,8 +81,9 @@ public class TextReader implements PlugIn {
         int wordsPerLine=0, wordsInPreviousLine=0;
 
         tok.resetSyntax();
-        tok.wordChars(33, 255);
+        tok.wordChars(33, 127);
         tok.whitespaceChars(0, ' ');
+        tok.whitespaceChars(128, 255);
         tok.eolIsSignificant(true);
 
         while (tok.nextToken() != StreamTokenizer.TT_EOF) {
@@ -107,13 +108,16 @@ public class TextReader implements PlugIn {
                     break;
             }
         }
+        if (wordsPerLine==width) 
+            lines++; // last line does not end with EOL
    }
 
     void read(Reader r, int size, float[] pixels) throws IOException {
         StreamTokenizer tok = new StreamTokenizer(r);
         tok.resetSyntax();
-        tok.wordChars(33, 255);
+        tok.wordChars(33, 127);
         tok.whitespaceChars(0, ' ');
+        tok.whitespaceChars(128, 255);
         //tok.parseNumbers();
 
         int i = 0;

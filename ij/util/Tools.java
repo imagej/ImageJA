@@ -102,6 +102,7 @@ import java.util.StringTokenizer;
 	*	<code>defaultValue</code> if the string does not contain a parsable double
 	*/
 	public static double parseDouble(String s, double defaultValue) {
+		if (s==null) return defaultValue;
 		try {
 			Double d = new Double(s);
 			defaultValue = d.doubleValue();

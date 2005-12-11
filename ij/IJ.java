@@ -145,9 +145,9 @@ public class IJ {
 			{IJ.noImage(); return;}
 		Roi roi = imp.getRoi();
 		if ((capabilities&PlugInFilter.ROI_REQUIRED)!=0 && roi==null)
-			{IJ.error("Selection required"); return;}
+			{error("Selection required"); return;}
 		if ((capabilities&PlugInFilter.STACK_REQUIRED)!=0 && imp.getStackSize()==1)
-			{IJ.error("Stack required"); return;}
+			{error("Stack required"); return;}
 		int type = imp.getType();
 		switch (type) {
 			case ImagePlus.GRAY8:
@@ -286,10 +286,10 @@ public class IJ {
 		}
 		catch (ClassNotFoundException e) {
 			if (className.indexOf('_')!=-1)
-				IJ.error("Plugin not found: "+className);
+				error("Plugin not found: "+className);
 		}
-		catch (InstantiationException e) {IJ.error("Unable to load plugin (ins)");}
-		catch (IllegalAccessException e) {IJ.error("Unable to load plugin, possibly \nbecause it is not public.");}
+		catch (InstantiationException e) {error("Unable to load plugin (ins)");}
+		catch (IllegalAccessException e) {error("Unable to load plugin, possibly \nbecause it is not public.");}
 		redirectErrorMessages = false;
 		return thePlugIn;
 	} 
@@ -301,7 +301,7 @@ public class IJ {
 		if ((capabilities&PlugInFilter.DOES_16)!=0) s +=  "    16-bit grayscale\n";
 		if ((capabilities&PlugInFilter.DOES_32)!=0) s +=  "    32-bit (float) grayscale\n";
 		if ((capabilities&PlugInFilter.DOES_RGB)!=0) s += "    RGB color\n";
-		IJ.error(s);
+		error(s);
 	}
 	
     /** Starts executing a menu command in a separete thread and returns immediately. */
@@ -556,7 +556,7 @@ public class IJ {
 	}
 
 	/**Delays 'msecs' milliseconds.*/
-	public synchronized static void wait(int msecs) {
+	public static void wait(int msecs) {
 		try {Thread.sleep(msecs);}
 		catch (InterruptedException e) { }
 	}
@@ -1245,7 +1245,7 @@ public class IJ {
 	}
 
 	static void abort() {
-		if (ij!=null)
+		if (ij!=null || Interpreter.isBatchMode())
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
     

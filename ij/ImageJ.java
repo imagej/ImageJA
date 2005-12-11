@@ -14,6 +14,7 @@ import ij.plugin.filter.*;
 import ij.text.*;
 import ij.macro.Interpreter;
 import ij.io.Opener;
+import ij.util.Tools;
 
 /**
 This frame is the main ImageJ class.
@@ -23,21 +24,57 @@ and open source. There is no copyright. You are free to do anything you want
 with this source but I like to get credit for my work and I would like you to 
 offer your changes to me so I can possibly add them to the "official" version.
 
+<pre>
+Command line options:
+
+  file-name
+     Opens a file
+     Example 1: blobs.tif
+     Example 2: /Users/wayne/images/blobs.tif
+     Example3: e81*.tif
+
+  -ijpath path
+     Specified the path to the directory containing the plugins directory
+     Example: -ijpath /Applications/ImageJ
+
+  -port<n>
+     Specifies the port ImageJ uses to determine if another instance is running
+     Example 1: -port1
+     Example 2: -port2
+
+  -macro path [arg]
+     Runs a macro, passing it an optional argument
+     Example 1: -macro analyze.ijm
+     Example 2: -macro analyze /Users/wayne/images/stack1
+
+  -batch path [arg]
+    Runs a macro in batch (no GUI) mode, passing it an optional argument.
+    ImageJ exits when the macro finishes.
+
+  -eval "macro code"
+     Evaluates macro code
+     Example: -eval "print('Hello, world');"
+
+  -run command
+     Runs an ImageJ menu command
+     Example: -run "About ImageJ..."
+</pre>
 @author Wayne Rasband (wayne@codon.nih.gov)
 */
 public class ImageJ extends Frame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener {
 
-	public static final String VERSION = "1.35h";
+	public static final String VERSION = "1.35j";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
 	/** Address of socket where Image accepts commands */
-	public static final int PORT = 57294;
+	public static final int DEFAULT_PORT = 57294;
 
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static final String RESULTS_X="results.x",RESULTS_Y="results.y",
 		RESULTS_WIDTH="results.width",RESULTS_HEIGHT="results.height";
+	private static int port = DEFAULT_PORT;
 	
 	private Toolbar toolbar;
 	private Panel statusBar;
@@ -124,6 +161,8 @@ public class ImageJ extends Frame implements ActionListener,
 		String str = (m.nMacros==1?" macro)":" macros)");
 		IJ.showStatus("Version "+VERSION + " ("+ m.nPlugins + " commands, " + m.nMacros + str);
 		// Toolbar.getInstance().addTool("Spare tool [Cf0fG22ccCf00E22cc]"); 
+		if (applet==null)
+			new SocketListener();
 	}
     	
 	void setIcon() {
@@ -422,57 +461,91 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public static void main(String args[]) {
-		try {
-			if(args!=null && args[0].equals("-nogui")) {
-				IJ.noGUI = true;
-				String[] newArgs = new String[args.length-1];
-				System.arraycopy(args,1,newArgs,0,args.length-1);
-				args = newArgs;
-			}
-		} catch (Exception e) {
-			System.out.println("No command line arguments.");
+		boolean noGUI = false;
+		int nArgs = args!=null?args.length:0;
+		for (int i=0; i<nArgs; i++) {
+			String arg = args[i];
+			if (arg==null) continue;
+			if (args[i].startsWith("-")) {
+				if (args[i].startsWith("-batch"))
+					noGUI = true;
+				else if (args[i].startsWith("-ijpath") && i+1<nArgs) {
+					Prefs.setHomeDir(args[i+1]);
+					args[i+1] = null;
+				} else if (args[i].startsWith("-port")) {
+					int delta = (int)Tools.parseDouble(args[i].substring(5, args[i].length()), 0.0);
+					if (delta>0 && DEFAULT_PORT+delta<65536)
+						port = DEFAULT_PORT+delta;
+				}
+			} 
 		}
-		if (!IJ.isMacintosh() && args!=null && args.length>0) {
-			// If ImageJ is already running then isRunning()
-			// will pass the arguments to it using sockets.
-			if (isRunning(args)) return;
-		}
-		ImageJ ij = IJ.getInstance();    	
-		if (ij==null || (ij!=null && !ij.isShowing())) {
-			if (IJ.isMacOSX()) {
-				System.setProperty("com.apple.mrj.application.growbox.intrudes", "true");
-				ij = new ImageJ(null);
-				System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
-			} else
-				ij = new ImageJ(null);
+  		// If ImageJ is already running then isRunning()
+  		// will pass the arguments to it using sockets.
+		if (nArgs>0 && !noGUI && isRunning(args))
+  				return;
+ 		ImageJ ij = IJ.getInstance();    	
+		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
+			ij = new ImageJ(null);
 			ij.exitWhenQuiting = true;
 		}
 		int macros = 0;
-		if (args!=null) {
-			for (int i=0; i<args.length; i++) {
-				if (macros==0 && (args[i].endsWith(".ijm") || args[i].endsWith(".txt"))) {
-					IJ.runMacroFile(args[i]);
-					macros++;
-				} else if (args[i].indexOf("ij.ImageJ")==-1) 
-					IJ.open(args[i]);
-			}
+		for (int i=0; i<nArgs; i++) {
+			String arg = args[i];
+			if (arg==null) continue;
+			if (arg.startsWith("-")) {
+				if ((arg.startsWith("-macro") || arg.startsWith("-batch")) && i+1<nArgs) {
+					String arg2 = i+2<nArgs?args[i+2]:null;
+					IJ.runMacroFile(args[i+1], arg2);
+					break;
+				} else if (arg.startsWith("-eval") && i+1<nArgs) {
+					IJ.runMacro(args[i+1]);
+					args[i+1] = null;
+				} else if (arg.startsWith("-run") && i+1<nArgs) {
+					IJ.run(args[i+1]);
+					args[i+1] = null;
+				}
+			} else if (macros==0 && (arg.endsWith(".ijm") || arg.endsWith(".txt"))) {
+				IJ.runMacroFile(arg);
+				macros++;
+			} else if (arg.indexOf("ij.ImageJ")==-1)
+				IJ.open(arg);
 		}
-		if(IJ.noGUI)
-			System.exit(0);
+		if (noGUI) System.exit(0);
 	}
-       
+	
+	// Is there another instance of ImageJ? If so, send it the arguments and quit.
 	static boolean isRunning(String args[]) {
 		int macros = 0;
+		int nArgs = args.length;
+		int nCommands = 0;
 		try {
-			for (int i=0; i<args.length; i++) {
-				String cmd = args[i];
-				if (macros==0 && cmd.endsWith(".ijm")) {
-					cmd = "macro " + cmd;
+			sendArgument("user.dir "+System.getProperty("user.dir"));
+			for (int i=0; i<nArgs; i++) {
+				String arg = args[i];
+				if (arg==null) continue;
+				String cmd = null;
+				if (macros==0 && arg.endsWith(".ijm")) {
+					cmd = "macro " + arg;
 					macros++;
-				} else if (cmd.indexOf("ij.ImageJ")==-1)
-					cmd = "open " + cmd;
-				sendArgument(cmd);
-			}
+				} else if (arg.startsWith("-macro") && i+1<nArgs) {
+					String macroArg = i+2<nArgs?"("+args[i+2]+")":"";
+					cmd = "macro " + args[i+1] + macroArg;
+					sendArgument(cmd);
+					nCommands++;
+					break;
+				} else if (arg.startsWith("-eval") && i+1<nArgs) {
+					cmd = "eval " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.startsWith("-run") && i+1<nArgs) {
+					cmd = "run " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.indexOf("ij.ImageJ")==-1 && !arg.startsWith("-"))
+					cmd = "open " + arg;
+				if (cmd!=null) {
+					sendArgument(cmd);
+					nCommands++;
+				}
+			} // for
 		} catch (IOException e) {
 			return false;
 		}
@@ -480,11 +553,19 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	static void sendArgument(String arg) throws IOException {
-		Socket socket = new Socket("localhost", PORT);
+		Socket socket = new Socket("localhost", port);
 		PrintWriter out = new PrintWriter (new OutputStreamWriter(socket.getOutputStream()));
 		out.println(arg);
 		out.close();
 		socket.close();
+	}
+	
+	/**
+	Returns the port that ImageJ checks on startup to see if another instance is running.
+	@see ij.plugin.SocketListener
+	*/
+	public static int getPort() {
+		return port;
 	}
 
 } //class ImageJ

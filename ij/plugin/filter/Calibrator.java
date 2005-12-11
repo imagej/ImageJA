@@ -161,8 +161,7 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		else
 			imp.repaintWindow();
 		if (function!=Calibration.NONE)
-			showPlot(x, y, cal, sumResiduals, fitGoodness);
-		//IJ.write("cal: "+cal);
+			showPlot(x, y, cal, fitGoodness);
 	}
 
 	double[] doCurveFitting(double[] x, double[] y, int fitType) {
@@ -189,37 +188,16 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 		double ymin=a[0], ymax=a[1]; 
 		CurveFitter cf = new CurveFitter(x, y);
 		cf.doFit(fitType, showSettings);
-		//IJ.write("");
-		//IJ.write("n: "+n);
-		//IJ.write("iterations: "+cf.getIterations());
-		//IJ.write("max iterations: "+cf.getMaxIterations());
-		//IJ.write("function: "+cf.fList[fitType]);
 		int np = cf.getNumParams();
 		double[] p = cf.getParams();
-
-		double sumResidualsSqr = p[np];
-		//IJ.write("sum of residuals: "+IJ.d2s(Math.sqrt(sumResidualsSqr),6));
-		double sumY = 0.0;
-		for (int i=0; i<n; i++)
-			sumY += y[i];
-		sumResiduals = IJ.d2s(Math.sqrt(sumResidualsSqr/n),6);
-		double mean = sumY/n;
-		double sumMeanDiffSqr = 0.0;
-		int degreesOfFreedom = n-np;
-		double goodness=1.0;
-		for (int i=0; i<n; i++) {
-			sumMeanDiffSqr += sqr(y[i]-mean);
-			if (sumMeanDiffSqr>0.0 && degreesOfFreedom!=0)
-				goodness = 1.0-(sumResidualsSqr/degreesOfFreedom)*((n-1)/sumMeanDiffSqr);
-		}
-		fitGoodness = IJ.d2s(goodness,6);
+		fitGoodness = IJ.d2s(cf.getRSquared(),6);
 		double[] parameters = new double[np];
 		for (int i=0; i<np; i++)
 			parameters[i] = p[i];
 		return parameters;									
 	}
 	
-	void showPlot(double[] x, double[] y, Calibration cal, String sumResiduals, String fitGoodness) {
+	void showPlot(double[] x, double[] y, Calibration cal, String rSquared) {
 		if (!cal.calibrated())
 			return;
 		int xmin,xmax,range;
@@ -264,10 +242,8 @@ public class Calibrator implements PlugInFilter, Measurements, ActionListener {
 				drawLabel(pw, "e="+IJ.d2s(p[4],6));
 			ly += 0.04;
 		}
-		if (sumResiduals!=null)
-			{drawLabel(pw,"S.D.="+sumResiduals); sumResiduals=null;}
-		if (fitGoodness!=null)
-			{drawLabel(pw, "R^2="+fitGoodness); fitGoodness=null;}
+		if (rSquared!=null)
+			{drawLabel(pw, "R^2="+rSquared); rSquared=null;}
 		pw.draw();
 	}
 
