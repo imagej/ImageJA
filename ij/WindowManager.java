@@ -194,7 +194,7 @@ public class WindowManager {
 		if (imp==null) return;
 		checkForDuplicateName(imp);
 		imageList.addElement(win);
-		Menus.addWindowMenuItem(win.getImagePlus());
+		Menus.addWindowMenuItem(imp);
 		setCurrentWindow(win,true);
 	}
 
