@@ -204,7 +204,10 @@ public class FileSaver {
 	}
 
 	/** Save the image in JPEG format using a save file
-		dialog. Returns false if the user selects cancel. */
+		dialog. Returns false if the user selects cancel.
+		@see ij.plugin.JpegWriter#setQuality
+		@see ij.plugin.JpegWriter#getQuality
+	*/
 	public boolean saveAsJpeg() {
 		String path = getPath("JPEG", ".jpg");
 		if (path==null)
@@ -213,7 +216,10 @@ public class FileSaver {
 			return saveAsJpeg(path);
 	}
 
-	/** Save the image in JPEG format using the specified path. */
+	/** Save the image in JPEG format using the specified path.
+		@see ij.plugin.JpegWriter#setQuality
+		@see ij.plugin.JpegWriter#getQuality
+	*/
 	public boolean saveAsJpeg(String path) {
 		Object jpegWriter = null;
 		ImagePlus tempImage = WindowManager.getTempCurrentImage();
@@ -447,7 +453,10 @@ public class FileSaver {
 	}
 
 	void showErrorMessage(IOException e) {
-		IJ.error("An error occured writing the file.\n \n" + e);
+		String msg = e.getMessage();
+		if (msg.length()>100)
+			msg = msg.substring(0, 100);
+		IJ.error("FileSaver", "An error occured writing the file.\n \n" + msg);
 	}
 
 	/** Returns a string containing information about the specified  image. */

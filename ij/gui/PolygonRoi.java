@@ -75,8 +75,8 @@ public class PolygonRoi extends Roi {
 	}
 
 	/** Starts the process of creating a new user-generated polygon or polyline ROI. */
-	public PolygonRoi(int ox, int oy, ImagePlus imp) {
-		super(ox, oy, imp);
+	public PolygonRoi(int sx, int sy, ImagePlus imp) {
+		super(sx, sy, imp);
 		int tool = Toolbar.getToolId();
 		if (tool==Toolbar.POLYGON)
 			type = POLYGON;
@@ -89,12 +89,12 @@ public class PolygonRoi extends Roi {
 		xp2 = new int[maxPoints];
 		yp2 = new int[maxPoints];
 		nPoints = 2;
-		x = ox;
-		y = oy;
+		x = ic.offScreenX(sx);
+		y = ic.offScreenY(sy);
 		width=1;
 		height=1;
-		clipX = ox;
-		clipY = oy;
+		clipX = x;
+		clipY = y;
 		clipWidth = 1;
 		clipHeight = 1;
 		ImageWindow win = imp.getWindow();
@@ -159,7 +159,7 @@ public class PolygonRoi extends Roi {
 			updateFullWindow = true;
 	}
 
-	protected void grow(int x, int y) {
+	protected void grow(int sx, int sy) {
 	// Overrides grow() in Roi class
 	}
 
@@ -277,9 +277,10 @@ public class PolygonRoi extends Roi {
 		if (type!=POINT) modifyRoi();
 	}
 	
-    protected void moveHandle(int ox, int oy) {
-		if (clipboard!=null)
-			return;
+    protected void moveHandle(int sx, int sy) {
+		if (clipboard!=null) return;
+		int ox = ic.offScreenX(sx);
+		int oy = ic.offScreenY(sy);
 		xp[activeHandle] = ox-x;
 		yp[activeHandle] = oy-y;
 		if (xSpline!=null) {

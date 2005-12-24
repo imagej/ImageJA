@@ -27,9 +27,10 @@ public class OvalRoi extends Roi {
 		setImage(imp);
 	}
 
-	protected void moveHandle(int ox, int oy) {
-		if (clipboard!=null)
-			return;
+	protected void moveHandle(int sx, int sy) {
+		if (clipboard!=null) return;
+		int ox = ic.offScreenX(sx);
+		int oy = ic.offScreenY(sy);
 		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
 		int x1=x, y1=y, x2=x1+width, y2=y+height;
 		int w2 = (int)(0.14645*width);
@@ -65,7 +66,7 @@ public class OvalRoi extends Roi {
 	public void draw(Graphics g) {
 		if (ic==null) return;
 		g.setColor(ROIColor);
-		mag = ic!=null?ic.getMagnification():1.0;
+		mag = ic.getMagnification();
 		int sw = (int)(width*mag);
 		int sh = (int)(height*mag);
 		int sw2 = (int)(0.14645*width*mag);

@@ -54,14 +54,16 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	public static final int SHOW_NONE = 512;
 
 	/** Flood fill to ignore interior holes. */
-	public static final int FLOOD_FILL = 1024;
+	public static final int INCLUDE_HOLES = 1024;
 
 	static final String OPTIONS = "ap.options";
 	
 	static final int BYTE=0, SHORT=1, FLOAT=2, RGB=3;
+	static final double DEFAULT_MIN_SIZE = 0.0;
+	static final double DEFAULT_MAX_SIZE = Double.POSITIVE_INFINITY;
 	
-	private static double staticMinSize = 1;
-	private static double staticMaxSize = 999999;
+	private static double staticMinSize = 0.0;
+	private static double staticMaxSize = DEFAULT_MAX_SIZE;
 	private static int staticOptions = Prefs.getInt(OPTIONS,CLEAR_WORKSHEET);
 	private static String[] showStrings = {"Nothing","Outlines","Masks","Ellipses"};
 	private static double minCircularity=0.0, maxCircularity=1.0;
@@ -177,13 +179,14 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		GenericDialog gd = new GenericDialog("Analyze Particles");
 		minSize = staticMinSize;
 		maxSize = staticMaxSize;
+		if (maxSize==999999) maxSize = DEFAULT_MAX_SIZE;
 		options = staticOptions;
 		String units = cal.getUnit()+"^2";
 		int places = 0;
 		double cmin = minSize*unitSquared;
 		if ((int)cmin!=cmin) places = 2;
 		double cmax = maxSize*unitSquared;
-		if ((int)cmax!=cmax) places = 2;
+		if ((int)cmax!=cmax && cmax!=DEFAULT_MAX_SIZE) places = 2;
 		String minStr = IJ.d2s(cmin,places);
 		if (minStr.indexOf("-")!=-1) {
 			for (int i=places; i<=6; i++) {
@@ -207,7 +210,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		labels[0]="Display Results"; states[0] = (options&SHOW_RESULTS)!=0;
 		labels[1]="Exclude on Edges"; states[1]=(options&EXCLUDE_EDGE_PARTICLES)!=0;
 		labels[2]="Clear Results"; states[2]=(options&CLEAR_WORKSHEET)!=0;
-		labels[3]="Flood Fill"; states[3]=(options&FLOOD_FILL)!=0;
+		labels[3]="Include Holes"; states[3]=(options&INCLUDE_HOLES)!=0;
 		labels[4]="Summarize"; states[4]=(options&DISPLAY_SUMMARY)!=0;
 		labels[5]="Record Starts"; states[5]=(options&RECORD_STARTS)!=0;
 		gd.addCheckboxGroup(3, 2, labels, states);
@@ -219,10 +222,10 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		String[] minAndMax = Tools.split(gd.getNextString(), " -");
 		double mins = Tools.parseDouble(minAndMax[0]);
 		double maxs = minAndMax.length==2?Tools.parseDouble(minAndMax[1]):Double.NaN;
-		minSize = Double.isNaN(mins)?1.0:mins/unitSquared;
-		maxSize = Double.isNaN(maxs)?999999:maxs/unitSquared;
-		if (minSize<1.0) minSize = 1.0;
-		if (maxSize<minSize) maxSize = 999999.0;
+		minSize = Double.isNaN(mins)?DEFAULT_MIN_SIZE:mins/unitSquared;
+		maxSize = Double.isNaN(maxs)?DEFAULT_MAX_SIZE:maxs/unitSquared;
+		if (minSize<DEFAULT_MIN_SIZE) minSize = DEFAULT_MIN_SIZE;
+		if (maxSize<minSize) maxSize = DEFAULT_MAX_SIZE;
 		
 		minAndMax = Tools.split(gd.getNextString(), " -");
 		double minc = Tools.parseDouble(minAndMax[0]);
@@ -248,7 +251,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (gd.getNextBoolean())
 			options |= CLEAR_WORKSHEET; else options &= ~CLEAR_WORKSHEET;
 		if (gd.getNextBoolean())
-			options |= FLOOD_FILL; else options &= ~FLOOD_FILL;
+			options |= INCLUDE_HOLES; else options &= ~INCLUDE_HOLES;
 		if (gd.getNextBoolean())
 			options |= DISPLAY_SUMMARY; else options &= ~DISPLAY_SUMMARY;
 		if (gd.getNextBoolean())
@@ -289,7 +292,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		excludeEdgeParticles = (options&EXCLUDE_EDGE_PARTICLES)!=0;
 		resetCounter = (options&CLEAR_WORKSHEET)!=0;
 		showProgress = (options&SHOW_PROGRESS)!=0;
-		floodFill = (options&FLOOD_FILL)!=0;
+		floodFill = (options&INCLUDE_HOLES)==0;
 		recordStarts = (options&RECORD_STARTS)!=0;
 		displaySummary = (options&DISPLAY_SUMMARY)!=0;
 		if ((options&SHOW_OUTLINES)!=0)
@@ -375,6 +378,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			measurements = Analyzer.getMeasurements();
 		if (showChoice==ELLIPSES)
 			measurements |= ELLIPSE;
+		measurements &= ~LIMIT;  // ignore "Limit to Threshold"
 		roiNeedsImage = (measurements&PERIMETER)!=0 || (measurements&CIRCULARITY)!=0 || (measurements&FERET)!=0;
 		particleCount = 0;
 		wand = new Wand(ip);

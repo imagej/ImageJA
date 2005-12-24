@@ -41,7 +41,8 @@ public class FFT implements  PlugIn, Measurements {
 		if (arg.equals("redisplay"))
  			{redisplayPowerSpectrum(); return;}
  		ImageProcessor ip = imp.getProcessor();
-		FHT fht = (FHT)imp.getProperty("FHT");
+		Object obj = imp.getProperty("FHT");
+		FHT fht = (obj instanceof FHT)?(FHT)obj:null;
 		stackSize = imp.getStackSize();
 		boolean inverse;
 		if (fht==null && arg.equals("inverse")) {

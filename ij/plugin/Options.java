@@ -54,6 +54,7 @@ public class Options implements PlugIn {
 			if (f!=null)
 				FloatBlitter.divideByZeroValue = f.floatValue();
 		}
+		IJ.register(FloatBlitter.class); 
 			
 		Prefs.usePointerCursor = gd.getNextBoolean();
 		IJ.hideProcessStackDialog = gd.getNextBoolean();

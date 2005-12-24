@@ -611,12 +611,16 @@ public class ImagePlus implements ImageObserver, Measurements {
     		return title;
     }
 
-	/** Returns a shortened version of image name. */
+	/** Returns a shortened version of image name that does not 
+		include spaces or a file name extension. */
 	public String getShortTitle() {
 		String title = getTitle();
 		int index = title.indexOf(' ');
 		if (index>-1)
-			title = title.substring(0,index);
+			title = title.substring(0, index);
+		index = title.lastIndexOf('.');
+		if (index>0)
+			title = title.substring(0, index);
 		return title;
     }
 
@@ -982,34 +986,35 @@ public class ImagePlus implements ImageObserver, Measurements {
 		draw();
 	}
 	
-	/** Creates a new selection. The type is determined by which tool in
-		the tool bar is active. The user interactively sets the size. */
-	public void createNewRoi(int x, int y) {
+	/** Starts the process of creating a new selection, where sx and sy are the
+		starting screen coordinates. The selection type is determined by which tool in
+		the tool bar is active. The user interactively sets the selection size and shape. */
+	public void createNewRoi(int sx, int sy) {
 		killRoi();
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
-				roi = new Roi(x, y, this);
+				roi = new Roi(sx, sy, this);
 				break;
 			case Toolbar.OVAL:
-				roi = new OvalRoi(x, y, this);
+				roi = new OvalRoi(sx, sy, this);
 				break;
 			case Toolbar.POLYGON:
 			case Toolbar.POLYLINE:
 			case Toolbar.ANGLE:
-				roi = new PolygonRoi(x, y, this);
+				roi = new PolygonRoi(sx, sy, this);
 				break;
 			case Toolbar.FREEROI:
 			case Toolbar.FREELINE:
-				roi = new FreehandRoi(x, y, this);
+				roi = new FreehandRoi(sx, sy, this);
 				break;
 			case Toolbar.LINE:
-				roi = new Line(x, y, this);
+				roi = new Line(sx, sy, this);
 				break;
 			case Toolbar.TEXT:
-				roi = new TextRoi(x, y, this);
+				roi = new TextRoi(sx, sy, this);
 				break;
 			case Toolbar.POINT:
-				roi = new PointRoi(x, y, this);
+				roi = new PointRoi(sx, sy, this);
 				if (Prefs.pointAutoMeasure || Prefs.pointAutoNextSlice) IJ.run("Measure");
 				if (Prefs.pointAutoNextSlice && getStackSize()>1) {
 					IJ.run("Next Slice [>]");

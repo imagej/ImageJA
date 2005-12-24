@@ -91,6 +91,8 @@ public class IJ {
 		Returns any string value returned by the macro or null. 
 		The equivalent macro function is runMacro(). */
 	public static String runMacroFile(String name, String arg) {
+		if (ij==null && Menus.getCommands()==null)
+			init();
 		Macro_Runner mr = new Macro_Runner();
 		return mr.runMacroFile(name, arg);
 	}

@@ -46,12 +46,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		imageWidth = width;
 		imageHeight = height;
 		srcRect = new Rectangle(0, 0, imageWidth, imageHeight);
-		setDrawingSize(width, height);
+		setDrawingSize(imageWidth, (int)(imageHeight));
 		magnification = 1.0;
  		addMouseListener(this);
  		addMouseMotionListener(this);
  		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
-		//if (ij!=null) add(Menus.getPopupMenu());
 	}
 		
 	void updateImage(ImagePlus imp) {
@@ -61,7 +60,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		imageWidth = width;
 		imageHeight = height;
 		srcRect = new Rectangle(0, 0, imageWidth, imageHeight);
-		setDrawingSize(width, height);
+		setDrawingSize(imageWidth, (int)imageHeight);
 		magnification = 1.0;
 	}
 
@@ -176,23 +175,44 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 		
 	/**Converts a screen x-coordinate to an offscreen x-coordinate.*/
-	public int offScreenX(int x) {
-		return srcRect.x + (int)(x/magnification);
+	public int offScreenX(int sx) {
+		return srcRect.x + (int)(sx/magnification);
 	}
 		
 	/**Converts a screen y-coordinate to an offscreen y-coordinate.*/
-	public int offScreenY(int y) {
-		return srcRect.y + (int)(y/magnification);
+	public int offScreenY(int sy) {
+		return srcRect.y + (int)(sy/magnification);
+	}
+	
+	/**Converts a screen x-coordinate to a floating-point offscreen x-coordinate.*/
+	public double offScreenXD(int sx) {
+		return srcRect.x + sx/magnification;
+	}
+		
+	/**Converts a screen y-coordinate to a floating-point offscreen y-coordinate.*/
+	public double offScreenYD(int sy) {
+		return srcRect.y + sy/magnification;
+
 	}
 	
 	/**Converts an offscreen x-coordinate to a screen x-coordinate.*/
-	public int screenX(int x) {
-		return  (int)((x-srcRect.x)*magnification);
+	public int screenX(int ox) {
+		return  (int)((ox-srcRect.x)*magnification);
 	}
 	
 	/**Converts an offscreen y-coordinate to a screen y-coordinate.*/
-	public int screenY(int y) {
-		return  (int)((y-srcRect.y)*magnification);
+	public int screenY(int oy) {
+		return  (int)((oy-srcRect.y)*magnification);
+	}
+
+	/**Converts a floating-point offscreen x-coordinate to a screen x-coordinate.*/
+	public int screenXD(double ox) {
+		return  (int)((ox-srcRect.x)*magnification);
+	}
+	
+	/**Converts a floating-point offscreen x-coordinate to a screen x-coordinate.*/
+	public int screenYD(double oy) {
+		return  (int)((oy-srcRect.y)*magnification);
 	}
 
 	public double getMagnification() {
@@ -604,7 +624,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 					roi.handleMouseDown(sx, sy);
 				else {
 					imp.killRoi();
-					imp.createNewRoi(ox,oy);
+					imp.createNewRoi(sx,sy);
 				}
 				return;
 			}
@@ -616,7 +636,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				return;
 			}
 		}
-		imp.createNewRoi(ox,oy);
+		imp.createNewRoi(sx,sy);
 	}
 	
 	void setRoiModState(MouseEvent e, Roi roi, int handle) {

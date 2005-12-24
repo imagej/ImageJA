@@ -78,10 +78,16 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		this(r.x, r.y, r.width, r.height);
 	}
 
-	/** Starts the process of creating a user-defined rectangular Roi. */
-	public Roi(int x, int y, ImagePlus imp) {
+	/** Starts the process of creating a user-defined rectangular Roi,
+		where sx and sy are the starting screen coordinates. */
+	public Roi(int sx, int sy, ImagePlus imp) {
 		setImage(imp);
-		setLocation(x, y);
+		int ox=sx, oy=sy;
+		if (ic!=null) {
+			ox = ic.offScreenX(sx);
+			oy = ic.offScreenY(sy);
+		}
+		setLocation(ox, oy);
 		width = 0;
 		height = 0;
 		state = CONSTRUCTING;
@@ -195,9 +201,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		catch (CloneNotSupportedException e) {return null;}
 	}
 	
-	protected void grow(int xNew, int yNew) {
-		if (clipboard!=null)
-			return;
+	protected void grow(int sx, int sy) {
+		if (clipboard!=null) return;
+		int xNew = ic.offScreenX(sx);
+		int yNew = ic.offScreenY(sy);
 		if (type==RECTANGLE) {
 			if (xNew < 0) xNew = 0;
 			if (yNew < 0) yNew = 0;
@@ -238,9 +245,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldHeight = height;
 	}
 
-	protected void moveHandle(int ox, int oy) {
-		if (clipboard!=null)
-			return;
+	protected void moveHandle(int sx, int sy) {
+		if (clipboard!=null) return;
+		int ox = ic.offScreenX(sx);
+		int oy = ic.offScreenY(sy);
 		if (ox<0) ox=0; if (oy<0) oy=0;
 		if (ox>xMax) ox=xMax; if (oy>yMax) oy=yMax;
 		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
@@ -271,7 +279,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldWidth=width; oldHeight=height;
 	}
 
-	void move(int xNew, int yNew) {
+	void move(int sx, int sy) {
+		int xNew = ic.offScreenX(sx);
+		int yNew = ic.offScreenY(sy);
 		x += xNew - startX;
 		y += yNew - startY;
 		if (clipboard==null && type==RECTANGLE) {
@@ -369,17 +379,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		if (ic==null) return;
 		constrain = (flags&Event.SHIFT_MASK)!=0;
 		center = (flags&Event.CTRL_MASK)!=0 || (IJ.isMacintosh()&&(flags&Event.META_MASK)!=0);
-		int ox = ic.offScreenX(sx);
-		int oy = ic.offScreenY(sy);
 		switch(state) {
 			case CONSTRUCTING:
-				grow(ox, oy);
+				grow(sx, sy);
 				break;
 			case MOVING:
-				move(ox, oy);
+				move(sx, sy);
 				break;
 			case MOVING_HANDLE:
-				moveHandle(ox, oy);
+				moveHandle(sx, sy);
 				break;
 			default:
 				break;

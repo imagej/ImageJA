@@ -1250,11 +1250,11 @@ public class Functions implements MacroConstants, Measurements {
 		Variable lineWidth = getLastVariable();
 		resetImage();
 		ImagePlus imp = getImage();
-		int x1=-1, y1=-1, x2=-1, y2=-1;
+		double x1=-1, y1=-1, x2=-1, y2=-1;
 		Roi roi = imp.getRoi();
 		if (roi!=null && roi.getType()==Roi.LINE) {
 			Line line = (Line)roi;
-			x1=line.x1; y1=line.y1; x2=line.x2; y2=line.y2;
+			x1=line.x1d; y1=line.y1d; x2=line.x2d; y2=line.y2d;
 		}
 		vx1.setValue(x1);
 		vy1.setValue(y1);
@@ -1543,12 +1543,9 @@ public class Functions implements MacroConstants, Measurements {
 		String xLabel = getNextString();
 		String yLabel = getNextString();
 		double[] x, y;
-		if (interp.nextToken()==')') {
-			x = new double[1];
-			y = new double[1];
-			x[0] = -1.0;
-			y[0] = -1.0;
-		} else {
+		if (interp.nextToken()==')')
+			x = y = null;
+		else {
 			x = getNextArray();
 			if (interp.nextToken()==')') {
 				y = x;

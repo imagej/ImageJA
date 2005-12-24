@@ -22,8 +22,9 @@ import java.awt.event.KeyEvent;
 	Calls HandleExtraFileTypes plugin if the file type is unrecognised. */
 public class Opener {
 
-	private static final int UNKNOWN=0,TIFF=1,DICOM=2,FITS=3,PGM=4,JPEG=5,
-		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,TIFF_AND_DICOM=14,CUSTOM=15;
+	public static final int UNKNOWN=0,TIFF=1,DICOM=2,FITS=3,PGM=4,JPEG=5,
+		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,
+		TIFF_AND_DICOM=14,CUSTOM=15;
 	private static final String[] types = {"unknown","tif","dcm","fits","pgm",
 		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d"};
 	private static String defaultDirectory = null;
@@ -172,7 +173,7 @@ public class Opener {
 		if (directory.length()>0 && !directory.endsWith(Prefs.separator))
 			directory += Prefs.separator;
 		String path = directory+name;
-		fileType = getFileType(path,name);
+		fileType = getFileType(path);
 		if (IJ.debugMode)
 			IJ.log("openImage: \""+types[fileType]+"\", "+path);
 		switch (fileType) {
@@ -540,13 +541,15 @@ public class Opener {
 
 	/**
 	Attempts to determine the image file type by looking for
-	'magic numbers' or text strings in the header.
+	'magic numbers' and the file name extension.
 	 */
-	int getFileType(String path, String name) {
+	public int getFileType(String path) {
+		File file = new File(path);
+		String name = file.getName();
 		InputStream is;
 		byte[] buf = new byte[132];
 		try {
-			is = new FileInputStream(path);
+			is = new FileInputStream(file);
 			is.read(buf, 0, 132);
 			is.close();
 		} catch (IOException e) {

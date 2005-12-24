@@ -25,9 +25,9 @@ with this source but I like to get credit for my work and I would like you to
 offer your changes to me so I can possibly add them to the "official" version.
 
 <pre>
-Command line options:
+The following command line options are recognized by ImageJ:
 
-  file-name
+  "file-name"
      Opens a file
      Example 1: blobs.tif
      Example 2: /Users/wayne/images/blobs.tif
@@ -64,7 +64,7 @@ Command line options:
 public class ImageJ extends Frame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener {
 
-	public static final String VERSION = "1.35j";
+	public static final String VERSION = "1.35k";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -236,7 +236,7 @@ public class ImageJ extends Frame implements ActionListener,
 			MenuItem item = (MenuItem)e.getSource();
 			String cmd = e.getActionCommand();
 			if (item.getParent()==Menus.openRecentMenu) {
-				new ImageOpener(cmd); // open image in separate thread
+				new RecentOpener(cmd); // open image in separate thread
 				return;
 			}
 			hotkey = false;
@@ -562,44 +562,11 @@ public class ImageJ extends Frame implements ActionListener,
 	
 	/**
 	Returns the port that ImageJ checks on startup to see if another instance is running.
-	@see ij.plugin.SocketListener
+	@see ij.SocketListener
 	*/
 	public static int getPort() {
 		return port;
 	}
 
-} //class ImageJ
 
-
-/** Opens, in a separate thread, files selected from the File/Open Recent submenu.*/
-class ImageOpener implements Runnable {
-	private String path;
-
-	ImageOpener(String path) {
-		this.path = path;
-		Thread thread = new Thread(this, "ImageOpener");
-		thread.start();
-	}
-
-	/** Open the file and move the path to top of the submenu. */
-	public void run() {
-		Opener o = new Opener();
-		o.open(path);
-		Menu menu = Menus.openRecentMenu;
-		int n = menu.getItemCount();
-		int index = 0;
-		for (int i=0; i<n; i++) {
-			if (menu.getItem(i).getLabel().equals(path)) {
-				index = i;
-				break;
-			}
-		}
-		if (index>0) {
-			MenuItem item = menu.getItem(index);
-			menu.remove(index);
-			menu.insert(item, 0);
-		}
-	}
-
-} //ImageOpener
-
+}

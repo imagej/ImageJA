@@ -736,5 +736,13 @@ public class Analyzer implements PlugInFilter, Measurements {
 		return y;
 	}
 	
+	/** Returns an updated Y coordinate based on
+		the current "Invert Y Coordinates" flag. */
+	public static double updateY(double y, int imageHeight) {
+		if ((systemMeasurements&INVERT_Y)!=0)
+			y = imageHeight-y-1;
+		return y;
+	}
+
 }
 	
