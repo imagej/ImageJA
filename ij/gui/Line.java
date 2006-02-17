@@ -25,6 +25,7 @@ public class Line extends Roi {
 		startxd = startX; startyd = startY;
 		grow(ox2, oy2);
 		x1d=x+x1R; y1d=y+y1R; x2d=x+x2R; y2d=y+y2R;
+		x1=(int)x1d; y1=(int)y1d; x2=(int)x2d; y2=(int)y2d;
 		state = NORMAL;
 	}
 
@@ -194,7 +195,7 @@ public class Line extends Roi {
 			double[] profile;
 			ImageProcessor ip = imp.getProcessor();
 			if (lineWidth==1)
-				profile = ip.getLine(x1, y1, x2, y2);
+				profile = ip.getLine(x1d, y1d, x2d, y2d);
 			else {
 				ImageProcessor ip2 = rotateWideLine(ip);
 				int width = ip2.getWidth();

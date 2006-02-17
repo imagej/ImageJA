@@ -20,6 +20,7 @@ public class PolygonRoi extends Roi {
 	
 	private double angle1, degrees=Double.NaN;
 	private int xClipMin, yClipMin, xClipMax, yClipMax;
+	private boolean userCreated;
 
 	long mouseUpTime = 0;
 
@@ -99,6 +100,7 @@ public class PolygonRoi extends Roi {
 		clipHeight = 1;
 		ImageWindow win = imp.getWindow();
 		state = CONSTRUCTING;
+		userCreated = true;
 	}
 
 	private void drawStartBox(Graphics g) {
@@ -272,7 +274,7 @@ public class PolygonRoi extends Roi {
 		if (imp!=null && !(type==TRACED_ROI))
 			imp.draw(x-5, y-5, width+10, height+10);
 		oldX=x; oldY=y; oldWidth=width; oldHeight=height;
-		if (Recorder.record && (type==POLYGON||type==POLYLINE||type==ANGLE))
+		if (Recorder.record && userCreated && (type==POLYGON||type==POLYLINE||type==ANGLE))
 			Recorder.recordRoi(getPolygon(), type);
 		if (type!=POINT) modifyRoi();
 	}
@@ -551,6 +553,8 @@ public class PolygonRoi extends Roi {
 			return;
 		}		
 		if (state!=CONSTRUCTING)
+			return;
+		if (IJ.spaceBarDown()) // is user scrolling image?
 			return;
 		boolean samePoint = (xp[nPoints-2]==xp[nPoints-1] && yp[nPoints-2]==yp[nPoints-1]);
 		Rectangle biggerStartBox = new Rectangle(ic.screenX(startX)-5, ic.screenY(startY)-5, 10, 10);

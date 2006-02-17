@@ -286,7 +286,7 @@ public class TiffDecoder {
 		}
 		String cs = (count==1)?"":", count=" + count;
 		dInfo += "    " + tag + ", \"" + name + "\", value=" + value + cs + "\n";
-		//ij.IJ.write(tag + ", \"" + name + "\", value=" + value + cs);
+		//ij.IJ.log(tag + ", \"" + name + "\", value=" + value + cs + "\n");
 	}
 
 	double getRational(int loc) throws IOException {
@@ -305,7 +305,6 @@ public class TiffDecoder {
 	
 	FileInfo OpenIFD() throws IOException {
 	// Get Image File Directory data
-	
 		int tag, fieldType, count, value;
 		int nEntries = getShort();
 		if (nEntries<1 || nEntries>1000)
@@ -608,8 +607,6 @@ public class TiffDecoder {
 			if (fi!=null) {
 				if (fi.nImages>1) // ignore extra IFDs in ImageJ and NIH Image stacks
 					ifdOffset = 0;
-				//if (fi.fileType==FileInfo.RGB48) // can't open 48-bit RGB stacks
-				//	ifdOffset = 0;
 			}
 		}
 		if (info.size()==0) {

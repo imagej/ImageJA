@@ -239,8 +239,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener 
 		boolean isRunning = running || running2;
 		running = running2 = false;
 		if (isRunning) IJ.wait(500);
-		ImageJ ij = IJ.getInstance();
-		if (ij==null || IJ.getApplet()!=null || Interpreter.isBatchMode() ||  IJ.macroRunning())
+		if (ij==null || IJ.getApplet()!=null || Interpreter.isBatchMode() || IJ.macroRunning())
 			imp.changes = false;
 		if (imp.changes) {
 			SaveChangesDialog d = new SaveChangesDialog(this, imp.getTitle());
@@ -300,7 +299,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener 
 	
 	public void focusGained(FocusEvent e) {
 		//IJ.log("focusGained: "+imp.getTitle());
-		if (!Interpreter.isBatchMode() && !IJ.noGUI)
+		if (!Interpreter.isBatchMode() && ij!=null && !ij.quitting())
 			WindowManager.setCurrentWindow(this);
 	}
 
@@ -308,8 +307,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener 
 	public void windowActivated(WindowEvent e) {
 		//IJ.log("windowActivated: "+imp.getTitle());
 		if (IJ.isMacintosh() && IJ.getInstance()!=null) {
-			IJ.wait(10); // needed for 1.4 on OS X
-			this.setMenuBar(Menus.getMenuBar());
+			IJ.wait(10); // may be needed for Java 1.4 on OS X
+			setMenuBar(Menus.getMenuBar());
 		}
 		ImageJ ij = IJ.getInstance();
 		boolean quitting = ij!=null && ij.quitting();
@@ -322,7 +321,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener 
 		//IJ.log("windowClosing: "+imp.getTitle()+" "+closed);
 		if (closed)
 			return;
-		if (IJ.getInstance()!=null) {
+		if (ij!=null) {
 			WindowManager.setCurrentWindow(this);
 			IJ.doCommand("Close");
 		} else {

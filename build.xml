@@ -38,7 +38,7 @@
 	<fileset dir="plugins/" />
     </copy>
 
-    <copy file="ij.html" tofile="dist/ij.html" />
+    <copy file="applet.html" tofile="dist/applet.html" />
     <delete dir="dist/ij" />
   </target>
 

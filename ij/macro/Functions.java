@@ -212,6 +212,7 @@ public class Functions implements MacroConstants, Measurements {
 			case GET_METADATA: str = getMetadata(); break;
 			case FILE: str = doFile(); break;
 			case SELECTION_NAME: str = selectionName(); break;
+			case GET_VERSION: interp.getParens();  str = IJ.getVersion(); break;
 			case RUN_JAVA: str = runJava(); break;
 			default:
 				str="";
@@ -1076,6 +1077,8 @@ public class Functions implements MacroConstants, Measurements {
 		String[] list = f.list();
 		if (list==null)
 			return new Variable[0];
+		if (System.getProperty("os.name").indexOf("Linux")!=-1)
+			ij.util.StringSorter.sort(list);
     	File f2;
     	int hidden = 0;
     	for (int i=0; i<list.length; i++) {

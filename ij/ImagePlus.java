@@ -90,6 +90,9 @@ public class ImagePlus implements ImageObserver, Measurements {
 	private boolean ignoreFlush;
 	private boolean errorLoadingImage;
 	private static ImagePlus clipboard;
+	private static Vector listeners;
+	private static boolean inListener;
+	private static final int OPENED=0, CLOSED=1, UPDATED=2;
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -226,6 +229,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 			width = (int)(width*mag);
 			height = (int)(height*mag);
 			ic.repaint(x, y, width, height);
+			if (listeners!=null && roi!=null && roi.getPasteMode()!=Roi.NOT_PASTING)
+				notifyListeners(UPDATED);
 		}
 	}
 	
@@ -238,6 +243,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 			if (win!=null)
 				win.getCanvas().setImageUpdated();
 			draw();
+			if (listeners!=null && !inListener) notifyListeners(UPDATED);
 		}
 	}
 	
@@ -283,6 +289,20 @@ public class ImagePlus implements ImageObserver, Measurements {
 			unlock();
 	}
 
+	/** Closes this image and sets the pixel arrays to null. */
+	public void close() {
+		ImageWindow win = getWindow();
+		if (win!=null) {
+			changes = false; // avoid 'save changes?' dialog and potential deadlocks
+			win.close();
+		} else {
+            if (WindowManager.getCurrentImage()==this)
+                WindowManager.setTempCurrentImage(null);
+			killRoi(); //save any ROI so it can be restored later
+			Interpreter.removeBatchModeImage(this);
+		}
+    }
+
 	/** Opens a window to display this image and clears the status bar. */
 	public void show() {
 		show("");
@@ -323,6 +343,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				}
 				//IJ.log(""+(System.currentTimeMillis()-start));
 			}
+			if (listeners!=null) notifyListeners(OPENED);
 		}
 	}
 	
@@ -750,8 +771,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (imageType!=previousType) {
 			if (win!=null)
 				Menus.updateMenus();
-			if (calibration!=null || globalCalibration!=null)
-				getCalibration().setImage(this);
+			getLocalCalibration().setImage(this);
 		}
     }
 
@@ -1177,6 +1197,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		do its job. Does nothing if the image is locked or a
 		setIgnoreFlush(true) call has been made. */
 	public synchronized void flush() {
+		if (listeners!=null)
+			notifyListeners(CLOSED);
 		if (locked || ignoreFlush)
 			return;
 		if (ip!=null) {
@@ -1232,9 +1254,11 @@ public class ImagePlus implements ImageObserver, Measurements {
 	/** Returns this image's calibration. */
 	public Calibration getCalibration() {
 		//IJ.log("getCalibration: "+globalCalibration+" "+calibration);
-		if (globalCalibration!=null)
-			return globalCalibration.copy();
-		else {
+		if (globalCalibration!=null) {
+			Calibration gc = globalCalibration.copy();
+			gc.setImage(this);
+			return gc;
+		} else {
 			if (calibration==null)
 				calibration = new Calibration(this);
 			return calibration;
@@ -1265,6 +1289,14 @@ public class ImagePlus implements ImageObserver, Measurements {
     public Calibration getGlobalCalibration() {
 			return globalCalibration;
     }
+
+	/** Returns this image's local calibration, ignoring 
+		the "Global" calibration flag. */
+	public Calibration getLocalCalibration() {
+		if (calibration==null)
+			calibration = new Calibration(this);
+		return calibration;
+	}
 
     /** Displays the cursor coordinates and pixel value in the status bar.
     	Called by ImageCanvas when the mouse moves. Can be overridden by
@@ -1306,11 +1338,11 @@ public class ImagePlus implements ImageObserver, Measurements {
 		Calibration cal = getCalibration();
 		if (getProperty("FHT")!=null)
 			return getFFTLocation(x, height-y-1, cal);
-		y = Analyzer.updateY(y, height);
-		if (cal.scaled() && !IJ.altKeyDown()) {
-			String s = " x="+IJ.d2s(cal.getX(x)) + ", y=" + IJ.d2s(cal.getY(y));
+		//y = Analyzer.updateY(y, height);
+		if (!IJ.altKeyDown()) {
+			String s = " x="+d2s(cal.getX(x)) + ", y=" + d2s(cal.getY(y,height));
 			if (getStackSize()>1)
-				s += ", z="+IJ.d2s(cal.getZ(getCurrentSlice()-1));
+				s += ", z="+d2s(cal.getZ(getCurrentSlice()-1));
 			return s;
 		} else {
 			String s =  " x="+x+", y=" + y;
@@ -1319,6 +1351,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 			return s;
 		}
     }
+    
+    private String d2s(double n) {
+		return n==(int)n?Integer.toString((int)n):IJ.d2s(n);
+	}
     
     private String getValueAsString(int x, int y) {
 		Calibration cal = getCalibration();
@@ -1461,6 +1497,41 @@ public class ImagePlus implements ImageObserver, Measurements {
 	/** Returns the internal clipboard or null if the internal clipboard is empty. */
 	public static ImagePlus getClipboard() {
 		return clipboard;
+	}
+	
+	synchronized void notifyListeners(int id) {
+		if (listeners==null) return;
+		for (int i=0; i<listeners.size(); i++) {
+			ImageListener listener = (ImageListener)listeners.elementAt(i);
+			switch (id) {
+				case OPENED:
+					listener.imageOpened(this);
+					break;
+				case CLOSED:
+					listener.imageClosed(this);
+					break;
+				case UPDATED: 
+					inListener = true;
+					listener.imageUpdated(this);
+					inListener = false;
+					break;
+			}
+			if (listeners==null) break;
+		}
+	}
+
+	public static synchronized void addImageListener(ImageListener listener) {
+		if (listeners==null)
+			listeners = new Vector();
+		listeners.addElement(listener);
+	}
+	
+	public static synchronized void removeImageListener(ImageListener listener) {
+		if (listeners==null)
+			return;
+		listeners.removeElement(listener);
+		if (listeners.isEmpty())
+			listeners = null;
 	}
 	
     public String toString() {

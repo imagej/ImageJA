@@ -290,6 +290,10 @@ public class IJ {
 			if (className.indexOf('_')!=-1)
 				error("Plugin not found: "+className);
 		}
+		catch (NoClassDefFoundError e) {
+			if (className.indexOf('_')!=-1)
+				error("Plugin not found: "+className);
+		}
 		catch (InstantiationException e) {error("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {error("Unable to load plugin, possibly \nbecause it is not public.");}
 		redirectErrorMessages = false;
@@ -849,7 +853,9 @@ public class IJ {
 	}
 
 	/** Sets the lower and upper threshold levels and displays the image 
-		using red to highlight thresholded pixels. */
+		using red to highlight thresholded pixels. May not work correctly on
+		16 and 32 bit images unless the display range has been reset using IJ.resetMinAndMax().
+	*/
 	public static void setThreshold(double lowerThreshold, double upperThresold) {
 		setThreshold(lowerThreshold, upperThresold, null);
 	}
@@ -906,13 +912,15 @@ public class IJ {
 			win.toFront();
 			WindowManager.setWindow(win);
 			long start = System.currentTimeMillis();
+			// timeout after 2 seconds unless current thread is event dispatch thread
+			String thread = Thread.currentThread().getName();
+			int timeout = thread!=null&&thread.indexOf("EventQueue")!=-1?0:2000;
 			while (true) {
 				wait(10);
 				imp = WindowManager.getCurrentImage();
 				if (imp!=null && imp.getTitle().equals(title))
 					return; // specified image is now active
-				if ((System.currentTimeMillis()-start)>2000) {
-					// 2 second timeout
+				if ((System.currentTimeMillis()-start)>timeout) {
 					WindowManager.setCurrentWindow(win);
 					return;
 				}
@@ -923,7 +931,7 @@ public class IJ {
 	/** Activates the window with the specified title. */
 	public static void selectWindow(String title) {
 		long start = System.currentTimeMillis();
-		while (System.currentTimeMillis()-start<4000) { // 4 sec timeout
+		while (System.currentTimeMillis()-start<3000) { // 3 sec timeout
 			Frame frame = WindowManager.getFrame(title);
 			if (frame!=null && !(frame instanceof ImageWindow)) {
 				selectWindow(frame);
@@ -1000,7 +1008,7 @@ public class IJ {
 		if (t1==ip.NO_THRESHOLD)
 			w.autoOutline(x, y);
 		else
-			w.autoOutline(x, y, (int)t1, (int)ip.getMaxThreshold());
+			w.autoOutline(x, y, t1, ip.getMaxThreshold());
 		if (w.npoints>0) {
 			Roi previousRoi = img.getRoi();
 			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, Roi.TRACED_ROI);
@@ -1113,6 +1121,14 @@ public class IJ {
 	}
 	
 	
+	/** Open the specified file as a tiff, bmp, dicom, fits, pgm, gif 
+		or jpeg image and returns an ImagePlus object if successful.
+		Calls HandleExtraFileTypes plugin if the file type is not recognised.
+		Note that 'path' can also be a URL. */
+	public static ImagePlus openImage(String path) {
+		return (new Opener()).openImage(path);
+	}
+
 	/** Saves an image, lookup table, selection or text window to the specified file path. 
 		The path must end in ".tif", ".jpg", ".gif", ".zip", ".raw", ".avi", ".bmp", ".lut", ".roi" or ".txt".  */
 	public static void save(String path) {
@@ -1163,7 +1179,6 @@ public class IJ {
 			path = updateExtension(path, ".lut");
 			format = "LUT...";
 		} else if (format.indexOf("measurements")!=-1) {
-			path = updateExtension(path, ".txt");
 			format = "Measurements...";
 		} else if (format.indexOf("selection")!=-1 || format.indexOf("roi")!=-1) {
 			path = updateExtension(path, ".roi");
@@ -1199,7 +1214,9 @@ public class IJ {
 		if (type.indexOf("16")!=-1) bitDepth = 16;
 		if (type.indexOf("rgb")!=-1) bitDepth = 24;
 		if (type.indexOf("32")!=-1) bitDepth = 32;
-		int options = 0;
+		int options = NewImage.FILL_WHITE;
+		if (bitDepth==16 || bitDepth==32)
+			options = NewImage.FILL_BLACK;
 		if (type.indexOf("white")!=-1)
 			options = NewImage.FILL_WHITE;
 		else if (type.indexOf("black")!=-1)

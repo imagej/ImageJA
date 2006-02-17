@@ -14,7 +14,7 @@ import ij.plugin.filter.*;
 import ij.text.*;
 import ij.macro.Interpreter;
 import ij.io.Opener;
-import ij.util.Tools;
+import ij.util.*;
 
 /**
 This frame is the main ImageJ class.
@@ -53,18 +53,19 @@ The following command line options are recognized by ImageJ:
 
   -eval "macro code"
      Evaluates macro code
-     Example: -eval "print('Hello, world');"
+     Example 1: -eval "print('Hello, world');"
+     Example 2: -eval "return getVersion();"
 
   -run command
      Runs an ImageJ menu command
      Example: -run "About ImageJ..."
 </pre>
-@author Wayne Rasband (wayne@codon.nih.gov)
+@author Wayne Rasband (wsr@nih.gov)
 */
 public class ImageJ extends Frame implements ActionListener, 
-	MouseListener, KeyListener, WindowListener, ItemListener {
+	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
-	public static final String VERSION = "1.35k";
+	public static final String VERSION = "1.35q";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -147,13 +148,13 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.error(err1);
 		if (err2!=null)
 			IJ.error(err2);
-		if (IJ.isMacintosh()) {
-			Object qh = null;
-			if (IJ.isJava14())
-				qh = IJ.runPlugIn("MacAdapter", "");
-			if (qh==null)
-				IJ.runPlugIn("QuitHandler", "");
-		}
+		if (IJ.isMacintosh()&&applet==null) { 
+			Object qh = null; 
+			if (IJ.isJava14()) 
+				qh = IJ.runPlugIn("MacAdapter", ""); 
+			if (qh==null) 
+				IJ.runPlugIn("QuitHandler", ""); 
+		} 
 		if (IJ.isJava2() && applet==null) {
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		}
@@ -410,8 +411,8 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public void windowActivated(WindowEvent e) {
 		if (IJ.isMacintosh()) {
-			IJ.wait(10); // needed for 1.4 on OS X
-			this.setMenuBar(Menus.getMenuBar());
+			IJ.wait(10); // may be needed for Java 1.4 on OS X
+			setMenuBar(Menus.getMenuBar());
 		}
 	}
 	
@@ -430,20 +431,9 @@ public class ImageJ extends Frame implements ActionListener,
 
 	/** Called by ImageJ when the user selects Quit. */
 	public void quit() {
-		//IJ.log("quit: "+exitWhenQuiting); IJ.wait(5000);
-		quitting = true;
-		if (!WindowManager.closeAllWindows()) {
-			quitting = false;
-			return;
-		}
-		//IJ.log("savePreferences");
-		if (applet==null)
-			Prefs.savePreferences();
-		setVisible(false);
-		//IJ.log("dispose");
-		dispose();
-		if (exitWhenQuiting)
-			System.exit(0);
+		Thread thread = new Thread(this, "Quit");
+		thread.setPriority(Thread.NORM_PRIORITY);
+		thread.start();
 	}
 	
 	/** Returns true if ImageJ is exiting. */
@@ -466,6 +456,7 @@ public class ImageJ extends Frame implements ActionListener,
 		for (int i=0; i<nArgs; i++) {
 			String arg = args[i];
 			if (arg==null) continue;
+			//IJ.log(i+"  "+arg);
 			if (args[i].startsWith("-")) {
 				if (args[i].startsWith("-batch"))
 					noGUI = true;
@@ -498,7 +489,9 @@ public class ImageJ extends Frame implements ActionListener,
 					IJ.runMacroFile(args[i+1], arg2);
 					break;
 				} else if (arg.startsWith("-eval") && i+1<nArgs) {
-					IJ.runMacro(args[i+1]);
+					String rtn = IJ.runMacro(args[i+1]);
+					if (rtn!=null)
+						System.out.print(rtn);
 					args[i+1] = null;
 				} else if (arg.startsWith("-run") && i+1<nArgs) {
 					IJ.run(args[i+1]);
@@ -517,6 +510,8 @@ public class ImageJ extends Frame implements ActionListener,
 	static boolean isRunning(String args[]) {
 		int macros = 0;
 		int nArgs = args.length;
+		if (nArgs==2 && args[0].startsWith("-ijpath"))
+			return false;
 		int nCommands = 0;
 		try {
 			sendArgument("user.dir "+System.getProperty("user.dir"));
@@ -568,5 +563,40 @@ public class ImageJ extends Frame implements ActionListener,
 		return port;
 	}
 
+	/** Quit using a separate thread, hopefully avoiding thread deadlocks. */
+	public void run() {
+		quitting = true;
+		boolean changes = false;
+		int[] wList = WindowManager.getIDList();
+		if (wList!=null) {
+			for (int i=0; i<wList.length; i++) {
+				ImagePlus imp = WindowManager.getImage(wList[i]);
+				if (imp!=null & imp.changes==true) {
+					changes = true;
+					break;
+				}
+			}
+		}
+		if (!changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS) {
+			GenericDialog gd = new GenericDialog("ImageJ", this);
+			gd.addMessage("Are you sure you want to quit ImageJ?");
+			gd.showDialog();
+			quitting = !gd.wasCanceled();
+		}
+		if (!quitting)
+			return;
+		if (!WindowManager.closeAllWindows()) {
+			quitting = false;
+			return;
+		}
+		//IJ.log("savePreferences");
+		if (applet==null)
+			Prefs.savePreferences();
+		setVisible(false);
+		//IJ.log("dispose");
+		dispose();
+		if (exitWhenQuiting)
+			System.exit(0);
+	}
 
 }

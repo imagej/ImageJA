@@ -1,4 +1,4 @@
 
-appletviewer -J-Djava.security.policy=policy ij.html
+appletviewer -J-Djava.security.policy=policy applet.html
 
 pause

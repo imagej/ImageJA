@@ -134,23 +134,27 @@ public class WindowManager {
 		the ID is zero. */
 	public synchronized static ImagePlus getImage(int imageID) {
 		//if (IJ.debugMode) IJ.write("ImageWindow.getImage");
-		if (imageID==0)
+		if (imageID==0 || getImageCount()==0)
 			return null;
 		if (imageID<0) {
 			ImagePlus imp2 = Interpreter.getBatchModeImage(imageID);
 			if (imp2!=null) return imp2;
 		}
-		int nImages = imageList.size();
-		if (nImages==0)
-			return null;
 		if (imageID>0) {
-			if (imageID>nImages)
-				return null;
-			ImageWindow win = (ImageWindow)imageList.elementAt(imageID-1);
-			if (win!=null)
-				return win.getImagePlus();
-			else
-				return null;
+            if (Interpreter.isBatchMode()) {
+                int[] list = getIDList();
+                if (imageID>list.length)
+                	return null;
+                else
+                	return getImage(list[imageID-1]);
+            } else {
+            	if (imageID>imageList.size()) return null;
+                ImageWindow win = (ImageWindow)imageList.elementAt(imageID-1);
+                if (win!=null)
+                    return win.getImagePlus();
+                else
+                    return null;
+            }
 		}
 		ImagePlus imp = null;
 		for (int i=0; i<imageList.size(); i++) {
@@ -279,6 +283,14 @@ public class WindowManager {
 
 	/** The specified frame becomes the front window, the one returnd by getFrontWindow(). */
 	public static void setWindow(Frame win) {
+		/*
+		if (Recorder.record && win!=null && win!=frontWindow) {
+			String title = win.getTitle();
+			IJ.log("Set window: "+title+"  "+(getFrame(title)!=null?"not null":"null"));
+			if (getFrame(title)!=null && !title.equals("Recorder"))
+				Recorder.record("selectWindow", title);
+		}
+		*/
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
     }
@@ -286,8 +298,6 @@ public class WindowManager {
 	/** Closes all windows. Stops and returns false if any image "save changes" dialog is canceled. */
 	public synchronized static boolean closeAllWindows() {
 		while (imageList.size()>0) {
-			//ImagePlus imp = ((ImageWindow)imageList.elementAt(0)).getImagePlus();
-			//IJ.write("Closing: " + imp.getTitle() + " " + imageList.size());
 			if (!((ImageWindow)imageList.elementAt(0)).close())
 				return false;
 			IJ.wait(100);
