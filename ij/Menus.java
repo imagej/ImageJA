@@ -88,7 +88,8 @@ public class Menus {
 		addItem(file, "New...", KeyEvent.VK_N, false);
 		addItem(file, "Open...", KeyEvent.VK_O, false);
 		addPlugInItem(file, "Open Next", "ij.plugin.NextImageOpener", KeyEvent.VK_O, true);
-		//addSubMenu(file, "Open Samples");
+		if (applet == null)
+			addSubMenu(file, "Open Samples");
 		addOpenRecentSubMenu(file);
 		importMenu = addSubMenu(file, "Import");
 		file.addSeparator();
@@ -206,7 +207,8 @@ public class Menus {
 		mbar.add(process);
 		mbar.add(analyze);
 		mbar.add(pluginsMenu);
-		//mbar.add(window);
+		if (applet == null)
+			mbar.add(window);
 		mbar.setHelpMenu(help);
 		if (ij!=null)
 			ij.setMenuBar(mbar);
