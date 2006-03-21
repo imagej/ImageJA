@@ -31,7 +31,7 @@ import javax.swing.filechooser.*;
 				path = Macro.getValue(macroOptions, "path", path);		
 		}
 		if (path==null || path.equals("")) {
-			if (Prefs.useJFileChooser)
+			if (Prefs.useJFileChooser && !EventQueue.isDispatchThread())
 				jOpen(title, getDefaultDirectory(), null);
 			else
 				open(title, getDefaultDirectory(), null);
@@ -55,7 +55,7 @@ import javax.swing.filechooser.*;
 		if (path!=null)
 			decodePath(path);
 		else {
-			if (Prefs.useJFileChooser)
+			if (Prefs.useJFileChooser && !EventQueue.isDispatchThread())
 				jOpen(title, defaultDir, defaultName);
 			else
 				open(title, defaultDir, defaultName);
@@ -64,27 +64,34 @@ import javax.swing.filechooser.*;
 		}
 	}
 	
-	// Uses the JFileChooser class to display the dialog box
-	void jOpen(String title, String path, String fileName) {
+	// Uses the JFileChooser class to display the dialog box.
+	// Runs on event dispatch thread to avoid thread deadlocks.
+	void jOpen(String title, final String path, final String fileName) {
 		Java2.setSystemLookAndFeel();
-		JFileChooser fc = new JFileChooser();
-		File fdir = null;
-		if (path!=null)
-			fdir = new File(path);
-		if (fdir!=null)
-			fc.setCurrentDirectory(fdir);
-		if (fileName!=null)
-			fc.setSelectedFile(new File(fileName));
-		int returnVal = fc.showOpenDialog(null);
-		if (returnVal!=JFileChooser.APPROVE_OPTION)
-			{Macro.abort(); return;}
-		File file = fc.getSelectedFile();
-		if (file==null)
-			{Macro.abort(); return;}
-		name = file.getName();
-		dir = fc.getCurrentDirectory().getPath()+File.separator;
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+				JFileChooser fc = new JFileChooser();
+				File fdir = null;
+				if (path!=null)
+					fdir = new File(path);
+				if (fdir!=null)
+					fc.setCurrentDirectory(fdir);
+				if (fileName!=null)
+					fc.setSelectedFile(new File(fileName));
+				int returnVal = fc.showOpenDialog(null);
+				if (returnVal!=JFileChooser.APPROVE_OPTION)
+					{Macro.abort(); return;}
+				File file = fc.getSelectedFile();
+				if (file==null)
+					{Macro.abort(); return;}
+				name = file.getName();
+				dir = fc.getCurrentDirectory().getPath()+File.separator;
+				}
+			});
+		} catch (Exception e) {}
 	}
-	
+		
 	// Uses the AWT FileDialog class to display the dialog box
 	void open(String title, String path, String fileName) {
 		Frame parent = IJ.getInstance();
@@ -133,16 +140,19 @@ import javax.swing.filechooser.*;
 		return name;
 	}
 		
-	/** Returns the current working directory, which my be null. */
+	/** Returns the current working directory, which may be null. The
+		returned string always ends with the separator character ("/" or "\").*/
 	public static String getDefaultDirectory() {
 		if (defaultDirectory==null)
 			defaultDirectory = Prefs.getString(Prefs.DIR_IMAGE);
 		return defaultDirectory;
 	}
 
+	/** Sets the current working directory. */
 	public static void setDefaultDirectory(String defaultDir) {
 		defaultDirectory = defaultDir;
-		IJ.register(OpenDialog.class);
+		if (!defaultDirectory.endsWith(File.separator))
+			defaultDirectory = defaultDirectory + File.separator;
 	}
 
 }

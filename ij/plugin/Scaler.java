@@ -1,4 +1,4 @@
-package ij.plugin.filter;
+package ij.plugin;
 import ij.*;
 import ij.gui.*;
 import ij.process.*;
@@ -9,7 +9,7 @@ import java.awt.event.*;
 import java.util.*;
 
 /** This plugin implements the Edit/Scale command. */
-public class Scaler implements PlugInFilter, TextListener {
+public class Scaler implements PlugIn, TextListener {
     private ImagePlus imp;
     private static double xscale = 0.5;
     private static double yscale = 0.5;
@@ -17,23 +17,17 @@ public class Scaler implements PlugInFilter, TextListener {
     private static boolean interpolate = true;
     private static boolean fillWithBackground;
     private static boolean processStack = true;
-    private static String title = "Untitled";
+    private String title = "Untitled";
     private Vector fields;
     private boolean duplicateScale = true;
     private double bgValue;
 
-	public int setup(String arg, ImagePlus imp) {
-		this.imp = imp;
-		IJ.register(Scaler.class);
-		if (imp!=null) {
-			Roi roi = imp.getRoi();
-			if (roi!=null && !roi.isArea())
-				imp.killRoi(); // ignore any line selection
-		}
-		return DOES_ALL;
-	}
-
-	public void run(ImageProcessor ip) {
+	public void run(String arg) {
+		imp = IJ.getImage();
+		Roi roi = imp.getRoi();
+		if (roi!=null && !roi.isArea())
+			imp.killRoi(); // ignore any line selection
+		ImageProcessor ip = imp.getProcessor();
 		if (!showDialog(ip))
 			return;
 		ip.setInterpolate(interpolate);
@@ -83,6 +77,7 @@ public class Scaler implements PlugInFilter, TextListener {
 		}
 		IJ.showProgress(1.0);
 		imp2.show();
+		imp2.changes = true;
 	}
 
 	void scale(ImageProcessor ip) {
@@ -100,6 +95,7 @@ public class Scaler implements PlugInFilter, TextListener {
 			imp2.show();
 			imp.trimProcessor();
 			imp2.trimProcessor();
+			imp2.changes = true;
 		} else {
 			if (processStack && imp.getStackSize()>1) {
 				Undo.reset();
@@ -108,6 +104,8 @@ public class Scaler implements PlugInFilter, TextListener {
 			} else
 				ip.scale(xscale, yscale);
 			imp.killRoi();
+			imp.updateAndDraw();
+			imp.changes = true;
 		}
 	}
 	
@@ -126,7 +124,8 @@ public class Scaler implements PlugInFilter, TextListener {
 		if (isStack)
 			gd.addCheckbox("Process Entire Stack", processStack);
 		gd.addCheckbox("Create New Window", newWindow);
-		gd.addStringField("Title:", title);
+		title = WindowManager.getUniqueName(imp.getTitle());
+		gd.addStringField("Title:", title, 12);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;

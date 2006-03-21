@@ -106,9 +106,12 @@ public class Opener {
 		roi, or text file. Displays an error message if the specified file
 		is not in one of the supported formats. */
 	public void open(String path) {
-        boolean fullPath = path.startsWith("/") || path.indexOf(":\\")==1;
-        if (!fullPath)
-			path = System.getProperty("user.dir") + File.separator + path;
+        boolean fullPath = path.startsWith("/") || path.startsWith("\\") || path.indexOf(":\\")==1;
+        if (!fullPath) {
+            String workingDir = OpenDialog.getDefaultDirectory();
+            if (workingDir!=null)
+                path = workingDir + path;
+        }
 		if (!silentMode) IJ.showStatus("Opening: " + path);
 		long start = System.currentTimeMillis();
 		ImagePlus imp = openImage(path);
