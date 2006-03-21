@@ -467,7 +467,8 @@ public class ImageJ extends Frame implements ActionListener,
 					int delta = (int)Tools.parseDouble(args[i].substring(5, args[i].length()), 0.0);
 					if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
-				}
+				} else if (args[i].startsWith("-debug"))
+					IJ.debugMode = true;
 			} 
 		}
   		// If ImageJ is already running then isRunning()
