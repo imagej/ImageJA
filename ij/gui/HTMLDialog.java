@@ -24,7 +24,7 @@ public class HTMLDialog extends JDialog implements ActionListener {
 		container.add(panel, "South");
 		setForeground(Color.black);
 		pack();
-		GUI.center(this);
+		//GUI.center(this);
 		show();
 	}
 	

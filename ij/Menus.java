@@ -11,6 +11,8 @@ import java.io.*;
 import java.applet.Applet;
 import java.awt.event.*;
 import java.util.zip.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
 This class installs and updates ImageJ's menus. Note that menu labels,
@@ -421,7 +423,7 @@ public class Menus {
 		installJarPlugins();
 		installMacros();
 	}
-	
+
 	/** Installs macro files that are located in the plugins folder and have a "_" in their name. */
 	void installMacros() {
 		if (macroFiles==null)
@@ -929,7 +931,7 @@ public class Menus {
 	//}
 
 	/** Inserts one item (a non-image window) into the Window menu. */
-	static synchronized void insertWindowMenuItem(Frame win) {
+	static synchronized void insertWindowMenuItem(JInternalFrame win) {
 		if (ij==null || win==null)
 			return;
 		CheckboxMenuItem item = new CheckboxMenuItem(win.getTitle());
@@ -1080,7 +1082,7 @@ public class Menus {
 				keyCode -= 200;
 				shift = true;
 			}
-			item = new MenuItem(command, new MenuShortcut(keyCode, shift));
+                    item = new MenuItem(command, new MenuShortcut(keyCode, shift));
 		}
 		menu.add(item);
 		item.addActionListener(ij);

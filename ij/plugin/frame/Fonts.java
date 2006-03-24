@@ -5,6 +5,8 @@ import java.awt.event.*;
 import ij.*;
 import ij.plugin.*;
 import ij.gui.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Displays a window that allows the user to set the font, size and style. */
 public class Fonts extends PlugInFrame implements PlugIn, ItemListener {
@@ -15,7 +17,7 @@ public class Fonts extends PlugInFrame implements PlugIn, ItemListener {
 	private Choice font;
 	private Choice size;
 	private Choice style;
-	private static Frame instance;
+	private static JInternalFrame instance;
 
 	public Fonts() {
 		super("Fonts");

@@ -8,7 +8,8 @@ import ij.macro.*;
 import ij.text.*;
 import ij.util.Tools;
 import ij.io.*;
-																																																																																																																																																																																																																																																								 import java.util.*;																																																																																																																																																					   
+import javax.swing.*;
+import javax.swing.event.*;																																																																																																																																																																																																																																																								 import java.util.*;																																																																																																																																																					   
 
 /** This plugin implements the Plugins/Macros/Install Macros command. It is also used by the Editor
 	class to install macro in menus and by the ImageJ class to install macros at startup. */

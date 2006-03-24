@@ -7,6 +7,8 @@ import ij.util.*;
 import ij.plugin.frame.ContrastAdjuster;
 import java.awt.*;
 import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This plugin implements the Image/Lookup Tables/Apply LUT command. */
 public class LutApplier implements PlugInFilter {
@@ -82,7 +84,7 @@ public class LutApplier implements PlugInFilter {
 	}
 	
 	void resetContrastAdjuster() {
-        Frame frame = WindowManager.getFrame("B&C");
+        JInternalFrame frame = WindowManager.getFrame("B&C");
         if (frame==null)
             frame = WindowManager.getFrame("W&L");
         if (frame!=null && (frame instanceof ContrastAdjuster))

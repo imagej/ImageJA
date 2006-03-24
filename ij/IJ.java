@@ -15,6 +15,8 @@ import java.awt.*;
 import java.applet.Applet;
 import java.io.*;
 import java.lang.reflect.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
@@ -367,7 +369,9 @@ public class IJ {
 		TextWindow resultsWindow = new TextWindow("Results", "", 300, 200);
 		textPanel = resultsWindow.getTextPanel();
 		if (ij!=null)
-			textPanel.addKeyListener(ij);
+		textPanel.addKeyListener(ij);
+                //WindowManager.theDesktop.add(resultsWindow);
+                
 	}
 
 	/** Displays a line of text in the "Log" window. Writes to
@@ -894,7 +898,7 @@ public class IJ {
 	public static void selectWindow(String title) {
 		long start = System.currentTimeMillis();
 		while (System.currentTimeMillis()-start<4000) { // 4 sec timeout
-			Frame frame = WindowManager.getFrame(title);
+			JInternalFrame frame = WindowManager.getFrame(title);
 			if (frame!=null && !(frame instanceof ImageWindow)) {
 				selectWindow(frame);
 				return;
@@ -915,7 +919,7 @@ public class IJ {
 		error("Macro Error", "No window with the title \""+title+"\" found.");
 	}
 	
-	static void selectWindow(Frame frame) {
+	static void selectWindow(JInternalFrame frame) {
 		frame.toFront();
 		long start = System.currentTimeMillis();
 		while (true) {

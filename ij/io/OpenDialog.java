@@ -97,7 +97,7 @@ import javax.swing.filechooser.*;
 			fd.setDirectory(path);
 		if (fileName!=null)
 			fd.setFile(fileName);
-		GUI.center(fd);
+		//GUI.center(fd);
 		fd.show();
 		name = fd.getFile();
 		if (name==null)

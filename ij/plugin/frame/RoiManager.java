@@ -11,12 +11,14 @@ import ij.gui.*;
 import ij.io.*;
 import ij.plugin.filter.*;
 import ij.util.Tools;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
 public class RoiManager extends PlugInFrame implements ActionListener, ItemListener {
 
-	Panel panel;
-	static Frame instance;
+	JPanel panel;
+	static  JInternalFrame instance;
 	java.awt.List list;
 	Hashtable rois = new Hashtable();
 	Roi roiCopy;
@@ -27,6 +29,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 
 	public RoiManager() {
 		super("ROI Manager");
+                setClosable(true);
+                setIconifiable(true);
 		if (instance!=null) {
 			instance.toFront();
 			return;
@@ -42,7 +46,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		list.addItemListener(this);
  		list.addKeyListener(ij);
 		add(list);
-		panel = new Panel();
+		panel = new JPanel();
 		int nButtons = IJ.isJava2()?10:9;
 		panel.setLayout(new GridLayout(nButtons, 1, 5, 0));
 		addButton("Add");
@@ -61,10 +65,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		list.remove(0);
 		GUI.center(this);
 		show();
+                setVisible(true);
 	}
 	
 	void addButton(String label) {
-		Button b = new Button(label);
+		JButton b = new JButton(label);
 		b.addActionListener(this);
 		panel.add(b);
 	}
@@ -193,7 +198,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				msg = "Replace items on the list?";
 			canceled = false;
 			if (!IJ.macroRunning() && !macro) {
-				YesNoCancelDialog d = new YesNoCancelDialog(this, "ROI Manager", msg);
+				YesNoCancelDialog d = new YesNoCancelDialog((Frame)this.getDesktopPane().getParent(),
+                                        "ROI Manager", msg);
 				if (d.cancelPressed())
 					{canceled = true; return false;}
 				if (!d.yesPressed()) return false;
@@ -626,18 +632,18 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	}
 
 	boolean error(String msg) {
-		new MessageDialog(this, "ROI Manager", msg);
+		new MessageDialog((Frame)this.getDesktopPane().getParent(), "ROI Manager", msg);
 		Macro.abort();
 		return false;
 	}
 	
-	public void processWindowEvent(WindowEvent e) {
+	/*public void processWindowEvent(WindowEvent e) {
 		super.processWindowEvent(e);
 		if (e.getID()==WindowEvent.WINDOW_CLOSING) {
 			instance = null;	
 		}
 		ignoreInterrupts = false;
-	}
+	} */
 	
 	/** Returns a reference to the ROI Manager
 		or null if it is not open. */

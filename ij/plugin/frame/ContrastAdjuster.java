@@ -8,6 +8,8 @@ import ij.plugin.*;
 import ij.process.*;
 import ij.gui.*;
 import ij.measure.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This plugin implements the Brightness/Contrast, Window/level and
 	Color Balance commands, all in the Image/Adjust sub-menu. It 
@@ -23,14 +25,14 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 	
 	ContrastPlot plot = new ContrastPlot();
 	Thread thread;
-	private static Frame instance;
+	private static JInternalFrame instance;
 		
 	int minSliderValue=-1, maxSliderValue=-1, brightnessValue=-1, contrastValue=-1;
 	int sliderRange = 256;
 	boolean doAutoAdjust,doReset,doSet,doApplyLut;
 	
-	Panel panel, tPanel;
-	Button autoB, resetB, setB, applyB;
+	JPanel panel, tPanel;
+	JButton autoB, resetB, setB, applyB;
 	int previousImageID;
 	int previousType;
 	Object previousSnapshot;
@@ -40,8 +42,8 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 	double defaultMin, defaultMax;
 	int contrast, brightness;
 	boolean RGBImage;
-	Scrollbar minSlider, maxSlider, contrastSlider, brightnessSlider;
-	Label minLabel, maxLabel, windowLabel, levelLabel;
+	JScrollBar minSlider, maxSlider, contrastSlider, brightnessSlider;
+	JLabel minLabel, maxLabel, windowLabel, levelLabel;
 	boolean done;
 	int autoThreshold;
 	GridBagLayout gridbag;
@@ -94,15 +96,15 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		
 		// min and max labels
 		if (!windowLevel) {
-			panel = new Panel();
+			panel = new JPanel();
 			c.gridy = y++;
 			c.insets = new Insets(0, 10, 0, 10);
 			gridbag.setConstraints(panel, c);
 			panel.setLayout(new BorderLayout());
-			minLabel = new Label("      ", Label.LEFT);
+			minLabel = new JLabel("      ", JLabel.LEFT);
 			minLabel.setFont(monoFont);
 			panel.add("West", minLabel);
-			maxLabel = new Label("      " , Label.RIGHT);
+			maxLabel = new JLabel("      " , JLabel.RIGHT);
 			maxLabel.setFont(monoFont);
 			panel.add("East", maxLabel);
 			add(panel);
@@ -110,7 +112,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 
 		// min slider
 		if (!windowLevel) {
-			minSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			minSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(minSlider, c);
@@ -122,7 +124,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 
 		// max slider
 		if (!windowLevel) {
-			maxSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			maxSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(maxSlider, c);
@@ -133,7 +135,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		}
 		
 		// brightness slider
-		brightnessSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+		brightnessSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
 		c.gridy = y++;
 		c.insets = new Insets(windowLevel?12:2, 10, 0, 10);
 		gridbag.setConstraints(brightnessSlider, c);
@@ -147,7 +149,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 			
 		// contrast slider
 		if (!balance) {
-			contrastSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			contrastSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(contrastSlider, c);
@@ -174,7 +176,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 
 		// buttons
 		int trim = IJ.isMacOSX()?20:0;
-		panel = new Panel();
+		panel = new JPanel();
 		panel.setLayout(new GridLayout(0,2, 0, 0));
 		autoB = new TrimmedButton("Auto",trim);
 		autoB.addActionListener(this);
@@ -208,20 +210,21 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		setup();
 	}
 		
-	void addLabel(String text, Label label2) {
+	void addLabel(String text, JLabel label2) {
 		if (label2==null&&IJ.isMacOSX()) text += "    ";
-		panel = new Panel();
+		panel = new JPanel();
 		c.gridy = y++;
 		int bottomInset = IJ.isMacOSX() && IJ.isJava14()?4:0;
 		c.insets = new Insets(0, 10, bottomInset, 0);
 		gridbag.setConstraints(panel, c);
         panel.setLayout(new FlowLayout(label2==null?FlowLayout.CENTER:FlowLayout.LEFT, 0, 0));
-		Label label= new TrimmedLabel(text);
+		JLabel label= new TrimmedLabel(text);
 		label.setFont(sanFont);
 		panel.add(label);
 		if (label2!=null) {
 			label2.setFont(monoFont);
-			label2.setAlignment(Label.LEFT);
+			//label2.setAlignment(JLabel.LEFT);
+                        label2.setHorizontalTextPosition(JLabel.LEFT);
 			panel.add(label2);
 		}
 		add(panel);
@@ -252,7 +255,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 	}
 
 	public synchronized  void actionPerformed(ActionEvent e) {
-		Button b = (Button)e.getSource();
+		JButton b = (JButton)e.getSource();
 		if (b==null) return;
 		if (b==resetB)
 			doReset = true;
@@ -356,7 +359,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		}
 	}
 
-	void updateScrollBars(Scrollbar sb) {
+	void updateScrollBars(JScrollBar sb) {
 		if (sb==null || sb!=contrastSlider) {
 			double mid = sliderRange/2;
 			double c = ((defaultMax-defaultMin)/(max-min))*mid;
@@ -528,7 +531,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		ip.setRoi(imp.getRoi());
 		if (imp.getStackSize()>1) {
 			ImageStack stack = imp.getStack();
-			YesNoCancelDialog d = new YesNoCancelDialog(this,
+			YesNoCancelDialog d = new YesNoCancelDialog((Frame)this.getDesktopPane().getParent(),
 				"Entire Stack?", "Apply LUT to all "+stack.getSize()+" slices in the stack?");
 			if (d.cancelPressed())
 				{imp.unlock(); return;}
@@ -794,7 +797,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 } // ContrastAdjuster class
 
 
-class ContrastPlot extends Canvas implements MouseListener {
+class ContrastPlot extends JPanel implements MouseListener {
 	
 	static final int WIDTH = 128, HEIGHT=64;
 	double defaultMin = 0;
@@ -845,10 +848,11 @@ class ContrastPlot extends Canvas implements MouseListener {
 	}
 
 	public void update(Graphics g) {
-		paint(g);
+		super.paintComponent(g);
 	}
 
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
+                super.paintComponent(g);
 		int x1, y1, x2, y2;
 		double scale = (double)WIDTH/(defaultMax-defaultMin);
 		double slope = 0.0;
@@ -905,7 +909,7 @@ class ContrastPlot extends Canvas implements MouseListener {
 } // ContrastPlot class
 
 
-class TrimmedLabel extends Label {
+class TrimmedLabel extends JLabel {
 	int trim = IJ.isMacOSX() && IJ.isJava14()?0:6;
 
     public TrimmedLabel(String title) {

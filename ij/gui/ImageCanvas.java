@@ -10,9 +10,11 @@ import ij.plugin.frame.Recorder;
 import ij.macro.Interpreter;
 import ij.*;
 import ij.util.Java2;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This is a Canvas used to display images in a Window. */
-public class ImageCanvas extends Canvas implements MouseListener, MouseMotionListener, Cloneable {
+public class ImageCanvas extends JPanel implements MouseListener, MouseMotionListener, Cloneable {
 
 	protected static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	protected static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -52,6 +54,9 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
  		addMouseMotionListener(this);
  		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
 		//if (ij!=null) add(Menus.getPopupMenu());
+ 
+                setVisible(true);
+                
 	}
 		
 	void updateImage(ImagePlus imp) {
@@ -78,33 +83,33 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 
 	public void update(Graphics g) {
-		paint(g);
+		super.paintComponent(g); 
 	}
+        
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Roi roi = imp.getRoi();
+            if (roi != null) roi.updatePaste();
+            try {
+                if (imageUpdated) {
+                    imageUpdated = false;
+                    imp.updateImage();
+                }
+                if (IJ.isJava2()) {
+                    if (magnification<1.0)
+                        Java2.setBilinearInterpolation(g, true);
+                    else if (IJ.isMacOSX())
+                        Java2.setBilinearInterpolation(g, false);
+                }
+                Image img = imp.getImage();
+                if (img!=null)
+                    g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
+                            srcRect.x, srcRect.y, srcRect.x+srcRect.width, srcRect.y+srcRect.height, null);
+                if (roi != null) roi.draw(g);
+                if (IJ.debugMode) showFrameRate(g);
+            } catch(OutOfMemoryError e) {IJ.outOfMemory("Paint");}
+        }
 
-    public void paint(Graphics g) {
-		Roi roi = imp.getRoi();
-		if (roi != null) roi.updatePaste();
-		try {
-			if (imageUpdated) {
-				imageUpdated = false;
-				imp.updateImage();
-			}
-			if (IJ.isJava2()) {
-				if (magnification<1.0)
-					 Java2.setBilinearInterpolation(g, true);
-				else if (IJ.isMacOSX())
-					Java2.setBilinearInterpolation(g, false);
-			}
-			Image img = imp.getImage();
-			if (img!=null)
- 				g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
-				srcRect.x, srcRect.y, srcRect.x+srcRect.width, srcRect.y+srcRect.height, null);
-			if (roi != null) roi.draw(g);
-			if (IJ.debugMode) showFrameRate(g);
-		}
-		catch(OutOfMemoryError e) {IJ.outOfMemory("Paint");}
-    }
-    
     long firstFrame;
     int frames, fps;
         
@@ -176,7 +181,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 					setCursor(defaultCursor);
 				else
 					setCursor(crosshairCursor);
-		}
+		}               
 	}
 		
 	/**Converts a screen x-coordinate to an offscreen x-coordinate.*/
@@ -428,6 +433,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 
 	public void mousePressed(MouseEvent e) {
+            //System.out.println("mouse pressed");
 		if (ij==null) return;
 		int toolID = Toolbar.getToolId();
 		ImageWindow win = imp.getWindow();
@@ -524,7 +530,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			return;
 		}
 		PopupMenu popup = Menus.getPopupMenu();
-		if (popup!=null) {
+                if (popup!=null) {
 			add(popup);
 			if (IJ.isMacOSX()) IJ.wait(10);
 			popup.show(this, x, y);

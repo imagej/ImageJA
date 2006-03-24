@@ -12,6 +12,8 @@ import ij.util.*;
 import ij.io.*;
 import ij.process.*;
 import ij.measure.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This is ImageJ's macro recorder. */
 public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
@@ -26,13 +28,16 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 	private TextField macroName;
 	private String fitTypeStr = CurveFitter.fitList[0];
 	private static TextArea textArea;
-	private static Frame instance;
+	private static JInternalFrame instance;
 	private static String commandName;
 	private static String commandOptions;
 	private static String defaultName = "Macro";
 
 	public Recorder() {
 		super("Recorder");
+                setMaximizable(true);
+                setClosable(true);
+                setIconifiable(true);
 		if (instance!=null) {
 			instance.toFront();
 			return;
@@ -57,7 +62,9 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		//textArea.setBackground(Color.white);
 		add("Center", textArea);
-		pack();
+                setClosable(true);
+                setIconifiable(true);
+                pack();
 		GUI.center(this);
 		show();
 		IJ.register(Recorder.class);

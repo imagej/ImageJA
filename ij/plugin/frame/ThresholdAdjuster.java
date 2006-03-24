@@ -8,6 +8,8 @@ import ij.process.*;
 import ij.gui.*;
 import ij.measure.*;
 import ij.plugin.frame.Recorder;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Adjusts the lower and upper threshold levels of the active image. This
 	class is multi-threaded to provide a more responsive user interface. */
@@ -22,7 +24,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 	static boolean fill2 = true;
 	static boolean useBW = true;
 	static boolean backgroundToNaN = true;
-	static Frame instance; 
+	static JInternalFrame instance; 
 	static int mode = RED;	
 	ThresholdPlot plot = new ThresholdPlot();
 	Thread thread;
@@ -32,19 +34,19 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 	int sliderRange = 256;
 	boolean doAutoAdjust,doReset,doApplyLut,doStateChange,doSet;
 	
-	Panel panel;
-	Button autoB, resetB, applyB, setB;
+	JPanel panel;
+	JButton autoB, resetB, applyB, setB;
 	int previousImageID;
 	int previousImageType;
 	double previousMin, previousMax;
 	ImageJ ij;
 	double minThreshold, maxThreshold;  // 0-255
-	Scrollbar minSlider, maxSlider;
-	Label label1, label2;
+	JScrollBar minSlider, maxSlider;
+	JLabel JLabel1, JLabel2;
 	boolean done;
 	boolean invertedLut;
 	int lutColor;	
-	static Choice choice;
+	static JComboBox choice;
 	boolean firstActivation;
 
 	public ThresholdAdjuster() {
@@ -76,7 +78,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		add(plot, c);
 		
 		// minThreshold slider
-		minSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/3, 1, 0, sliderRange);
+		minSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange/3, 1, 0, sliderRange);
 		c.gridx = 0;
 		c.gridy = y++;
 		c.gridwidth = 1;
@@ -87,17 +89,17 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		minSlider.addAdjustmentListener(this);
 		minSlider.setUnitIncrement(1);
 		
-		// minThreshold slider label
+		// minThreshold slider JLabel
 		c.gridx = 1;
 		c.gridwidth = 1;
 		c.weightx = IJ.isMacintosh()?10:0;
 		c.insets = new Insets(5, 0, 0, 10);
-		label1 = new Label("       ", Label.RIGHT);
-    	label1.setFont(font);
-		add(label1, c);
+		JLabel1 = new JLabel("       ", JLabel.RIGHT);
+    	JLabel1.setFont(font);
+		add(JLabel1, c);
 		
 		// maxThreshold slider
-		maxSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange*2/3, 1, 0, sliderRange);
+		maxSlider = new JScrollBar(JScrollBar.HORIZONTAL, sliderRange*2/3, 1, 0, sliderRange);
 		c.gridx = 0;
 		c.gridy = y++;
 		c.gridwidth = 1;
@@ -107,20 +109,20 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		maxSlider.addAdjustmentListener(this);
 		maxSlider.setUnitIncrement(1);
 		
-		// maxThreshold slider label
+		// maxThreshold slider JLabel
 		c.gridx = 1;
 		c.gridwidth = 1;
 		c.weightx = 0;
 		c.insets = new Insets(0, 0, 0, 10);
-		label2 = new Label("       ", Label.RIGHT);
-    	label2.setFont(font);
-		add(label2, c);
+		JLabel2 = new JLabel("       ", JLabel.RIGHT);
+    	JLabel2.setFont(font);
+		add(JLabel2, c);
 				
 		// choice
-		choice = new Choice();
+		choice = new JComboBox();
 		for (int i=0; i<modes.length; i++)
 			choice.addItem(modes[i]);
-		choice.select(mode);
+		choice.setSelectedItem(mode);
 		choice.addItemListener(this);
 		c.gridx = 0;
 		c.gridy = y++;
@@ -132,7 +134,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 
 		// buttons
 		int trim = IJ.isMacOSX()?11:0;
-		panel = new Panel();
+		panel = new JPanel();
 		autoB = new TrimmedButton("Auto",trim);
 		autoB.addActionListener(this);
 		autoB.addKeyListener(ij);
@@ -178,7 +180,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 	}
 
 	public synchronized  void actionPerformed(ActionEvent e) {
-		Button b = (Button)e.getSource();
+		JButton b = (JButton)e.getSource();
 		if (b==null) return;
 		if (b==resetB)
 			doReset = true;
@@ -244,7 +246,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 				maxThreshold = scaleDown(ip, maxThreshold);
 			}
 			scaleUpAndSet(ip, minThreshold, maxThreshold);
-			updateLabels(imp, ip);
+			updateJLabels(imp, ip);
 			updatePlot();
 			updateScrollBars();
 			imp.updateAndDraw();
@@ -316,12 +318,12 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		plot.repaint();
 	}
 	
-	void updateLabels(ImagePlus imp, ImageProcessor ip) {
+	void updateJLabels(ImagePlus imp, ImageProcessor ip) {
 		double min = ip.getMinThreshold();
 		double max = ip.getMaxThreshold();
 		if (min==ImageProcessor.NO_THRESHOLD) {
-			label1.setText("");
-			label2.setText("");
+			JLabel1.setText("");
+			JLabel2.setText("");
 		} else {
 			Calibration cal = imp.getCalibration();
 			if (cal.calibrated()) {
@@ -329,11 +331,11 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 				max = cal.getCValue((int)max);
 			}
 			if (((int)min==min && (int)max==max) || (ip instanceof ShortProcessor)) {
-				label1.setText(""+(int)min);
-				label2.setText(""+(int)max);
+				JLabel1.setText(""+(int)min);
+				JLabel2.setText(""+(int)max);
 			} else {
-				label1.setText(""+IJ.d2s(min,2));
-				label2.setText(""+IJ.d2s(max,2));
+				JLabel1.setText(""+IJ.d2s(min,2));
+				JLabel2.setText(""+IJ.d2s(max,2));
 			}
 		}
 	}
@@ -542,7 +544,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 			case MAX_THRESHOLD: adjustMaxThreshold(imp, ip, max); break;
 		}
 		updatePlot();
-		updateLabels(imp, ip);
+		updateJLabels(imp, ip);
 		ip.setLutAnimation(true);
 		imp.updateAndDraw();
 	}
@@ -576,7 +578,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 } // ThresholdAdjuster class
 
 
-class ThresholdPlot extends Canvas implements Measurements, MouseListener {
+class ThresholdPlot extends JPanel implements Measurements, MouseListener {
 	
 	static final int WIDTH = 256, HEIGHT=48;
 	double minThreshold = 85;
@@ -641,10 +643,11 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
 	}
 
 	public void update(Graphics g) {
-		paint(g);
+		super.paintComponent(g);
 	}
 
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
+            	super.paintComponent(g);
 		if (g==null) return;
 		if (histogram!=null) {
 			if (os==null && hmax>0) {

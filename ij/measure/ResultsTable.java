@@ -3,6 +3,8 @@ import ij.*;
 import ij.plugin.filter.Analyzer;
 import ij.text.*;
 import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This is a table for storing measurement results as columns of real numbers. 
 	Call Analyzer.getResultsTable() to get a reference to the ResultsTable
@@ -355,7 +357,7 @@ public class ResultsTable {
 			if (tp==null) return;
 			IJ.setColumnHeadings(tableHeadings);
 		} else {
-			Frame frame = WindowManager.getFrame(windowTitle);
+			JInternalFrame frame = WindowManager.getFrame(windowTitle);
 			TextWindow win;
 			if (frame!=null && frame instanceof TextWindow)
 				win = (TextWindow)frame;

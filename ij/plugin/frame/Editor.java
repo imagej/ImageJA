@@ -9,7 +9,10 @@ import ij.text.TextWindow;
 import ij.macro.*;
 import ij.plugin.*;
 import ij.io.SaveDialog;
-import java.awt.datatransfer.*;																																																																																																																																																																																																																																																									 import java.util.*;
+import java.awt.datatransfer.*;	
+import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
 																																																																																																																																																					   
 
 /** This is a simple TextArea based editor for editing and compiling plugins. */
@@ -38,9 +41,13 @@ TextListener, ClipboardOwner, MacroConstants {
 	private int nShortcuts;
 	private MacroInstaller installer;
 	private static String defaultDir;
+	private boolean dontShowWindow;
 	
 	public Editor() {
 		super("Editor");
+                setMaximizable(true);
+                setClosable(true);
+                setIconifiable(true);
 		WindowManager.addWindow(this);
 
 		Menu m = new Menu("File");
@@ -87,7 +94,7 @@ TextListener, ClipboardOwner, MacroConstants {
 		m.addActionListener(this);
 		mb.add(m);
 		editMenu = m;
-		setMenuBar(mb);
+		//setMenuBar(mb);
 
 		ta = new TextArea(16, 60);
 		ta.addTextListener(this);
@@ -127,7 +134,7 @@ TextListener, ClipboardOwner, MacroConstants {
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
 		ta.setCaretPosition(0);
 		setWindowTitle(name);
-		if (name.endsWith(".txt")) {
+		if (name.endsWith(".txt") || name.endsWith(".ijm")) {
 			fileMenu.remove(4);
 			fileMenu.insert(new MenuItem("Run Macro", new MenuShortcut(KeyEvent.VK_R)), 4);
 			int itemCount = fileMenu.getItemCount();
@@ -141,8 +148,12 @@ TextListener, ClipboardOwner, MacroConstants {
 			if (text.indexOf("macro ")!=-1)
 				installMacros(text, false);				
 		}
-		if (IJ.getInstance()!=null)
+		if (IJ.getInstance()!=null && !dontShowWindow)
 			show();
+		if (dontShowWindow) {
+			dispose();
+			dontShowWindow = false;
+		}
 		WindowManager.setWindow(this);
 		changes = false;
 	}
@@ -155,9 +166,13 @@ TextListener, ClipboardOwner, MacroConstants {
 	void installMacros(String text, boolean installInPluginsMenu) {
 		installer = new MacroInstaller();
 		installer.setFileName(getTitle());
-		int nShortcuts = installer.install(text, macrosMenu);
-		if (text.indexOf("AutoRun")==-1 && (installInPluginsMenu || nShortcuts>0))
+		//int nShortcuts = installer.install(text, (JMenu) macrosMenu);
+		boolean isAutoRunMacro = text.indexOf("AutoRun")!=-1;
+		if (!isAutoRunMacro && (installInPluginsMenu || nShortcuts>0))
 			installer.install(null);
+		if (isAutoRunMacro) {
+			dontShowWindow = text.indexOf("AutoRunAndHide")!=-1;
+		}
 	}
 		
 	public void open(String dir, String name) {
@@ -261,7 +276,7 @@ TextListener, ClipboardOwner, MacroConstants {
 	}
 
 	void print () {
-		PrintJob pjob = Toolkit.getDefaultToolkit().getPrintJob(this, "Cool Stuff", p);
+		/*PrintJob pjob = Toolkit.getDefaultToolkit().getPrintJob(this, "Cool Stuff", p);
 		if (pjob != null) {
 			Graphics pg = pjob.getGraphics( );
 			if (pg != null) {
@@ -270,7 +285,7 @@ TextListener, ClipboardOwner, MacroConstants {
 				pg.dispose( );	
 			}
 			pjob.end( );
-		}
+		} */
 	}
 
 	void printString (PrintJob pjob, Graphics pg, String s) {
@@ -449,11 +464,11 @@ TextListener, ClipboardOwner, MacroConstants {
 		boolean okayToClose = true;
 		ImageJ ij = IJ.getInstance();
 		if (!getTitle().equals("Errors") && changes && !IJ.macroRunning() && ij!=null && !ij.quitting()) {
-			SaveChangesDialog d = new SaveChangesDialog(this, getTitle());
+			/*SaveChangesDialog d = new SaveChangesDialog(this, getTitle());
 			if (d.cancelPressed())
 				okayToClose = false;
 			else if (d.savePressed())
-				save();
+				save(); */
 		}
 		if (okayToClose) {
 			setVisible(false);
@@ -503,12 +518,12 @@ TextListener, ClipboardOwner, MacroConstants {
 	
 	void find(String s) {
 		if (s==null) {
-			GenericDialog gd = new GenericDialog("Find", this);
+			/*GenericDialog gd = new GenericDialog("Find", this);
 			gd.addStringField("Find: ", searchString, 20);
 			gd.showDialog();
 			if (gd.wasCanceled())
 				return;
-			s = gd.getNextString();
+			s = gd.getNextString(); */
 		}
 		if (s.equals(""))
 			return;
@@ -522,7 +537,7 @@ TextListener, ClipboardOwner, MacroConstants {
 	}
 	
 	void gotoLine() {
-		GenericDialog gd = new GenericDialog("Go to Line", this);
+		/*GenericDialog gd = new GenericDialog("Go to Line", this);
 		gd.addNumericField("Go to line number: ", lineNumber, 0);
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -539,7 +554,7 @@ TextListener, ClipboardOwner, MacroConstants {
 				{loc=i+1; break;}
 		}
 		ta.setCaretPosition(loc);
-		lineNumber = n;
+		lineNumber = n; */
 	}
 	
 	void zapGremlins() {

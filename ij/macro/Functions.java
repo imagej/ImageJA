@@ -16,6 +16,8 @@ import java.util.*;
 import java.io.File;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class implements the built-in macro functions. */
 public class Functions implements MacroConstants, Measurements {
@@ -1121,7 +1123,7 @@ public class Functions implements MacroConstants, Measurements {
 
 	public String getInfo(boolean frontWindow) {
 		interp.getParens();
-		Frame frame = frontWindow?WindowManager.getFrontWindow():null;
+		JInternalFrame frame = frontWindow?WindowManager.getFrontWindow():null;
 		if (frame!=null && frame instanceof TextWindow) {
 			TextPanel tp = ((TextWindow)frame).getTextPanel();
 			return tp.getText();			
@@ -1802,7 +1804,7 @@ public class Functions implements MacroConstants, Measurements {
 			index = (int)getLastArg();
 		else
 			interp.getRightParen();
-		Frame frame = WindowManager.getFrame("ROI Manager");
+		JInternalFrame frame = WindowManager.getFrame("ROI Manager");
 		if (frame==null)
 			IJ.run("ROI Manager...");
 		frame = WindowManager.getFrame("ROI Manager");

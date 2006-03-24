@@ -1,6 +1,8 @@
 package ij.plugin.frame;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 import java.util.*;
 import java.io.*;
 import ij.*;
@@ -21,11 +23,11 @@ import ij.measure.*;
 
 public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionListener {
 
-	Choice fit;
-	Button doIt, open, apply;
-	Checkbox settings;
+	JComboBox fit;
+	JButton doIt, open, apply;
+	JCheckBox settings;
 	String fitTypeStr = CurveFitter.fitList[0];
-	TextArea textArea;
+	JTextArea textArea;
 
 	double[] dx = {0,1,2,3,4,5};
 	double[] dy = {0,.9,4.5,8,18,24};
@@ -37,28 +39,29 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 	public Fitter() {
 		super("Curve Fitter");
 		WindowManager.addWindow(this);
-		Panel panel = new Panel();
-		fit = new Choice();
+		JPanel panel = new JPanel();
+		fit = new JComboBox();
 		for (int i=0; i<CurveFitter.fitList.length; i++)
 			fit.addItem(CurveFitter.fitList[i]);
 		fit.addItemListener(this);
 		panel.add(fit);
-		doIt = new Button(" Fit ");
+		doIt = new JButton(" Fit ");
 		doIt.addActionListener(this);
 		panel.add(doIt);
-		open = new Button("Open");
+		open = new JButton("Open");
 		open.addActionListener(this);
 		panel.add(open);
-		apply = new Button("Apply");
+		apply = new JButton("Apply");
 		apply.addActionListener(this);
 		panel.add(apply);
-		settings = new Checkbox("Show settings", false);
+		settings = new JCheckBox("Show settings", false);
 		panel.add(settings);
 		add("North", panel);
 		String text = "";
 		for (int i=0; i<dx.length; i++)
 			text += IJ.d2s(dx[i],2)+"  "+IJ.d2s(dy[i],2)+"\n";
-		textArea = new TextArea("",15,30,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		//textArea = new JTextArea("",15,30,TextArea.SCROLLBARS_VERTICAL_ONLY);
+		textArea = new JTextArea("",15,30);                
 		//textArea.setBackground(Color.white);
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		textArea.append(text);
@@ -78,7 +81,8 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 		a = Tools.getMinMax(y);
 		double ymin=a[0], ymax=a[1]; 
 		cf = new CurveFitter(x, y);
-		cf.doFit(fitType, settings.getState());
+		//cf.doFit(fitType, settings.getState());
+                cf.doFit(fitType, settings.isSelected());
 		IJ.log(cf.getResultString());
 
 		float[] px = new float[100];
@@ -188,7 +192,7 @@ public class Fitter extends PlugInFrame implements PlugIn, ItemListener, ActionL
 	}
 	
 	public void itemStateChanged(ItemEvent e) {
-		fitTypeStr = fit.getSelectedItem();
+		fitTypeStr = (String)fit.getSelectedItem(); //changed
 	}
 	
 	public void actionPerformed(ActionEvent e) {

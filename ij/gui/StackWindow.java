@@ -4,26 +4,35 @@ import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 import ij.*;
-
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class is an extended ImageWindow used to display image stacks. */
 public class StackWindow extends ImageWindow implements Runnable, AdjustmentListener, ActionListener {
 
-	protected Scrollbar sliceSelector;
+	protected JScrollBar sliceSelector;
 	protected Thread thread;
 	protected boolean done;
 	protected int slice;
+        
+        public StackWindow(ImagePlus imp) {
+            this(imp, new ImageCanvas(imp));
+            setDefaultCloseOperation( DISPOSE_ON_CLOSE );
+            setResizable(true);
+            setMaximizable(true);
+            setClosable(true);
+            setIconifiable(true);
+            this.pack();
+            this.setVisible( true );
+            
+        }
 
-	public StackWindow(ImagePlus imp) {
-		this(imp, new ImageCanvas(imp));
-	}
-    
     public StackWindow(ImagePlus imp, ImageCanvas ic) {
 		super(imp, ic);
 		// add slice selection slider
 		ImageStack s = imp.getStack();
 		int stackSize = s.getSize();
-		sliceSelector = new Scrollbar(Scrollbar.HORIZONTAL, 1, 1, 1, stackSize+1);
+		sliceSelector = new JScrollBar(Scrollbar.HORIZONTAL, 1, 1, 1, stackSize+1);
 		add(sliceSelector);
 		ImageJ ij = IJ.getInstance();
 		if (ij!=null) sliceSelector.addKeyListener(ij);

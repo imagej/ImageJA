@@ -13,6 +13,8 @@ import ij.util.*;
 import ij.text.TextWindow;
 import ij.plugin.frame.*;
 import ij.macro.Interpreter;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Runs menu commands in a separate thread.*/
 public class Executer implements Runnable {
@@ -182,13 +184,13 @@ public class Executer implements Runnable {
 	}
 	
 	void close(ImagePlus imp) {
-		Frame frame = WindowManager.getFrontWindow();
-		if (frame==null || (Interpreter.isBatchMode() && frame instanceof ImageWindow))
+		JInternalFrame frame = WindowManager.getFrontWindow();
+                if (frame==null || (Interpreter.isBatchMode() && frame instanceof ImageWindow))
 			closeImage(imp);
-		else if (frame instanceof PlugInFrame)
-			((PlugInFrame)frame).close();
-		else if (frame instanceof TextWindow)
-			((TextWindow)frame).close();
+		//else if (frame instanceof PlugInFrame)
+		//	((PlugInFrame)frame).close();
+		//else if (frame instanceof TextWindow)
+		//	((TextWindow)frame).close();
 		else
 			closeImage(imp);
 	}

@@ -7,11 +7,13 @@ import ij.*;
 import ij.io.*;
 import ij.gui.*;
 import ij.plugin.filter.Analyzer;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Uses a TextPanel to displays text in a window.
 	@see TextPanel
 */
-public class TextWindow extends Frame implements ActionListener, FocusListener {
+public class TextWindow extends JInternalFrame implements ActionListener, FocusListener {
 
 	private TextPanel textPanel;
 
@@ -36,10 +38,13 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 	*/
 	public TextWindow(String title, String headings, String data, int width, int height) {
 		super(title);
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		textPanel = new TextPanel(title);
-		textPanel.setTitle(title);
-		add("Center", textPanel);
+                setMaximizable(true);
+                setClosable(true);
+                setIconifiable(true);
+                enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+                textPanel = new TextPanel(title);
+                textPanel.setTitle(title);
+		getContentPane().add("Center", textPanel);
 		textPanel.setColumnHeadings(headings);
 		if (data!=null && !data.equals(""))
 			textPanel.append(data);
@@ -47,14 +52,14 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 		ImageJ ij = IJ.getInstance();
 		if (ij!=null) {
 			Image img = ij.getIconImage();
-			if (img!=null)
-				try {setIconImage(img);} catch (Exception e) {}
+			//if (img!=null)
+				//try {setIconImage(img);} catch (Exception e) {}
 		}
  		addFocusListener(this);
  		addMenuBar();
 		WindowManager.addWindow(this);
 		setSize(width, height);
-		GUI.center(this);
+		//GUI.center(this);
 		show();
 	}
 
@@ -69,7 +74,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 		super("");
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		textPanel = new TextPanel();
-		add("Center", textPanel);
+		getContentPane().add("Center", textPanel);
 		if (openFile(path)) {
 			WindowManager.addWindow(this);
 			setSize(width, height);
@@ -98,7 +103,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 		}
 		m.addActionListener(this);
 		mb.add(m);
-		setMenuBar(mb);
+		//setMenuBar(mb);
 	}
 
 	/**
@@ -160,7 +165,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 	}
 
 	public void processWindowEvent(WindowEvent e) {
-		super.processWindowEvent(e);
+		//super.processWindowEvent(e);
 		int id = e.getID();
 		if (id==WindowEvent.WINDOW_CLOSING)
 			close();	

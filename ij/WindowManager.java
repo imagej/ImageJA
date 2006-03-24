@@ -7,6 +7,9 @@ import ij.plugin.frame.PlugInFrame;
 import java.awt.*;
 import java.util.*;
 import ij.gui.*;
+import ij.desktop.gui.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class consists of static methods used to manage ImageJ's windows. */
 public class WindowManager {
@@ -14,11 +17,19 @@ public class WindowManager {
 	private static Vector imageList = new Vector();		 // list of image windows
 	private static Vector nonImageList = new Vector();	 // list of non-image windows
 	private static ImageWindow currentWindow;			 // active image window
-	private static Frame frontWindow;
+	private static JInternalFrame frontWindow;
 	private static ImagePlus tempCurrentImage;
+        public static MDIDesktopPane theDesktop = new MDIDesktopPane();
 	
 	private WindowManager() {
+            
 	}
+        
+        public static void setDesktopBackground(){
+            theDesktop.setBackground(new Color(102,100,165));
+            //theDesktop.setPreferredSize(new Dimension(300,300));
+        }
+              
 
 	/** Makes the specified image active. */
 	public synchronized static void setCurrentWindow(ImageWindow win) {
@@ -90,7 +101,7 @@ public class WindowManager {
 	}
 
 	/** Returns the front most window or null. */
-	public static Frame getFrontWindow() {
+	public static JInternalFrame getFrontWindow() {
 		return frontWindow;
 	}
 
@@ -114,9 +125,9 @@ public class WindowManager {
 	}
 
 	/** Returns an array containing a list of the non-image windows. */
-	synchronized static Frame[] getNonImageWindows() {
-		Frame[] list = new Frame[nonImageList.size()];
-		nonImageList.copyInto((Frame[])list);
+	synchronized static JInternalFrame[] getNonImageWindows() {
+		JInternalFrame[] list = new JInternalFrame[nonImageList.size()];
+		nonImageList.copyInto((JInternalFrame[])list);
 		return list;
 	}
 
@@ -169,26 +180,28 @@ public class WindowManager {
 	}
 
 	/** Adds the specified window to the Window menu. */
-	public synchronized static void addWindow(Frame win) {
+	public synchronized static void addWindow(JInternalFrame win) {
 		//IJ.write("addWindow: "+win.getTitle());
 		if (win==null)
 			return;
-		else if (win instanceof ImageWindow)
+		else if (win instanceof ImageWindow) 
 			addImageWindow((ImageWindow)win);
 		else {
 			Menus.insertWindowMenuItem(win);
 			nonImageList.addElement(win);
+                        theDesktop.add(win);
  		}
     }
-
-	private static void addImageWindow(ImageWindow win) {
-		imageList.addElement(win);
-        Menus.addWindowMenuItem(win.getImagePlus());
-        setCurrentWindow(win);
+        
+        private static void addImageWindow(ImageWindow win) {
+            imageList.addElement(win);
+            theDesktop.add(win);
+            Menus.addWindowMenuItem(win.getImagePlus());
+            setCurrentWindow(win);
     }
 
 	/** Removes the specified window from the Window menu. */
-	public synchronized static void removeWindow(Frame win) {
+	public synchronized static void removeWindow(JInternalFrame win) {
 		//IJ.write("removeWindow: "+win.getTitle());
 		if (win instanceof ImageWindow)
 			removeImageWindow((ImageWindow)win);
@@ -225,7 +238,7 @@ public class WindowManager {
 	}
 
 	/** The specified frame becomes the front window, the one returnd by getFrontWindow(). */
-	public static void setWindow(Frame win) {
+	public static void setWindow(JInternalFrame win) {
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
     }
@@ -239,9 +252,9 @@ public class WindowManager {
 				return false;
 			IJ.wait(100);
 		}
-		Frame[] list = getNonImageWindows();
+		JInternalFrame[] list = getNonImageWindows();
 		for (int i=0; i<list.length; i++) {
-			Frame frame = list[i];
+			JInternalFrame frame = list[i];
 			if (frame instanceof PlugInFrame)
 				((PlugInFrame)frame).close();
 			else if (frame instanceof TextWindow)
@@ -280,9 +293,9 @@ public class WindowManager {
 
     /** Returns the frame with the specified title or null if a frame with that 
     	title is not found. */
-    public static Frame getFrame(String title) {
+    public static JInternalFrame getFrame(String title) {
 		for (int i=0; i<nonImageList.size(); i++) {
-			Frame frame = (Frame)nonImageList.elementAt(i);
+			JInternalFrame frame = (JInternalFrame)nonImageList.elementAt(i);
 			if (title.equals(frame.getTitle()))
 				return frame;
 		}
@@ -292,7 +305,7 @@ public class WindowManager {
 			ImagePlus imp = getImage(wList[i]);
 			if (imp!=null) {
 				if (imp.getTitle().equals(title))
-					return imp.getWindow();
+					return (JInternalFrame)imp.getWindow();
 			}
 		}
 		return null;
@@ -302,7 +315,7 @@ public class WindowManager {
 	synchronized static void activateWindow(String menuItemLabel, MenuItem item) {
 		//IJ.write("activateWindow: "+menuItemLabel+" "+item);
 		for (int i=0; i<nonImageList.size(); i++) {
-			Frame win = (Frame)nonImageList.elementAt(i);
+			JInternalFrame win = (JInternalFrame)nonImageList.elementAt(i);
 			String title = win.getTitle();
 			if (menuItemLabel.equals(title)) {
 				win.toFront();

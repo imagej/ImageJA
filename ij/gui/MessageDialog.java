@@ -27,7 +27,7 @@ public class MessageDialog extends Dialog implements ActionListener {
         if (ij.IJ.isMacintosh())
         	setResizable(false);
         pack();
-		GUI.center(this);
+		//GUI.center(this);
         show();
     }
     

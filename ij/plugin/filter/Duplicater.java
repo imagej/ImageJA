@@ -3,6 +3,8 @@ import java.awt.*;
 import ij.*;
 import ij.process.*;
 import ij.gui.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This plugin implements ImageJ's Image/Duplicate command. */
 public class Duplicater implements PlugInFilter {
@@ -73,11 +75,12 @@ public class Duplicater implements PlugInFilter {
 	}
 	
 	String getString(String title, String prompt, String defaultString) {
-		Frame win = imp.getWindow();
-		int stackSize = imp.getStackSize();
-		if (win==null)
-			win = IJ.getInstance();
-		GenericDialog gd = new GenericDialog(title, win);
+		JInternalFrame win = imp.getWindow();
+		int stackSize = imp.getStackSize(); Frame win1 = new Frame();
+		if (win==null){
+			win1 = IJ.getInstance();
+                }
+		GenericDialog gd = new GenericDialog(title, win1);
 		gd.addStringField(prompt, defaultString, 20);
 		if (stackSize>1)
 			gd.addCheckbox("Duplicate Entire Stack", duplicateStack);

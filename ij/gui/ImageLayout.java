@@ -1,6 +1,8 @@
 package ij.gui;
 import java.awt.*;
 import ij.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This is a custom layout manager that supports resizing of zoomed
 images. It's based on FlowLayout, but with vertical and centered flow. */
@@ -80,7 +82,7 @@ public class ImageLayout implements LayoutManager {
 		for (int i=0; i<nmembers; i++) {
 			Component m = target.getComponent(i);
 			d = m.getPreferredSize();
-			if (m instanceof Scrollbar) {
+			if (m instanceof JScrollBar) {
 				int scrollbarWidth = target.getComponent(0).getPreferredSize().width;
 				Dimension minSize = m.getMinimumSize();
 				if (scrollbarWidth<minSize.width) scrollbarWidth = minSize.width;

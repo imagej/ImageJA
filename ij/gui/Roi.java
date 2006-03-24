@@ -38,7 +38,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected int clipX, clipY, clipWidth, clipHeight;
 	protected ImagePlus clipboard;
 	protected boolean constrain; // to be square
-    protected boolean center;
+        protected boolean center;
 	protected boolean updateFullWindow;
 	protected double mag = 1.0;
 	protected String name;

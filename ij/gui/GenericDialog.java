@@ -6,6 +6,8 @@ import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
 import ij.util.Tools;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
  * This class is a customizable modal dialog box. Here is an example
@@ -57,7 +59,8 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
     	this requires that the first word of each label be unique. */
 	public GenericDialog(String title) {
 		this(title, WindowManager.getCurrentImage()!=null?
-			(Frame)WindowManager.getCurrentImage().getWindow():IJ.getInstance()!=null?IJ.getInstance():new Frame());
+			//(Frame)this.getDesktopPane().getParent():IJ.getInstance()!=null?IJ.getInstance():new Frame());
+                IJ.getInstance():new Frame());
 	}
 
     /** Creates a new GenericDialog using the specified title and parent frame. */
@@ -686,7 +689,7 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
         	setResizable(false);
 		pack();
 		setup();
-		GUI.center(this);
+		//GUI.center(this);
 		show();
 		IJ.wait(250); // work around for Sun/WinNT bug
 		//EventQueue.invokeLater(new Runnable () {

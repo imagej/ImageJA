@@ -11,7 +11,8 @@ import ij.process.*;
 import ij.util.*;
 import ij.text.TextWindow;
 import ij.plugin.filter.Analyzer;
-
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class is an extended ImageWindow that displays line graphs. */
 public class PlotWindow extends ImageWindow implements ActionListener, ClipboardOwner {
@@ -45,8 +46,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, Clipboard
 	private static final int AUTO_CLOSE = 2;
 	private static final int LIST_VALUES = 4;
 
-	private Button list, save, copy;
-	private Label coordinates;
+	private JButton list, save, copy;
+	private JLabel coordinates;
 	private static String defaultDirectory = null;
 	private Font font = new Font("Helvetica", Font.PLAIN, 12);
 	private static int options;
@@ -165,18 +166,18 @@ public class PlotWindow extends ImageWindow implements ActionListener, Clipboard
 
 	/** Displays the plot. */
 	public void draw() {
-		Panel buttons = new Panel();
+		JPanel buttons = new JPanel();
 		buttons.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		list = new Button(" List ");
+		list = new JButton(" List ");
 		list.addActionListener(this);
 		buttons.add(list);
-		save = new Button("Save...");
+		save = new JButton("Save...");
 		save.addActionListener(this);
 		buttons.add(save);
-		copy = new Button("Copy...");
+		copy = new JButton("Copy...");
 		copy.addActionListener(this);
 		buttons.add(copy);
-		coordinates = new Label("                     ");
+		coordinates = new JLabel("                     ");
 		coordinates.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		buttons.add(coordinates);
 		add(buttons);
@@ -251,7 +252,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, Clipboard
 	}
 
 	void saveAsText() {
-		FileDialog fd = new FileDialog(this, "Save as Text...", FileDialog.SAVE);
+		FileDialog fd = new FileDialog((Frame)this.getDesktopPane().getParent(), "Save as Text...", FileDialog.SAVE);
 		if (defaultDirectory!=null)
 			fd.setDirectory(defaultDirectory);
 		fd.show();

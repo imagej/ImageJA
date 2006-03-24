@@ -3,9 +3,11 @@ import java.awt.*;
 import java.awt.event.*;
 import ij.*;
 import ij.plugin.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**  This is a closeable window that plugins can extend. */
-public class PlugInFrame extends Frame implements PlugIn, WindowListener, FocusListener {
+public class PlugInFrame extends JInternalFrame implements PlugIn, InternalFrameListener, FocusListener {
 
 	String title;
 	
@@ -13,14 +15,20 @@ public class PlugInFrame extends Frame implements PlugIn, WindowListener, FocusL
 		super(title);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		this.title = title;
-		ImageJ ij = IJ.getInstance();
-		addWindowListener(this);
- 		addFocusListener(this);
-		//setBackground(Color.white);
-		if (ij!=null) {
-			Image img = ij.getIconImage();
-			if (img!=null)
-				try {setIconImage(img);} catch (Exception e) {}
+                ImageJ ij = IJ.getInstance();
+                addInternalFrameListener(this);
+                addFocusListener(this);
+                setMaximizable(true);
+                setClosable(true);
+                setIconifiable(true);
+                show();
+                pack();
+                setVisible(true);
+                //setBackground(Color.white);
+                if (ij!=null) {
+                    Image img = ij.getIconImage();
+                    //if (img!=null)
+				//try {setIconImage(img);} catch (Exception e) {}
 		}
 		if (IJ.debugMode) IJ.log("opening "+title);
 	}
@@ -39,24 +47,49 @@ public class PlugInFrame extends Frame implements PlugIn, WindowListener, FocusL
 		dispose();
 		WindowManager.removeWindow(this);
     }
-
+    
     public void windowActivated(WindowEvent e) {
-		if (IJ.isMacintosh() && IJ.getInstance()!=null) {
-			IJ.wait(10); // needed for 1.4 on OS X
-			setMenuBar(Menus.getMenuBar());
-		}
-		WindowManager.setWindow(this);
-	}
-
-	public void focusGained(FocusEvent e) {
-		//IJ.log("PlugInFrame: focusGained");
-		WindowManager.setWindow(this);
-	}
-
+        if (IJ.isMacintosh() && IJ.getInstance()!=null) {
+            IJ.wait(10); // needed for 1.4 on OS X
+            //setMenuBar(Menus.getMenuBar());
+        }
+        WindowManager.setWindow(this);
+    }
+    
+    public void focusGained(FocusEvent e) {
+        //IJ.log("PlugInFrame: focusGained");
+        WindowManager.setWindow(this);
+    }
+    
     public void windowOpened(WindowEvent e) {}
     public void windowClosed(WindowEvent e) {}
     public void windowIconified(WindowEvent e) {}
     public void windowDeiconified(WindowEvent e) {}
     public void windowDeactivated(WindowEvent e) {}
-	public void focusLost(FocusEvent e) {}
+    
+    public void focusLost(FocusEvent e) {}
+    
+    
+    public void internalFrameClosing(InternalFrameEvent e) {
+    	if (e.getSource()==this)
+    		close();
+    }
+    
+    public void internalFrameClosed(InternalFrameEvent e) {}
+    public void internalFrameOpened(InternalFrameEvent e) {}
+    public void internalFrameIconified(InternalFrameEvent e) {}
+    public void internalFrameDeiconified(InternalFrameEvent e) {}
+    
+    public void internalFrameActivated(InternalFrameEvent e) {
+        if (IJ.isMacintosh() && IJ.getInstance()!=null) {
+            IJ.wait(10); // needed for 1.4 on OS X
+            //setMenuBar(Menus.getMenuBar());
+        }
+        WindowManager.setWindow(this);
+    }
+    
+    public void internalFrameDeactivated(InternalFrameEvent e) {}
+    
+    
+    
 }

@@ -1,9 +1,9 @@
 package ij;
-import java.applet.Applet;
+import javax.swing.JApplet;
 
 	/** Runs ImageJ as an applet and optionally opens images 
 		using URLs that are passed as a parameters. */
-public class ImageJApplet extends Applet {
+public class ImageJApplet extends JApplet {
 
 	/** Starts ImageJ if it's not already running. */
     public void init() {

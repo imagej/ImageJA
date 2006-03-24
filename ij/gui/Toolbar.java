@@ -6,9 +6,11 @@ import java.awt.event.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.MacroInstaller;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** The ImageJ toolbar. */
-public class Toolbar extends Canvas implements MouseListener, MouseMotionListener {
+public class Toolbar extends JPanel implements MouseListener, MouseMotionListener {
 
 	public static final int RECTANGLE = 0;
 	public static final int OVAL = 1;
@@ -72,6 +74,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		instance = this;
+                setVisible(true);
 	}
 
 	/** Returns the ID of the current tool (Toolbar.RECTANGLE,
@@ -354,7 +357,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			down[i] = false;
 	}
 
-	public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
+                super.paintComponent(g);
 		drawButtons(g);
 	}
 

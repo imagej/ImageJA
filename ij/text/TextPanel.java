@@ -9,7 +9,8 @@ import ij.*;
 import ij.plugin.filter.Analyzer;
 import ij.io.SaveDialog;
 import ij.measure.ResultsTable;
-
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
 This is an unlimited size text panel with tab-delimited,

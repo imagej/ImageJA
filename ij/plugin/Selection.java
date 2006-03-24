@@ -4,7 +4,8 @@ import ij.gui.*;
 import ij.process.*;
 import ij.measure.*;
 import java.awt.*;
-
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This plugin implements the commands in the Edit/Section submenu. */
 public class Selection implements PlugIn, Measurements {
@@ -238,7 +239,7 @@ public class Selection implements PlugIn, Measurements {
 		if (roi==null || !(roi.isArea()||roi.getType()==Roi.POINT))
 			{IJ.error("Create Mask", "Area selection required"); return;}
 		ImagePlus maskImp = null;
-		Frame frame = WindowManager.getFrame("Mask");
+		JInternalFrame frame = WindowManager.getFrame("Mask");
 		if (frame!=null && (frame instanceof ImageWindow))
 			maskImp = ((ImageWindow)frame).getImagePlus();
 		if (maskImp==null) {

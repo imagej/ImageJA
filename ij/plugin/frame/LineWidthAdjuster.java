@@ -9,6 +9,8 @@ import ij.gui.*;
 import ij.measure.*;
 import ij.plugin.frame.Recorder;
 import ij.util.Tools;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Adjusts the width of line selections.  */
 public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
@@ -18,13 +20,15 @@ public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
 	Scrollbar slider;
 	int value;
 	boolean setText;
-	static Frame instance; 
+	static JInternalFrame instance; 
 	Thread thread;
 	boolean done;
 	TextField tf;
 
 	public LineWidthAdjuster() {
 		super("Line Width");
+                setClosable(true);
+                setIconifiable(true);
 		if (instance!=null) {
 			instance.toFront();
 			return;

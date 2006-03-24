@@ -1,12 +1,14 @@
 package ij.gui;
 import java.awt.*;
 import ij.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** This class consists of static GUI utility methods. */
 public class GUI {
 
 	/** Positions the specified frame in the center of the screen. */
-	public static void center(Window w) {
+	public static void center(JInternalFrame w) {
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension window = w.getSize();
 		if (window.width==0)
@@ -19,14 +21,14 @@ public class GUI {
 		//ij.IJ.write("window: "+window);
 	}
 	
-    static private Frame frame;
+    static private JInternalFrame frame;
     
     /** Creates a white AWT Image image of the specified size. */
     public static Image createBlankImage(int width, int height) {
         if (width==0 || height==0)
             throw new IllegalArgumentException("");
 		if (frame==null) {
-			frame = new Frame();
+			frame = new JInternalFrame();
 			frame.pack();
 			frame.setBackground(Color.white);
 		}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ImageJ-IDE" basedir="..">
+    <import file="../build.xml"/>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/41/freeform-config.html#debugj2se) -->
+    <target name="debug-nb" depends="build" description="Build and run ImageJ.">
+        <nbjpdastart name="ImageJ" addressproperty="jpda.address" transport="dt_socket"/>
+        <java jar="ij.jar" fork="yes">
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+        </java>
+    </target>
+</project>

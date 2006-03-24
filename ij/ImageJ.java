@@ -6,6 +6,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 import java.awt.image.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.EtchedBorder;
 import ij.gui.*;
 import ij.process.*;
 import ij.io.*;
@@ -25,7 +28,7 @@ offer your changes to me so I can possibly add them to the "official" version.
 
 @author Wayne Rasband (wayne@codon.nih.gov)
 */
-public class ImageJ extends Frame implements ActionListener, 
+public class ImageJ extends JFrame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener {
 
 	public static final String VERSION = "1.34s";
@@ -42,34 +45,47 @@ public class ImageJ extends Frame implements ActionListener,
 	private ProgressBar progressBar;
 	private Label statusLine;
 	private boolean firstTime = true;
-	private java.applet.Applet applet; // null if not running as an applet
+	private javax.swing.JApplet applet; // null if not running as an applet
 	private Vector classes = new Vector();
 	private boolean exitWhenQuiting;
 	private boolean quitting;
 	private long keyPressedTime, actionPerformedTime;
 	
 	boolean hotkey;
-	
-	/** Creates a new ImageJ frame. */
-	public ImageJ() {
-		this(null);
-	}
+        
+        //these objects are additional for the MDI desktop implementation
+        //private MDIDesktopPane theDesktop;
+        private JScrollPane scrollPane;
+        private JPanel widgetPanel;
+        private static Font theMainFont, smallFont;
+        
+        /** Creates a new ImageJ frame. */
+        public ImageJ() {
+            this(null);
+        }
 	
 	/** Creates a new ImageJ frame running as an applet
 		if the 'applet' argument is not null. */
-	public ImageJ(java.applet.Applet applet) {
+	public ImageJ(javax.swing.JApplet applet) {
 		super("ImageJ");
-		this.applet = applet;
-		String err1 = Prefs.load(this, applet);
-		Menus m = new Menus(this, applet);
-		String err2 = m.addMenuBar();
-		m.installPopupMenu(this);
-		setLayout(new GridLayout(2, 1));
+                this.applet = applet;
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                String err1 = Prefs.load(this, applet);
+
+                scrollPane = new JScrollPane();
+                scrollPane.getViewport().add(WindowManager.theDesktop);
+                //scrollPane.setPreferredSize(new Dimension(400,400));
+                WindowManager.setDesktopBackground();
+                getContentPane().add(scrollPane, BorderLayout.CENTER);
+                Menus m = new Menus(this, applet);
+                String err2 = m.addMenuBar();
+                m.installPopupMenu(this);
+                //setLayout(new BorderLayout());
 		
 		// Tool bar
 		toolbar = new Toolbar();
 		toolbar.addKeyListener(this);
-		add(toolbar);
+		add(toolbar,BorderLayout.PAGE_START);
 
 		// Status bar
 		statusBar = new Panel();
@@ -86,7 +102,7 @@ public class ImageJ extends Frame implements ActionListener,
 		progressBar.addMouseListener(this);
 		statusBar.add("East", progressBar);
 		statusBar.setSize(toolbar.getPreferredSize());
-		add(statusBar);
+		getContentPane().add(statusBar, BorderLayout.PAGE_END);
 
 		IJ.init(this, applet);
  		addKeyListener(this);
@@ -94,15 +110,15 @@ public class ImageJ extends Frame implements ActionListener,
  		
 		Point loc = getPreferredLocation();
 		Dimension tbSize = toolbar.getPreferredSize();
-		int ijWidth = tbSize.width+10;
+		int ijWidth = tbSize.width+20;
+                //int ijWidth = Toolkit.getDefaultToolkit().getScreenWidth();
+                //int ijWidth = WindowManager.theDesktop.getWidth();
 		int ijHeight = 100;
 		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
 		setIcon();
-		setBounds(loc.x, loc.y, ijWidth, ijHeight); // needed for pack to work
-		setLocation(loc.x, loc.y);
-		pack();
-		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-		show();
+		//setBounds(loc.x, loc.y, ijWidth, ijHeight); // needed for pack to work
+		//setLocation(loc.x, loc.y);
+
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null)
@@ -116,6 +132,10 @@ public class ImageJ extends Frame implements ActionListener,
 		String str = m.nMacros==1?" macro)":" macros)";
 		IJ.showStatus("Version "+VERSION + " ("+ m.nPlugins + " commands, " + m.nMacros + str);
 		// Toolbar.getInstance().addTool("Spare tool [Cf0fG22ccCf00E22cc]"); 
+                pack();
+		//setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
+		show();
+                setVisible(true);
 	}
     	
 	void setIcon() {

@@ -5,13 +5,15 @@ import ij.*;
 import ij.plugin.*;
 import ij.gui.*;
 import ij.process.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /** Implements ImageJ's Paste Control window. */
 public class PasteController extends PlugInFrame implements PlugIn, ItemListener {
 
 	private Panel panel;
 	private Choice pasteMode;
-	private static Frame instance;
+	private static JInternalFrame instance;
 	
 	public PasteController() {
 		super("Paste Control");
