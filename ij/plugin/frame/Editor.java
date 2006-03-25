@@ -9,7 +9,8 @@ import ij.gui.*;
 import ij.util.Tools;
 import ij.text.TextWindow;
 import ij.macro.*;
-import ij.plugin.*;
+import ij.plugin.MacroInstaller;
+import ij.plugin.NewPlugin;
 import ij.io.SaveDialog;
 
 
@@ -51,6 +52,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		WindowManager.addWindow(this);
 
 		Menu m = new Menu("File");
+		m.add(new MenuItem("New...", new MenuShortcut(KeyEvent.VK_N, true)));
+		m.add(new MenuItem("Open...", new MenuShortcut(KeyEvent.VK_O)));
 		m.add(new MenuItem("Save", new MenuShortcut(KeyEvent.VK_S)));
 		m.add(new MenuItem("Save As..."));
 		m.add(new MenuItem("Print...", new MenuShortcut(KeyEvent.VK_P)));
@@ -97,8 +100,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		setMenuBar(mb);
 		
 		m = new Menu("Font");
-		m.add(new MenuItem("Make Text Larger", new MenuShortcut(KeyEvent.VK_EQUALS)));
-		m.add(new MenuItem("Make Text Smaller", new MenuShortcut(KeyEvent.VK_MINUS)));
+		m.add(new MenuItem("Make Text Smaller", new MenuShortcut(KeyEvent.VK_J)));
+		m.add(new MenuItem("Make Text Larger", new MenuShortcut(KeyEvent.VK_K)));
 		m.addSeparator();
 		monospaced = new CheckboxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
 		monospaced.addItemListener(this);
@@ -224,6 +227,10 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			return "";
 		else
 			return ta.getText();
+	}
+
+	public TextArea getTextArea() {
+		return ta;
 	}
 
 	public void display(String title, String text) {
@@ -453,8 +460,10 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			changeFontSize(false);
 		else if ("Save Settings".equals(what))
 			saveSettings();
-		else
-			installer.runMacro(what);
+		else if ("New...".equals(what))
+			IJ.run("New... ");
+		else if ("Open...".equals(what))
+			IJ.open();
 	}
 
 	public void textValueChanged(TextEvent evt) {
@@ -633,6 +642,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		for(int i=0; i<n; i++) {
 			line = st.nextToken();
 			if (line!=null && line.length()>3) {
+				if (line.equals("close();")) line = "run(\"Close\");";
 				sb.append("\t\tIJ.");
 				if (line.startsWith("//run"))
 					line = line.substring(2);
@@ -688,27 +698,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public static void setDefaultDirectory(String defaultDirectory) {
 		defaultDir = defaultDirectory;
 	}
-
-	/*
-	public void keyPressed(KeyEvent e) {
-		if ((e.getModifiers()&Event.CTRL_MASK)==0)
-			return;
-		int keyCode = e.getKeyCode();
-		//IJ.write("keyCode: "+keyCode); 
-		switch(keyCode) {
-			case KeyEvent.VK_S: save(); break;
-			case KeyEvent.VK_P: print(); break;
-			case KeyEvent.VK_R: compileAndRun(); break;
-			case KeyEvent.VK_X: cut(); break;
-			case KeyEvent.VK_C: copy(); break;
-			case KeyEvent.VK_V: paste(); break;
-			case KeyEvent.VK_F: find(null); break;
-			case KeyEvent.VK_G: find(searchString); break;
-			case KeyEvent.VK_L: gotoLine(); break;
-			default:
-		}
-	}
-	*/
 	
 	//public void keyReleased(KeyEvent e) {}
 	//public void keyTyped(KeyEvent e) {}
