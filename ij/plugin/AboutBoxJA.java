@@ -16,7 +16,7 @@ import java.awt.image.*;
 		int lines = 7;
 		String[] text = new String[lines];
 		text[0] = "ImageJA "+ImageJ.VERSION;
-		text[1] = "Based on ImageJA";
+		text[1] = "Based on ImageJ";
 		text[2] = "http://imageja.sf.net";
 		text[3] = "Java "+System.getProperty("java.version");
 		text[4] = IJ.freeMemory();
