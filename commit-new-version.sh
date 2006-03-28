@@ -20,6 +20,6 @@ git-ls-files | while read f; do rm -f $f; done
 		echo "Adding $f"
 		git-add "$f"
 	done
-git-update-index --refresh --remove $(git-ls-files)
+git-ls-files | xargs git-update-index --refresh --remove 
 GIT_AUTHOR_NAME="Wayne Rasband" GIT_AUTHOR_EMAIL="wsr@nih.gov" git commit
 
