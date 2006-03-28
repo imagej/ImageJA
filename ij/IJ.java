@@ -248,17 +248,6 @@ public class IJ {
 		imp.unlock();
 	}
         
-	public static ClassLoader getClassLoader() {
-		if (classLoader==null) {
-			String pluginsDir = Menus.getPlugInsPath();
-			if (pluginsDir==null)
-				return ClassLoader.getSystemClassLoader();
-			else
-				classLoader = new PluginClassLoader(pluginsDir);
-		}
-		return classLoader;
-	}
-
 	static Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
 		if (applet!=null)
 			return null;
@@ -1274,6 +1263,18 @@ public class IJ {
 	/** Returns true if animated MemoryImageSources do not work correctly. */
 	public static boolean brokenNewPixels() {
 		return brokenNewPixels;
+	}
+
+	/** Returns an instance of the class loader ImageJ uses to run plugins. */
+	public static ClassLoader getClassLoader() {
+		if (classLoader==null) {
+			String pluginsDir = Menus.getPlugInsPath();
+			if (pluginsDir==null)
+				return ClassLoader.getSystemClassLoader();
+			else
+				classLoader = new PluginClassLoader(pluginsDir);
+		}
+		return classLoader;
 	}
 
 	static void abort() {

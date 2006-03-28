@@ -193,7 +193,6 @@ public class Functions implements MacroConstants, Measurements {
 	String getStringFunction(int type) {
 		String str;
 		switch (type) {
-			case RUN_JAVA: str = runJava(); break;
 			case D2S: str = d2s(); break;
 			case TO_HEX: str = toString(16); break;
 			case TO_BINARY: str = toString(2); break;
@@ -217,6 +216,7 @@ public class Functions implements MacroConstants, Measurements {
 			case SELECTION_NAME: str = selectionName(); break;
 			case GET_VERSION: interp.getParens();  str = IJ.getVersion(); break;
 			case GET_RESULT_LABEL: str = getResultLabel(); break;
+			case CALL: str = call(); break;
 			default:
 				str="";
 				interp.error("String function expected");
@@ -2397,84 +2397,6 @@ public class Functions implements MacroConstants, Measurements {
 		return null;
 	}
 
-	String runJava() {
-		interp.getLeftParen();
-
-		// get method name
-		String fullName = getString();
-		int dot = fullName.lastIndexOf('.');
-		if(dot<0) {
-			interp.error("Expected full class.method()");
-			return null;
-		}
-		String className = fullName.substring(0,dot);
-		String methodName = fullName.substring(dot+1);
-
-		// get arguments (all strings)
-		Object[] args = null;
-		if (interp.nextNonEolToken()!=')') {
-			interp.getComma();
-			Vector vargs = new Vector();
-			while(true) {
-				// TODO: support arrays, too
-				vargs.add(getString());
-				int nextToken = interp.nextNonEolToken();
-				if (nextToken==')')
-					break;
-				if (nextToken==',')
-					interp.getComma();
-				else {
-					interp.error("Syntax error: expected comma or closing paren after arg "+
-						     (String)vargs.get(vargs.size()-1));
-					return null;
-				}
-			}
-			args = vargs.toArray();
-		}
-		interp.getRightParen();
-
-		// get the class
-		Class c;
-		try {
-			c = IJ.getClassLoader().loadClass(className);
-		} catch(Exception ex) {
-			interp.error("Could not get class "+className);
-			return null;
-		}
-
-		// get method
-		Method m;
-		try {
-			Class[] argClasses = null;
-			if(args!=null) {
-				argClasses = new Class[args.length];
-				for(int i=0;i<args.length;i++)
-					argClasses[i] = args[i].getClass();
-			}
-			m = c.getMethod(methodName,argClasses);
-		} catch(Exception ex) {
-			// TODO: do exhaustive search using getMethods() and Class.isAssignableFrom()
-			interp.error("Could not find the method "+methodName+" with "+
-				     args.length+" parameter(s) in class "+className);
-			return null;
-		}
-
-		if (m.getReturnType()!=String.class) {
-			interp.error("The method "+methodName+" returns "+m.getReturnType().getName()
-				     +" instead of String");
-			return null;
-		}
-
-		try {
-			return (String)m.invoke(null,args);
-		} catch(Exception ex) {
-			interp.error("Could not invoke the method "+methodName+" with "+
-				     args.length+" parameter(s) in class "+className);
-			return null;
-		}
-			
-	}
-	
 	void getDateAndTime() {
 		Variable year = getFirstVariable();
 		Variable month = getNextVariable();
@@ -2717,6 +2639,76 @@ public class Functions implements MacroConstants, Measurements {
 		}
 		return null;
 	}
+	
+	// Calls a public static method with an arbitrary number
+	// of String parameters, returning a String.
+	// Contributed by Johannes Schindelin
+	String call() {
+		interp.getLeftParen();
+
+		// get class and method name
+		String fullName = getString();
+		int dot = fullName.lastIndexOf('.');
+		if(dot<0)
+			interp.error("Expected 'classname.methodname'");
+		String className = fullName.substring(0,dot);
+		String methodName = fullName.substring(dot+1);
+
+		// get arguments (all strings)
+		Object[] args = null;
+		if (interp.nextNonEolToken()!=')') {
+			interp.getComma();
+			Vector vargs = new Vector();
+			while(true) {
+				vargs.add(getString());
+				int nextToken = interp.nextNonEolToken();
+				if (nextToken==')')
+					break;
+				if (nextToken==',')
+					interp.getComma();
+				else
+					interp.error("',' or ')' expected");
+			}
+			args = vargs.toArray();
+		}
+		interp.getRightParen();
+		if (args==null) args = new Object[0];
+
+		// get the class
+		Class c;
+		try {
+			c = IJ.getClassLoader().loadClass(className);
+		} catch(Exception ex) {
+			interp.error("Could not load class "+className);
+			return null;
+		}
+
+		// get method
+		Method m;
+		try {
+			Class[] argClasses = null;
+			if(args.length>0) {
+				argClasses = new Class[args.length];
+				for(int i=0;i<args.length;i++)
+					argClasses[i] = args[i].getClass();
+			}
+			m = c.getMethod(methodName,argClasses);
+		} catch(Exception ex) {
+			interp.error("Could not find the method "+methodName+" with "+
+				     args.length+" parameter(s) in class "+className);
+			return null;
+		}
+		if (m.getReturnType()!=String.class)
+			interp.error("Method does not return a string");
+
+		try {
+			return (String)m.invoke(null,args);
+		} catch(Exception ex) {
+			interp.error("Could not invoke the method");
+			return null;
+		}
+			
+ 	}
 
 } // class Functions
 
