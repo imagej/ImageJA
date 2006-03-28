@@ -1530,7 +1530,7 @@ public class Interpreter implements MacroConstants {
 	}
 	
 	public static void addBatchModeImage(ImagePlus imp) {
-		if ((!batchMode && !IJ.noGUI) || imp==null) return;
+		if ((!batchMode) || imp==null) return;
 		if (imageTable==null)
 			imageTable = new Vector();
 		//IJ.log("add: "+imp+"  "+imageTable.size());
@@ -1547,7 +1547,7 @@ public class Interpreter implements MacroConstants {
 	}
 	
 	public static int[] getBatchModeImageIDs() {
-		if ((!batchMode && !IJ.noGUI) || imageTable==null)
+		if (!batchMode || imageTable==null)
 			return new int[0];
 		int n = imageTable.size();
 		int[] imageIDs = new int[n];
@@ -1559,14 +1559,14 @@ public class Interpreter implements MacroConstants {
 	}
 
 	public static int getBatchModeImageCount() {
-		if ((!batchMode && !IJ.noGUI) || imageTable==null)
+		if (!batchMode || imageTable==null)
 			return 0;
 		else
 			return imageTable.size();
 	}
 	
 	public static ImagePlus getBatchModeImage(int id) {
-		if ((!batchMode && !IJ.noGUI) || imageTable==null)
+		if (!batchMode || imageTable==null)
 			return null;
 		for (Enumeration en=Interpreter.imageTable.elements(); en.hasMoreElements();) {
 			ImagePlus imp = (ImagePlus)en.nextElement();
@@ -1577,7 +1577,7 @@ public class Interpreter implements MacroConstants {
 	}
 	
 	public static ImagePlus getLastBatchModeImage() { 
-		if ((!batchMode && !IJ.noGUI) || imageTable==null) return null; 
+		if (!batchMode || imageTable==null) return null; 
 		int size = imageTable.size(); 
 		if (size==0) return null; 
 		return (ImagePlus)imageTable.elementAt(size-1); 

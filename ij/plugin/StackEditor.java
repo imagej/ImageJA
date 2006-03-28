@@ -113,7 +113,7 @@ public class StackEditor implements PlugIn {
 			ImageWindow win = image[i].getWindow();
 			if (win!=null)
 				win.close();
-			else if (Interpreter.isBatchMode() || IJ.noGUI)
+			else if (Interpreter.isBatchMode())
 				Interpreter.removeBatchModeImage(image[i]);
 		}
 		ImagePlus imp = new ImagePlus("Stack", stack);
@@ -148,7 +148,7 @@ public class StackEditor implements PlugIn {
 		ImageWindow win = imp.getWindow();
 		if (win!=null)
 			win.close();
-		else if (Interpreter.isBatchMode() || IJ.noGUI)
+		else if (Interpreter.isBatchMode())
 			Interpreter.removeBatchModeImage(imp);
 		imp.unlock();
 	}

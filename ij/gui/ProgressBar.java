@@ -59,7 +59,7 @@ public class ProgressBar extends Canvas {
 		} else {
 			percent = Math.min((currentValue+1)/(double)finalValue, 1.0);
 			showBar = true;
-			if (Interpreter.isBatchMode() || IJ.noGUI)
+			if (Interpreter.isBatchMode())
 				macroMode = true;
 		}
 		repaint();

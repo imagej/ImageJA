@@ -55,8 +55,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 		WindowManager.addWindow(this);
 		setSize(width, height);
 		GUI.center(this);
-		if(!IJ.noGUI)
-			show();
+		show();
 	}
 
 	/**
@@ -74,8 +73,7 @@ public class TextWindow extends Frame implements ActionListener, FocusListener {
 		if (openFile(path)) {
 			WindowManager.addWindow(this);
 			setSize(width, height);
-			if(!IJ.noGUI)
-				show();
+			show();
 		} else
 			dispose();
 	}

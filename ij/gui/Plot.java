@@ -445,11 +445,11 @@ public class Plot {
 	/** Displays the plot in a PlotWindow and returns a reference to the PlotWindow. */
 	public PlotWindow show() {
 		draw();
-		if (Prefs.useInvertingLut && (ip instanceof ByteProcessor) && !Interpreter.isBatchMode() && !IJ.noGUI && IJ.getInstance()!=null) {
+		if (Prefs.useInvertingLut && (ip instanceof ByteProcessor) && !Interpreter.isBatchMode() && IJ.getInstance()!=null) {
 			ip.invertLut();
 			ip.invert();
 		}
-		if ((IJ.macroRunning() && IJ.getInstance()==null) || Interpreter.isBatchMode() || IJ.noGUI) {
+		if ((IJ.macroRunning() && IJ.getInstance()==null) || Interpreter.isBatchMode()) {
 			ImagePlus imp = new ImagePlus(title, ip);
 			WindowManager.setTempCurrentImage(imp);
 			Interpreter.addBatchModeImage(imp);

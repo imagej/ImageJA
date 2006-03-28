@@ -315,7 +315,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	public void show(String statusMessage) {
 		if (win!=null)
 			return;
-		if ((IJ.macroRunning() && ij==null) || Interpreter.isBatchMode() || IJ.noGUI) {
+		if ((IJ.macroRunning() && ij==null) || Interpreter.isBatchMode()) {
 			WindowManager.setTempCurrentImage(this);
 			Interpreter.addBatchModeImage(this);
 			return;
@@ -952,7 +952,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				ip.resetMinAndMax();
 				IJ.showStatus(index+": min="+ip.getMin()+", max="+ip.getMax());
 			}
-			if (!Interpreter.isBatchMode() && !IJ.noGUI)
+			if (!Interpreter.isBatchMode())
 				updateAndRepaintWindow();
 		}
 	}
