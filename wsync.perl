@@ -5,6 +5,10 @@ use Time::Local;
 @stack = ("");
 $baseURL = "http://rsb.info.nih.gov/ij/source/";
 
+unlink '.wsync-all';
+unlink '.wsync-add';
+unlink '.wsync-remove';
+
 %months = ("Jan" => 0, "Feb" => 1, "Mar" => 2, "Apr" => 3, "May" => 4,
 "Jun" => 5, "Jul" => 6, "Aug" => 7, "Sep" => 8, "Oct" => 9, "Nov" => 10,
 "Dec" => 11);
@@ -20,6 +24,15 @@ sub parseDate {
 	return timegm(0, $minute, $hour, $day, $months{$month}, $year);
 }
 
+sub append {
+	my $path = $_[0];
+	my $line = $_[1];
+
+	open my $f, ">>" . $path;
+	print $f $line . "\n";
+	close $f;
+}
+
 sub getFile {
 	my $path = $_[0];
 	my $date = $_[1];
@@ -28,9 +41,9 @@ sub getFile {
 	if ($#list > 0 && $list[9] >= $date) {
 		return;
 	}
-print $list[9] . ":" . $date . "!!\n";
 	`wget -O $path $baseURL$path`;
 	utime $date, $date, $path;
+	append('.wsync-add', $path);
 }
 
 sub handleDir {
@@ -53,7 +66,8 @@ sub handleDir {
 			my $date = parseDate($4, $3, $2, $5, $6);
 			if ($p =~ /\//) {
 				if ($p =~ /^[^\/]/) {
-					$p =~ s/\///;
+					append('.wsync-all', $path2 . $p);
+					$p =~ s/\/$//;
 					my $p1 = $path2 . $p;
 					if (! -d $p1) {
 						mkdir $p1;
@@ -62,6 +76,7 @@ sub handleDir {
 				}
 			} else {
 				getFile($path2 . $p, $date);
+				append('.wsync-all', $path2 . $p);
 			}
 			$exists{$p} = 1;
 		}
@@ -72,7 +87,8 @@ sub handleDir {
 	my $d;
 	while (($d = readdir($dir))) {
 		if (!$exists{$d}) {
-			`rm -rf $path2$d`;
+			#`rm -rf $path2$d`;
+			append('.wsync-remove', $path2 . $d);
 		}
 	}
 	closedir $dir;
