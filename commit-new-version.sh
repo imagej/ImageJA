@@ -11,7 +11,7 @@ esac
 git checkout master || exit 3
 git-ls-files | while read f; do rm -f $f; done
 (cd ..; unzip -o $zipfile )
-unzip -v ~/Documents/ij135e-src.zip | \
+(cd ..; unzip -v $zipfile ) | \
 	sed -n "s/^.* source\///p" | \
 	grep -ve "^$" -e "/$" | \
 	while read f; do
