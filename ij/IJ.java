@@ -21,7 +21,6 @@ import java.lang.reflect.*;
 public class IJ {
 	public static boolean debugMode;
 	public static boolean hideProcessStackDialog;
-	public static boolean noGUI = false;
 	    
     public static final char micronSymbol = (char)181;
     public static final char angstromSymbol = (char)197;
@@ -484,9 +483,7 @@ public class IJ {
 			redirectErrorMessages = false;
 			return;
 		}
-		if(noGUI) {
-			System.out.println(title+": "+msg);
-		} else if (ij!=null) {
+		if (ij!=null) {
 			if (msg.startsWith("<html>") && isJava2())
 				new HTMLDialog(title, msg);
 			else
@@ -887,7 +884,7 @@ public class IJ {
 		if (imp==null)
 			error("Macro Error", "Image "+id+" not found or no images are open.");
 		String title = imp.getTitle();
-		if (Interpreter.isBatchMode() || IJ.noGUI) {
+		if (Interpreter.isBatchMode()) {
 			ImagePlus imp2 = WindowManager.getCurrentImage();
 			if (imp2!=null && imp2!=imp) imp2.saveRoi();
             WindowManager.setTempCurrentImage(imp);
