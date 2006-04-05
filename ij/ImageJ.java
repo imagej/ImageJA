@@ -566,8 +566,8 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 		if (!changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS) {
-			GenericDialog gd = new GenericDialog("ImageJ", this);
-			gd.addMessage("Are you sure you want to quit ImageJ?");
+			GenericDialog gd = new GenericDialog("ImageJA", this);
+			gd.addMessage("Are you sure you want to quit ImageJA?");
 			gd.showDialog();
 			quitting = !gd.wasCanceled();
 		}
