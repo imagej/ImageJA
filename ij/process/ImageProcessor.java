@@ -70,7 +70,12 @@ public abstract class ImageProcessor extends Object {
 	protected int clipXMin, clipXMax, clipYMin, clipYMax; // clip rect used by drawTo, drawLine, drawDot and drawPixel 
 	protected int justification = LEFT_JUSTIFY;
 	protected int lutUpdateMode;
-
+	protected WritableRaster raster;
+	protected BufferedImage image;
+	protected ColorModel cm2;
+	protected static SampleModel sampleModel;
+	protected static IndexColorModel defaultColorModel;
+	protected static boolean useOldCreateImage = true;
 		
 	protected void showProgress(double percentDone) {
 		if (progressBar!=null)
@@ -122,6 +127,7 @@ public abstract class ImageProcessor extends Object {
 		newPixels = true;
 		inversionTested = false;
 		minThreshold = NO_THRESHOLD;
+		source = null;
 	}
 
 	protected void makeDefaultColorModel() {
@@ -395,6 +401,7 @@ public abstract class ImageProcessor extends Object {
 
 		cm = new IndexColorModel(8, 256, rLUT2, gLUT2, bLUT2);
 		newPixels = true;
+		source = null;
 	}
 
 	/** Disables thresholding. */
@@ -407,6 +414,7 @@ public abstract class ImageProcessor extends Object {
 		rLUT1 = rLUT2 = null;
 		inversionTested = false;
 		newPixels = true;
+		source = null;
 	}
 
 	/** Returns the lower threshold level. Returns NO_THRESHOLD
@@ -1317,6 +1325,7 @@ public abstract class ImageProcessor extends Object {
 	public void setLutAnimation(boolean lutAnimation) {
 		this.lutAnimation = lutAnimation;
 		newPixels = true;
+		source = null;
 	}
 	
 	void resetPixels(Object pixels) {
@@ -1328,6 +1337,7 @@ public abstract class ImageProcessor extends Object {
 			source = null;
 		}
 		newPixels = true;
+		source = null;
 	}
 
 	/** Returns an 8-bit version of this image as a ByteProcessor. */
@@ -1445,6 +1455,31 @@ public abstract class ImageProcessor extends Object {
 	protected String maskSizeError(ImageProcessor mask) {
 		return "Mask size ("+mask.getWidth()+"x"+mask.getHeight()+") != ROI size ("+
 			roiWidth+"x"+roiHeight+")";
+	}
+	
+	protected SampleModel getIndexSampleModel() {
+		if (sampleModel==null) {
+			IndexColorModel icm = getDefaultColorModel();
+			WritableRaster wr = icm.createCompatibleWritableRaster(1, 1);
+			sampleModel = wr.getSampleModel();
+			sampleModel = sampleModel.createCompatibleSampleModel(width, height);
+		}
+		return sampleModel;
+	}
+
+	protected IndexColorModel getDefaultColorModel() {
+		if (defaultColorModel==null) {
+			byte[] r = new byte[256];
+			byte[] g = new byte[256];
+			byte[] b = new byte[256];
+			for(int i=0; i<256; i++) {
+				r[i]=(byte)i;
+				g[i]=(byte)i;
+				b[i]=(byte)i;
+			}
+			defaultColorModel = new IndexColorModel(8, 256, r, g, b);
+		}
+		return defaultColorModel;
 	}
 
 }
