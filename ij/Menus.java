@@ -146,8 +146,8 @@ public class Menus {
 		addPlugInItem(image, "Scale...", "ij.plugin.Scaler", KeyEvent.VK_E, false);
 		addSubMenu(image, "Rotate");
 		addSubMenu(image, "Zoom");
-		//image.addSeparator();
-		//addSubMenu(image, "Lookup Tables");
+		image.addSeparator();
+		addSubMenu(image, "Lookup Tables");
 		
 		Menu process = new Menu("Process");
 		addPlugInItem(process, "Smooth", "ij.plugin.filter.Filters(\"smooth\")", KeyEvent.VK_S, true);
