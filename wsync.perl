@@ -38,7 +38,7 @@ sub getFile {
 	my $date = $_[1];
 
 	my @list = stat($path);
-	if ($#list > 0 && $list[9] == $date) {
+	if ($#list > 0 && $list[9] >= $date) {
 		return;
 	}
 	`wget -O $path $baseURL$path`;
