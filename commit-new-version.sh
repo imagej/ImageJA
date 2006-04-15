@@ -4,22 +4,25 @@ if [ -z "$1" ]; then
 fi
 case "$1" in
 /*) zipfile="$1";;
-*) zipfile=source/"$1";;
+*) zipfile="$(pwd)/$1";;
 esac
 
-[ -z "$(git-diff-index -M HEAD)" ] || exit 2
-git checkout master || exit 3
-git-ls-files | while read f; do rm -f $f; done
-(cd ..; unzip -o $zipfile )
-(cd ..; unzip -v $zipfile ) | \
-	sed -n "s/^.* source\///p" | \
-	grep -ve "^$" -e "/$" | \
-	while read f; do
-		#perl $HOME/my/tools/mac2unix.pl --add-last-newline "$f"
-		perl $HOME/my/tools/mac2unix.pl "$f"
-		echo "Adding $f"
-		git-add "$f"
-	done
-git-ls-files | xargs git-update-index --refresh --remove 
-GIT_AUTHOR_NAME="Wayne Rasband" GIT_AUTHOR_EMAIL="wsr@nih.gov" git commit
+cd "$(dirname "$0")"/../.git || exit 2
+export GIT_DIR="$(pwd)"
+parent=$(git-rev-parse release) || exit 3
+export GIT_INDEX_FILE="$GIT_DIR/tmpIndex"
+mkdir tmpCommit || exit 1
+cd tmpCommit
+unzip $zipfile
+cd source
+find -type f -print0 | xargs -0 perl $HOME/my/tools/mac2unix.pl
+find -type f -print0 | xargs -0 git-update-index --add
+tree=$(git-write-tree)
+export GIT_AUTHOR_NAME="Wayne Rasband"
+export GIT_AUTHOR_EMAIL="wsr@nih.gov"
+commit=$(git-commit-tree $tree -p $parent)
+git-update-ref release $commit
+cd ../..
+rm -rf tmpCommit tmpIndex
+
 
