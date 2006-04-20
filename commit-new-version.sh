@@ -21,7 +21,7 @@ tree=$(git-write-tree)
 export GIT_AUTHOR_NAME="Wayne Rasband"
 export GIT_AUTHOR_EMAIL="wsr@nih.gov"
 commit=$(git-commit-tree $tree -p $parent)
-git-update-ref release $commit
+git-update-ref refs/heads/release $commit
 cd ../..
 rm -rf tmpCommit tmpIndex
 
