@@ -43,6 +43,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	private static String redirectTitle = "";
 	static int firstParticle, lastParticle;
 	private static boolean summarized;
+	private static boolean switchingModes;
 	
 	public Analyzer() {
 		rt = systemRT;
@@ -124,15 +125,18 @@ public class Analyzer implements PlugInFilter, Measurements {
 		labels[15]="Kurtosis"; states[15]=(systemMeasurements&KURTOSIS)!=0;
 		labels[16]="Area_Fraction"; states[16]=(systemMeasurements&AREA_FRACTION)!=0;
 		labels[17]="Slice Number"; states[17]=(systemMeasurements&SLICE)!=0;
+		gd.setInsets(0, 0, 0);
 		gd.addCheckboxGroup(10, 2, labels, states);
 		labels = new String[3];
 		states = new boolean[3];
 		labels[0]="Limit to Threshold"; states[0]=(systemMeasurements&LIMIT)!=0;
 		labels[1]="Display Label"; states[1]=(systemMeasurements&LABELS)!=0;
 		labels[2]="Invert Y Coordinates"; states[2]=(systemMeasurements&INVERT_Y)!=0;
+		gd.setInsets(0, 0, 0);
 		gd.addCheckboxGroup(2, 2, labels, states);
-		gd.addMessage("");
+		gd.setInsets(15, 0, 0);
         gd.addChoice("Redirect To:", titles, target);
+		gd.setInsets(5, 0, 0);
 		gd.addNumericField("Decimal Places (0-9):", precision, 0, 2, "");
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -196,6 +200,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			return;
 		}
 		if (mode!=AREAS) {
+			switchingModes = true;
 			if (!resetCounter())
 				return;
 			mode = AREAS;
@@ -246,12 +251,17 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if (depth>1 && depth==imp.getStackSize())
 			redirectImp.setSlice(imp.getCurrentSlice());
 		ImageProcessor ip = redirectImp.getProcessor();
-		ip.setRoi(roi);
+		if (imp.getTitle().equals("mask") && imp.getBitDepth()==8) {
+			ip.setMask(imp.getProcessor());
+			ip.setRoi(0, 0, imp.getWidth(), imp.getHeight());
+		} else
+			ip.setRoi(roi);
 		return ImageStatistics.getStatistics(ip, measurements, redirectImp.getCalibration());
 	}
 	
 	void measurePoint(Roi roi) {
 		if (mode!=POINTS) {
+			switchingModes = true;
 			if (!resetCounter())
 				return;
 			//IJ.setColumnHeadings(" \tX\tY\tValue");		
@@ -287,6 +297,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	
 	void measureAngle(Roi roi) {
 		if (mode!=ANGLES) {
+			switchingModes = true;
 			if (!resetCounter())
 				return;
 			if ((measurements&LABELS)!=0)
@@ -305,6 +316,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	
 	void measureLength(Roi roi) {
 		if (mode!=LENGTHS) {
+			switchingModes = true;
 			if (!resetCounter())
 				return;
 			if ((measurements&LABELS)!=0)
@@ -642,7 +654,9 @@ public class Analyzer implements PlugInFilter, Measurements {
 		int counter = systemRT.getCounter();
 		int lineCount = tp!=null?IJ.getTextPanel().getLineCount():0;
 		ImageJ ij = IJ.getInstance();
-		if (counter>0 && lineCount>0 && unsavedMeasurements && !Interpreter.isBatchMode() && ij!=null && !ij.quitting()) {
+		boolean macro = (IJ.macroRunning()&&!switchingModes) || Interpreter.isBatchMode();
+		switchingModes = false;
+		if (counter>0 && lineCount>0 && unsavedMeasurements && !macro && ij!=null && !ij.quitting()) {
 			SaveChangesDialog d = new SaveChangesDialog(ij, "Save "+counter+" measurements?");
 			if (d.cancelPressed())
 				return false;

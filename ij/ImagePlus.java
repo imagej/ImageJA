@@ -93,6 +93,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	private static Vector listeners;
 	private static boolean inListener;
 	protected static final int OPENED=0, CLOSED=1, UPDATED=2;
+	protected boolean compositeImage;
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -322,11 +323,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 		if (Prefs.useInvertingLut && getBitDepth()==8 && ip!=null && !ip.isInvertedLut()&& !ip.isColorLut())
 			invertLookupTable();
-		if (img==null && ip!=null)
-			img = ip.createImage();
+		img = getImage();
 		if ((img!=null) && (width>=0) && (height>=0)) {
 			activated = false;
-			if (stack!=null && stack.getSize()>1)
+			if (getStackSize()>1)
 				win = new StackWindow(this);
 			else
 				win = new ImageWindow(this);
@@ -373,16 +373,23 @@ public class ImagePlus implements ImageObserver, Measurements {
 			img = ip.createImage();
 		return img;
 	}
-	
+		
 	/** Returns this image's unique numeric ID. */
 	public int getID() {
 		return ID;
 	}
 	
-	/** Replaces the AWT image, if any, with the one specified. 
+	/** Replaces the image, if any, with the one specified. 
 		Throws an IllegalStateException if an error occurs 
 		while loading the image. */
 	public void setImage(Image img) {
+		if (img instanceof BufferedImage) {
+			BufferedImage bi = (BufferedImage)img;
+			if (bi.getType()==BufferedImage.TYPE_USHORT_GRAY) {
+				setProcessor(null, new ShortProcessor(bi));
+				return;
+			}
+		}
 		roi = null;
 		errorLoadingImage = false;
 		waitForImage(img);
@@ -470,6 +477,7 @@ public class ImagePlus implements ImageObserver, Measurements {
    		int stackSize = stack.getSize();
    		if (stackSize==0)
    			throw new IllegalArgumentException("Stack is empty");
+   		if (compositeImage) stackSize /= nChannels;
     	boolean stackSizeChanged = this.stack!=null && stackSize!=getStackSize();
     	if (currentSlice<1) currentSlice = 1;
     	boolean resetCurrentSlice = currentSlice>stackSize;
@@ -514,6 +522,12 @@ public class ImagePlus implements ImageObserver, Measurements {
 		this.win = win;
 	}
 	
+	/** Returns the ImageCanvas being used to
+		display this image, or null. */
+	public ImageCanvas getCanvas() {
+		return win!=null?win.getCanvas():null;
+	}
+
 	/** Sets current foreground color. */
 	public void setColor(Color c) {
 		if (ip!=null)
@@ -614,7 +628,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 	*/
 	public ImageStatistics getStatistics(int mOptions, int nBins, double histMin, double histMax) {
 		setupProcessor();
-		ip.setRoi(roi);
+		if (roi!=null && roi.isArea())
+			ip.setRoi(roi);
+		else
+			ip.resetRoi();
 		ip.setHistogramSize(nBins);
 		Calibration cal = getCalibration();
 		if (getType()==GRAY16&& !(histMin==0.0&&histMax==0.0))
@@ -676,8 +693,20 @@ public class ImagePlus implements ImageObserver, Measurements {
     	return height;
     }
     
-	/** If this is a stack, return the number of slices, else return 1. */
+	/** If this is a stack, returns the number of slices, else returns 1. */
 	public int getStackSize() {
+		if (stack==null)
+			return 1;
+		else {
+			int slices = stack.getSize();
+			if (slices==0) slices = 1;
+			if (compositeImage) slices /= nChannels;
+			return slices;
+		}
+	}
+	
+	/** If this is a stack, returns the actual number of images in the stack, else returns 1. */
+	public int getImageStackSize() {
 		if (stack==null)
 			return 1;
 		else {
@@ -686,17 +715,12 @@ public class ImagePlus implements ImageObserver, Measurements {
 			return slices;
 		}
 	}
-	
-	/** If this is a stack, return the number of slices, else return 1. */
-	public int getImageStackSize() {
-		return getStackSize();
-	}
 
 	/** Sets the 3rd, 4th and 5th dimensions, where 
 	<code>nChannels</code>*<code>nSlices</code>*<code>nFrames</code> 
 	must be the same as the stack size. */
 	public void setDimensions(int nChannels, int nSlices, int nFrames) {
-		if (nChannels*nSlices*nFrames!=getImageStackSize())
+		if (nChannels*nSlices*nFrames!=getImageStackSize() && ip!=null)
 			throw new IllegalArgumentException("channels*slices*frames!=stackSize");
 		this.nChannels = nChannels;
 		this.nSlices = nSlices;
@@ -1448,8 +1472,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		int iType = getType();
 		
 		boolean sameType = false;
-		if ((cType==ImagePlus.GRAY8|cType==ImagePlus.COLOR_256)&&(iType==ImagePlus.GRAY8|iType==ImagePlus.COLOR_256)) sameType = true;
-		else if ((cType==ImagePlus.COLOR_RGB|cType==ImagePlus.GRAY8|cType==ImagePlus.COLOR_256)&&iType==ImagePlus.COLOR_RGB) sameType = true;
+		if ((cType==ImagePlus.GRAY8||cType==ImagePlus.COLOR_256)&&(iType==ImagePlus.GRAY8||iType==ImagePlus.COLOR_256)) sameType = true;
+		else if ((cType==ImagePlus.COLOR_RGB||cType==ImagePlus.GRAY8||cType==ImagePlus.COLOR_256)&&iType==ImagePlus.COLOR_RGB) sameType = true;
 		else if (cType==ImagePlus.GRAY16&&iType==ImagePlus.GRAY16) sameType = true;
 		else if (cType==ImagePlus.GRAY32&&iType==ImagePlus.GRAY32) sameType = true;
 		if (!sameType) {

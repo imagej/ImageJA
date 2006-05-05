@@ -37,7 +37,7 @@ public class IJ {
 	private static Thread previousThread;
 	private static TextPanel logPanel;
 	private static boolean notVerified = true;		
-	private static PluginClassLoader classLoader;
+	private static ClassLoader classLoader;
 	private static boolean memMessageDisplayed;
 	private static long maxMemory;
 	private static boolean escapePressed;
@@ -247,24 +247,14 @@ public class IJ {
 	}
         
 	static Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
-		if (applet!=null)
-			return null;
-		String pluginsDir = Menus.getPlugInsPath();
-		if (pluginsDir==null)
-			return null;
+		if (applet!=null) return null;
 		if (notVerified) {
 			// check for duplicate classes in the plugins folder
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 			notVerified = false;
 		}
-		PluginClassLoader loader;
-		if (createNewLoader)
-			loader = new PluginClassLoader(pluginsDir);
-		else {
-			if (classLoader==null)
-				classLoader = new PluginClassLoader(pluginsDir);
-			loader = classLoader;
-		}
+		if (createNewLoader) classLoader = null;
+		ClassLoader loader = getClassLoader();
 		Object thePlugIn = null;
 		try { 
 			thePlugIn = (loader.loadClass(className)).newInstance(); 
@@ -625,6 +615,8 @@ public class IJ {
 		The 'decimalPlaces' argument specifies the number of
 		digits to the right of the decimal point (0-9). */
 	public static String d2s(double n, int decimalPlaces) {
+		if (Double.isNaN(n))
+			return "NaN";
 		if (n==Float.MAX_VALUE) // divide by 0 in FloatProcessor
 			return "3.4e38";
 		double np = n;
@@ -1000,7 +992,8 @@ public class IJ {
 			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, Roi.TRACED_ROI);
 			img.setRoi(roi);
 			// add/subtract this ROI to the previous one if the shift/alt key is down
-			roi.update(shiftKeyDown(), altKeyDown());
+			if (previousRoi!=null)
+				roi.update(shiftKeyDown(), altKeyDown());
 		}
 		return w.npoints;
 	}

@@ -32,7 +32,7 @@ public class Options implements PlugIn {
 		gd.addStringField("Divide by Zero Value:", ""+FloatBlitter.divideByZeroValue, 10);
 		gd.addCheckbox("Use Pointer Cursor", Prefs.usePointerCursor);
 		gd.addCheckbox("Hide \"Process Stack?\" Dialog", IJ.hideProcessStackDialog);
-		gd.addCheckbox("Antialiased_Text", Prefs.antialiasedText);
+		//gd.addCheckbox("Antialiased_Text", Prefs.antialiasedText);
 		gd.addCheckbox("Antialiased_Tool Icons", Prefs.antialiasedTools);
 		gd.addCheckbox("Require "+key+" Key for Shortcuts", Prefs.requireControlKey);
 		gd.addCheckbox("Debug Mode", IJ.debugMode);
@@ -58,7 +58,7 @@ public class Options implements PlugIn {
 			
 		Prefs.usePointerCursor = gd.getNextBoolean();
 		IJ.hideProcessStackDialog = gd.getNextBoolean();
-		Prefs.antialiasedText = gd.getNextBoolean();
+		//Prefs.antialiasedText = gd.getNextBoolean();
 		boolean antialiasedTools = gd.getNextBoolean();
 		boolean change = antialiasedTools!=Prefs.antialiasedTools;
 		Prefs.antialiasedTools = antialiasedTools;
@@ -86,6 +86,7 @@ public class Options implements PlugIn {
 		gd.addNumericField("JPEG Quality (0-100):", JpegWriter.getQuality(), 0, 3, "");
 		gd.addStringField("File Extension for Tables:", Prefs.get("options.ext", ".xls"), 4);
 		gd.addCheckbox("Use JFileChooser to Open/Save", Prefs.useJFileChooser);
+		gd.addCheckbox("Export Raw in Intel Byte Order", Prefs.intelByteOrder);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
@@ -98,6 +99,7 @@ public class Options implements PlugIn {
 			extension = "." + extension;
 		Prefs.set("options.ext", extension);
 		Prefs.useJFileChooser = gd.getNextBoolean();
+		Prefs.intelByteOrder = gd.getNextBoolean();
 		if (!IJ.isJava2())
 			Prefs.useJFileChooser = false;
 		return;

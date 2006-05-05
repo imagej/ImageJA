@@ -83,6 +83,7 @@ public class ByteProcessor extends ImageProcessor {
 		return img;
 	}
 
+	/*
 	public Image createImageBeta() {
 		if (cm==null)
 			cm = getDefaultColorModel();
@@ -97,6 +98,7 @@ public class ByteProcessor extends ImageProcessor {
 		}
 		return image;
 	}
+	*/
 
 	/** Returns a new, blank ByteProcessor with the specified width and height. */
 	public ImageProcessor createProcessor(int width, int height) {
@@ -194,11 +196,11 @@ public class ByteProcessor extends ImageProcessor {
 			return 0;
 	}
 	
-	public int get(int x, int y) {
+	public final int get(int x, int y) {
 		return pixels[y*width+x]&0xff;
 	}
 
-	public void set(int x, int y, int value) {
+	public final void set(int x, int y, int value) {
 		pixels[y*width + x] = (byte)value;
 	}
 

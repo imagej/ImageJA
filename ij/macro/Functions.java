@@ -5,8 +5,7 @@ import ij.gui.*;
 import ij.measure.*;
 import ij.plugin.*;
 import ij.plugin.filter.*;
-import ij.plugin.frame.Editor;
-import ij.plugin.frame.RoiManager;
+import ij.plugin.frame.*;
 import ij.text.*;
 import ij.io.*;
 import ij.util.Tools;
@@ -36,6 +35,7 @@ public class Functions implements MacroConstants, Measurements {
     GenericDialog gd;
     PrintWriter writer;
     boolean altKeyDown, shiftKeyDown;
+    boolean antialiasedText;
     
     boolean saveSettingsCalled;
 	boolean usePointerCursor, hideProcessStackDialog;
@@ -46,7 +46,7 @@ public class Functions implements MacroConstants, Measurements {
     boolean weightedColor;
     double[] weights;
 	boolean interpolateScaledImages, open100Percent, blackCanvas;
-	boolean antialiasedText, useJFileChooser,debugMode;
+	boolean useJFileChooser,debugMode;
 	Color foregroundColor, backgroundColor, roiColor;
 	boolean pointAutoMeasure, requireControlKey, useInvertingLut;
 	int measurements;
@@ -591,16 +591,20 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	void makeOval() {
+		Roi previousRoi = getImage().getRoi();
 		IJ.makeOval((int)getFirstArg(), (int)getNextArg(), (int)getNextArg(), (int)getLastArg());
 		Roi roi = getImage().getRoi();
-		if (roi!=null) roi.update(shiftKeyDown, altKeyDown);
+		if (previousRoi!=null && roi!=null)
+			roi.update(shiftKeyDown, altKeyDown);
 		resetImage();
 	}
 	
 	void makeRectangle() {
+		Roi previousRoi = getImage().getRoi();
 		IJ.makeRectangle((int)getFirstArg(), (int)getNextArg(), (int)getNextArg(), (int)getLastArg());
 		Roi roi = getImage().getRoi();
-		if (roi!=null) roi.update(shiftKeyDown, altKeyDown);
+		if (previousRoi!=null && roi!=null)
+			roi.update(shiftKeyDown, altKeyDown);
 		resetImage();
 	}
 	
@@ -772,6 +776,7 @@ public class Functions implements MacroConstants, Measurements {
 			setForegroundColor(ip);
 		setFont(ip);
 		ip.setJustification(justification);
+		ip.setAntialiasedText(antialiasedText);
 		ip.drawString(str, x, y);
 		updateAndDraw(defaultImp);
 	}
@@ -1492,10 +1497,12 @@ public class Functions implements MacroConstants, Measurements {
 			roi = new PointRoi(xcoord, ycoord, n);
 		else
 			roi = new PolygonRoi(xcoord, ycoord, n, roiType);
+		Roi previousRoi = imp.getRoi();
 		imp.setRoi(roi);
 		if (roiType==Roi.POLYGON || roiType==Roi.FREEROI) {
 			roi = imp.getRoi();
-			if (roi!=null) roi.update(shiftKeyDown, altKeyDown); 
+			if (previousRoi!=null && roi!=null)
+				roi.update(shiftKeyDown, altKeyDown); 
 		}
 		updateNeeded = false;
 	}
@@ -1772,7 +1779,6 @@ public class Functions implements MacroConstants, Measurements {
 		interpolateScaledImages = Prefs.interpolateScaledImages;
 		open100Percent = Prefs.open100Percent;
 		blackCanvas = Prefs.blackCanvas;
-		antialiasedText = Prefs.antialiasedText;
 		useJFileChooser = Prefs.useJFileChooser;
 		debugMode = IJ.debugMode;
 		foregroundColor =Toolbar.getForegroundColor();
@@ -1803,7 +1809,6 @@ public class Functions implements MacroConstants, Measurements {
 		Prefs.interpolateScaledImages = interpolateScaledImages;
 		Prefs.open100Percent = open100Percent;
 		Prefs.blackCanvas = blackCanvas;
-		Prefs.antialiasedText = antialiasedText;
 		Prefs.useJFileChooser = useJFileChooser;
 		IJ.debugMode = debugMode;
 		Toolbar.setForegroundColor(foregroundColor);
@@ -1887,10 +1892,12 @@ public class Functions implements MacroConstants, Measurements {
 		String name = getFirstString();
 		int size = (int)getNextArg();
 		int style = 0;
+		antialiasedText = false;
 		if (interp.nextToken()==',') {
 			String styles = getLastString().toLowerCase();
 			if (styles.indexOf("bold")!=-1) style += Font.BOLD;
 			if (styles.indexOf("italic")!=-1) style += Font.ITALIC;
+			if (styles.indexOf("anti")!=-1) antialiasedText = true;
 		} else
 			interp.getRightParen();
 		font = new Font(name, style, size);
@@ -2274,12 +2281,24 @@ public class Functions implements MacroConstants, Measurements {
 	
 	void floodFill() {
 		int x = (int)getFirstArg();
-		int y = (int)getLastArg();
+		int y = (int)getNextArg();
+		boolean fourConnected = true;
+		if (interp.nextNonEolToken()==',') {
+			String s = getLastString();
+			if (s.indexOf("8")!=-1)
+				fourConnected = false;
+		} else
+			interp.getRightParen();
 		ImageProcessor ip = getProcessor();
 		if (!colorSet) setForegroundColor(ip);
 		FloodFiller ff = new FloodFiller(ip);
-		ff.fill(x, y);
+		if (fourConnected)
+			ff.fill(x, y);
+		else
+			ff.fill8(x, y);
 		updateAndDraw(defaultImp);
+		if (Recorder.record && pgm.hasVars)
+			Recorder.record("floodFill", x, y);
 	}
 	
 	void restorePreviousTool() {
@@ -2499,9 +2518,10 @@ public class Functions implements MacroConstants, Measurements {
 		if (n==max && interp.token!=')')
 			interp.error("More than "+max+" points");
 		ImagePlus imp = getImage();
+		Roi previousRoi = imp.getRoi();
 		imp.setRoi(new PolygonRoi(x, y, n, Roi.POLYGON));
 		Roi roi = imp.getRoi();
-		if (roi!=null)
+		if (previousRoi!=null && roi!=null)
 			roi.update(shiftKeyDown, altKeyDown); 
 		resetImage(); 
 	}
@@ -2698,11 +2718,10 @@ public class Functions implements MacroConstants, Measurements {
 				     args.length+" parameter(s) in class "+className);
 			return null;
 		}
-		if (m.getReturnType()!=String.class)
-			interp.error("Method does not return a string");
 
 		try {
-			return (String)m.invoke(null,args);
+			Object obj = m.invoke(null, args);
+			return obj!=null?obj.toString():null;
 		} catch(Exception ex) {
 			interp.error("Could not invoke the method");
 			return null;
