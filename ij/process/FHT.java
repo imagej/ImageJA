@@ -330,6 +330,8 @@ public class FHT extends FloatProcessor {
 			ImageStack ct = getComplexTransform();
 			ImagePlus imp2 = new ImagePlus("Complex of "+FFT.fileName, ct);
 			(new ContrastEnhancer()).stretchHistogram(imp2, 0.1);
+			imp2.setProperty("FFT width", ""+originalWidth);
+			imp2.setProperty("FFT height", ""+originalHeight);
 			imp2.show();
 		}
 		return ip;
@@ -358,6 +360,8 @@ public class FHT extends FloatProcessor {
 			FHTreal(i, maxN, fht, re);
 			FHTimag(i, maxN, fht, im);
 		}
+		swapQuadrants(new FloatProcessor(maxN, maxN, re, null));
+		swapQuadrants(new FloatProcessor(maxN, maxN, im, null));
 		ImageStack stack = new ImageStack(maxN, maxN);
 		stack.addSlice("Real", re);
 		stack.addSlice("Imaginary", im);

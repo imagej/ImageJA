@@ -1,14 +1,18 @@
 package ij.macro;
 import ij.*;
 import java.io.*;
+
 /** This class converts an imageJ macro file file into a token stream. */
 public class Tokenizer implements MacroConstants {
+
     private StreamTokenizer st;
     private int token;
     private String tokenString;
     private double tokenValue;
     private Program pgm;
     private boolean hasUserFunctions;
+
+
     /** Uses a StreamTokenizer to convert an ImageJ macro file into a token stream. */
     public Program tokenize(String program) {
         //IJ.showStatus("tokenizing");
@@ -34,6 +38,7 @@ public class Tokenizer implements MacroConstants {
         }
         return pgm;
     }
+
     final void getToken() {
         try {
             token = st.nextToken();
@@ -156,6 +161,7 @@ public class Tokenizer implements MacroConstants {
         }
         // IJ.log("	  "+ret);
     }
+
     final void addToken() {
         int tok = token;
         switch (token) {
@@ -190,6 +196,7 @@ public class Tokenizer implements MacroConstants {
         }
         pgm.addToken(tok);
     }
+
     double getHexConstant() {
         try {
             token = st.nextToken();
@@ -214,6 +221,7 @@ public class Tokenizer implements MacroConstants {
         }
         return n;
     }
+
 	/** Adds user-defined functions to the symbol table. */
 	void addUserFunctions() {
 		int[] code = pgm.getCode();
@@ -249,4 +257,5 @@ public class Tokenizer implements MacroConstants {
 				break;
 		}
 	}
-}
+
+} // class Tokenizer

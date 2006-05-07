@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+
 /** Saves an ROI to a file or stream. RoiDecoder.java has a description of the file format.
 	@see ij.io.RoiDecoder
 	@see ij.plugin.RoiReader
@@ -21,10 +22,12 @@ public class RoiEncoder {
 	public RoiEncoder(String path) {
 		this.path = path;
 	}
+
 	/** Creates an RoiEncoder using the specified OutputStream. */
 	public RoiEncoder(OutputStream f) {
 		this.f = f;
 	}
+
 	/** Save the Roi to the file of stream. */
 	public void write(Roi roi) throws IOException {
 		if (f!=null) {
@@ -35,6 +38,7 @@ public class RoiEncoder {
 			f.close();
 		}
 	}
+
 	void write(Roi roi, OutputStream f) throws IOException {
 		int roiType = roi.getType();
 		int type = rect;
@@ -56,6 +60,7 @@ public class RoiEncoder {
 			saveShapeRoi(roi, type, f);
 			return;
 		}
+
 		int n=0;
 		int[] x=null,y=null;
 		if (roi instanceof PolygonRoi) {
@@ -84,6 +89,7 @@ public class RoiEncoder {
 			putFloat(26, l.x2);
 			putFloat(30, l.y2);
 		}
+
 		if (n>0) {
 			int base1 = 64;
 			int base2 = base1+2*n;
@@ -95,6 +101,7 @@ public class RoiEncoder {
 		
 		f.write(data);
 	}
+
 	void saveShapeRoi(Roi roi, int type, OutputStream f) throws IOException {
 		float[] shapeArray = ((ShapeRoi)roi).getShapeAsArray();
 		if (shapeArray==null) return;
@@ -110,6 +117,7 @@ public class RoiEncoder {
 		putShort(14, r.x+r.width);	//right
 		//putShort(16, n);
 		putInt(36, shapeArray.length); // non-zero segment count indicate composite type
+
 		// handle the actual data: data are stored segment-wise, i.e.,
 		// the type of the segment followed by 0-6 control point coordinates.
 		int base = 64;
@@ -120,10 +128,12 @@ public class RoiEncoder {
 		bout.write(data,0,data.length);
 		bout.flush();
 	}
+
     void putShort(int base, int v) {
 		data[base] = (byte)(v>>>8);
 		data[base+1] = (byte)v;
     }
+
 	void putFloat(int base, float v) {
 		int tmp = Float.floatToIntBits(v);
 		data[base]   = (byte)(tmp>>24);
@@ -131,6 +141,7 @@ public class RoiEncoder {
 		data[base+2] = (byte)(tmp>>8);
 		data[base+3] = (byte)tmp;
 	}
+
 	void putInt(int base, int i) {
 		data[base]   = (byte)(i>>24);
 		data[base+1] = (byte)(i>>16);

@@ -28,15 +28,15 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	protected int xMouse; // current cursor offscreen x location 
 	protected int yMouse; // current cursor offscreen y location
 		
-	private ImageJ ij;
-	private double magnification;
-	private int dstWidth, dstHeight;
+	protected ImageJ ij;
+	protected double magnification;
+	protected int dstWidth, dstHeight;
 
-	private int xMouseStart;
-	private int yMouseStart;
-	private int xSrcStart;
-	private int ySrcStart;
-	private int flags;
+	protected int xMouseStart;
+	protected int yMouseStart;
+	protected int xSrcStart;
+	protected int ySrcStart;
+	protected int flags;
 	
 	public ImageCanvas(ImagePlus imp) {
 		this.imp = imp;
@@ -513,8 +513,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				if (Recorder.record && npoints>0)
 					Recorder.record("doWand", ox, oy);
 				break;
-			//case Toolbar.SPARE1: case Toolbar.SPARE2:
-			//case Toolbar.SPARE4: case Toolbar.SPARE5: case Toolbar.SPARE6:
+			case Toolbar.SPARE1: case Toolbar.SPARE2: case Toolbar.SPARE3: 
+			case Toolbar.SPARE4: case Toolbar.SPARE5: case Toolbar.SPARE6:
 			case Toolbar.SPARE7:
 				Toolbar.getInstance().runMacroTool(toolID);
 				break;

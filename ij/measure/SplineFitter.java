@@ -1,4 +1,5 @@
 package ij.measure;
+
 /** This class fits a spline function to a set of points.
 	It is based on the InitSpline() and EvalSine() functions from 
 	XY (http://www.trilon.com/xv/), an interactive image manipulation
@@ -8,9 +9,11 @@ package ij.measure;
 */
 public class SplineFitter {
 	private double[] y2;
+
 	public SplineFitter(int[] x, int[] y, int n) {
 		initSpline(x, y, n);
 	}
+
 	/** Given arrays of data points x[0..n-1] and y[0..n-1], computes the
 		values of the second derivative at each of the data points
 		y2[0..n-1] for use in the splint function.
@@ -34,6 +37,7 @@ public class SplineFitter {
 		for (k=n-2; k>=0; k--)
 			y2[k] = y2[k]*y2[k+1]+u[k];
 	}
+
 	/** Evalutes spline function at given point */
 	public double evalSpline(int x[], int y[], int n, double xp) {
 		int klo,khi,k;
@@ -51,8 +55,10 @@ public class SplineFitter {
 		if (h==0.0) return (0.0);  /* arbitr ret for now */
 		a = (x[khi]-xp)/h;
 		b = (xp-x[klo])/h;
+
 		// should have better err checking
 		if(y2==null) return (0.0);
+
 		return (a*y[klo] + b*y[khi] + ((a*a*a-a)*y2[klo] +(b*b*b-b)*y2[khi])
 				* (h*h) / 6.0);
 	}

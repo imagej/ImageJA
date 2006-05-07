@@ -7,6 +7,7 @@ import ij.measure.Calibration;
 import ij.plugin.RGBStackMerge;
 import java.awt.*;
 import java.awt.image.*;
+
 /**
 This plugin creates a sequence of projections of a rotating volume (stack of slices) onto a plane using
 nearest-point (surface), brightest-point, or mean-value projection or a weighted combination of nearest-
@@ -15,7 +16,9 @@ volume about any of the three orthogonal axes (x, y, or z), make portions of the
 thresholding), or add a greater degree of visual realism by employing depth cues. Based on Pascal code
 contributed by Michael Castle of the  University of Michigan Mental Health Research Institute.
 */ 
+
 public class Projector implements PlugInFilter {
+
 	static final int xAxis=0, yAxis=1, zAxis=2;
 	static final int nearestPoint=0, brightestPoint=1, meanValue=2;
 	static final int BIGPOWEROF2 = 8192;
@@ -25,6 +28,7 @@ public class Projector implements PlugInFilter {
 	
 	private static int axisOfRotation = xAxis;
 	private static int projectionMethod = nearestPoint;
+
 	private double sliceInterval = 1.0; // pixels
 	private static int initAngle = 0;
 	private static int totalAngle = 360;
@@ -47,6 +51,7 @@ public class Projector implements PlugInFilter {
 	boolean isRGB;
 	String label = "";
 	boolean done;
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		IJ.register(Projector.class);
@@ -72,6 +77,7 @@ public class Projector implements PlugInFilter {
 		else
 			doProjections(imp);
 	}
+
 	public boolean showDialog() {
 		ImageProcessor ip = imp.getProcessor();
 		double lower = ip.getMinThreshold();
@@ -85,6 +91,7 @@ public class Projector implements PlugInFilter {
 		gd.addChoice("Axis of Rotation:", axisList, axisList[axisOfRotation]);
 		//gd.addMessage("");
 		gd.addNumericField("Slice Spacing ("+cal.getUnits()+"):",cal.pixelDepth,2); 
+
 		gd.addNumericField("Initial Angle (0-359 degrees):", initAngle, 0);
 		gd.addNumericField("Total Rotation (0-359 degrees):", totalAngle, 0);
 		gd.addNumericField("Rotation Angle Increment:", angleInc, 0);
@@ -95,6 +102,7 @@ public class Projector implements PlugInFilter {
 		gd.addNumericField("Interior Depth-Cueing (0-100%):", 100-depthCueInt, 0);
 		gd.addCheckbox("Interpolate", interpolate);
 		//gd.addCheckbox("Debug Mode:", debugMode);
+
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;;
@@ -113,6 +121,7 @@ public class Projector implements PlugInFilter {
 		depthCueInt =  100-(int)gd.getNextNumber();
 		interpolate =  gd.getNextBoolean();
 		//debugMode =  gd.getNextBoolean();
+
 		return true;
     	}
     	
@@ -144,6 +153,7 @@ public class Projector implements PlugInFilter {
         ImageStack stack = merge.mergeStacks(w, h, d, red.getStack(), green.getStack(), blue.getStack(), true);
         new ImagePlus("Projection of  "+imp.getShortTitle(), stack).show();
     }
+
 	public ImagePlus doProjections(ImagePlus imp) {
 		int nSlices;				// number of slices in volume
 		int projwidth, projheight;	//dimensions of projection image
@@ -176,6 +186,7 @@ public class Projector implements PlugInFilter {
 		if (nProjections<=0)
 			nProjections = 1;
 		if (negInc) angleInc = -angleInc;
+
 		ImageProcessor ip = imp.getProcessor();
 		Rectangle r = ip.getRoi();
 		left = r.x;
@@ -189,6 +200,7 @@ public class Projector implements PlugInFilter {
 		xcenter = (left + right)/2;          //find center of volume of rotation
 		ycenter = (top + bottom)/2;
 		zcenter = (int)(nSlices*sliceInterval/2.0+0.5);
+
 		projwidth = 0;
 		projheight = 0;
 		if (minProjSize && axisOfRotation!=zAxis) {
@@ -206,7 +218,7 @@ public class Projector implements PlugInFilter {
 			projwidth = (int) (Math.sqrt (nSlices*sliceInterval*nSlices*sliceInterval+width*width) + 0.5);
 			projheight = (int) (Math.sqrt (nSlices*sliceInterval*nSlices*sliceInterval+height*height) + 0.5);
 		}
-		if ((projwidth%1)==1)
+		if ((projwidth%2)==1)
 			projwidth++;
 		int projsize = projwidth * projheight;
 		
@@ -296,6 +308,7 @@ public class Projector implements PlugInFilter {
 						projArray[i] = (byte)((prevval+nextval+aboveval+belowval)/4);
 				}
 			}
+
 			theta = (theta + angleInc)%360;
 			if (projections.getWindow()==null && IJ.getInstance()!=null)   // is "Projections" window still open?
 				{done=true; break;}
@@ -321,7 +334,9 @@ public class Projector implements PlugInFilter {
 				new ImagePlus("sumBuffer", new FloatProcessor(projwidth, projheight, tmp, null)).show();
 			}
 		}
+
 		return projections;
+
 	} // doProjection()
 	
 	
@@ -347,6 +362,7 @@ public class Projector implements PlugInFilter {
 		}
 	}
 				
+
 	/**
 	This method projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the x-axis. Integer
 	arithmetic, precomputation of values, and iterative addition rather than multiplication inside a loop are used extensively
@@ -369,6 +385,7 @@ public class Projector implements PlugInFilter {
 		int zsintheta, zcostheta, ysinthetainit, ycosthetainit;
 		byte[] pixels;
 		int projsize = projwidth * projheight;
+
 		//find z-coordinates of first and last slices
 		zmax = zcenter + projheight/2;  
 		zmin = zcenter - projheight/2;
@@ -384,6 +401,7 @@ public class Projector implements PlugInFilter {
 		ycosthetainit = (top - ycenter - 1) * costheta;
 		ysinthetainit = (top - ycenter - 1) * sintheta;
 		offsetinit = ((projheight-bottom+top)/2) * projwidth + (projwidth - right + left)/2 - 1;
+
 		for (int k=1; k<=nSlices; k++) {
 			pixels = (byte[])stack.getPixels(k);
 			z = (int)((k-1)*sliceInterval+0.5) - zcenter;
@@ -451,6 +469,7 @@ public class Projector implements PlugInFilter {
 		} // for k (all slices)
 	} //  doOneProjectionX()
 	
+
 	/** Projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the y-axis. */
 	void  doOneProjectionY (int nSlices, int xcenter, int zcenter, int projwidth, int projheight, int costheta, int sintheta) {
 		//IJ.write("DoOneProjectionY: "+xcenter+" "+zcenter+" "+(double)costheta/BIGPOWEROF2+ " "+(double)sintheta/BIGPOWEROF2);
@@ -468,6 +487,7 @@ public class Projector implements PlugInFilter {
 		int zsintheta, zcostheta, xsinthetainit, xcosthetainit;
 		byte[] pixels;
 		int projsize = projwidth * projheight;
+
 		//find z-coordinates of first and last slices
 		zmax = zcenter + projwidth/2;  
 		zmin = zcenter - projwidth/2;
@@ -545,6 +565,7 @@ public class Projector implements PlugInFilter {
 		} // for k (all slices)
 	} // DoOneProjectionY()
 	
+
 	/** Projects each pixel of a volume (stack of slices) onto a plane as the volume rotates about the z-axis. */
 	void doOneProjectionZ (int nSlices, int xcenter, int ycenter, int zcenter, int projwidth, int projheight, int costheta, int sintheta) {
 		int thispixel;        //current pixel to be projected
@@ -561,11 +582,13 @@ public class Projector implements PlugInFilter {
 		int xsinthetainit, xcosthetainit, ysinthetainit, ycosthetainit;
   		byte[] pixels;
 		int projsize = projwidth * projheight;
+
 		//find z-coordinates of first and last slices
 		//zmax = zcenter + projwidth/2;  
 		//zmin = zcenter - projwidth/2;
 		zmax = (int)((nSlices-1)*sliceInterval+0.5) - zcenter;
 		zmin = -zcenter;
+
 		zmaxminuszmintimes100 = 100 * (zmax-zmin);
 		c100minusDepthCueInt = 100 - depthCueInt;
 		c100minusDepthCueSurf = 100 - depthCueSurf;
@@ -651,6 +674,7 @@ public class Projector implements PlugInFilter {
 		} // for k (all slices)
 		//new ImagePlus("f", new FloatProcessor(projwidth,projheight,f,null)).show();
 	} // end doOneProjectionZ()
+
 	ImagePlus zScale(ImagePlus imp) {
 		IJ.showStatus("Z Scaling...");
 		ImageStack stack1 = imp.getStack();
@@ -697,28 +721,33 @@ public class Projector implements PlugInFilter {
 		ip2.setColorModel(cm);
 		return imp2;
 	}
+
 	public void getByteRow(ImageStack stack, int x, int y, int z, int width1, int width2, int[] line) {
 		byte[] pixels = (byte[])stack.getPixels(z+1);
 		int j = x + y*width1;
 		for (int i=0; i<width2; i++)
 			line[i] = pixels[j++]&255;
 	}
+
 	public void putByteRow(ImageStack stack, int y, int z, int width, int[] line) {
 		byte[] pixels = (byte[])stack.getPixels(z+1);
 		int j = y*width;
 		for (int i=0; i<width; i++)
 			pixels[j++] = (byte)line[i];
 	}
+
 	public void getRGBRow(ImageStack stack, int x, int y, int z, int width1, int width2, int[] line) {
 		int[] pixels = (int[])stack.getPixels(z+1);
 		int j = x + y*width1;
 		for (int i=0; i<width2; i++)
 			line[i] = pixels[j++];
 	}
+
 	public void putRGBRow(ImageStack stack, int y, int z, int width, int[] line) {
 		int[] pixels = (int[])stack.getPixels(z+1);
 		int j = y*width;
 		for (int i=0; i<width; i++)
 			pixels[j++] = line[i];
 	}
+
 }

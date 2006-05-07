@@ -1,7 +1,9 @@
 package ij.macro;
 import ij.*;
+
 /** An object of this type is a tokenized macro file and the associated symbol table. */
 public class Program implements MacroConstants {
+
 	private int maxSymbols = 800; // will be increased as needed
 	private int maxProgramSize = 2000;  // well be increased as needed
 	private int pc = -1;
@@ -13,6 +15,7 @@ public class Program implements MacroConstants {
 	int[] code = new int[maxProgramSize];
 	Variable[] globals;
 	boolean hasVars;
+
 	public Program() {
 		if (systemTable!=null) {
 			stLoc = systemTable.length - 1;
@@ -44,10 +47,12 @@ public class Program implements MacroConstants {
 		for (int i=0; i<keywords.length; i++)
 			addSymbol(new Symbol(keywordIDs[i], keywords[i]));
 	}
+
 	void addFunctions() {
 		for (int i=0; i<functions.length; i++)
 			addSymbol(new Symbol(functionIDs[i], functions[i]));
 	}
+
 	void addNumericFunctions() {
 		for (int i=0; i<numericFunctions.length; i++)
 			addSymbol(new Symbol(numericFunctionIDs[i], numericFunctions[i]));
@@ -57,10 +62,12 @@ public class Program implements MacroConstants {
 		for (int i=0; i<stringFunctions.length; i++)
 			addSymbol(new Symbol(stringFunctionIDs[i], stringFunctions[i]));
 	}
+
 	void addArrayFunctions() {
 		for (int i=0; i<arrayFunctions.length; i++)
 			addSymbol(new Symbol(arrayFunctionIDs[i], arrayFunctions[i]));
 	}
+
 	void addSymbol(Symbol sym) {
 		stLoc++;
 		if (stLoc==table.length) {
@@ -82,6 +89,7 @@ public class Program implements MacroConstants {
 		}
 		code[pc] = tok;
 	}
+
 	/** Looks up a word in the symbol table. Returns null if the word is not found. */
 	Symbol lookupWord(String str) {
         //IJ.log("lookupWord: "+str);
@@ -96,6 +104,7 @@ public class Program implements MacroConstants {
 		}
 		return null;
 	}
+
 	void saveGlobals(Interpreter interp) {
 		//IJ.log("saveGlobals: "+interp.topOfStack);
 		if (interp.topOfStack==-1)
@@ -116,6 +125,7 @@ public class Program implements MacroConstants {
 			IJ.log(i+" "+symbol);
 		}
 	}
+
 	public void dumpProgram() {
 		IJ.log("");
 		IJ.log("Tokenized Program");
@@ -128,12 +138,15 @@ public class Program implements MacroConstants {
 	public Variable[] getGlobals() {
 		return globals;
 	}
+
 	public boolean hasVars() {
 		return hasVars;
 	}
+
 	public String decodeToken(int token) {
 		return decodeToken(token&0xffff, token>>16);
 	}
+
 	String decodeToken(int token, int address) {
 		String str;
 		switch (token) {
@@ -221,4 +234,5 @@ public class Program implements MacroConstants {
 		}
 		return str;
 	}
-}
+
+} // Program

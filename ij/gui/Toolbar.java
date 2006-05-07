@@ -20,17 +20,15 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int POINT = 7, CROSSHAIR = 7;
 	public static final int WAND = 8;
 	public static final int TEXT = 9;
-	public static final int SPARE1 = 19;
+	public static final int SPARE1 = 10;
 	public static final int MAGNIFIER = 11;
 	public static final int HAND = 12;
 	public static final int DROPPER = 13;
 	public static final int ANGLE = 14;
-	public static final int SPARE2 = 19;
-
-	public static final int RETRACT = 16;
-	public static final int ROTATERIGHT = 17;
-	public static final int ROTATE180 = 18;
-
+	public static final int SPARE2 = 15;
+	public static final int SPARE3 = 16;
+	public static final int SPARE4 = 17;
+	public static final int SPARE5 = 18;
 	public static final int SPARE6 = 19;
 	public static final int SPARE7 = 20;
 	//public static final int NONE = 100;
@@ -73,6 +71,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		down[0] = true;
 		setForeground(foregroundColor);
 		setBackground(gray);
+		//setBackground(Color.red);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		instance = this;
@@ -221,26 +220,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				//m(0,9); d(14,0); m(0,9); d(16,9); 
 				//m(12,9); d(12,7); m(11,7); d(11,5); m(10,4); d(10,3);
 				return;
-
-			case RETRACT:
-				g.drawRect(x+1, y+2, 14, 11);
-				xOffset = x+1; yOffset = y+2;
-				return;
-
-			case ROTATERIGHT:
-				xOffset = x+1; yOffset = y+2;
-				m(0,6); d(15,6); 
-				m(8,2); d(15,6);
-				m(8,10); d(15,6);
-				return;
-
-			case ROTATE180:
-				xOffset = x+1; yOffset = y+2;
-				m(0,6); d(15,6); 
-				m(8,2); d(15,6);
-				m(8,10); d(15,6);
-				return;
-
 		}
 	}
 	
@@ -309,7 +288,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case 'd': return 13;
 			case 'e': return 14;
 			case 'f': return 15;
-			case 'g': return 16;
 			default: return 0;
 		}
 	}
@@ -363,18 +341,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case ANGLE:
 				IJ.showStatus("Angle tool");
 				return;
-			case RETRACT:
-				IJ.showStatus("Retract tool");
-				return;
-
-			case ROTATERIGHT:
-				IJ.showStatus("Rotate image 90 right");
-				return;
-
-			case ROTATE180:
-				IJ.showStatus("Rotate image 180 right");
-				return;
-
 			default:
 				IJ.showStatus("");
 				return;
@@ -419,10 +385,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private void setTool2(int tool) {
 		if (tool==current || tool<0 || tool>=NUM_TOOLS)
 			return;
-		if ((tool==SPARE2||tool==SPARE7||tool==SPARE6||tool==SPARE1||(tool>=SPARE2&&tool<=SPARE7)) && names[tool]==null)
+		if ((tool==SPARE1||(tool>=SPARE2&&tool<=SPARE7)) && names[tool]==null)
 			return;
 		current = tool;
-
 		down[current] = true;
 		down[previous] = false;
 		Graphics g = this.getGraphics();
@@ -535,8 +500,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					break;
 				case MAGNIFIER:
 					if (imp!=null) {
-						ImageWindow win = imp.getWindow();
-						if (win!=null) win.getCanvas().unzoom();
+						ImageCanvas ic = imp.getCanvas();
+						if (ic!=null) ic.unzoom();
 					}
 					break;
 				case POLYGON:
@@ -544,7 +509,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					setTool2(mpPrevious);
 					break;
 				case LINE: case POLYLINE: case FREELINE:
-					
 					IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
 					break;
 				case POINT:
@@ -557,18 +521,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					IJ.doCommand("Color Picker...");
 					setTool2(mpPrevious);
 					break;
-				case RETRACT:
-					IJ.doCommand("Retract Tool...");
-					break;
-				case ROTATERIGHT:
-					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
-					break;
-				case ROTATE180:
-					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
-					IJ.runPlugIn("ij.plugin.filter.Transformer", "right");
-
-					break;
-
 				default:
 			}
 		}

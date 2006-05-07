@@ -5,8 +5,10 @@ import ij.measure.*;
 import ij.gui.*;
 import java.awt.*;
 import java.util.*;
+
 /** This plugin implements ImageJ's Unsharp Mask command. */
 public class UnsharpMask implements PlugInFilter, Measurements {
+
 	private ImagePlus imp;
 	private int slice;
 	private boolean canceled;
@@ -27,6 +29,7 @@ public class UnsharpMask implements PlugInFilter, Measurements {
 		else
 			return IJ.setupDialog(imp, DOES_ALL);
 	}
+
 	public void run(ImageProcessor ip) {
 		if (canceled)
 			return;
@@ -128,4 +131,7 @@ public class UnsharpMask implements PlugInFilter, Measurements {
 		weight = gd.getNextNumber();
 		return true;
 	}
+
 }
+
+

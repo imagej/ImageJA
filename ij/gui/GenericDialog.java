@@ -2,12 +2,10 @@ package ij.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.io.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
 import ij.util.Tools;
-import ij.macro.Interpreter;
 
 /**
  * This class is a customizable modal dialog box. Here is an example
@@ -26,11 +24,15 @@ import ij.macro.Interpreter;
  *      title = gd.getNextString();
  *      width = (int)gd.getNextNumber();
  *      height = (int)gd.getNextNumber();
- *      IJ.run("New...", "name="+title+" type='8-bit Unsigned' width="+width+" height="+height);
+ *      IJ.newImage(title, "8-bit", width, height, 1);
  *   }
  * }
  * </pre>
- */
+* To work with macros, the first word of each component label must be 
+* unique. If this is not the case, add underscores, which will be converted  
+* to spaces when the dialog is displayed. For example, change the checkbox labels
+* "Show Quality" and "Show Residue" to "Show_Quality" and "Show_Residue".
+*/
 public class GenericDialog extends Dialog implements ActionListener,
 TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 
@@ -469,8 +471,8 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		y++;
     }
     
-    /** Set the insets (margins), in pixels, used when 
-    	components are added to the dialog.
+    /** Set the insets (margins), in pixels, that will be 
+    	used for the next component added to the dialog.
     <pre>
     Default insets:
         addMessage: 0,20,0 (empty string) or 10,20,0
@@ -488,17 +490,13 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
     	customInsets = true;
     }
     
-    /** Revert to default insets. */
-    public void resetInsets() {
-    	customInsets = false;
-    }
-    
-    Insets getInsets(int top, int left, int bottom, int right) {
-    	if (customInsets)
-    		return new Insets(topInset, leftInset, bottomInset, 0);
-    	else
-    		return new Insets(top, left, bottom, right);
-    }
+	Insets getInsets(int top, int left, int bottom, int right) {
+		if (customInsets) {
+			customInsets = false;
+			return new Insets(topInset, leftInset, bottomInset, 0);
+		} else
+			return new Insets(top, left, bottom, right);
+	}
 
 	/** Returns true if the user clicks on "Cancel". */
     public boolean wasCanceled() {
@@ -852,17 +850,17 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 			((TextField)c).select(0,0);
 	}
 
- 	public void keyPressed(KeyEvent e) {
-		int keyCode = e.getKeyCode();
-		IJ.setKeyDown(keyCode);
-		if (keyCode==KeyEvent.VK_ENTER && textArea1==null)
-			closeDialog();
-		else if (keyCode==KeyEvent.VK_ESCAPE) {
-			wasCanceled = true;
-			closeDialog();
+	public void keyPressed(KeyEvent e) { 
+		int keyCode = e.getKeyCode(); 
+		IJ.setKeyDown(keyCode); 
+		if (keyCode==KeyEvent.VK_ENTER && textArea1==null) 
+			closeDialog(); 
+		else if (keyCode==KeyEvent.VK_ESCAPE) { 
+			wasCanceled = true; 
+			closeDialog(); 
 			IJ.resetEscape();
-		}
-	}
+		} 
+	} 
 
 	public void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();

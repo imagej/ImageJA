@@ -1,12 +1,16 @@
 package ij.macro;
+
 public interface MacroConstants {
+
 	static final int PLUS_PLUS=1, MINUS_MINUS=2, EQ=3, NEQ=4, GT=5, GTE=6, LT=7, LTE=8,
 		PLUS_EQUAL=9, MINUS_EQUAL=10, MUL_EQUAL=11, DIV_EQUAL=12, LOGICAL_AND=13, LOGICAL_OR=14,
 		SHIFT_RIGHT=15, SHIFT_LEFT=16;
+
 	// Token types
 	public static final int EOF=128, WORD=129, NUMBER=130, NOP=131, EOL=132, STRING_CONSTANT=133, 
 		PREDEFINED_FUNCTION=134, NUMERIC_FUNCTION=135, STRING_FUNCTION=136, ARRAY_FUNCTION=137, 
 		USER_FUNCTION=138, ARRAY=139;
+
 	// Keywords
 	static final String[] keywords = {"macro", "var", "if", "else", "while", "do", "for", "function",
 		"return", "true", "false", "PI", "NaN"};
@@ -14,6 +18,7 @@ public interface MacroConstants {
 		RETURN=208, TRUE=209, FALSE=210, PI=211, NaN=212;;
 	static final int[] keywordIDs = {MACRO, VAR, IF, ELSE, WHILE, DO, FOR, FUNCTION,
 		RETURN, TRUE, FALSE, PI, NaN};
+
 	// Functions that don't return a value
 	static final int RUN=300, INVERT=301, SELECT=302, WAIT=303, BEEP=304, RESET_MIN_MAX=305, RESET_THRESHOLD=306,
 		PRINT=307, WRITE=308, DO_WAND=309, SET_MIN_MAX=310, SET_THRESHOLD=311, SET_TOOL=312,
@@ -28,7 +33,8 @@ public interface MacroConstants {
 		SET_KEY_DOWN=364, OPEN=365, SET_FONT=366, GET_MIN_AND_MAX=367, CLOSE=368, SET_SLICE=369,
 		NEW_IMAGE=370, SAVE_AS=371, SAVE=372, SET_AUTO_THRESHOLD=373, RENAME=374, GET_BOUNDS=375, FILL_RECT=376,
 		GET_RAW_STATISTICS=377, FLOOD_FILL=378, RESTORE_PREVIOUS_TOOL=379, SET_VOXEL_SIZE=380, GET_LOCATION_AND_SIZE=381,
-		GET_DATE_AND_TIME=382, SET_METADATA=383, CALCULATOR=384, SET_RGB_WEIGHTS=385, MAKE_POLYGON=386, SET_SELECTION_NAME=387;
+		GET_DATE_AND_TIME=382, SET_METADATA=383, CALCULATOR=384, SET_RGB_WEIGHTS=385, MAKE_POLYGON=386, SET_SELECTION_NAME=387,
+		DRAW_RECT=388, DRAW_OVAL=389, FILL_OVAL=390;
 	static final String[] functions = {"run","invert","selectWindow","wait", "beep", "resetMinAndMax", "resetThreshold",
 		"print", "write", "doWand", "setMinAndMax", "setThreshold", "setTool",
 		"setForegroundColor", "setBackgroundColor", "makeLine", "makeOval", "makeRectangle",
@@ -42,7 +48,8 @@ public interface MacroConstants {
 		"setKeyDown", "open", "setFont", "getMinAndMax", "close", "setSlice",
 		"newImage", "saveAs", "save", "setAutoThreshold", "rename", "getSelectionBounds", "fillRect",
 		"getRawStatistics", "floodFill", "restorePreviousTool", "setVoxelSize", "getLocationAndSize",
-		"getDateAndTime", "setMetadata", "imageCalculator", "setRGBWeights", "makePolygon", "setSelectionName"};
+		"getDateAndTime", "setMetadata", "imageCalculator", "setRGBWeights", "makePolygon", "setSelectionName",
+		"drawRect", "drawOval", "fillOval"};
 	static final int[] functionIDs = {RUN, INVERT, SELECT, WAIT, BEEP, RESET_MIN_MAX, RESET_THRESHOLD,
 		PRINT, WRITE,	 DO_WAND, SET_MIN_MAX, SET_THRESHOLD, SET_TOOL,
 		SET_FOREGROUND, SET_BACKGROUND, MAKE_LINE, MAKE_OVAL, MAKE_RECTANGLE,
@@ -56,7 +63,8 @@ public interface MacroConstants {
 		SET_KEY_DOWN, OPEN, SET_FONT, GET_MIN_AND_MAX, CLOSE, SET_SLICE,
 		NEW_IMAGE, SAVE_AS, SAVE, SET_AUTO_THRESHOLD, RENAME, GET_BOUNDS, FILL_RECT,
 		GET_RAW_STATISTICS, FLOOD_FILL, RESTORE_PREVIOUS_TOOL, SET_VOXEL_SIZE, GET_LOCATION_AND_SIZE,
-		GET_DATE_AND_TIME, SET_METADATA, CALCULATOR, SET_RGB_WEIGHTS, MAKE_POLYGON, SET_SELECTION_NAME};
+		GET_DATE_AND_TIME, SET_METADATA, CALCULATOR, SET_RGB_WEIGHTS, MAKE_POLYGON, SET_SELECTION_NAME,
+		DRAW_RECT, DRAW_OVAL, FILL_OVAL};
 
 	// Numeric functions
 	static final int GET_PIXEL=1000, ABS=1001, COS=1002, EXP=1003, FLOOR=1004, LOG=1005, MAX_OF=1006, MIN_OF=1007, POW=1008,
@@ -101,8 +109,12 @@ public interface MacroConstants {
 		DIALOG, GET_METADATA, FILE, SELECTION_NAME, GET_VERSION, GET_RESULT_LABEL,
 		CALL};
 
-        // Array functions
-	static final int GET_PROFILE=3000, NEW_ARRAY=3001, SPLIT=3002, GET_FILE_LIST=3003;
-	static final String[] arrayFunctions = {"getProfile", "newArray", "split", "getFileList"};
-	static final int[] arrayFunctionIDs = {GET_PROFILE, NEW_ARRAY, SPLIT, GET_FILE_LIST};
+	// Array functions
+	static final int GET_PROFILE=3000, NEW_ARRAY=3001, SPLIT=3002, GET_FILE_LIST=3003,
+		GET_FONT_LIST=3004;
+	static final String[] arrayFunctions = {"getProfile", "newArray", "split", "getFileList",
+		"getFontList"};
+	static final int[] arrayFunctionIDs = {GET_PROFILE, NEW_ARRAY, SPLIT, GET_FILE_LIST,
+		GET_FONT_LIST};
+
 }  // interface MacroConstants

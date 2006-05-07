@@ -9,13 +9,16 @@ import ij.util.*;
 import ij.plugin.frame.Editor;
 import ij.text.TextWindow;
 import java.awt.event.KeyEvent;
+
 /** Compiles and runs plugins using the javac compiler. */
 public class Compiler implements PlugIn, FilenameFilter {
+
 	private static sun.tools.javac.Main javac;
 	private static ByteArrayOutputStream output;
 	private static String dir, name;
 	private static Editor errors;
 	private static boolean generateDebuggingInfo;
+
 	public void run(String arg) {
 		IJ.register(Compiler.class);
 		if (arg.equals("edit"))
@@ -64,6 +67,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 		}
 		return true;
 	}
+
 	boolean compile(String path) {
 		IJ.showStatus("compiling: "+path);
 		String classpath = System.getProperty("java.class.path");
@@ -112,6 +116,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 			errors.display("Errors", s);
 		IJ.showStatus("done (errors)");
 	}
+
 	 // open the .java source file
 	 boolean open(String path, String msg) {
 	 	boolean okay;
@@ -155,6 +160,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 		}
 		return okay;
 	}
+
 	// only show files with names ending in ".java"
 	// doesn't work with Windows
 	public boolean accept(File dir, String name) {
@@ -168,9 +174,13 @@ public class Compiler implements PlugIn, FilenameFilter {
 	}
 	
 }
+
+
 class PlugInExecuter implements Runnable {
+
 	private String plugin;
 	private Thread thread;
+
 	/** Create a new object that runs the specified plugin
 		in a separate thread. */
 	PlugInExecuter(String plugin) {
@@ -179,6 +189,7 @@ class PlugInExecuter implements Runnable {
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
 		thread.start();
 	}
+
 	public void run() {
 		try {
 			ImageJ ij = IJ.getInstance();
@@ -201,4 +212,5 @@ class PlugInExecuter implements Runnable {
 			new TextWindow("Exception", s, 350, 250);
 		}
 	}
+
 }

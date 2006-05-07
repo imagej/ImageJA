@@ -2,11 +2,13 @@ package ij.plugin.filter;
 import ij.*;
 import ij.process.*;
 import ij.gui.*;
+
 /**
 	This plugin implements the Euclidean Distance Map (EDM), Ultimate Eroded Points and
 	Watershed commands in the Process/Binary submenu.
 */
 public class EDM implements PlugInFilter {
+
 	ImagePlus imp;
 	String arg;
 	int maxEDM;
@@ -24,6 +26,7 @@ public class EDM implements PlugInFilter {
 	boolean invertImage;
 	static boolean whiteBackground = true;
 	static boolean smoothEDM = true;	
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		this.arg = arg;
@@ -58,6 +61,9 @@ public class EDM implements PlugInFilter {
 				ip.invert();
 		}
 	}
+
+
+
 	/**	Converts a binary image into a grayscale Euclidean Distance Map
 		(EDM). Each foreground (black) pixel in the binary image is
 		assigned a value equal to its distance from the nearest
@@ -70,6 +76,7 @@ public class EDM implements PlugInFilter {
 		int  sqrt5 = 92; // ~ 41 * sqrt(5)
 		int xmax, ymax;
 		int offset, rowsize;
+
 		IJ.showStatus("Generating EDM");
 		imp.killRoi();
 		int width = imp.getWidth();
@@ -92,6 +99,7 @@ public class EDM implements PlugInFilter {
 				}
 			} // for x
 		} // for y
+
 		for (int y=height-1; y>=0; y--) {
 			for (int x=width-1; x>=0; x--) {
  				offset = x + y * rowsize;
@@ -104,11 +112,13 @@ public class EDM implements PlugInFilter {
 			} // for x
  		} // for y
 		//(new ImagePlus("EDM16", ip16.duplicate())).show();
+
 		ImageProcessor ip2 = ip.createProcessor(width, height);
 		byte[] image8 = (byte[])ip2.getPixels();
 		convertToBytes(width, height, image16, image8);
 		return ip2;
  	} // makeEDM()
+
 	void setValue (int offset, int rowsize, short[] image16) {
  		int  one = 41;
 		int  sqrt2 = 58; // ~ 41 * sqrt(2)
@@ -120,6 +130,7 @@ public class EDM implements PlugInFilter {
 		int r4  = r3 + rowsize;
 		int r5  = r4 + rowsize;
 		int min = 32767;
+
 		v = image16[r2 + 2] + one;
 		if (v < min)
 			min = v;
@@ -145,6 +156,7 @@ public class EDM implements PlugInFilter {
  		v = image16[r4 + 3] + sqrt2;
 		if (v < min)
 			min = v;
+
 		v = image16[r1 + 1] + sqrt5;
 		if (v < min)
 			min = v;
@@ -169,8 +181,11 @@ public class EDM implements PlugInFilter {
 		v = image16[r2] + sqrt5;
 		if (v < min)
 			min = v;
+
 		image16[offset] = (short)min;
+
 	} // setValue()
+
 	void setEdgeValue (int offset, int rowsize, short[] image16, int x, int y, int xmax, int ymax) {
 		int  one   = 41;
 		int  sqrt2 = 58; // ~ 41 * sqrt(2)
@@ -183,102 +198,119 @@ public class EDM implements PlugInFilter {
 		int r5 = r4 + rowsize;
 		int min = 32767;
 		int offimage = image16[r3 + 2];
+
 		if (y<2)
 			v = offimage + one;
 		else
 			v = image16[r2 + 2] + one;
 		if (v < min)
 			min = v;
+
 		if (x<2)
 			v = offimage + one;
 		else
 			v = image16[r3 + 1] + one;
 		if (v < min)
 			min = v;
+
 		if (x>xmax)
 			v = offimage + one;
 		else
 			v = image16[r3 + 3] + one;
 		if (v < min)
 			min = v;
+
 		if (y>ymax)
 			v = offimage + one;
 		else
  			v = image16[r4 + 2] + one;
 		if (v < min)
 			min = v;
+
 		if ((x<2) || (y<2))
 			v = offimage + sqrt2;
 		else
 			v = image16[r2 + 1] + sqrt2;
 		if (v < min)
 			min = v;
+
 		if ((x>xmax) || (y<2))
 			v = offimage + sqrt2;
 		else
 			v = image16[r2 + 3] + sqrt2;
 		if (v < min)
 			min = v;
+
 		if ((x<2) || (y>ymax))
  			v = offimage + sqrt2;
 		else
 			v = image16[r4 + 1] + sqrt2;
 		if (v < min)
 			min = v;
+
 		if ((x>xmax) || (y>ymax))
 			v = offimage + sqrt2;
 		else
 			v = image16[r4 + 3] + sqrt2;
 		if (v < min)
 			min = v;
+
 		if ((x<2) || (y<2))
 			v = offimage + sqrt5;
 		else
 			v = image16[r1 + 1] + sqrt5;
 		if (v < min)
 			min = v;
+
 		if ((x>xmax) || (y<2))
 			v = offimage + sqrt5;
 		else
 			v = image16[r1 + 3] + sqrt5;
 		if (v < min)
 			min = v;
+
 		if ((x>xmax) || (y<2))
 			v = offimage + sqrt5;
  		else
  			v = image16[r2 + 4] + sqrt5;
 		if (v < min)
  			min = v;
+
 		if ((x>xmax) || (y>ymax))
 			v = offimage + sqrt5;
 		else
 			v = image16[r4 + 4] + sqrt5;
 		if (v < min)
 			min = v;
+
 		if ((x>xmax) || (y>ymax))
 			v = offimage + sqrt5;
 		else
  			v = image16[r5 + 3] + sqrt5;
 		if (v < min)
 			min = v;
+
 		if ((x<2) || (y>ymax))
 			v = offimage + sqrt5;
 		else
 			v = image16[r5 + 1] + sqrt5;
 		if (v < min)
  			min = v;
+
 		if ((x<2) || (y>ymax))
 			v = offimage + sqrt5;
 		else
 			v = image16[r4] + sqrt5;
 		if (v < min)
 			min = v;
+
 		if ((x<2) || (y<2))
 			v = offimage + sqrt5;
 		else
 			v = image16[r2] + sqrt5;
 		if (v < min)
 			min = v;
+
 		image16[offset] = (short)min;
   
 	} // setEdgeValue()
@@ -301,11 +333,13 @@ public class EDM implements PlugInFilter {
 			} //  end for x
 		} // for y
 	} // end ConvertToBytes()
+
 	/**	Finds peaks in the EDM that contain pixels equal to or greater than all of their neighbors. */
 	public void findUltimatePoints (ImageProcessor ip) {
 		int   rowsize, offset, count, x, y;
 		int CoordOffset, xmax, ymax;
 		boolean setPixel;
+
 		IJ.showStatus("Finding ultimate points");
 		if (debug) {
 			movie = new ImageStack(ip.getWidth(), ip.getHeight());
@@ -361,6 +395,7 @@ public class EDM implements PlugInFilter {
 				} //  for i
 			} while (count != 0);
 		} //  for
+
 		if (watershed) {
 			byte[] image2 = (byte[])ip2.getPixels();
 			for (int i=0; i<width*height; i++) {
@@ -376,9 +411,12 @@ public class EDM implements PlugInFilter {
 			}
 		}
 	} // findUltimatePoints()
+
+
 	void filterEDM(ImageProcessor edm, boolean smooth) {
 		int rowsize, offset, sum;
 		int xmax, ymax;
+
 		byte[] image = (byte[])edm.getPixels();
 		ImageProcessor ip2 = edm.duplicate();
 		byte[] image2 = (byte[])ip2.getPixels();
@@ -426,6 +464,7 @@ public class EDM implements PlugInFilter {
 			if (y>=height) y = height-1;
 			return pixels[x+y*width];
 	}
+
 	/**
 	Generates the xy coordinate arrays that allow pixels at each
 	level to be accessed directly without searching through the
@@ -452,6 +491,7 @@ public class EDM implements PlugInFilter {
 			if ((i>0) && (i<maxEDM))
 				offset += histogram[i];
 		}
+
 		levelOffset = new int[256];
 		rowsize = width;
 		for (int y=0; y<height; y++) {
@@ -502,6 +542,7 @@ public class EDM implements PlugInFilter {
 			new ImagePlus("The movie", movie).show();
 		}
 	}
+
 	int[] makeFateTable() {
 		// This is the lookup table used by the watershed function for dilating the UEPs.
 		// There is an entry in the table for each possible 3x3 neighborhood.
@@ -520,6 +561,7 @@ public class EDM implements PlugInFilter {
 			   3, 3,15,15, 0, 0,15,15,15,15,15,15,15,15,15,15, 3, 3,15,15, 0, 0,15,15,15,15,15,15,15,15,15,15};
         return table;		
 	}
+
 	void processLevel(int level, int pass, ImageProcessor ip1, ImageProcessor ip2, int[] table) {
   		int rowSize = ip1.getWidth();
   		int height = ip1.getHeight();
@@ -581,6 +623,7 @@ public class EDM implements PlugInFilter {
 		//	movie.addSlice("level "+level+" ("+pass+")", ip1.duplicate());
 	}
 	
+
 	void postProcess(ImageProcessor ip) {
 		byte[] pixels = (byte[])ip.getPixels();
 		int size = ip.getWidth()*ip.getHeight();
@@ -591,3 +634,4 @@ public class EDM implements PlugInFilter {
 	}
 		
 }
+

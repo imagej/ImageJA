@@ -5,6 +5,8 @@ import ij.util.*;
 import java.awt.*;
 import java.util.Vector;
 import java.awt.event.*;
+
+
  /** Displays a dialog that allows the user to select a color using three sliders. */
 public class ColorChooser implements TextListener, AdjustmentListener {
     Vector colors, sliders;
@@ -14,6 +16,7 @@ public class ColorChooser implements TextListener, AdjustmentListener {
     boolean useHSB;
     String title;
     boolean mono;
+
     /** Constructs a ColorChooser using the specified title and initial color. */
     public ColorChooser(String title, Color initialColor, boolean useHSB) {
     	this.title = title;
@@ -46,6 +49,7 @@ public class ColorChooser implements TextListener, AdjustmentListener {
         int blue = (int)gd.getNextNumber();
         return new Color(red, green, blue);
     }
+
     public void textValueChanged(TextEvent e) {
         int red = (int)Tools.parseDouble(((TextField)colors.elementAt(0)).getText());
         int green = (int)Tools.parseDouble(((TextField)colors.elementAt(1)).getText());
@@ -56,6 +60,7 @@ public class ColorChooser implements TextListener, AdjustmentListener {
         panel.setColor(new Color(red, green, blue));
         panel.repaint();
     }
+
 	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
 		Object source = e.getSource();
 		for (int i=0; i<sliders.size(); i++) {
@@ -73,7 +78,9 @@ public class ColorChooser implements TextListener, AdjustmentListener {
 			}
 		}
 	}
+
 }
+
 class ColorPanel extends Panel {
     static final int WIDTH=100, HEIGHT=50;
     Color c;
@@ -81,19 +88,24 @@ class ColorPanel extends Panel {
     ColorPanel(Color c) {
         this.c = c;
     }
+
     public Dimension getPreferredSize() {
         return new Dimension(WIDTH, HEIGHT);
     }
+
     void setColor(Color c) {
         this.c = c;
     }
+
     public Dimension getMinimumSize() {
         return new Dimension(WIDTH, HEIGHT);
     }
+
     public void paint(Graphics g) {
         g.setColor(c);
         g.fillRect(0, 0, WIDTH, HEIGHT);
         g.setColor(Color.black);
         g.drawRect(0, 0, WIDTH-1, HEIGHT-1);
     }
+
 }

@@ -67,8 +67,6 @@ public class ControlPanel implements PlugIn
 
 	//private static boolean running = true;
 
-	TreePanel panel;
-
 	Vector menus = new Vector();
 	Vector allMenus = new Vector();
 	String[] installableMenuLabels = {"About Plugins","Filters","Import","Plugins","Save As","Shortcuts","Tools","Utilities"};
@@ -136,7 +134,7 @@ public class ControlPanel implements PlugIn
 		commands = Menus.getCommands();
 		pluginsArray = Menus.getPlugins();
 		root=buildTree(currentArg);
-		if(root==null | root.getChildCount()==0 ) return; // do nothing if there's no tree or a root w/o children
+		if(root==null || root.getChildCount()==0 ) return; // do nothing if there's no tree or a root w/o children
 		loadProperties();
 		restoreVisiblePanels();
 		if(panels.isEmpty())
@@ -1030,8 +1028,12 @@ class TreePanel implements
 			pFrame.setLocation((int)defaultLocation.getX(),(int)defaultLocation.getY());
 		else pcp.restoreGeometry(this);
 		//restoreExpandedNodes();
+		GUI.center(pFrame);
 		setVisible();
-		IJ.getInstance().addWindowListener(this);
+		ImageJ ij = IJ.getInstance();
+		ij.addWindowListener(this);
+		pFrame.addKeyListener(ij);
+		pTree.addKeyListener(ij);
 	}
 
 	void addMenu()
@@ -1155,6 +1157,8 @@ class TreePanel implements
 	void restoreExpandedNodes()
 	{
 		//IJ.write("restore exp nodes");
+		if (pTree==null || root==null)
+			return;
 		pTree.removeTreeExpansionListener(this);
 		TreeNode[] rootPath = root.getPath();
 		for(Enumeration e = root.breadthFirstEnumeration(); e.hasMoreElements();)
@@ -1392,7 +1396,7 @@ class TreePanel implements
 	void setVisible()
 	{
 		//IJ.write("setVisible at "+defaultLocation.getX()+" "+defaultLocation.getY());
-		if(!(pFrame.isVisible()))
+		if (pFrame!=null && !pFrame.isVisible())
 		{
 			restoreExpandedNodes();
 			if(defaultLocation!=null) pFrame.setLocation(defaultLocation);
@@ -1419,7 +1423,7 @@ class TreePanel implements
 				}
 			}
 		}
-		pcp.setPanelShowingProperty(getRootPath().toString());
+		if (pcp!=null) pcp.setPanelShowingProperty(getRootPath().toString());
 	}
 
 	void setLocation(Point p)

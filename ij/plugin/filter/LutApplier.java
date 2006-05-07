@@ -7,11 +7,13 @@ import ij.util.*;
 import ij.plugin.frame.ContrastAdjuster;
 import java.awt.*;
 import java.util.*;
+
 /** This plugin implements the Image/Lookup Tables/Apply LUT command. */
 public class LutApplier implements PlugInFilter {
 	ImagePlus imp;
 	int min, max;
 	boolean canceled;
+
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		int baseOptions = DOES_8G+DOES_8C+DOES_RGB+SUPPORTS_MASKING;
@@ -20,6 +22,7 @@ public class LutApplier implements PlugInFilter {
 		else
 			return baseOptions;
 	}
+
 	public void run(ImageProcessor ip) {
 		apply(imp, ip);
 	}
@@ -85,6 +88,7 @@ public class LutApplier implements PlugInFilter {
         if (frame!=null && (frame instanceof ContrastAdjuster))
             ((ContrastAdjuster)frame).updateAndDraw();
 	}
+
 	void applyRGBStack(ImagePlus imp) {
 		int current = imp.getCurrentSlice();
 		int n = imp.getStackSize();

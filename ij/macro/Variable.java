@@ -1,47 +1,57 @@
 package ij.macro;
+
 class Variable implements MacroConstants {
 	static final int VALUE=0, ARRAY=1, STRING=2;
     int symTabIndex;
     private double value;
     private String str;
     private Variable[] array;
+
     Variable() {
     }
+
     Variable(double value) {
         this.value = value;
     }
+
     Variable(int symTabIndex, double value, String str) {
         this.symTabIndex = symTabIndex;
         this.value = value;
         this.str = str;
     }
+
     Variable(int symTabIndex, double value, String str, Variable[] array) {
         this.symTabIndex = symTabIndex;
         this.value = value;
         this.str = str;
         this.array = array;
     }
+
     Variable(byte[] array) {
     	this.array = new Variable[array.length];
     	for (int i=0; i<array.length; i++)
     		this.array[i] = new Variable(array[i]&255);
     }
+
     Variable(int[] array) {
     	this.array = new Variable[array.length];
     	for (int i=0; i<array.length; i++)
     		this.array[i] = new Variable(array[i]);
     }
+
     Variable(double[] array) {
     	this.array = new Variable[array.length];
     	for (int i=0; i<array.length; i++)
     		this.array[i] = new Variable(array[i]);
     }
+
     double getValue() {
     	if (str!=null)
     			return convertToDouble();  // string to number conversions
     	else
         	return value;
     }
+
 	double convertToDouble() {
 		try {
 			Double d = new Double(str);
@@ -50,22 +60,27 @@ class Variable implements MacroConstants {
 			return Double.NaN;
 		}
 	}
+
     void setValue(double value) {
         this.value = value;
         str = null;
         array = null;
     }
+
     String getString() {
         return str;
     }
+
     void setString(String str) {
         this.str = str;
         value = 0.0;
         array = null;
     }
+
     Variable[] getArray() {
         return array;
     }
+
     void setArray(Variable[] array) {
         this.array = array;
         value = 0.0;
@@ -80,6 +95,7 @@ class Variable implements MacroConstants {
     	else
     		return VALUE;
     }
+
     public String toString() {
     	String s = "";
     	if (array!=null)

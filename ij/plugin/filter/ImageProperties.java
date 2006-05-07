@@ -55,7 +55,6 @@ public class ImageProperties implements PlugInFilter, TextListener {
 		gd.addNumericField("Frames (t):", frames, 0);
 		gd.setInsets(10, 0, 5);
 		gd.addStringField("Unit of Length:", cal.getUnit());
-		gd.resetInsets();
 		oldScale = cal.pixelWidth!=0?1.0/cal.pixelWidth:0;
 		//gd.addNumericField("Pixels/Unit:", oldScale, (int)oldScale==oldScale?0:3);
 		//gd.addMessage("");
@@ -65,7 +64,6 @@ public class ImageProperties implements PlugInFilter, TextListener {
 		gd.setInsets(10, 0, 5);
 		double interval = cal.frameInterval;
 		gd.addNumericField("Interval (sec.):", interval, (int)interval==interval?0:2, 8, null);
-		gd.resetInsets();
 		String xo = cal.xOrigin==(int)cal.xOrigin?IJ.d2s(cal.xOrigin,0):IJ.d2s(cal.xOrigin,2);
 		String yo = cal.yOrigin==(int)cal.yOrigin?IJ.d2s(cal.yOrigin,0):IJ.d2s(cal.yOrigin,2);
 		String zo = "";

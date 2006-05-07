@@ -4,11 +4,10 @@ import ij.process.*;
 import ij.io.*;
 import ij.text.*;
 import java.awt.*;
+
 /** This plugin implements the File/Save As/Text command. What it does
 	is save the contents of TextWindows (e.g., "Log" and "Results"). */
 public class TextWriter implements PlugIn {
-	private String arg;
-    private ImagePlus imp;
     
 	public void run(String arg) {
 		saveText();
@@ -25,3 +24,4 @@ public class TextWriter implements PlugIn {
 	}
 	
 }
+
