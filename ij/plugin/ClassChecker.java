@@ -30,6 +30,12 @@ public class ClassChecker implements PlugIn {
 					file2 = new File(paths[j]);
 					if (file1==null || file2==null)
 						continue;
+					try {
+						if (file1.getCanonicalPath().equals(file2.getCanonicalPath()))
+							continue;
+					} catch(Exception e) {
+						continue;
+					}
 					date1 = file1.lastModified();
 					date2 = file2.lastModified();
 					if (date1<date2) {
