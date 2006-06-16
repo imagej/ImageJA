@@ -78,6 +78,13 @@ public class ShapeRoi extends Roi {
 	/***                               Constructors                                ****/
 	/**********************************************************************************/
 
+	/** Constructs a ShapeRoi from a Shape. */
+	public ShapeRoi(Shape s) {
+		super(s.getBounds());
+		AffineTransform a = new AffineTransform(1, 0, 0, 1, -x, -y);
+		shape = a.createTransformedShape(s);
+	}
+
 	/** Constructs a ShapeRoi from an Roi. */
 	public ShapeRoi(Roi r) {
 		this(r, ShapeRoi.FLATNESS, ShapeRoi.MAXERROR, false, false, false, ShapeRoi.MAXPOLY);
