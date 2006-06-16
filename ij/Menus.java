@@ -695,6 +695,8 @@ public class Menus {
 			else if (pluginsDir.equals("user.home"))
 				pluginsDir = System.getProperty("user.home");
 			pluginsPath = pluginsDir+Prefs.separator+"plugins"+Prefs.separator;
+			if (!(new File(pluginsPath)).isDirectory())
+				pluginsPath = pluginsDir + Prefs.separator;
 			macrosPath = pluginsDir+Prefs.separator+"macros"+Prefs.separator;
 		}
 		File f = macrosPath!=null?new File(macrosPath):null;
