@@ -74,20 +74,18 @@ public class ShapeRoi extends Roi {
 	private Vector savedRois;
 
 
-	/**********************************************************************************/
-	/***                               Constructors                                ****/
-	/**********************************************************************************/
+	/** Constructs a ShapeRoi from an Roi. */
+	public ShapeRoi(Roi r) {
+		this(r, ShapeRoi.FLATNESS, ShapeRoi.MAXERROR, false, false, false, ShapeRoi.MAXPOLY);
+	}
 
 	/** Constructs a ShapeRoi from a Shape. */
 	public ShapeRoi(Shape s) {
 		super(s.getBounds());
-		AffineTransform a = new AffineTransform(1, 0, 0, 1, -x, -y);
-		shape = a.createTransformedShape(s);
-	}
-
-	/** Constructs a ShapeRoi from an Roi. */
-	public ShapeRoi(Roi r) {
-		this(r, ShapeRoi.FLATNESS, ShapeRoi.MAXERROR, false, false, false, ShapeRoi.MAXPOLY);
+		AffineTransform at = new AffineTransform();
+		at.translate(-x, -y);
+		shape = new GeneralPath(at.createTransformedShape(s));
+		type = COMPOSITE;
 	}
 
 	/**Creates a ShapeRoi object from a "classical" ImageJ ROI.
