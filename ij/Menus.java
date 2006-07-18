@@ -785,9 +785,10 @@ public class Menus {
 	public static void installUserPlugin(String className, boolean force) {
 		Menu menu = pluginsMenu;
 		int slashIndex = className.indexOf('/');
+		String command = className;
 		if (slashIndex>0) {
 			String dir = className.substring(0, slashIndex);
-			className = className.substring(slashIndex+1, className.length());
+			command = className.substring(slashIndex+1, className.length());
 			//className = className.replace('/', '.');
 			if (submenu==null || !submenuName.equals(dir)) {
  				submenuName = dir;
@@ -799,13 +800,12 @@ public class Menus {
 			menu = submenu;
 		//IJ.write(dir + "  " + className);
 		}
-		String command = className.replace('_',' ');
-		command.trim();
+		command = command.replace('_',' ');
 
 		boolean itemExists = (pluginsTable.get(command)!=null);
-		pluginsTable.put(command, className);
 		if(force && itemExists)
 			return;
+		pluginsTable.put(command, className.replace('/', '.'));
 
 		if (!force && itemExists)  // duplicate command?
 			command = command + " Plugin";
