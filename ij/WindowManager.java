@@ -21,7 +21,7 @@ public class WindowManager {
 	private WindowManager() {
 	}
 
-	/** Makes the specified image active. */
+	/** Makes the image contained in the specified window the active image. */
 	public synchronized static void setCurrentWindow(ImageWindow win) {
 		setCurrentWindow(win,false);
 	}
