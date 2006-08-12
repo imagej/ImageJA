@@ -30,6 +30,7 @@ public class PluginClassLoader extends ClassLoader {
      * @param path the path to the plugins directory.
      */
 	public PluginClassLoader(String path) {
+		super(Thread.currentThread().getContextClassLoader());
 		this.path = path;
 		jarFiles = new Vector();
 		//find all JAR files on the path and subdirectories
@@ -242,6 +243,13 @@ public class PluginClassLoader extends ClassLoader {
         // Try to load it from plugins directory
         classBytes = loadClassBytes(className);
 		//IJ.log("loadClass: "+ className + "  "+ (classBytes!=null?""+classBytes.length:"null"));
+		if (classBytes==null) {
+			result = getParent().loadClass(className);
+			if (result != null) {
+				//cache.put(className, result);
+				return result;
+			}
+		}
 		if (classBytes==null) {
 			//IJ.log("ClassNotFoundException");
 			throw new ClassNotFoundException(className);

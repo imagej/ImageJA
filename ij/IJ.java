@@ -58,6 +58,8 @@ public class IJ {
 	}
 			
 	static void init(ImageJ imagej, Applet theApplet) {
+		if (theApplet == null)
+			System.setSecurityManager(null);
 		ij = imagej;
 		applet = theApplet;
 		progressBar = ij.getProgressBar();
