@@ -17,7 +17,7 @@ JAVACOPTS=-O -classpath $(CLASSPATH) -source 1.3 -target 1.3
 ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)
 	jar cvmf MANIFEST.MF ij.jar $(COPYFILES) $(ALLCLASSES) $(TEXTFILES)
 
-signed-ij.jar:
+signed-ij.jar: ij.jar
 	jarsigner -signedjar signed-ij.jar $(shell cat .jarsignerrc) ij.jar dscho
 
 icon.gif aboutja.jpg: %: images/%
