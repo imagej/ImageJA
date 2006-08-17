@@ -4,14 +4,17 @@ ALLCLASSES=ij/*.class ij/*/*.class ij/*/*/*.class
 COPYFILES=icon.gif aboutja.jpg MacAdapter.class
 TEXTFILES=IJ_Props.txt $(wildcard macros/*.txt)
 
+uname_O := $(shell sh -c 'uname -o 2>/dev/null || echo not')
 ifeq ($(uname_O),Cygwin)
-PLUGINSHOME=$(shell cygpath --mixed $(shell pwd))
+PLUGINSHOME=$(shell cygpath --mixed "$(shell pwd)")
 CPSEP=\;
+TOOLSCP=$(shell cygpath --mixed "$(JAVA_HOME)")/lib/tools.jar
 else
 PLUGINSHOME=$(shell pwd)
 CPSEP=:
+TOOLSCP=$(JAVA_HOME)/lib/tools.jar
 endif
-CLASSPATH=$(JAVA_HOME)/lib/tools.jar$(CPSEP)$(PLUGINSHOME)/../ImageJ/ij.jar$(CPSEP)$(PLUGINSHOME)/jzlib-1.0.7.jar$(CPSEP).
+CLASSPATH=$(TOOLSCP)$(CPSEP)$(PLUGINSHOME)/../ImageJ/ij.jar$(CPSEP)$(PLUGINSHOME)/jzlib-1.0.7.jar$(CPSEP).
 JAVACOPTS=-O -classpath $(CLASSPATH) -source 1.3 -target 1.3
 
 ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)
