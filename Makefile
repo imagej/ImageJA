@@ -30,7 +30,7 @@ MacAdapter.class: plugins/MacAdapter.class
 	cp $< $@
 
 %.class: %.java
-	javac $(JAVACOPTS) "$^"
+	javac $(JAVACOPTS) $(JAVAS)
 
 clean:
 	rm $(COPYFILES) $(ALLCLASSES)
