@@ -593,7 +593,9 @@ public class Menus {
     }
     
 	String getSubmenuName(String jarPath) {
-		//IJ.log("getSubmenuName: "+jarPath);
+		//IJ.log("getSubmenuName: \n"+jarPath+"\n"+pluginsPath);
+		if (jarPath.startsWith(pluginsPath))
+			jarPath = jarPath.substring(pluginsPath.length() - 1);
 		int index = jarPath.lastIndexOf(File.separatorChar);
 		if (index<0) return null;
 		String name = jarPath.substring(0, index);
@@ -601,7 +603,6 @@ public class Menus {
 		if (index<0) return null;
 		name = name.substring(index+1);
 		if (name.equals("plugins")) return null;
-		//IJ.log("getSubmenuName: "+jarPath+"    \""+name+"\"");
 		return name;
     }
 
@@ -1227,18 +1228,23 @@ public class Menus {
 			IJ.runPlugIn("ij.plugin.URLOpener", applet.getDocumentBase()+"StartupMacros.txt");
 			return;
 		}
-		if (macrosPath==null)
+		if (macrosPath==null) {
+			(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
 			return;
+		}
 		String path = macrosPath + "StartupMacros.txt";
 		File f = new File(path);
 		if (!f.exists()) {
 			path = macrosPath + "StartupMacros.ijm";
 			f = new File(path);
-			if (!f.exists()) return;
+			if (!f.exists()) {
+				(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
+				return;
+			}
 		}
 		try {
 			MacroInstaller mi = new MacroInstaller();
-			mi.run(path);
+			mi.installFile(path);
 			nMacros += mi.getMacroCount();
 		} catch (Exception e) {}
 	}
