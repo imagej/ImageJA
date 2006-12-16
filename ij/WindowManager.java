@@ -150,6 +150,8 @@ public class WindowManager {
 				break;
 			}
 		}
+		if (imp==null && tempCurrentImage!=null && tempCurrentImage.getID()==imageID)
+			return tempCurrentImage;
 		return imp;
 	}
 	
