@@ -81,7 +81,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private ProgressBar progressBar;
 	private Label statusLine;
 	private boolean firstTime = true;
-	private java.applet.Applet applet; // null if not running as an applet
+	private ImageJApplet applet; // null if not running as an applet
 	private Vector classes = new Vector();
 	private boolean exitWhenQuitting;
 	private boolean quitting;
@@ -96,7 +96,7 @@ public class ImageJ extends Frame implements ActionListener,
 	
 	/** Creates a new ImageJ frame running as an applet
 		if the 'applet' argument is not null. */
-	public ImageJ(java.applet.Applet applet) {
+	public ImageJ(ImageJApplet applet) {
 		super("ImageJA");
 		this.applet = applet;
 		String err1 = Prefs.load(this, applet);
@@ -141,7 +141,8 @@ public class ImageJ extends Frame implements ActionListener,
 		setLocation(loc.x, loc.y);
 		pack();
 		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-		show();
+		if (applet == null)
+			show();
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null)
@@ -163,7 +164,13 @@ public class ImageJ extends Frame implements ActionListener,
 		if (applet==null)
 			new SocketListener();
  	}
-    	
+
+	public Component add(Component c) {
+		if (applet != null)
+			return applet.add(c);
+		return super.add(c);
+	}
+
 	void setIcon() throws Exception {
 		URL url = this.getClass().getResource("/microscope.gif");
 		if (url==null) return;
@@ -193,6 +200,10 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public ProgressBar getProgressBar() {
         return progressBar;
+	}
+
+	public ImageJApplet getApplet() {
+		return applet;
 	}
 
     /** Starts executing a menu command in a separate thread. */
