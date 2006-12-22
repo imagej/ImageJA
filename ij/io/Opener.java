@@ -34,7 +34,7 @@ public class Opener {
 	private boolean silentMode;
 	private String omDirectory;
 	private File[] omFiles;
-
+	private static boolean openUsingPlugins;
 
 	public Opener() {
 	}
@@ -52,8 +52,7 @@ public class Opener {
 			String path = directory+name;
 			error = false;
 			open(path);
-			if (!error)
-				record(path);
+			if (!error) Menus.addOpenRecentItem(path);
 		}
 	}
 
@@ -159,13 +158,22 @@ public class Opener {
 						"format is not installed, or it was not found.";
 					if (path!=null && path.length()<=64)
 						msg += " \n  \n   "+path;
+					if (openUsingPlugins)
+						msg += "\n \nNOTE: The \"OpenUsingPlugins\" option is set.";
 					IJ.error("Opener", msg);
 					error = true;
 					break;
 			}
 		}
-		if(!error)
-			record(path);
+	}
+	
+	/** Opens the specified file and adds it to the File/Open Recent menu.
+		Returns true if the file was opened successfully.  */
+	public  boolean openAndAddToRecent(String path) {
+		open(path);
+		if (!error)
+			Menus.addOpenRecentItem(path);
+		return error;
 	}
 
 	/** Attempts to open the specified file as a tiff, bmp, dicom, fits,
@@ -195,7 +203,7 @@ public class Opener {
 					imp.setProperty("Info",imp2.getProperty("Info"));
 				return imp;
 			case FITS:
-				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.FITS", path);
+				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.FITS_Reader", path);
 				if (imp.getWidth()!=0) return imp; else return null;
 			case PGM:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.PGM_Reader", path);
@@ -554,6 +562,8 @@ public class Opener {
 	'magic numbers' and the file name extension.
 	 */
 	public int getFileType(String path) {
+		if (openUsingPlugins && !path.endsWith(".txt") &&  !path.endsWith(".java"))
+			return UNKNOWN;
 		File file = new File(path);
 		String name = file.getName();
 		InputStream is;
@@ -703,9 +713,15 @@ public class Opener {
 		silentMode = mode;
 	}
 
-	public void record(String path) {
-		Menus.addOpenRecentItem(path);
-		if(Recorder.record)
-			Recorder.record("open",path);
+	/** Open all images using HandleExtraFileTypes. Set from
+		a macro using setOption("openUsingPlugins", true). */
+	public static void setOpenUsingPlugins(boolean b) {
+		openUsingPlugins = b;
 	}
+
+	/** Returns the state of the openUsingPlugins flag. */
+	public static boolean getOpenUsingPlugins() {
+		return openUsingPlugins;
+	}
+
 }

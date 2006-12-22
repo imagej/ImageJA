@@ -31,7 +31,12 @@ public class MacAdapter implements PlugIn, ApplicationListener {
 	public void handleQuit(ApplicationEvent event) {
 		IJ.getInstance().quit();
 	}
-  
+
+	public void run() {
+		if (path!=null)
+			(new Opener()).openAndAddToRecent(path);
+	}
+
 	public void handleOpenApplication(ApplicationEvent event) {}
 	public void handleReOpenApplication(ApplicationEvent event) {}
 	public void handlePrintFile(ApplicationEvent event) {}
