@@ -140,7 +140,7 @@ public class Menus {
 		addSubMenu(image, "Color");
 		addSubMenu(image, "Stacks");
 		image.addSeparator();
-		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", 0, false);
+		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", KeyEvent.VK_X, true);
 		addPlugInItem(image, "Duplicate...", "ij.plugin.filter.Duplicater", KeyEvent.VK_D, true);
 		addPlugInItem(image, "Rename...", "ij.plugin.SimpleCommands(\"rename\")", 0, false);
 		addPlugInItem(image, "Scale...", "ij.plugin.Scaler", KeyEvent.VK_E, false);
