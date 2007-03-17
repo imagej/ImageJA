@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for ImageJ -->
+<jnlp
+  spec="1.0+"
+  codebase="http://imageja.sourceforge.net/"
+  version="1.37.15"
+  href="ImageJA.jnlp">
+  <information>
+    <title>ImageJA</title>
+    <vendor>Sourceforge.net</vendor>
+    <homepage href="http://imageja.sourceforge.net/"/>
+    <description>Image Processing in Java</description>
+    <description kind="short">A versatile and extensible Image Processing application written in Java</description>
+    <icon href="http://rsb.info.nih.gov/ij/images/microscope.gif"/>
+    <icon kind="splash" href="http://rsb.info.nih.gov/ij/images/microscope-icon.png"/>
+    <offline-allowed/>
+  </information>
+  <application>
+  <update check="always" policy="prompt-update"/>
+  </application>
+  <security>
+      <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.3+"/>
+    <jar href="http://imageja.sourceforge.net/ij.jar"/>
+    <property name="plugin.dir" value="user.home" />
+  </resources>
+  <application-desc main-class="ij.ImageJ"/>
+</jnlp>
+
