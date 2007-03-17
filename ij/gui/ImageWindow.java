@@ -236,11 +236,17 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		return insets;
 	}
 
+    /** Draws the subtitle. */
     public void drawInfo(Graphics g) {
-        if (textGap==0)
-            return;
+        if (textGap!=0) {
+			Insets insets = super.getInsets();
+			g.drawString(createSubtitle(), 5, insets.top+TEXT_GAP);
+		}
+    }
+    
+    /** Creates the subtitle. */
+    public String createSubtitle() {
     	String s="";
-		Insets insets = super.getInsets();
     	int nSlices = imp.getStackSize();
     	if (nSlices>1) {
     		ImageStack stack = imp.getStack();
@@ -251,8 +257,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     		if (label!=null && label.length()>0)
     			s += " (" + label + ")";
 			if ((this instanceof StackWindow) && running2) {
-				g.drawString(s, 5, insets.top+TEXT_GAP);
-				return;
+				return s;
 			}
     		s += "; ";
 		}
@@ -292,9 +297,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     		s += "; " + IJ.d2s(size2,(int)size2==size2?0:1) + "MB";
     	} else
     		s += "; " + size + "K";
-		g.drawString(s, 5, insets.top+TEXT_GAP);
+    	return s;
     }
-
 
     public void paint(Graphics g) {
 		//if (IJ.debugMode) IJ.log("wPaint: " + imp.getTitle());
