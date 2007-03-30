@@ -837,10 +837,10 @@ public class Menus {
 		}
 		command = command.replace('_',' ');
 
+		command.trim();
 		boolean itemExists = (pluginsTable.get(command)!=null);
 		if(force && itemExists)
 			return;
-		pluginsTable.put(command, className.replace('/', '.'));
 
 		if (!force && itemExists)  // duplicate command?
 			command = command + " Plugin";
@@ -850,6 +850,7 @@ public class Menus {
 		else
 			menu.add(item);
 		item.addActionListener(ij);
+		pluginsTable.put(command, className.replace('/', '.'));
 		nPlugins++;
 	}
 	
@@ -1271,8 +1272,12 @@ public class Menus {
 				return;
 			}
 		}
+		String libraryPath = macrosPath + "Library.txt";
+		f = new File(libraryPath);
+		boolean isLibrary = f.exists();
 		try {
 			MacroInstaller mi = new MacroInstaller();
+			if (isLibrary) mi.installLibrary(libraryPath);
 			mi.installFile(path);
 			nMacros += mi.getMacroCount();
 		} catch (Exception e) {}

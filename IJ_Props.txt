@@ -98,11 +98,12 @@ adjust06="Canvas Size...",ij.plugin.CanvasResizer
 
 # Plugins installed in the Image/Color submenu
 color01="Convert Stack to RGB",ij.plugin.RGBStackConverter
-color02="RGB Split",ij.plugin.filter.RGBStackSplitter
-color03="RGB Merge...",ij.plugin.RGBStackMerge
-color04="Show LUT",ij.plugin.filter.LutViewer
-color05="Edit LUT...",ij.plugin.LUT_Editor
-color06="Color Picker...[K]",ij.plugin.ColorPicker
+color02="Convert to Composite",ij.plugin.Composite_Image
+color03="RGB Split",ij.plugin.filter.RGBStackSplitter
+color04="RGB Merge...",ij.plugin.RGBStackMerge
+color05="Show LUT",ij.plugin.filter.LutViewer
+color06="Edit LUT...",ij.plugin.LUT_Editor
+color07="Color Picker...[K]",ij.plugin.ColorPicker
 # Plugins installed in the Image/Stacks submenu
 stacks01="Add Slice",ij.plugin.StackEditor("add")
 stacks02="Delete Slice",ij.plugin.StackEditor("delete")
@@ -237,11 +238,11 @@ filters10="Show Circular Masks...",ij.plugin.filter.RankFilters("masks")
 gels01="Select First Lane[1]",ij.plugin.GelAnalyzer("first")
 gels02="Select Next Lane[2]",ij.plugin.GelAnalyzer("next")
 gels03="Plot Lanes[3]",ij.plugin.GelAnalyzer("plot")
-gels04="Reset Counter",ij.plugin.GelAnalyzer("reset")
-gels05="Label Peaks",ij.plugin.GelAnalyzer("label")
-#gels06="Display Percentages",ij.plugin.GelAnalyzer("percent")
-gels06="Gel Analyzer Options...",ij.plugin.GelAnalyzer("options")
-#gels08="Perimeter",ij.plugin.GelAnalyzer("perimeter")
+gels04="Re-plot Lanes",ij.plugin.GelAnalyzer("replot")
+gels05="Reset Counter",ij.plugin.GelAnalyzer("reset")
+gels06="Label Peaks",ij.plugin.GelAnalyzer("label")
+gels07="Draw Lane Outlines",ij.plugin.GelAnalyzer("draw")
+gels08="Gel Analyzer Options...",ij.plugin.GelAnalyzer("options")
 
 # Plugins installed in the Analyze/Tools submenu
 tools01="Save XY Coordinates...",ij.plugin.XYCoordinates
@@ -306,4 +307,3 @@ images.location=http://imageja.sf.net/demoImages/
 # Images installed in the Open Samples submenu
 # RawReader expects a string with "name width height nImages bitsPerPixel offset [white]"
 open01="Steve",ij.plugin.URLOpener("steve.jpg")
-
