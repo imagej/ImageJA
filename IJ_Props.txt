@@ -239,7 +239,7 @@ gels01="Select First Lane[1]",ij.plugin.GelAnalyzer("first")
 gels02="Select Next Lane[2]",ij.plugin.GelAnalyzer("next")
 gels03="Plot Lanes[3]",ij.plugin.GelAnalyzer("plot")
 gels04="Re-plot Lanes",ij.plugin.GelAnalyzer("replot")
-gels05="Reset Counter",ij.plugin.GelAnalyzer("reset")
+gels05="Reset",ij.plugin.GelAnalyzer("reset")
 gels06="Label Peaks",ij.plugin.GelAnalyzer("label")
 gels07="Draw Lane Outlines",ij.plugin.GelAnalyzer("draw")
 gels08="Gel Analyzer Options...",ij.plugin.GelAnalyzer("options")
@@ -307,3 +307,4 @@ images.location=http://imageja.sf.net/demoImages/
 # Images installed in the Open Samples submenu
 # RawReader expects a string with "name width height nImages bitsPerPixel offset [white]"
 open01="Steve",ij.plugin.URLOpener("steve.jpg")
+
