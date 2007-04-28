@@ -81,7 +81,7 @@ options01="Line Width...",ij.plugin.Options("line")
 options02="Input/Output...",ij.plugin.Options("io")
 options03="Fonts...",ij.plugin.frame.Fonts
 options04="Profile Plot Options...",ij.plugin.filter.Profiler("set")
-options05="Point Tool...",ij.plugin.Options("point")
+options05="Point Tool...",ij.plugin.Colors("point")
 options06="Colors...",ij.plugin.Colors
 options07="Appearance...",ij.plugin.Options("display")
 options08="Conversions...",ij.plugin.Options("conv")
@@ -119,7 +119,7 @@ stacks11="Z Project...",ij.plugin.ZProjector
 stacks12="3D Project...",ij.plugin.filter.Projector
 stacks13="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
 stacks14=-
-stacks15="Start Animation[\\]",ij.plugin.Animator("start")
+stacks15="Start Animation [\\]",ij.plugin.Animator("start")
 stacks16="Stop Animation",ij.plugin.Animator("stop")
 stacks17="Animation Options...",ij.plugin.Animator("options")
 

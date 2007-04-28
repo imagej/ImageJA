@@ -73,6 +73,11 @@ public class ImageJApplet extends Applet {
 			if (imp!=null) imp.show();
 		}
     }
+    
+    public void destroy() {
+    	ImageJ ij = IJ.getInstance();
+    	if (ij!=null) ij.quit();
+    }
 
     public void stop() {
 	ImageJ ij = IJ.getInstance();
