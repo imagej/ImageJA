@@ -106,13 +106,42 @@ public class ThresholdToSelection implements PlugInFilter {
 		}
 
 		public Polygon getPolygon() {
-			// TODO: optimize out long straight lines
+			// optimize out long straight lines
+			int i, j = first + 1;
+			for (i = first + 1; i + 1 < last; j++) {
+				int x1 = x[j] - x[j - 1];
+				int y1 = y[j] - y[j - 1];
+				int x2 = x[j + 1] - x[j];
+				int y2 = y[j + 1] - y[j];
+				if (x1 * y2 == x2 * y1) {
+					// merge i + 1 into i
+					last--;
+					continue;
+				}
+				if (i != j) {
+					x[i] = x[j];
+					y[i] = y[j];
+				}
+				i++;
+			}
+			// wraparound
+			int x1 = x[j] - x[j - 1];
+			int y1 = y[j] - y[j - 1];
+			int x2 = x[first] - x[j];
+			int y2 = y[first] - y[j];
+			if (x1 * y2 == x2 * y1)
+				last--;
+			else {
+				x[i] = x[j];
+				y[i] = y[j];
+			}
+
 			int count = last - first;
-			int[] x1 = new int[count];
-			int[] y1 = new int[count];
-			System.arraycopy(x, first, x1, 0, count);
-			System.arraycopy(y, first, y1, 0, count);
-			return new Polygon(x1, y1, count);
+			int[] xNew = new int[count];
+			int[] yNew = new int[count];
+			System.arraycopy(x, first, xNew, 0, count);
+			System.arraycopy(y, first, yNew, 0, count);
+			return new Polygon(xNew, yNew, count);
 		}
 
 		public String toString() {
