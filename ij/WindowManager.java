@@ -22,12 +22,12 @@ public class WindowManager {
 	}
 
 	/** Makes the image contained in the specified window the active image. */
-	public synchronized static void setCurrentWindow(ImageWindow win) {
+	public static void setCurrentWindow(ImageWindow win) {
 		setCurrentWindow(win,false);
 	}
 
 	/** Makes the specified image active. */
-	public synchronized static void setCurrentWindow(ImageWindow win,boolean suppressRecording) {
+	public static void setCurrentWindow(ImageWindow win,boolean suppressRecording) {
 		if (win==null || win.isClosed() || win.getImagePlus()==null) // deadlock-"wait to lock"
 			return;
 		//IJ.log("setCurrentWindow: "+win.getImagePlus().getTitle()+" ("+(currentWindow!=null?currentWindow.getImagePlus().getTitle():"null") + ")");
@@ -61,7 +61,7 @@ public class WindowManager {
 	}
 
 	/** Returns the active ImagePlus. */
-	public synchronized static ImagePlus getCurrentImage() {
+	public static ImagePlus getCurrentImage() {
 		//IJ.log("getCurrentImage: "+tempCurrentImage+"  "+currentWindow);
 		if (tempCurrentImage!=null)
 			return tempCurrentImage;
