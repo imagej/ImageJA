@@ -72,6 +72,12 @@ public class ImageJApplet extends Applet {
 			ImagePlus imp = new ImagePlus(url);
 			if (imp!=null) imp.show();
 		}
+		/** Also look for up to 9 macros to run. */
+		for (int i=1; i<=9; i++) {
+			String macroExpression = getParameter("eval"+i);
+			if (macroExpression==null) break;
+			IJ.runMacro(macroExpression);
+		}
     }
     
     public void destroy() {
