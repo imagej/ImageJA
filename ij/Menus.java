@@ -77,6 +77,7 @@ public class Menus {
 	private static Font menuFont;
 	static boolean jnlp; // true when using Java WebStart
 		
+	Menus(ImageJ ijInstance, java.applet.Applet appletInstance) { }
 	Menus(ImageJ ijInstance, ImageJApplet appletInstance) {
 		ij = ijInstance;
 		applet = appletInstance;
