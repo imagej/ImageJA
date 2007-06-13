@@ -18,7 +18,10 @@ CLASSPATH=$(TOOLSCP)$(CPSEP)$(PLUGINSHOME)/../ImageJ/ij.jar$(CPSEP)$(PLUGINSHOME
 JAVACOPTS=-O -classpath $(CLASSPATH) -source 1.3 -target 1.3
 
 ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)
-	jar cvmf MANIFEST.MF ij.jar $(COPYFILES) $(ALLCLASSES) $(TEXTFILES)
+	jar cvmf MANIFEST.MF $@ $(COPYFILES) $(ALLCLASSES) $(TEXTFILES)
+
+headless.jar: ij/Menus.class ij/gui/GenericDialog.class
+	jar cvf $@ $^
 
 signed-ij.jar: ij.jar
 	jarsigner -signedjar signed-ij.jar $(shell cat .jarsignerrc) ij.jar dscho
