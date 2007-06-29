@@ -1,10 +1,13 @@
+set -x
 if [ -z "$1" ]; then
 	echo "need a version"
 	exit 1
 fi
 my-fetch-origin.sh
+git tag v"$1" origin
 git push vib
 git push dumbo
+git push orcz
 make signed-ij.jar
 scp signed-ij.jar dscho@shell.sf.net:imageja/htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ origin > ij-src-$1.jar
