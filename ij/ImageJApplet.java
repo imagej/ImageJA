@@ -7,6 +7,10 @@ import java.awt.Component;
 import java.awt.MenuBar;
 import java.awt.Panel;
 import java.awt.ScrollPane;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
 	Runs ImageJ as an applet and optionally opens up to 
@@ -90,6 +94,32 @@ public class ImageJApplet extends Applet {
 			if (imp!=null) imp.show();
 		}
 		/** Also look for up to 9 macros to run. */
+		for (int i=1; i<=9; i++) {
+			String url = getParameter("macro"+i);
+			if (url==null) break;
+			if (url.indexOf(":/") < 0)
+				url = getCodeBase().toString() + url;
+			if (url.indexOf("://") < 0) {
+				int index = url.indexOf(":/");
+				if (index > 0)
+					url = url.substring(0, index) + ":///"
+						+ url.substring(index + 2);
+			}
+			try {
+				InputStream in = new URL(url).openStream();
+				BufferedReader br = new BufferedReader(new
+						InputStreamReader(in));
+				StringBuffer sb = new StringBuffer() ;
+				String line;
+				while ((line=br.readLine()) != null)
+					sb.append (line + "\n");
+				in.close ();
+				IJ.runMacro(sb.toString());
+			} catch (Exception e) {
+				IJ.write("warning: " + e);
+			}
+		}
+		/** Also look for up to 9 expressions to evaluate. */
 		for (int i=1; i<=9; i++) {
 			String macroExpression = getParameter("eval"+i);
 			if (macroExpression==null) break;
