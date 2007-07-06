@@ -303,6 +303,13 @@ public class WindowManager {
 		*/
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
+		if (IJ.getApplet() != null && win instanceof ImageWindow) {
+			currentWindow = (ImageWindow)win;
+			tempCurrentImage = null;
+			ImagePlus current = currentWindow.getImagePlus();
+			if (current != null)
+				current.setActivated();
+		}
     }
 
 	/** Closes all windows. Stops and returns false if any image "save changes" dialog is canceled. */
