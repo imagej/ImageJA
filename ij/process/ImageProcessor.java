@@ -3,6 +3,7 @@ package ij.process;
 import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
+import java.awt.FontMetrics;
 import java.lang.reflect.*; 
 import ij.gui.*;
 import ij.util.*;
@@ -44,6 +45,7 @@ public abstract class ImageProcessor extends Object {
 	protected boolean antialiasedText;
 	protected boolean boldFont;
 	static Frame frame;
+	static Graphics graphics;
 		
     ProgressBar progressBar;
 	protected int width, snapshotWidth;
@@ -862,6 +864,18 @@ public abstract class ImageProcessor extends Object {
     private ImageProcessor dotMask;
 
 	private void setupFrame() {
+		if (System.getProperty("java.awt.headless").equalsIgnoreCase("true")) {
+			if (image==null)
+				image=new BufferedImage(img.getWidth(null),img.getHeight(null),BufferedImage.TYPE_INT_RGB);
+
+			if (font==null)
+				font = new Font("SansSerif", Font.PLAIN, 12);
+			if (fontMetrics==null) {
+				graphics=image.getGraphics();
+				fontMetrics=graphics.getFontMetrics(font);
+			}
+			return;
+		}
 		if (frame==null) {
 			frame = new Frame();
 			frame.pack();
@@ -879,6 +893,8 @@ public abstract class ImageProcessor extends Object {
         Draws multiple lines if the string contains newline characters. */
 	public void drawString(String s) {
 		if (s==null || s.equals("")) return;
+		//If running in headless mode, setupFrame generates HeadlessException,
+		//therefore setupFrame should only run when java.awt.headless is not defined
 		setupFrame();
 		if (ij.IJ.isMacOSX()) s += " ";
 		if (s.indexOf("\n")==-1)
@@ -900,7 +916,7 @@ public abstract class ImageProcessor extends Object {
 		int h =  fontMetrics.getHeight();
 		if (w<=0 || h<=0) return;
 		Image img;
-		if (ij.IJ.isLinux() && ij.IJ.isJava2())
+		if ((ij.IJ.isLinux() && ij.IJ.isJava2()) || (System.getProperty("java.awt.headless").equalsIgnoreCase("true")))
 			img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		else
 			img = frame.createImage(w, h);
@@ -987,7 +1003,7 @@ public abstract class ImageProcessor extends Object {
 		setupFrame();
 		int w;
 		if (antialiasedText) {
-			Graphics g = frame.getGraphics();
+			Graphics g = graphics;
 			if (g==null) {
 				frame = null;
 				setupFrame();
