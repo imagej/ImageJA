@@ -867,12 +867,15 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			error("Image with composite selection required");
 			return;
 		}
+		boolean record = Recorder.record;
+		Recorder.record = false;
 		Roi[] rois = ((ShapeRoi)roi).getRois();
 		for (int i=0; i<rois.length; i++) {
 			imp.setRoi(rois[i]);
 			add(false);
 		}
-		//if (Recorder.record) Recorder.record("roiManager", "Split");
+		Recorder.record = record;
+		if (Recorder.record) Recorder.record("roiManager", "Split");
 	}
 	
 	void showAll() {
