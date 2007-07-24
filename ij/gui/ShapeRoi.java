@@ -1025,7 +1025,7 @@ public class ShapeRoi extends Roi {
 					yCoords.add(new Integer(((Integer)yCoords.elementAt(0)).intValue()));
 				}
 				if (rois!=null) {
-					roiType = shapeToRoi?TRACED_ROI:guessType(count, linesOnly, curvesOnly, closed);
+					roiType = shapeToRoi?TRACED_ROI:guessType(count + 1, linesOnly, curvesOnly, closed);
 					Roi r = createRoi(xCoords, yCoords, roiType);
 					if (r!=null)
 						rois.addElement(r);
