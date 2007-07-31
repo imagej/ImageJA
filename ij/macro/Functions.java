@@ -3035,6 +3035,18 @@ public class Functions implements MacroConstants, Measurements {
 		try {
 			Object obj = m.invoke(null, args);
 			return obj!=null?obj.toString():null;
+		} catch(InvocationTargetException e) {
+			CharArrayWriter caw = new CharArrayWriter();
+			PrintWriter pw = new PrintWriter(caw);
+			e.getCause().printStackTrace(pw);
+			String s = e.getCause().toString() + "\n" + caw.toString();
+			if (IJ.isMacintosh())
+				s = Tools.fixNewLines(s);
+			if (IJ.getInstance()!=null)
+				new TextWindow("Exception", s, 350, 250);
+			else
+				IJ.log(s);
+			return null;
 		} catch(Exception e) {
 			IJ.log("Call error ("+e+")");
 			return null;
