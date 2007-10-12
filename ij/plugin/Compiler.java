@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 /** Compiles and runs plugins using the javac compiler. */
 public class Compiler implements PlugIn, FilenameFilter {
 
-	private static sun.tools.javac.Main javac;
+	private static com.sun.tools.javac.Main javac;
 	private static ByteArrayOutputStream output;
 	private static String dir, name;
 	private static Editor errors;
@@ -57,7 +57,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 		try {
 			if (javac==null) {
 				output = new ByteArrayOutputStream(4096);
-				javac = new sun.tools.javac.Main(output, "javac");
+				javac = new com.sun.tools.javac.Main();
 			}
 		} catch (NoClassDefFoundError e) {
 			IJ.error("This JVM does not include the javac compiler.\n"
@@ -81,7 +81,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 			arguments = new String[] {"-g", "-deprecation", "-classpath", classpath, path};
 		else
 			arguments = new String[] {"-deprecation", "-classpath", classpath, path};
-		boolean compiled = javac.compile(arguments);
+		boolean compiled = javac.compile(arguments, new PrintWriter(output)) == 0;
 		String s = output.toString();
 		boolean errors = (!compiled || areErrors(s));
 		if (errors)
@@ -102,7 +102,7 @@ public class Compiler implements PlugIn, FilenameFilter {
 
 	boolean areErrors(String s) {
 		boolean errors = s!=null && s.length()>0;
-		if (errors && s.startsWith("Note: sun.tools.javac") && s.indexOf("error")==-1)
+		if (errors && s.startsWith("Note: com.sun.tools.javac") && s.indexOf("error")==-1)
 			errors = false;
 		return errors;
 	}
