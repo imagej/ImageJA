@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.awt.image.*;
+import java.lang.reflect.*;
 import ij.gui.*;
 import ij.process.*;
 import ij.io.*;
@@ -40,8 +41,9 @@ The following command line options are recognized by ImageJ:
 
   -port<n>
      Specifies the port ImageJ uses to determine if another instance is running
-     Example 1: -port1
-     Example 2: -port2
+     Example 1: -port1 (use default port address + 1)
+     Example 2: -port2 (use default port address + 2)
+     Example 3: -port0 (do not check for another instance)
 
   -macro path [arg]
      Runs a macro, passing it an optional argument
@@ -67,7 +69,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.39f";
+	public static final String VERSION = "1.39g";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -160,6 +162,13 @@ public class ImageJ extends Frame implements ActionListener,
 		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
 		if (applet == null)
 			show();
+		//if (IJ.isJava15()) {
+		//	try {
+		//		Method method = Frame.class.getMethod("setAlwaysOnTop", new Class[] {boolean.class});
+		//		method.invoke(this, new Object[]{Boolean.TRUE});
+		//	} catch(Exception e) {}
+		//}
+		show();
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null)
@@ -185,8 +194,8 @@ public class ImageJ extends Frame implements ActionListener,
 			return applet.add(c);
 		return super.add(c);
 	}
-
-	void setIcon() throws Exception {
+    	
+    void setIcon() throws Exception {
 		URL url = this.getClass().getResource("/microscope.gif");
 		if (url==null) return;
 		Image img = createImage((ImageProducer)url.getContent());
@@ -478,6 +487,7 @@ public class ImageJ extends Frame implements ActionListener,
 			System.exit(0);
 		}
 		boolean noGUI = false;
+		int mode = STANDALONE;
 		arguments = args;
 		int nArgs = args!=null?args.length:0;
 		for (int i=0; i<nArgs; i++) {
@@ -492,7 +502,9 @@ public class ImageJ extends Frame implements ActionListener,
 					args[i+1] = null;
 				} else if (args[i].startsWith("-port")) {
 					int delta = (int)Tools.parseDouble(args[i].substring(5, args[i].length()), 0.0);
-					if (delta>0 && DEFAULT_PORT+delta<65536)
+					if (delta==0)
+						mode = EMBEDDED;
+					else if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
 				} else if (args[i].startsWith("-debug"))
 					IJ.debugMode = true;
@@ -500,11 +512,11 @@ public class ImageJ extends Frame implements ActionListener,
 		}
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
-		if (nArgs>0 && !noGUI && isRunning(args))
+		if (nArgs>0 && !noGUI && (mode==STANDALONE) && isRunning(args))
   				return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
-			ij = new ImageJ(null);
+			ij = new ImageJ(null, mode);
 			ij.exitWhenQuitting = true;
 		}
 		int macros = 0;
