@@ -62,6 +62,8 @@ public class Tokenizer implements MacroConstants {
 					tokenValue = st.nval;
 					if (tokenValue==0.0)
 						tokenValue = getHexConstant();
+					else if (tryScientificNotation())
+						ret += st.sval;
 					token = NUMBER;
 					break;
 				case '"': case '\'':
@@ -221,6 +223,37 @@ public class Tokenizer implements MacroConstants {
             n = 0.0;
         }
         return n;
+    }
+
+    boolean tryScientificNotation() {
+	String sval = "" + tokenValue;
+	try {
+	    int next = st.nextToken();
+	    String sval2 = st.sval;
+	    if (st.ttype == st.TT_WORD && sval2.startsWith("e")) {
+		// Usually we would just append the sval, but "-" is special...
+		if (sval2.equals("e")) {
+		    //if (st.nextToken() != st.TT_WORD || !st.sval.equals("-"))
+		    next = st.nextToken();
+		    if (next == '-')
+			sval2 += "-";
+		    else if (next != '+')
+			throw new Exception();
+		    if (st.nextToken() != st.TT_NUMBER)
+			throw new Exception();
+		    sval2 += st.nval;
+		}
+
+		if (sval2.endsWith(".0"))
+		    sval2 = sval2.substring(0, sval2.length() - 2);
+		tokenValue = Double.parseDouble(sval + sval2);
+		return true;
+	    }
+	    st.pushBack();
+	} catch(Exception e) {
+	}
+
+	return false;
     }
 
 	/** Adds user-defined functions to the symbol table. */
