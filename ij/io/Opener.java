@@ -152,11 +152,14 @@ public class Opener {
 					break;
 				case UNKNOWN:
 					String msg =
-						"File is not in TIFF, JPEG, GIF, BMP, DICOM, FITS, PGM, \n"+
-						"ZIP, LUT, ROI or text format, a reader plugin for this\n"+
-						"format is not installed, or it was not found.";
-					if (path!=null && path.length()<=64)
-						msg += " \n  \n   "+path;
+						"File is not in a supported format, a reader\n"+
+						"plugin is not available, or it was not found.";
+					if (path!=null) {
+						if (path.length()>64)
+							path = (new File(path)).getName();
+						if (path.length()<=64)
+							msg += " \n  \n"+path;
+					}
 					if (openUsingPlugins)
 						msg += "\n \nNOTE: The \"OpenUsingPlugins\" option is set.";
 					IJ.error("Opener", msg);
@@ -206,7 +209,12 @@ public class Opener {
 				if (imp.getWidth()!=0) return imp; else return null;
 			case PGM:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.PGM_Reader", path);
-				if (imp.getWidth()!=0) return imp; else return null;
+				if (imp.getWidth()!=0) {
+					if (imp.getStackSize()==3 && imp.getBitDepth()==16)
+						imp = new CompositeImage(imp, CompositeImage.COMPOSITE);
+					return imp;
+				} else
+					return null;
 			case JPEG: case GIF: case PNG:
 				imp = openJpegOrGif(directory, name);
 				if (imp!=null&&imp.getWidth()!=0) return imp; else return null;
@@ -220,20 +228,10 @@ public class Opener {
 				return openZip(path);
 			case UNKNOWN: case TEXT:
 				// Call HandleExtraFileTypes plugin to see if it can handle unknown format
-				if (path.endsWith("Thumbs.db")) {
-					fileType = CUSTOM;
-					return null;
-				}
-				imp = (ImagePlus)IJ.runPlugIn("HandleExtraFileTypes", path);
-				if (imp==null) return null;
-				if (imp.getWidth()>0 && imp.getHeight()>0) {
-					fileType = CUSTOM;
-					return imp;
-				} else {
-					if (imp.getWidth()==-1)
-						fileType = CUSTOM; // plugin opened image so don't display error
-					return null;
-				}
+				int[] wrap = new int[] {fileType};
+				imp = openWithHandleExtraFileTypes(path, wrap);
+				fileType = wrap[0];
+				return imp;
 			default:
 				return null;
 		}
@@ -275,8 +273,13 @@ public class Opener {
 	 	    else if (url.endsWith(".dcm")) {
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", url);
 				if (imp!=null && imp.getWidth()==0) imp = null;
-			} else
-				imp = openJpegOrGifUsingURL(name, u);
+			} else {
+				String lurl = url.toLowerCase();
+				if (lurl.endsWith(".jpg") || lurl.endsWith(".gif") || lurl.endsWith(".png"))
+					imp = openJpegOrGifUsingURL(name, u);
+				else
+					imp = openWithHandleExtraFileTypes(url, new int[]{0});
+			}
 			IJ.showStatus("");
 			return imp;
     	} catch (Exception e) {
@@ -288,6 +291,25 @@ public class Opener {
 	   	} 
 	}
 	
+	public ImagePlus openWithHandleExtraFileTypes(String path, int[] fileType) {
+		ImagePlus imp = null;
+		if (path.endsWith(".db")) {
+			// skip hidden Thumbs.db files on Windows
+			fileType[0] = CUSTOM;
+			return null;
+		}
+		imp = (ImagePlus)IJ.runPlugIn("HandleExtraFileTypes", path);
+		if (imp==null) return null;
+		if (imp.getWidth()>0 && imp.getHeight()>0) {
+			fileType[0] = CUSTOM;
+			return imp;
+		} else {
+			if (imp.getWidth()==-1)
+				fileType[0] = CUSTOM; // plugin opened image so don't display error
+			return null;
+		}
+	}
+
 	/** Opens the ZIP compressed TIFF at the specified URL. */
 	ImagePlus openZipUsingUrl(URL url) throws IOException {
 		URLConnection uc = url.openConnection();
@@ -439,12 +461,18 @@ public class Opener {
 						IJ.showProgress(1.0);
 						return null;
 					}
+					if (info[i].compression>=FileInfo.LZW) {
+						fi.stripOffsets = info[i].stripOffsets;
+						fi.stripLengths = info[i].stripLengths;
+					}
 					pixels = reader.readPixels(is, skip);
 					if (pixels==null) break;
 					loc += imageSize+skip;
 					if (i<(info.length-1)) {
 						skip = info[i+1].offset-loc;
-						if (skip<0) throw new IOException("Images are not in order");
+						if (info[i+1].compression>=FileInfo.LZW) skip = 0;
+						if (skip<0)
+							throw new IOException("Images are not in order");
 					}
 					if (fi.fileType==FileInfo.RGB48) {
 						Object[] pixels2 = (Object[])pixels;
@@ -459,7 +487,8 @@ public class Opener {
 				is.close();
 			}
 			catch (Exception e) {
-				IJ.log("" + e);
+				IJ.log("TiffDecoder: " + e);
+				e.printStackTrace();
 			}
 			catch(OutOfMemoryError e) {
 				IJ.outOfMemory(fi.fileName);
@@ -590,10 +619,17 @@ public class Opener {
 		}
 		FileOpener fo = new FileOpener(info[0]);
 		imp = fo.open(false);
-		//IJ.showStatus("");
 		int c = imp.getNChannels();
-		if (c>1 && c<8 && imp.getOpenAsHyperStack() && !imp.isComposite())
-			imp = new CompositeImage(imp, CompositeImage.COLORS);
+		if (c>1 && imp.getOpenAsHyperStack() && !imp.isComposite()) {
+			int mode = CompositeImage.COLOR;
+			if (info[0].description!=null) {
+				if (info[0].description.indexOf("mode=composite")!=-1)
+					mode = CompositeImage.COMPOSITE;
+				else if (info[0].description.indexOf("mode=gray")!=-1)
+					mode = CompositeImage.GRAYSCALE;
+			}
+			imp = new CompositeImage(imp, mode);
+		}
 		return imp;
 	}
 	
@@ -640,12 +676,12 @@ public class Opener {
 		 // Big-endian TIFF ("MM")
         if (name.endsWith(".lsm"))
         		return UNKNOWN; // The LSM  Reader plugin opens these files
-		if (b0==73 && b1==73 && b2==42 && b3==0)
-				return TIFF;
+		if (b0==73 && b1==73 && b2==42 && b3==0 && !name.endsWith(".flex"))
+			return TIFF;
 
 		 // Little-endian TIFF ("II")
 		if (b0==77 && b1==77 && b2==0 && b3==42)
-				return TIFF;
+			return TIFF;
 
 		 // JPEG
 		if (b0==255 && b1==216 && b2==255)
@@ -731,8 +767,12 @@ public class Opener {
 		    File f = new File(fi.directory + fi.fileName);
 		    if (f==null || f.isDirectory())
 		    	return null;
-		    else
-				return new FileInputStream(f);
+		    else {
+		    	InputStream is = new FileInputStream(f);
+		    	if (fi.compression>=FileInfo.LZW && fi.fileType==FileInfo.RGB_PLANAR)
+		    		is = new RandomAccessStream(is);
+				return is;
+			}
 		}
 	}
 	

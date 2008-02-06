@@ -84,12 +84,16 @@ public class BrowserLauncher implements PlugIn {
 	public static void openURL(String url) throws IOException {
 		String errorMessage = "";
 		if (IJ.isMacOSX()) {
-			try {
-				Method aMethod = mrjFileUtilsClass.getDeclaredMethod("sharedWorkspace", new Class[] {});
-				Object aTarget = aMethod.invoke( mrjFileUtilsClass, new Object[] {});
-				openURL.invoke(aTarget, new Object[] { new java.net.URL( url )}); 
-			} catch (Exception e) {
-				errorMessage = ""+e;
+			if (IJ.is64Bit())
+				IJ.runMacro("exec('open', '"+url+"')");
+			else {
+				try {
+					Method aMethod = mrjFileUtilsClass.getDeclaredMethod("sharedWorkspace", new Class[] {});
+					Object aTarget = aMethod.invoke( mrjFileUtilsClass, new Object[] {});
+					openURL.invoke(aTarget, new Object[] { new java.net.URL( url )}); 
+				} catch (Exception e) {
+					errorMessage = ""+e;
+				}
 			}
 		} else if (IJ.isWindows()) {
 			String cmd = "rundll32 url.dll,FileProtocolHandler " + url;
@@ -130,7 +134,7 @@ public class BrowserLauncher implements PlugIn {
 	 * required at runtime to locate the user's web browser.
 	 */
 	private static void loadClasses() {
-		if (IJ.isMacOSX()) {
+		if (IJ.isMacOSX() && !IJ.is64Bit()) {
 			try {
 				if (new File("/System/Library/Java/com/apple/cocoa/application/NSWorkspace.class").exists()) {
 					ClassLoader classLoader = new URLClassLoader(new URL[]{new File("/System/Library/Java").toURL()});

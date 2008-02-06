@@ -123,6 +123,8 @@ public class FileInfo implements Cloneable {
 	// Extra metadata to be stored in the TIFF header
 	public int[] metaDataTypes; // must be < 0xffffff
 	public byte[][] metaData;
+	public double[] displayRanges;
+	public byte[][] channelLuts;
     
 	/** Creates a FileInfo object with all of its fields set to their default value. */
      public FileInfo() {
@@ -162,7 +164,8 @@ public class FileInfo implements Cloneable {
 			+ ", whiteZero=" + (whiteIsZero?"t":"f")
 			+ ", Intel=" + (intelByteOrder?"t":"f")
 			+ ", lutSize=" + lutSize
-			+ ", compression=" + compression;
+			+ ", comp=" + compression
+			+ ", ranges=" + (displayRanges!=null?""+displayRanges.length/2:"null");
     }
     
     private String getType() {

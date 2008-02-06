@@ -32,8 +32,8 @@ public class IJ {
 	private static java.applet.Applet applet;
 	private static ProgressBar progressBar;
 	private static TextPanel textPanel;
-	private static String osname;
-	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isLinux, isVista;
+	private static String osname, osarch;
+	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isLinux, isVista, is64Bit;
 	private static boolean altDown, spaceDown, shiftDown;
 	private static boolean macroRunning;
 	private static Thread previousThread;
@@ -719,6 +719,13 @@ public class IJ {
 	public static boolean isVista() {
 		return isVista;
 	}
+	
+	/** Returns true if ImageJ is running a 64-bit version of Java. */
+	public static boolean is64Bit() {
+		if (osarch==null)
+			osarch = System.getProperty("os.arch");
+		return osarch!=null && osarch.indexOf("64")!=-1;
+	}
 
 	/** Displays an error message and returns false if the
 		ImageJ version is less than the one specified. */
@@ -729,7 +736,7 @@ public class IJ {
 		return lessThan;
 	}
 	
-	/** Displays a "Process all slices?" dialog. Returns
+	/** Displays a "Process all images?" dialog. Returns
 		'flags'+PlugInFilter.DOES_STACKS if the user selects "Yes",
 		'flags' if the user selects "No" and PlugInFilter.DONE
 		if the user selects "Cancel".
@@ -747,7 +754,7 @@ public class IJ {
 					return flags;
 			}
 			YesNoCancelDialog d = new YesNoCancelDialog(getInstance(),
-				"Process Stack?", "Process all "+stackSize+" slices?  There is\n"
+				"Process Stack?", "Process all "+stackSize+" images?  There is\n"
 				+"no Undo if you select \"Yes\".");
 			if (d.cancelPressed())
 				return PlugInFilter.DONE;
@@ -959,6 +966,12 @@ public class IJ {
 		Toolbar.getInstance().setTool(id);
 	}
 
+	/** Switches to the specified tool, where 'name' is "rect", "elliptical", 
+		"brush", etc. Returns 'false' if the name is not recognized. */
+	public static boolean setTool(String name) {
+		return Toolbar.getInstance().setTool(name);
+	}
+
 	/** Equivalent to clicking on the current image at (x,y) with the
 		wand tool. Returns the number of points in the resulting ROI. */
 	public static int doWand(int x, int y) {
@@ -993,7 +1006,7 @@ public class IJ {
 			m = Blitter.AVERAGE;
 		else if (mode.startsWith("diff"))
 			m = Blitter.DIFFERENCE;
-		else if (mode.startsWith("transparent zero"))
+		else if (mode.indexOf("zero")!=-1)
 			m = Blitter.COPY_ZERO_TRANSPARENT;
 		else if (mode.startsWith("tran"))
 			m = Blitter.COPY_TRANSPARENT;

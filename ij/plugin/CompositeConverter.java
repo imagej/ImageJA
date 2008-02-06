@@ -10,6 +10,7 @@ import ij.plugin.frame.ContrastAdjuster;
 public class CompositeConverter implements PlugIn {
 
 	public void run(String arg) {
+		String[] modes = {"Composite", "Color", "Grayscale"};
 		ImagePlus imp = IJ.getImage();
 		if (imp.isComposite()) {
 			CompositeImage ci = (CompositeImage)imp;
@@ -19,26 +20,30 @@ public class CompositeConverter implements PlugIn {
 			}
 			return;
 		}
+		String mode = modes[0];
 		int z = imp.getStackSize();
 		int c = imp.getNChannels();
-		if (c==1) c = z;
+		if (c==1) {
+			c = z;
+			imp.setDimensions(c, 1, 1);
+			if (c>7) mode = modes[2];
+		}
 		if (imp.getBitDepth()==24) {
 			if (z>1)
-				convertRGBToCompositeStack(imp);
+				convertRGBToCompositeStack(imp, arg);
 			else
 				convertRGBToCompositeImage(imp);
-		} else if (c>=2 && c<=7) {
-			String[] modes = {"Composite", "Color", "Grayscale"};
+		} else if (c>=2) {
 			GenericDialog gd = new GenericDialog("Make Composite");
-			gd.addChoice("Display Mode:", modes, modes[0]);
+			gd.addChoice("Display Mode:", modes, mode);
 			gd.showDialog();
 			if (gd.wasCanceled()) return;
-			int mode = gd.getNextChoiceIndex();
-			CompositeImage ci = new CompositeImage(imp, mode+1);
+			int index = gd.getNextChoiceIndex();
+			CompositeImage ci = new CompositeImage(imp, index+1);
 			ci.show();
 			imp.hide();
 		} else
-			IJ.error("To create a composite, the current image must be\n a stack with fewer than 8 slices or be in RGB format.");
+			IJ.error("To create a composite, the current image must be\n a stack with at least 2 channels or be in RGB format.");
 	}
 	
 	void convertRGBToCompositeImage(ImagePlus imp) {
@@ -51,7 +56,7 @@ public class CompositeConverter implements PlugIn {
 			if (loc!=null&&win2!=null) win2.setLocation(loc);
 	}
 
-	void convertRGBToCompositeStack(ImagePlus imp) {
+	void convertRGBToCompositeStack(ImagePlus imp, String arg) {
 		int width = imp.getWidth();
 		int height = imp.getHeight();
 		ImageStack stack1 = imp.getStack();
@@ -74,7 +79,8 @@ public class CompositeConverter implements PlugIn {
 		Point loc = win!=null?win.getLocation():null;
 		ImagePlus imp2 = new ImagePlus(imp.getTitle(), stack2);
 		imp2.setDimensions(3, n/3, 1);
- 		imp2 = new CompositeImage(imp2, CompositeImage.COMPOSITE);
+		int mode = arg!=null && arg.equals("color")?CompositeImage.COLOR:CompositeImage.COMPOSITE;
+ 		imp2 = new CompositeImage(imp2, mode);
 		imp2.show();
 		imp.changes = false;
 		imp.close();

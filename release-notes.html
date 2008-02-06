@@ -5,15 +5,28 @@
 </head>
 <body>
 
-<li> <u>1.39k, 21 November 2007</u>
+<li> <u>1.39q, 26 January 2008</u>
 <ul>
-<li> Added the <i>File&gt;Import&gt;TIFF Virtual Stack</i> command.
-<li> Added a "Display Mode" drop down menu to the
-<i>Image&gt;HyperStacks&gt;New HyperStack</i> and
-<i>Stack to HyperStack</i> dialogs.
-<li> ImageJ displays a better error message when the user attempts
-to open a JPEG compressed TIFF.
-<li> Added the is("HyperStack") macro function.
+<li> When using the<i>Image&gt;Adjust&gt;Brightness/Contrast</i> tool,
+ hold the shift key down to simultaneously adjust all channels of a composite image
+(e.g., <i>File&gt;Open Samples&gt;HeLa Cells</i>).
+<li> Clicking "Apply" in <i>Image&gt;Adjust&gt;Brightness/Contrast</i>
+ propagates the current composite image display range to the other channels.
+<li> <i>Image&gt;Adjust&gt;Color Balance</i> works with composite images.
+<li> The text tool is recorded.
+<li> ImageJ now opens LZW-compressed RGB planar TIFFs.
+<li> Stefan Woerz added Gaussian fitting to the CurveFitter class.
+<li> "Maximize" works better with HyperStacks and windows with button panels.
+<li> Albert Cardona added 
+<a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">HandleExtraFileTypes</a>
+support for <i>File&gt;Import&gt;URL</i>.
+<li> Added the is("Virtual Stack") macro function.
+<li> Fixed a bug that caused files in folders dropped onto ImageJ
+to not be sorted in numeric order.
+<li> Fixed a bug in <i>File&gt;Import&gt;Raw</i> (ImageReader class) that
+caused it to not correctly handle EOF errors with data types other than 8-bit.
+<li> Fixed a bug in the PGM_Reader that caused pixel intensities of imported
+48-bit images to differ slightly from the expected values.
 </ul>
 
 </body>

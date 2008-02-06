@@ -76,7 +76,7 @@ public class Functions implements MacroConstants, Measurements {
 			case DO_WAND: IJ.doWand((int)getFirstArg(), (int)getLastArg()); resetImage(); break;
 			case SET_MIN_MAX: IJ.setMinAndMax(getFirstArg(), getLastArg()); resetImage(); break;
 			case SET_THRESHOLD: setThreshold(); break;
-			case SET_TOOL: IJ.setTool((int)getArg()); break;
+			case SET_TOOL: setTool(); break;
 			case SET_FOREGROUND: setForegroundColor(); break;
 			case SET_BACKGROUND: setBackgroundColor(); break;
 			case SET_COLOR: setColor(); break;
@@ -196,7 +196,7 @@ public class Functions implements MacroConstants, Measurements {
 			case TOOL_ID: interp.getParens(); value = Toolbar.getToolId(); break;
 			case IS: value = is(); break;
 			case GET_VALUE: value = getValue(); break;
-			case HS: value = doHyperStack(); break;
+			case STACK: value = doStack(); break;
 			default:
 				interp.error("Numeric function expected");
 		}
@@ -1265,6 +1265,8 @@ public class Functions implements MacroConstants, Measurements {
 			return tp.getText();			
 		} else if (frame!=null && frame instanceof Editor) {
 			return ((Editor)frame).getText();			
+		} else if (frame!=null && frame instanceof Recorder) {
+			return ((Recorder)frame).getText();			
 		} else
 			return getImageInfo();
 	}
@@ -1495,11 +1497,11 @@ public class Functions implements MacroConstants, Measurements {
 			g[i] = (byte)greens[i];
 			b[i] = (byte)blues[i];
 		}
-		IndexColorModel icm = new IndexColorModel(8, length, r, g, b);
+		LUT lut = new LUT(8, length, r, g, b);
 		if (imp.isComposite())
-			((CompositeImage)imp).setChannelColorModel(icm);
+			((CompositeImage)imp).setChannelLut(lut);
 		else
-			ip.setColorModel(icm);
+			ip.setColorModel(lut);
 		imp.updateAndDraw();
 		updateNeeded = false;
 	}
@@ -3227,20 +3229,24 @@ public class Functions implements MacroConstants, Measurements {
 	}
 	
 	double is() {
-		double state = 0.0;
+		boolean state = false;
 		String arg = getStringArg();
 		arg = arg.toLowerCase(Locale.US);
 		if (arg.equals("locked"))
-			state = getImage().isLocked()?1.0:0.0;
+			state = getImage().isLocked();
 		else if (arg.indexOf("invert")!=-1)
-			state = getImage().isInvertedLut()?1.0:0.0;
+			state = getImage().isInvertedLut();
 		else if (arg.indexOf("hyper")!=-1)
-			state = getImage().isHyperStack()?1.0:0.0;
-		else {
-			state = Double.NaN;
+			state = getImage().isHyperStack();
+		else if (arg.indexOf("batch")!=-1)
+			state = Interpreter.isBatchMode();
+		else if (arg.indexOf("applet")!=-1)
+			state = IJ.getApplet()!=null;
+		else if (arg.indexOf("virtual")!=-1)
+			state = getImage().getStack().isVirtual();
+		else
 			interp.error("Argument must be 'locked', 'Inverted LUT' or 'HyperStack'");
-		}
-		return state;
+		return state?1.0:0.0;
 	}
 
 	Variable[] getList() {
@@ -3460,7 +3466,7 @@ public class Functions implements MacroConstants, Measurements {
 		}
 	}
 
-	double doHyperStack() {
+	double doStack() {
 		interp.getToken();
 		if (interp.token!='.')
 			interp.error("'.' expected");
@@ -3470,39 +3476,70 @@ public class Functions implements MacroConstants, Measurements {
 		String name = interp.tokenString;
 		if (name.equals("isHyperStack"))
 			return getImage().isHyperStack()?1.0:0.0;
+		else if (name.equals("getDimensions"))
+			{getDimensions(); return Double.NaN;}
 		ImagePlus imp = getImage();
-		if (!imp.isHyperStack())
+		if (name.equals("setPosition"))
+			{setPosition(imp); return Double.NaN;}
+		if (name.equals("getPosition"))
+			{getPosition(imp); return Double.NaN;}
+		if (name.equals("getFrameRate"))
+			{interp.getParens(); return imp.getCalibration().fps;}
+		if (name.equals("setFrameRate"))
+			{imp.getCalibration().fps=getArg(); return Double.NaN;}
+		if (!imp.isHyperStack() && !(Interpreter.isBatchMode()&&imp.getStackSize()>1))
 			interp.error("HyperStack required");
 		StackWindow win = (StackWindow)imp.getWindow();
-		if (name.equals("getPosition"))
-			getPosition(win);
-		else if (name.equals("setPosition"))
-			setPosition(win);
+		if (name.equals("setDimensions"))
+			setDimensions(imp);
 		else if (name.equals("setChannel"))
-			win.setPosition((int)getArg(), win.getHSSlice(), win.getHSFrame());
+			imp.setPosition((int)getArg(), win.getHSSlice(), win.getHSFrame());
 		else if (name.equals("setSlice"))
-			win.setPosition(win.getHSChannel(), (int)getArg(), win.getHSFrame());
+			imp.setPosition(win.getHSChannel(), (int)getArg(), win.getHSFrame());
 		else if (name.equals("setFrame"))
-			win.setPosition(win.getHSChannel(), win.getHSSlice(), (int)getArg());
+			imp.setPosition(win.getHSChannel(), win.getHSSlice(), (int)getArg());
 		else
-			interp.error("Unrecognized HS function");
+			interp.error("Unrecognized Stack function");
 		return Double.NaN;
 	}
 
-	void getPosition(StackWindow win) {
+	void getPosition(ImagePlus imp) {
 		Variable channel = getFirstVariable();
 		Variable slice = getNextVariable();
 		Variable frame = getLastVariable();
-		channel.setValue(win.getHSChannel());
-		slice.setValue(win.getHSSlice());
-		frame.setValue(win.getHSFrame());
+		int c = imp.getChannel();
+		int z = imp.getSlice();
+		int t = imp.getFrame();
+		if (c*z*t>imp.getStackSize())
+			{c=1; z=imp.getCurrentSlice(); t=1;}
+		channel.setValue(c);
+		slice.setValue(z);
+		frame.setValue(t);
 	}
 
-	void setPosition(StackWindow win) {
+	void setPosition(ImagePlus img) {
 		int channel = (int)getFirstArg();
 		int slice = (int)getNextArg();
 		int frame = (int)getLastArg();
-		win.setPosition(channel, slice, frame);
+		img.setPosition(channel, slice, frame);
+	}
+
+	void setDimensions(ImagePlus img) {
+		int c = (int)getFirstArg();
+		int z = (int)getNextArg();
+		int t = (int)getLastArg();
+		img.setDimensions(c, z, t);
+		if (img.getWindow()==null) img.setOpenAsHyperStack(true);
+	}
+	
+	void setTool() {
+        interp.getLeftParen();
+		if (isStringArg()) {
+			boolean ok = IJ.setTool(getString());
+			if (!ok) interp.error("Unrecognized tool name");
+		} else
+			IJ.setTool((int)interp.getExpression());
+		interp.getRightParen();
 	}
 
 } // class Functions
