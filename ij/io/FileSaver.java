@@ -240,11 +240,7 @@ public class FileSaver {
 		@see ij.plugin.JpegWriter#getQuality
 	*/
 	public boolean saveAsJpeg(String path) {
-		Object jpegWriter = null;
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.JpegWriter", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		JpegWriter.save(imp,path,JpegWriter.getQuality());
 		if (!(imp.getType()==ImagePlus.GRAY16 || imp.getType()==ImagePlus.GRAY32))
 			updateImp(fi, fi.GIF_OR_JPG);
 		return true;
