@@ -58,7 +58,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 	protected ImageWindow win;
 	protected Roi roi;
 	protected int currentSlice;
-	protected static final int OPENED=0, CLOSED=1, UPDATED=2;
+	protected static final int OPENED=0, CLOSED=1, UPDATED=2,
+		ROI_CHANGED=3;
 	protected boolean compositeImage;
 	protected int width;
 	protected int height;
@@ -1119,6 +1120,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				ip.resetRoi();
 		}
 		roi.setImage(this);
+		notifyListeners(ROI_CHANGED);
 		draw();
 	}
 	
@@ -1168,6 +1170,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				}
 				break;
 		}
+		notifyListeners(ROI_CHANGED);
 	}
 
 	/** Deletes the current region of interest. Makes a copy
@@ -1205,6 +1208,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 					roi.setLocation((width-r.width)/2, (height-r.height)/2);
 				else if (r.width==width && r.height==height) // is it the same size as the image
 					roi.setLocation(0, 0);
+				notifyListeners(ROI_CHANGED);
 				draw();
 			}
 		}
@@ -1673,6 +1677,9 @@ public class ImagePlus implements ImageObserver, Measurements {
 						break;
 					case UPDATED: 
 						listener.imageUpdated(this);
+						break;
+					case ROI_CHANGED:
+						listener.roiChanged(this);
 						break;
 				}
 			}

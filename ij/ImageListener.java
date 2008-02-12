@@ -10,4 +10,5 @@ package ij;
 
 	public void imageUpdated(ImagePlus imp);
 
+	public void roiChanged(ImagePlus imp);
 }
