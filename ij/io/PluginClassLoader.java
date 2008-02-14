@@ -260,7 +260,14 @@ public class PluginClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(className);
 
         // Define it (parse the class file)
-        result = defineClass(className, classBytes, 0, classBytes.length);
+	try {
+		result = defineClass(className,
+			classBytes, 0, classBytes.length);
+	} catch(UnsupportedClassVersionError e) {
+		throw new RuntimeException("Class " + className
+			+ " was compiled for a newer Java Runtime");
+        }
+
         if (result == null) {
             throw new ClassFormatError();
         }
