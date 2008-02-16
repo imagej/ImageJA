@@ -15,6 +15,7 @@ mkdir tmpCommit || exit 1
 cd tmpCommit
 unzip $zipfile
 cd source
+export GIT_WORK_TREE="$(pwd)"
 find -type f -print0 | xargs -0 perl $HOME/my/tools/mac2unix.pl
 find -type f -print0 | xargs -0 git-update-index --add
 tree=$(git-write-tree)

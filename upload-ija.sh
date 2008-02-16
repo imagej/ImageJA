@@ -7,7 +7,7 @@ fi
 git tag v"$1" origin
 git push vib
 git push dumbo
-git push orcz
+git push orcz imageja:master imageja v"$1"
 make signed-ij.jar
 rsync -vau signed-ij.jar dscho@shell.sf.net:imageja/htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ origin > ij-src-$1.jar

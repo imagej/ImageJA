@@ -1,6 +1,12 @@
 #!/bin/sh
 
 cd $(dirname $0)/..
+
+test refs/heads/master = $(git symbolic-ref HEAD) || {
+	echo "Not on master"
+	exit
+}
+
 perl tools/wsync.perl
 if [ -f .wsync-add ]; then
 	cat .wsync-add | tr "\n" "\0" | xargs -0r perl ~/my/tools/mac2unix.pl
