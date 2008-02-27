@@ -52,7 +52,7 @@ public class Menus {
 	private static ImageJApplet applet;
 	private static Hashtable demoImagesTable = new Hashtable();
 	private static String pluginsPath, macrosPath;
-	private static Menu pluginsMenu, importMenu, saveAsMenu, shortcutsMenu, 
+	private static Menu pluginsMenu, hyperstacksMenu, newMenu, importMenu, saveAsMenu, shortcutsMenu, 
 		aboutMenu, filtersMenu, toolsMenu, utilitiesMenu, macrosMenu, optionsMenu;
 	private static Hashtable pluginsTable;
 	
@@ -69,7 +69,7 @@ public class Menus {
 	private boolean installingJars, duplicateCommand;
 	private static Vector jarFiles;  // JAR files in plugins folder with "_" in their name
 	private static Vector macroFiles;  // Macro files in plugins folder with "_" in their name
-	private int importCount, saveAsCount, toolsCount, optionsCount;
+	private int hyperstacksCount, newCount, importCount, saveAsCount, toolsCount, optionsCount;
 	private static Hashtable menusTable; // Submenus of Plugins menu
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
@@ -88,7 +88,7 @@ public class Menus {
 		pluginsTable = new Hashtable();
 		
 		Menu file = new PopupMenu("File");
-		addSubMenu(file, "New");
+		newMenu = addSubMenu(file, "New");
 		addPlugInItem(file, "Open...", "ij.plugin.Commands(\"open\")", KeyEvent.VK_O, false);
 		addPlugInItem(file, "Open Next", "ij.plugin.NextImageOpener", KeyEvent.VK_O, true);
 		if (applet == null)
@@ -142,7 +142,7 @@ public class Menus {
 		addPlugInItem(image, "Properties...", "ij.plugin.filter.ImageProperties", KeyEvent.VK_P, true);
 		addSubMenu(image, "Color");
 		addSubMenu(image, "Stacks");
-		addSubMenu(image, "HyperStacks");
+		hyperstacksMenu = addSubMenu(image, "HyperStacks");
 		image.addSeparator();
 		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", KeyEvent.VK_X, true);
 		addPlugInItem(image, "Duplicate...", "ij.plugin.filter.Duplicater", KeyEvent.VK_D, true);
@@ -572,6 +572,10 @@ public class Menus {
 			menu = importMenu;
 			if (importCount==0) addSeparator(menu);
 			importCount++;
+		} else if (s.startsWith("File>New")) {
+			menu = newMenu;
+			if (newCount==0) addSeparator(menu);
+			newCount++;
 		} else if (s.startsWith("File>Save")) {
 			menu = saveAsMenu;
 			if (saveAsCount==0) addSeparator(menu);
@@ -586,6 +590,10 @@ public class Menus {
 			menu = optionsMenu;
 			if (optionsCount==0) addSeparator(menu);
 			optionsCount++;
+		} else if (s.startsWith("Image>Hyper Stacks")) {
+			menu = hyperstacksMenu;
+			if (hyperstacksCount==0) addSeparator(menu);
+			hyperstacksCount++;
 		} else {
 			if (jarError==null) jarError = "";
             addJarErrorHeading(jar);
