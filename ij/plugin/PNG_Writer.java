@@ -20,6 +20,15 @@ public class PNG_Writer implements PlugIn {
         imp = WindowManager.getCurrentImage();
         if (imp==null)
         	{IJ.noImage(); return;}
+	write(imp, path);
+    }
+
+    static public void write(ImagePlus imp, String path) {
+	write(new PNG_Writer(), imp, path);
+    }
+
+    /** Thread-safe. */
+    static private void write(PNG_Writer pw, ImagePlus imp, String path) {
 
         if (path.equals("")) {
             SaveDialog sd = new SaveDialog("Save as PNG...", imp.getTitle(), ".png");
@@ -31,7 +40,7 @@ public class PNG_Writer implements PlugIn {
         }
 
         try {
-            writeImage(imp, path);
+            pw.writeImage(imp, path);
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg==null || msg.equals(""))

@@ -12,6 +12,14 @@ public class FITS_Writer implements PlugIn {
 	
 	public void run(String path) {
 		ImagePlus imp = IJ.getImage();
+		write(this, imp, path);
+	}
+
+	static public void write(ImagePlus imp, String path) {
+		write(new FITS_Writer(), imp, path);
+	}
+
+	static private void write(FITS_Writer fw, ImagePlus imp, String path) {
 		ImageProcessor ip = imp.getProcessor();
 		int numImages = imp.getImageStackSize();
 		int bitDepth = imp.getBitDepth();
@@ -33,10 +41,10 @@ public class FITS_Writer implements PlugIn {
 		else if (ip instanceof FloatProcessor)
 			numBytes = 4;
 		int fillerLength = 2880 - ( (numBytes * imp.getWidth() * imp.getHeight()) % 2880 );
-		createHeader(path, ip, numBytes);
-		writeData(path, ip);
+		fw.createHeader(path, ip, numBytes);
+		fw.writeData(path, ip);
 		char[] endFiller = new char[fillerLength];
-		appendFile(endFiller, path);
+		fw.appendFile(endFiller, path);
 	}
 	
 	void createHeader(String path, ImageProcessor ip, int numBytes) {

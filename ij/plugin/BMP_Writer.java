@@ -48,17 +48,30 @@ public class BMP_Writer implements PlugIn {
    imp = WindowManager.getCurrentImage();
    if (imp==null)
    {IJ.noImage(); return;}
-   try {
-     writeImage(imp, path);
-   } catch (Exception e) {
-     String msg = e.getMessage();
-     if (msg==null || msg.equals(""))
-   msg = ""+e;
-     IJ.error("BMP Writer", "An error occured writing the file.\n \n" + msg);
-   }
-   IJ.showProgress(1);
-   IJ.showStatus("");
+   write(this, path);
  }
+
+	/** Thread-safe writer. */
+	static public void write(ImagePlus imp, String path) {
+		if (null==imp || null==path) return;
+		BMP_Writer bw = new BMP_Writer();
+		bw.imp = imp;
+		write(bw, path);
+	}
+
+	static private void write(BMP_Writer bw, String path) {
+   		IJ.showProgress(0);
+		try {
+			bw.writeImage(bw.imp, path);
+		} catch (Exception e) {
+			String msg = e.getMessage();
+			if (msg==null || msg.equals(""))
+			msg = ""+e;
+			IJ.error("BMP Writer", "An error occured writing the file.\n \n" + msg);
+   		}
+		IJ.showProgress(1);
+		IJ.showStatus("");
+	}
 
  void writeImage(ImagePlus imp, String path) throws Exception {
    if(imp.getBitDepth()==24)

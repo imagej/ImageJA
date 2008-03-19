@@ -53,7 +53,12 @@ public class GifWriter implements PlugIn {
 			if (sd.getFileName()==null) return;
 			path = sd.getDirectory()+sd.getFileName();
 		}
+		write(imp, path, transparentIndex);
+	}
 
+	/** Thread-safe writer. */
+	static public void write(ImagePlus imp, String path, int transparentIndex) {
+		if(null==imp || null==path) return;
 		ImageStack stack = imp.getStack();
 		ImagePlus tmp = new ImagePlus();
 		int nSlices = stack.getSize();
@@ -86,7 +91,7 @@ public class GifWriter implements PlugIn {
 		IJ.showStatus("");
 		IJ.showProgress(1.0);
 	}
-	
+
 	/** Sets the transparent index (0-255), or set to -1 to disable transparency. */
 	public static void setTransparentIndex(int index) {
 		if (index<-1 || index>255) index = -1;

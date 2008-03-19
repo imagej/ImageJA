@@ -28,7 +28,7 @@ public class JpegWriter implements PlugIn {
     }
 
     /** Thread-safe method. */
-    static public void save(ImagePlus imp, String path, int quality) {
+    static public void write(ImagePlus imp, String path, int quality) {
 	if (imp==null) return;
 	imp.startTiming();
 	new JpegWriter().saveAsJpeg(imp,path,quality);

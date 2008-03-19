@@ -1,7 +1,8 @@
 package ij.plugin.filter;
-import ij.*;
-import ij.process.*;
-import ij.io.*;
+import ij.ImagePlus;
+import ij.process.ImageProcessor;
+import ij.io.FileSaver;
+import ij.plugin.*;
 
 
 /** This plugin saves an image in tiff, gif, jpeg, bmp, png, text or raw format. */
@@ -40,6 +41,33 @@ public class Writer implements PlugInFilter {
 			new FileSaver(imp).saveAsFits();
 	}
 	
+
+	/**Reasonably thread-safe writers. */
+	static public void write(ImagePlus imp, String arg, String path) {
+		if (arg.equals("tiff"))
+			if (imp.getStackSize() > 1)
+				new FileSaver(imp).saveAsTiffStack(path);
+			else
+				new FileSaver(imp).saveAsTiff(path);
+		else if (arg.equals("gif"))
+			GifWriter.write(imp, path, GifWriter.getTransparentIndex());
+		else if (arg.equals("jpeg"))
+			JpegWriter.write(imp, path, JpegWriter.getQuality());
+		else if (arg.equals("text"))
+			new FileSaver(imp).saveAsText();
+		else if (arg.equals("lut"))
+			new FileSaver(imp).saveAsLut();
+		else if (arg.equals("raw"))
+			new FileSaver(imp).saveAsRaw();
+		else if (arg.equals("zip"))
+			new FileSaver(imp).saveAsZip();
+		else if (arg.equals("bmp"))
+			BMP_Writer.write(imp, path);
+		else if (arg.equals("png"))
+			PNG_Writer.write(imp, path);
+		else if (arg.equals("pgm"))
+			PNM_Writer.write(imp, path);
+		else if (arg.equals("fits"))
+			FITS_Writer.write(imp, path);
+	}
 }
-
-

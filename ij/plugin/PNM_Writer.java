@@ -21,6 +21,11 @@ public class PNM_Writer implements PlugIn {
 
 	public void run(String path) {
 		ImagePlus img=IJ.getImage();
+		write(img, path);
+	}
+
+	/** Thread-safe. */
+	static public void write(ImagePlus img, String path) {
 		boolean isGray = false;
 		String extension = null;
 		ImageProcessor ip = img.getProcessor();
