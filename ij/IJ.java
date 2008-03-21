@@ -819,7 +819,7 @@ public class IJ {
 			min = cal.getRawValue(min); 
 			max = cal.getRawValue(max); 
 		}
-		img.getProcessor().setMinAndMax(min, max);
+		img.setDisplayRange(min, max);
 		img.updateAndDraw();
 	}
 
@@ -827,7 +827,7 @@ public class IJ {
 		to be the same as the min and max pixel values. */
 	public static void resetMinAndMax() {
 		ImagePlus img = getImage();
-		img.getProcessor().resetMinAndMax();
+		img.resetDisplayRange();
 		img.updateAndDraw();
 	}
 
