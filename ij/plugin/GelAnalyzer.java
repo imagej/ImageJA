@@ -37,6 +37,7 @@ public class GelAnalyzer implements PlugIn {
 	Font f;
 	double odMin=Double.MAX_VALUE, odMax=-Double.MAX_VALUE;
 	static boolean isVertical;
+	static boolean showLaneDialog = true;
 	
 	public void run(String arg) {
 		if (arg.equals("options")) {
@@ -155,9 +156,23 @@ public class GelAnalyzer implements PlugIn {
 
 
 	void selectFirstLane(Rectangle rect) {
-		if (rect.width/rect.height>=2 || IJ.altKeyDown())
+		if (rect.width/rect.height>=2 || IJ.altKeyDown()) {
+			if (showLaneDialog) {
+				String msg = "Are the lanes really horizontal?\n \n"+
+					"ImageJ assumes the lanes are\n"+
+					"horizontal if the selection is more\n"+
+					"than twice as wide as it is tall. Note\n"+
+					"that the selection can only be moved\n"+
+					"vertically when the lanes are horizontal.";
+				GenericDialog gd = new GenericDialog("Gel Analyzer");
+				gd.addMessage(msg);
+				gd.setOKLabel("Yes");
+				gd.showDialog();
+				if (gd.wasCanceled()) return;
+				showLaneDialog = false;
+			}
 			isVertical = false;
-		else
+		} else
 			isVertical = true;
 			
 		/*
@@ -497,6 +512,12 @@ class PlotsCanvas extends ImageCanvas {
 			Roi.setColor(Color.yellow);
 		if (Toolbar.getToolId()!=Toolbar.WAND || IJ.spaceBarDown())
 			return;
+		if (IJ.shiftKeyDown()) {
+			IJ.showMessage("Gel Analyzer", "Unable to measure area because shift key is down.");
+			imp.killRoi();
+			counter = 0;
+			return;
+		}
 		ImageStatistics s = imp.getStatistics();
 		if (counter==0) {
 			rt = ResultsTable.getResultsTable();

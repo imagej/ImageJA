@@ -162,6 +162,7 @@ public class Opener {
 					}
 					if (openUsingPlugins)
 						msg += "\n \nNOTE: The \"OpenUsingPlugins\" option is set.";
+					IJ.wait(IJ.isMacro()?500:100); // work around for OS X thread deadlock problem
 					IJ.error("Opener", msg);
 					error = true;
 					break;
@@ -215,12 +216,12 @@ public class Opener {
 					return imp;
 				} else
 					return null;
-			case JPEG: case GIF: case PNG:
+			case JPEG: case GIF:
 				imp = openJpegOrGif(directory, name);
 				if (imp!=null&&imp.getWidth()!=0) return imp; else return null;
-			//case PNG: // no longer used because ImageIO did not correctly open some 8-bit PNGs
-			//	imp = openUsingImageIO(directory+name);
-			//	if (imp!=null&&imp.getWidth()!=0) return imp; else return null;
+			case PNG: 
+				imp = openUsingImageIO(directory+name);
+				if (imp!=null&&imp.getWidth()!=0) return imp; else return null;
 			case BMP:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.BMP_Reader", path);
 				if (imp.getWidth()!=0) return imp; else return null;
@@ -270,14 +271,14 @@ public class Opener {
 				imp = openTiff(u.openStream(), name);
 	 	    else if (url.endsWith(".zip"))
 				imp = openZipUsingUrl(u);
-	 	    else if (url.endsWith(".dcm")) {
+	 	    else if (url.endsWith(".dcm") || url.endsWith(".DCM")) {
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", url);
 				if (imp!=null && imp.getWidth()==0) imp = null;
 			} else {
 				String lurl = url.toLowerCase();
-				if (lurl.endsWith(".jpg") || lurl.endsWith(".gif"))
+				if (lurl.endsWith(".jpg") || lurl.endsWith(".gif") || lurl.endsWith(".JPG") || lurl.endsWith(".GIF"))
 					imp = openJpegOrGifUsingURL(name, u);
-				else if (lurl.endsWith(".png"))
+				else if (lurl.endsWith(".png") || lurl.endsWith(".PNG"))
 					imp = openPngUsingURL(name, u);
 				else
 					imp = openWithHandleExtraFileTypes(url, new int[]{0});
@@ -368,10 +369,8 @@ public class Opener {
  			try {
  				imp = new ImagePlus(name, img);
  			} catch (IllegalStateException e) {
-				return null; // error loading image				
- 			} catch (IllegalArgumentException e) {
- 				return openUsingImageIO(dir+name); // open 16-bit PNGs using ImageIO		
- 			} 
+				return null; // error loading image
+			}				
 	    	if (imp.getType()==ImagePlus.COLOR_RGB)
 	    		convertGrayJpegTo8Bits(imp);
 	    	FileInfo fi = new FileInfo();
@@ -639,7 +638,8 @@ public class Opener {
 		FileOpener fo = new FileOpener(info[0]);
 		imp = fo.open(false);
 		int c = imp.getNChannels();
-		if (c>1 && imp.getOpenAsHyperStack() && !imp.isComposite()) {
+		boolean composite = c>1 && info[0].description!=null && info[0].description.indexOf("mode=")!=-1;
+		if (c>1 && (imp.getOpenAsHyperStack()||composite) && !imp.isComposite() && imp.getType()!=ImagePlus.COLOR_RGB) {
 			int mode = CompositeImage.COLOR;
 			if (info[0].description!=null) {
 				if (info[0].description.indexOf("mode=composite")!=-1)
@@ -651,7 +651,6 @@ public class Opener {
 		}
 		return imp;
 	}
-	
 	
 	/** Attempts to open the specified ROI, returning null if unsuccessful. */
 	public Roi openRoi(String path) {

@@ -538,6 +538,11 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return win;
 	}
 	
+	/** Returns true if this image is currently being displayed in a window. */
+	public boolean isVisible() {
+		return win!=null && win.isVisible();
+	}
+
 	/** This method should only be called from an ImageWindow. */
 	public void setWindow(ImageWindow win) {
 		this.win = win;
@@ -587,10 +592,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 		setupProcessor();
 		if (!compositeImage)
 			ip.setLineWidth(Line.getWidth());
-		if (ij!=null) {
-			//setColor(Toolbar.getForegroundColor());
+		if (ij!=null)
 			ip.setProgressBar(ij.getProgressBar());
-		}
+		Calibration cal = getCalibration();
+		if (cal.calibrated())
+			ip.setCalibrationTable(cal.getCTable());
+		else
+			ip.setCalibrationTable(null);
 		return ip;
 	}
 	
@@ -975,7 +983,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 			s.update(ip2);
 		} else {
 			s = stack;
-			s.update(ip);
+			s.update(getProcessor());
 		}
 		if (roi!=null)
 			s.setRoi(roi.getBounds());
@@ -1071,7 +1079,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 			}
 			if (win!=null && win instanceof StackWindow)
 				((StackWindow)win).updateSliceSelector();
-			if (IJ.altKeyDown()) {
+			if (IJ.altKeyDown() && !IJ.isMacro()) {
 				if (imageType==GRAY16 || imageType==GRAY32) {
 					ip.resetMinAndMax();
 					IJ.showStatus(index+": min="+ip.getMin()+", max="+ip.getMax());
@@ -1098,7 +1106,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 	
 	/** Assigns the specified ROI to this image and displays it. Any existing
-		ROI is deleted if <code>roi</code> is null or its width or height is zero. */
+		ROI is deleted if <code>roi</code> is null or its width or height is zero.
+		Sets the ImageProcessor mask to null. */
 	public void setRoi(Roi newRoi) {
 		if (newRoi==null)
 			{killRoi(); return;}
@@ -1708,6 +1717,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 		ip.setMinAndMax(min, max);
 	}
 
+	public double getDisplayRangeMin() {
+		return ip.getMin();
+	}
+
+	public double getDisplayRangeMax() {
+		return ip.getMax();
+	}
+
 	public void setDisplayRange(double min, double max, int channels) {
 		if (ip instanceof ColorProcessor)
 			((ColorProcessor)ip).setMinAndMax(min, max, channels);
@@ -1720,6 +1737,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 	
 	public void updatePosition(int c, int z, int t) {
+		//IJ.log("updatePosition: "+c+", "+z+", "+t);
 		position[0] = c;
 		position[1] = z;
 		position[2] = t;
