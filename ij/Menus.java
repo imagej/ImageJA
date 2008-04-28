@@ -53,7 +53,7 @@ public class Menus {
 	private static Hashtable demoImagesTable = new Hashtable();
 	private static String pluginsPath, macrosPath;
 	private static Menu pluginsMenu, hyperstacksMenu, newMenu, importMenu, saveAsMenu, shortcutsMenu, 
-		aboutMenu, filtersMenu, toolsMenu, utilitiesMenu, macrosMenu, optionsMenu;
+		aboutMenu, filtersMenu, toolsMenu, utilitiesMenu, macrosMenu, optionsMenu, analyzeMenu;
 	private static Hashtable pluginsTable;
 	
 	static Menu window, openRecentMenu;
@@ -69,7 +69,7 @@ public class Menus {
 	private boolean installingJars, duplicateCommand;
 	private static Vector jarFiles;  // JAR files in plugins folder with "_" in their name
 	private static Vector macroFiles;  // Macro files in plugins folder with "_" in their name
-	private int hyperstacksCount, newCount, importCount, saveAsCount, toolsCount, optionsCount;
+	private int hyperstacksCount, newCount, importCount, saveAsCount, toolsCount, optionsCount, analyzeCount;
 	private static Hashtable menusTable; // Submenus of Plugins menu
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
@@ -170,22 +170,22 @@ public class Menus {
 		addPlugInItem(process, "Subtract Background...", "ij.plugin.filter.BackgroundSubtracter", 0, false);
 		addItem(process, "Repeat Command", KeyEvent.VK_R, true);
 		
-		Menu analyze = new PopupMenu("Analyze");
-		addPlugInItem(analyze, "Measure", "ij.plugin.filter.Analyzer", KeyEvent.VK_M, false);
-		addPlugInItem(analyze, "Analyze Particles...", "ij.plugin.filter.ParticleAnalyzer", 0, false);
-		addPlugInItem(analyze, "Summarize", "ij.plugin.filter.Analyzer(\"sum\")", 0, false);
-		addPlugInItem(analyze, "Distribution...", "ij.plugin.Distribution", 0, false);
-		addPlugInItem(analyze, "Label", "ij.plugin.filter.Filler(\"label\")", 0, false);
-		addPlugInItem(analyze, "Clear Results", "ij.plugin.filter.Analyzer(\"clear\")", 0, false);
-		addPlugInItem(analyze, "Set Measurements...", "ij.plugin.filter.Analyzer(\"set\")", 0, false);
-		analyze.addSeparator();
-		addPlugInItem(analyze, "Set Scale...", "ij.plugin.filter.ScaleDialog", 0, false);
-		addPlugInItem(analyze, "Calibrate...", "ij.plugin.filter.Calibrator", 0, false);
-		addPlugInItem(analyze, "Histogram", "ij.plugin.Histogram", KeyEvent.VK_H, false);
-		addPlugInItem(analyze, "Plot Profile", "ij.plugin.filter.Profiler(\"plot\")", KeyEvent.VK_K, false);
-		addPlugInItem(analyze, "Surface Plot...", "ij.plugin.SurfacePlotter", 0, false);
-		addSubMenu(analyze, "Gels");
-		toolsMenu = addSubMenu(analyze, "Tools");
+		analyzeMenu = new PopupMenu("Analyze");
+		addPlugInItem(analyzeMenu, "Measure", "ij.plugin.filter.Analyzer", KeyEvent.VK_M, false);
+		addPlugInItem(analyzeMenu, "Analyze Particles...", "ij.plugin.filter.ParticleAnalyzer", 0, false);
+		addPlugInItem(analyzeMenu, "Summarize", "ij.plugin.filter.Analyzer(\"sum\")", 0, false);
+		addPlugInItem(analyzeMenu, "Distribution...", "ij.plugin.Distribution", 0, false);
+		addPlugInItem(analyzeMenu, "Label", "ij.plugin.filter.Filler(\"label\")", 0, false);
+		addPlugInItem(analyzeMenu, "Clear Results", "ij.plugin.filter.Analyzer(\"clear\")", 0, false);
+		addPlugInItem(analyzeMenu, "Set Measurements...", "ij.plugin.filter.Analyzer(\"set\")", 0, false);
+		analyzeMenu.addSeparator();
+		addPlugInItem(analyzeMenu, "Set Scale...", "ij.plugin.filter.ScaleDialog", 0, false);
+		addPlugInItem(analyzeMenu, "Calibrate...", "ij.plugin.filter.Calibrator", 0, false);
+		addPlugInItem(analyzeMenu, "Histogram", "ij.plugin.Histogram", KeyEvent.VK_H, false);
+		addPlugInItem(analyzeMenu, "Plot Profile", "ij.plugin.filter.Profiler(\"plot\")", KeyEvent.VK_K, false);
+		addPlugInItem(analyzeMenu, "Surface Plot...", "ij.plugin.SurfacePlotter", 0, false);
+		addSubMenu(analyzeMenu, "Gels");
+		toolsMenu = addSubMenu(analyzeMenu, "Tools");
 
 		window = new PopupMenu("Window");
 		addPlugInItem(window, "Show All", "ij.plugin.WindowOrganizer(\"show\")", KeyEvent.VK_F, true);
@@ -226,7 +226,7 @@ public class Menus {
 		mbar.add(edit);
 		mbar.add(image);
 		mbar.add(process);
-		mbar.add(analyze);
+		mbar.add(analyzeMenu);
 		mbar.add(pluginsMenu);
 		mbar.add(window);
 		mbar.setHelpMenu(help);
@@ -584,6 +584,10 @@ public class Menus {
 			menu = toolsMenu;
 			if (toolsCount==0) addSeparator(menu);
 			toolsCount++;
+		} else if (s.startsWith("Analyze")) {
+			menu = analyzeMenu;
+			if (analyzeCount==0) addSeparator(menu);
+			analyzeCount++;
 		} else if (s.startsWith("Help>About")) {
 			menu = aboutMenu;
 		} else if (s.startsWith("Edit>Options")) {
