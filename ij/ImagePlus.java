@@ -132,6 +132,7 @@ public class ImagePlus implements ImageObserver, Measurements {
      		setCalibration(imp.getCalibration());
      		properties = imp.getProperties();
      		setFileInfo(imp.getOriginalFileInfo());
+     		setDimensions(imp.getNChannels(), imp.getNSlices(), imp.getNFrames());
    			if (isURL)
    				this.url = pathOrURL;
    			ID = --currentID;
@@ -501,7 +502,6 @@ public class ImagePlus implements ImageObserver, Measurements {
     	if (currentSlice<1) setCurrentSlice(1);
     	boolean resetCurrentSlice = currentSlice>stackSize;
     	if (resetCurrentSlice) setCurrentSlice(stackSize);
-		//IJ.log("setStack: "+stack+"  "+stackSizeChanged+"  "+resetCurrentSlice);
     	ImageProcessor ip = stack.getProcessor(currentSlice);
     	boolean dimensionsChanged = width>0 && height>0 && (width!=ip.getWidth()||height!=ip.getHeight());
     	this.stack = stack;
@@ -851,6 +851,15 @@ public class ImagePlus implements ImageObserver, Measurements {
     	return bitDepth;
     }
     
+    /** Returns the number of bytes per pixel. */
+    public int getBytesPerPixel() {
+    	switch (imageType) {
+	    	case GRAY16: return 2;
+	    	case GRAY32: case COLOR_RGB: return 4;
+	    	default: return 1;
+    	}
+	}
+
     protected void setType(int type) {
     	if ((type<0) || (type>COLOR_RGB))
     		return;
@@ -983,7 +992,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 			s.update(ip2);
 		} else {
 			s = stack;
-			s.update(getProcessor());
+			s.update(ip);
 		}
 		if (roi!=null)
 			s.setRoi(roi.getBounds());
@@ -1045,6 +1054,28 @@ public class ImagePlus implements ImageObserver, Measurements {
 		else {
 			setSlice((frame-1)*nChannels*nSlices + (slice-1)*nChannels + channel);
 			updatePosition(channel, slice, frame);
+		}
+	}
+	
+	public int getStackIndex(int channel, int slice, int frame) {	
+   		if (channel<1) channel = 1;
+    	if (channel>nChannels) channel = nChannels;
+    	if (slice<1) slice = 1;
+    	if (slice>nSlices) slice = nSlices;
+    	if (frame<1) frame = 1;
+    	if (frame>nFrames) frame = nFrames;
+		return (frame-1)*nChannels*nSlices + (slice-1)*nChannels + channel;
+	}
+	
+	/* Hack needed to make the HyperStackReducer work. */
+	public void resetStack() {
+		if (currentSlice==1 && stack!=null && stack.getSize()>0) {
+			ColorModel cm = ip.getColorModel();
+			double min = ip.getMin();
+			double max = ip.getMax();
+			ip = stack.getProcessor(1);
+			ip.setColorModel(cm);
+			ip.setMinAndMax(min, max);
 		}
 	}
 	
@@ -1505,13 +1536,17 @@ public class ImagePlus implements ImageObserver, Measurements {
 		//y = Analyzer.updateY(y, height);
 		if (!IJ.altKeyDown()) {
 			String s = " x="+d2s(cal.getX(x)) + ", y=" + d2s(cal.getY(y,height));
-			if (getStackSize()>1)
-				s += ", z="+d2s(cal.getZ(getCurrentSlice()-1));
+			if (getStackSize()>1) {
+				int z = isHyperStack()?getSlice()-1:getCurrentSlice()-1;
+				s += ", z="+d2s(cal.getZ(z));
+			}
 			return s;
 		} else {
 			String s =  " x="+x+", y=" + y;
-			if (getStackSize()>1)
-				s += ", z=" + (getCurrentSlice()-1);
+			if (getStackSize()>1) {
+				int z = isHyperStack()?getSlice()-1:getCurrentSlice()-1;
+				s += ", z=" + z;
+			}
 			return s;
 		}
     }

@@ -1205,11 +1205,14 @@ public class Functions implements MacroConstants, Measurements {
 	Variable[] initNewArray() {
 		Vector vector = new Vector();
 		int size = 0;
+		boolean stringArray = false;
 		do {
 		    Variable v = new Variable();
-			if (interp.nextNonEolToken()==STRING_CONSTANT)
+		    int tok = interp.nextNonEolToken();
+			if (tok==STRING_CONSTANT||tok==STRING_FUNCTION||(tok==WORD&&stringArray)) {
 				v.setString(getString());
-			else
+				stringArray = true;
+			} else
 				v.setValue(interp.getExpression());
 			vector.addElement(v);
 			size++;
@@ -2037,7 +2040,7 @@ public class Functions implements MacroConstants, Measurements {
 				rm.select(index, shiftKeyDown, altKeyDown);
 				shiftKeyDown = altKeyDown = false;
 			} else
-				roiManagerSelect(rm, index);
+				rm.select(index);
 		} else if (cmd.equals("count"))
 			countOrIndex = rm.getList().getItemCount();
 		else if (cmd.equals("index"))
@@ -2047,23 +2050,6 @@ public class Functions implements MacroConstants, Measurements {
 				interp.error("Invalid ROI Manager command");
 		}
 		return countOrIndex;			
-	}
-	
-	void roiManagerSelect(RoiManager rm, int index) {
-		int delay = 1;
-		long start = System.currentTimeMillis();
-		while (true) {
-			rm.select(index);
-			if (delay>1) IJ.wait(delay);
-			if (rm.getList().isIndexSelected(index))
-				break;
-			//IJ.log(index+" "+delay);
-			rm.select(-1); // deselect all
-			IJ.wait(delay);
-			delay *= 2; if (delay>32) delay=32;
-			if ((System.currentTimeMillis()-start)>1000L)
-				interp.error("Failed to select");
-		}
 	}
 	
 	void setFont() {
@@ -2294,54 +2280,13 @@ public class Functions implements MacroConstants, Measurements {
 	
 	void setAutoThreshold() {
 		interp.getParens();
-		ImagePlus imp = getImage();
+		ImagePlus img = getImage();
 		ImageProcessor ip = getProcessor();
-		double min=0.0, max=0.0;
-		boolean notByteData = !(ip instanceof ByteProcessor);
-		if (notByteData) {
-			if (ip instanceof ColorProcessor)
-				interp.error("Non-RGB image expected");
-			ip.resetMinAndMax();
-			min = ip.getMin(); max = ip.getMax();
-			ip = new ByteProcessor(ip.createImage());
-		}
-		ip.setRoi(imp.getRoi());
-		ImageStatistics stats = ImageStatistics.getStatistics(ip, AREA+MIN_MAX+MODE, null);
-		int threshold = ip.getAutoThreshold(stats.histogram);
-		int count1=0, count2=0;
-		for (int i=0; i<256; i++) {
-			if (i<threshold)
-				count1 += stats.histogram[i];
-			else
-				count2 += stats.histogram[i];
-		}
-		boolean unbalanced = (double)count1/count2>1.25 || (double)count2/count1>1.25;
-		//IJ.log(unbalanced+"  "+count1+"  "+count2);
-		double lower, upper;
-		if (unbalanced) {
-			if ((stats.max-stats.dmode)>(stats.dmode-stats.min))
-				{lower=threshold; upper=255.0;}
-			else
-				{lower=0.0; upper=threshold;}
-		} else {
-			if (ip.isInvertedLut())
-				{lower=threshold; upper=255.0;}
-			else
-				{lower=0.0; upper=threshold;}
-		}
-		if (notByteData) {
-			if (max>min) {
-				lower = min + (lower/255.0)*(max-min);
-				upper = min + (upper/255.0)*(max-min);
-			} else
-				lower = upper = min;
-		}
-		if (imp.getBitDepth()==16) {
-			Calibration cal = imp.getCalibration();
-			lower = cal.getCValue(lower); 
-			upper = cal.getCValue(upper); 
-		}
-		IJ.setThreshold(lower, upper);
+		if (ip instanceof ColorProcessor)
+			interp.error("Non-RGB image expected");
+		ip.setRoi(img.getRoi());
+		ip.setAutoThreshold(ImageProcessor.ISODATA2, ImageProcessor.RED_LUT);
+		img.updateAndDraw();
 		resetImage();
 	}
 	
@@ -2762,30 +2707,60 @@ public class Functions implements MacroConstants, Measurements {
 	}
 	
 	void setMetadata() {
-		String metadata = getStringArg();
+		String metadata = null;
+		String arg1 = getFirstString();
+		boolean oneArg = false;
+		if (interp.nextNonEolToken()==',')
+			metadata = getLastString();
+		else
+			interp.getRightParen();
+		boolean isInfo = false;
+		if (metadata==null) {
+			metadata = arg1;
+			oneArg = true;
+			if (metadata.startsWith("Info:")) {
+				metadata = metadata.substring(5);
+				isInfo = true;
+			}
+		} else
+			isInfo = arg1.startsWith("info") || arg1.startsWith("Info");
 		ImagePlus imp = getImage();
-		boolean isImageMetaData = false;
-		if (metadata.startsWith("Info:")) {
-			metadata = metadata.substring(5);
-			isImageMetaData = true;
-		}
-		if (imp.getStackSize()==1 || isImageMetaData)
+		if (isInfo)
 			imp.setProperty("Info", metadata);
 		else {
-			imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
-			if (!Interpreter.isBatchMode())
-				imp.repaintWindow();
+			if (imp.getStackSize()==1) {
+				if (oneArg)
+					imp.setProperty("Info", metadata);
+				else {
+					imp.setProperty("Label", metadata);
+					if (!Interpreter.isBatchMode()) imp.repaintWindow();
+				}
+			} else {
+				imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
+				if (!Interpreter.isBatchMode()) imp.repaintWindow();
+			}
 		}
 	}
 
 	String getMetadata() {
-		interp.getParens();
+		String type = "label";
+		boolean noArg = true;
+		if (interp.nextNonEolToken()=='(' && interp.nextNextNonEolToken()!=')') {
+			type = getStringArg().toLowerCase(Locale.US);
+			noArg = false;
+		} else
+			interp.getParens();
 		ImagePlus imp = getImage();
-		String metadata;
-		if (imp.getStackSize()==1) 
+		String metadata = null;
+		if (type.indexOf("label")!=-1) {
+			if (imp.getStackSize()==1) {
+				metadata = (String)imp.getProperty("Label");
+				if (metadata==null && noArg)
+					metadata = (String)imp.getProperty("Info");
+			} else 
+				metadata = imp.getStack().getSliceLabel(imp.getCurrentSlice());
+		} else
 			metadata = (String)imp.getProperty("Info");
-		else
-			metadata = imp.getStack().getSliceLabel(imp.getCurrentSlice());
 		if (metadata==null) metadata = "";
 		return metadata;
 	}
@@ -3206,8 +3181,15 @@ public class Functions implements MacroConstants, Measurements {
 			Prefs.disableUndo = state;
 		else if (arg1.startsWith("openashyper"))
 			getImage().setOpenAsHyperStack(true);
+		else if (arg1.startsWith("display lab"))
+			Analyzer.setMeasurement(LABELS, state);
+		else if (arg1.startsWith("limit to"))
+			Analyzer.setMeasurement(LIMIT, state);
 		else
 			interp.error("Invalid option");
+	}
+	
+	void setMeasurementOption(String option) {
 	}
 	
 	void showText() {
@@ -3263,7 +3245,7 @@ public class Functions implements MacroConstants, Measurements {
 		else if (arg.indexOf("composite")!=-1)
 			state = getImage().isComposite();
 		else
-			interp.error("Argument must be 'locked', 'Inverted LUT' or 'HyperStack'");
+			interp.error("Argument must be 'locked', 'Inverted LUT' or 'Hyperstack'");
 		return state?1.0:0.0;
 	}
 
@@ -3492,7 +3474,7 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!=WORD && interp.token!=PREDEFINED_FUNCTION)
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
-		if (name.equals("isHyperStack"))
+		if (name.equals("isHyperstack")||name.equals("isHyperStack"))
 			return getImage().isHyperStack()?1.0:0.0;
 		else if (name.equals("getDimensions"))
 			{getDimensions(); return Double.NaN;}
@@ -3519,6 +3501,8 @@ public class Functions implements MacroConstants, Measurements {
 			setDisplayMode(imp, getStringArg());
 		else if (name.equals("getDisplayMode"))
 			getDisplayMode(imp);
+		else if (name.equals("swap"))
+			swapStackImages(imp);
 		else
 			interp.error("Unrecognized Stack function");
 		return Double.NaN;
@@ -3541,6 +3525,33 @@ public class Functions implements MacroConstants, Measurements {
 		imp.updateAndDraw();
 	}
 	
+	void swapStackImages(ImagePlus imp) {
+		int n1 = (int)getFirstArg();
+		int n2 = (int)getLastArg();
+		ImageStack stack = imp.getStack();
+		int size = stack.getSize();
+		if (n1<1||n1>size||n2<1||n2>size)
+			interp.error("Argument out of range");
+		Object pixels = stack.getPixels(n1);
+		String label = stack.getSliceLabel(n1);
+		stack.setPixels(stack.getPixels(n2), n1);
+		stack.setSliceLabel(stack.getSliceLabel(n2), n1);
+		stack.setPixels(pixels, n2);
+		stack.setSliceLabel(label, n2);
+		int current = imp.getCurrentSlice();
+		if (imp.isComposite()) {
+			CompositeImage ci = (CompositeImage)imp;
+			if (ci.getMode()==CompositeImage.COMPOSITE) {
+				ci.reset();
+				imp.updateAndDraw();
+				imp.repaintWindow();
+				return;
+			}
+		}
+		if (n1==current || n2==current)
+			imp.setStack(null, stack);
+	}
+
 	void getDisplayMode(ImagePlus imp) {
 		Variable v = getVariableArg();
 		String mode = "";

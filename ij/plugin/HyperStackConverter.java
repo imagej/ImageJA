@@ -25,8 +25,6 @@ public class HyperStackConverter implements PlugIn {
     		convertStackToHS(imp);
     	else if (arg.equals("hstostack"))
     		convertHSToStack(imp);
-    	else if (arg.equals("split"))
-			IJ.runMacroFile("ij.jar:SplitChannels", "");
 	}
 	
 	/** Displays the current stack in a HyperStack window. Based on the 
@@ -35,7 +33,7 @@ public class HyperStackConverter implements PlugIn {
         int nChannels = imp.getNChannels();
         int nSlices = imp.getNSlices();
         int nFrames = imp.getNFrames();
-		int stackSize = imp.getStackSize();
+		int stackSize = imp.getImageStackSize();
 		if (stackSize==1) {
 			IJ.error("Stack to HyperStack", "Stack required");
 			return;
@@ -104,7 +102,7 @@ public class HyperStackConverter implements PlugIn {
 				break;
 		}
 		if (order!=CZT) {
-			Object[] images1 = imp.getStack().getImageArray();
+			Object[] images1 = imp.getImageStack().getImageArray();
 			Object[] images2 = new Object[images1.length];
 			System.arraycopy(images1, 0, images2, 0, images1.length);
 			int[] index = new int[3];

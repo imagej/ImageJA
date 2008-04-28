@@ -37,6 +37,9 @@ public class StackEditor implements PlugIn {
 			String label = stack.getSliceLabel(1);
 			if (label!=null && label.indexOf("\n")!=-1)
 				stack.setSliceLabel(null, 1);
+			Object obj = imp.getProperty("Label");
+			if (obj!=null && (obj instanceof String))
+				stack.setSliceLabel((String)obj, 1);
 			id = imp.getID();
 		}
 		ImageProcessor ip = imp.getProcessor();
@@ -57,6 +60,10 @@ public class StackEditor implements PlugIn {
 		ImageStack stack = imp.getStack();
 		int n = imp.getCurrentSlice();
  		stack.deleteSlice(n);
+ 		if (stack.getSize()==1) {
+			String label = stack.getSliceLabel(1);
+ 			if (label!=null) imp.setProperty("Label", label);
+ 		}
 		imp.setStack(null, stack);
  		if (n--<1) n = 1;
 		imp.setSlice(n);

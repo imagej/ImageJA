@@ -47,8 +47,17 @@ public class BMP_Writer implements PlugIn {
    IJ.showProgress(0);
    imp = WindowManager.getCurrentImage();
    if (imp==null)
-   {IJ.noImage(); return;}
-   write(this, path);
+     {IJ.noImage(); return;}
+   try {
+     write(this, path);
+   } catch (Exception e) {
+     String msg = e.getMessage();
+     if (msg==null || msg.equals(""))
+   msg = ""+e;
+     IJ.error("BMP Writer", "An error occured writing the file.\n \n" + msg);
+   }
+   IJ.showProgress(1);
+   IJ.showStatus("");
  }
 
 	/** Thread-safe writer. */
@@ -142,7 +151,7 @@ public class BMP_Writer implements PlugIn {
    if(biBitCount == 24)
      intBitmap = (int[]) imp.getProcessor().getPixels();
    else
-     byteBitmap = (byte[]) imp.getProcessor().getPixels();
+     byteBitmap = (byte[]) imp.getProcessor().convertToByte(true).getPixels();
    biWidth = parWidth;
    biHeight = parHeight;
    if(biBitCount==24)

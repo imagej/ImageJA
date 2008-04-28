@@ -51,11 +51,11 @@ public class CompositeImage extends ImagePlus {
 		ImageStack stack2;
 		boolean isRGB = imp.getBitDepth()==24;
 		if (isRGB) {
-			if (imp.getStackSize()>1)
+			if (imp.getImageStackSize()>1)
 				throw new IllegalArgumentException("RGB stacks not supported");
 			stack2 = getRGBStack(imp);
 		} else
-			stack2 = imp.getStack();
+			stack2 = imp.getImageStack();
 		int stackSize = stack2.getSize();
 		if (channels==1 && isRGB) channels = 3;
 		if (channels==1 && stackSize<=MAX_CHANNELS) channels = stackSize;
@@ -74,7 +74,7 @@ public class CompositeImage extends ImagePlus {
 		setCalibration(imp.getCalibration());
 		FileInfo fi = imp.getOriginalFileInfo();
 		if (fi!=null) {
-			displayRanges = fi.displayRanges;
+			displayRanges = fi.displayRanges; ////////////////////////
 			channelLuts = fi.channelLuts;
 			fi.displayRanges = null;
 		}
@@ -135,6 +135,8 @@ public class CompositeImage extends ImagePlus {
 		if (lut==null || lut.length<channels) {
 			if (displayRanges!=null && channels!=displayRanges.length/2)
 				displayRanges = null;
+			if (displayRanges==null&&ip.getMin()==0.0&&ip.getMax()==0.0)
+				ip.resetMinAndMax();
 			lut = new LUT[channels];
 			LUT lut2 = channels>MAX_CHANNELS?createLutFromColor(Color.white):null;
 			for (int i=0; i<channels; ++i) {
@@ -153,6 +155,19 @@ public class CompositeImage extends ImagePlus {
 				}
 			}
 			displayRanges = null;
+		}
+	}
+	
+	public void resetDisplayRanges() {
+		int channels = getNChannels();
+		ImageStack stack2 = getImageStack();
+		if (lut==null || channels!=lut.length || channels>stack2.getSize() || channels>MAX_CHANNELS)
+			return;
+		for (int i=0; i<channels; ++i) {
+			ImageProcessor ip2 = stack2.getProcessor(i+1);
+			ip2.resetMinAndMax();
+			lut[i].min = ip2.getMin();
+			lut[i].max = ip2.getMax();
 		}
 	}
 
@@ -200,7 +215,7 @@ public class CompositeImage extends ImagePlus {
 		}
 	
 		if (cip==null||cip[0].getWidth()!=width||cip[0].getHeight()!=height||getBitDepth()!=bitDepth) {
-			setup(nChannels, getStack());
+			setup(nChannels, getImageStack());
 			rgbPixels = null;
 			if (currentChannel>=nChannels) {
 				setSlice(1);
@@ -221,7 +236,7 @@ public class CompositeImage extends ImagePlus {
 			currentFrame = getFrame();
 			int position = (currentFrame-1)*nChannels*getNSlices() + (currentSlice-1)*nChannels + 1;
 			for (int i=0; i<nChannels; ++i) {
-				cip[i].setPixels(getStack().getProcessor(position+i).getPixels());
+				cip[i].setPixels(getImageStack().getProcessor(position+i).getPixels());
 			}
 		}
 
@@ -337,7 +352,7 @@ public class CompositeImage extends ImagePlus {
 		return stack;
 	}
 
-	LUT createLutFromColor(Color color) {
+	public LUT createLutFromColor(Color color) {
 		byte[] rLut = new byte[256];
 		byte[] gLut = new byte[256];
 		byte[] bLut = new byte[256];
@@ -440,19 +455,58 @@ public class CompositeImage extends ImagePlus {
 	public LUT getChannelLut(int channel) {
 		if (channel<1 || channel>lut.length)
 			throw new IllegalArgumentException("Channel out of range");
+		int channels = getNChannels();
+		if (lut==null) setupLuts(channels);
 		return lut[channel-1];
 	}
 	
 	/* Returns the LUT used by the current channel. */
 	public LUT getChannelLut() {
-		return lut[getChannelIndex()];
+		int c = getChannelIndex();
+		return lut[c];
 	}
 	
+	/* Returns a copy of this image's channel LUTs as an array. */
+	public LUT[] getLuts() {
+		int channels = getNChannels();
+		if (lut==null) setupLuts(channels);
+		LUT[] luts = new LUT[channels];
+		for (int i=0; i<channels; i++)
+			luts[i] = (LUT)lut[i].clone();
+		return luts;
+	}
+
+	/** Copies the LUTs and display mode of 'imp' to this image. Does
+		nothing if 'imp' is not a CompositeImage or 'imp' and this
+		image do not have the same number of channels. */
+	public void copyLuts(ImagePlus imp) {
+		int channels = getNChannels();
+		if (!imp.isComposite() || imp.getNChannels()!=channels)
+			return;
+		CompositeImage ci = (CompositeImage)imp;
+		LUT[] luts = ci.getLuts();
+		if (luts!=null && luts.length==channels) {
+			lut = luts;
+			cip = null;
+		}
+		int mode2 = ci.getMode();
+		setMode(mode2);
+		if (mode2==COMPOSITE) {
+			boolean[] active2 = ci.getActiveChannels();
+			for (int i=0; i<MAX_CHANNELS; i++)
+				active[i] = active2[i];
+		}
+	}
+
 	int getChannelIndex() {
 		int channels = getNChannels();
 		if (lut==null) setupLuts(channels);
 		int index = getChannel()-1;
 		return index;
+	}
+	
+	public void reset() {
+		setup(getNChannels(), getImageStack());
 	}
 	
 	/* Sets the LUT of the current channel. */

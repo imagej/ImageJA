@@ -142,7 +142,7 @@ public class Menus {
 		addPlugInItem(image, "Properties...", "ij.plugin.filter.ImageProperties", KeyEvent.VK_P, true);
 		addSubMenu(image, "Color");
 		addSubMenu(image, "Stacks");
-		hyperstacksMenu = addSubMenu(image, "HyperStacks");
+		hyperstacksMenu = addSubMenu(image, "Hyperstacks");
 		image.addSeparator();
 		addPlugInItem(image, "Crop", "ij.plugin.filter.Resizer(\"crop\")", KeyEvent.VK_X, true);
 		addPlugInItem(image, "Duplicate...", "ij.plugin.filter.Duplicater", KeyEvent.VK_D, true);

@@ -17,6 +17,7 @@ public class ImageReader {
 	private boolean showProgressBar=true;
 	private int eofErrorCount;
 	private long startTime;
+	public double min, max; // readRGB48() calculates min/max pixel values
 
 	/**
 	Constructs a new ImageReader using a FileInfo object to describe the file to be read.
@@ -73,11 +74,12 @@ public class ImageReader {
 				left -= r;
 			}
 			byteArray = lzwUncompress(byteArray);
-			if (fi.compression == FileInfo.LZW_WITH_DIFFERENCING)
+			if (fi.compression == FileInfo.LZW_WITH_DIFFERENCING) {
 				for (int b=0; b<byteArray.length; b++) {
 					byteArray[b] += last;
 					last = b % fi.width == fi.width - 1 ? 0 : byteArray[b];
 				}
+			}
 			int length = byteArray.length;
 			if (current+length>pixels.length) length = pixels.length-current;
 			System.arraycopy(byteArray, 0, pixels, current, length);
@@ -89,7 +91,7 @@ public class ImageReader {
 	
 	/** Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768. */
 	short[] read16bitImage(InputStream in) throws IOException {
-		if (fi.compression == FileInfo.LZW)
+		if (fi.compression==FileInfo.LZW || fi.compression==FileInfo.LZW_WITH_DIFFERENCING)
 			return readCompressed16bitImage(in);
 		int pixelsRead;
 		byte[] buffer = new byte[bufferSize];
@@ -142,7 +144,10 @@ public class ImageReader {
 		int base = 0;
 		short last = 0;
 		for (int k=0; k<fi.stripOffsets.length; k++) {
-			if (k > 0) {
+			//IJ.log("seek: "+fi.stripOffsets[k]+" "+(in instanceof RandomAccessStream));
+			if (in instanceof RandomAccessStream)
+				((RandomAccessStream)in).seek(fi.stripOffsets[k]);
+			else if (k > 0) {
 				int skip = fi.stripOffsets[k] - fi.stripOffsets[k-1] - fi.stripLengths[k-1];
 				if (skip > 0) in.skip(skip);
 			}
@@ -172,6 +177,12 @@ public class ImageReader {
 				else
 					for (int i=base,j=0; i<pmax; i++,j+=2)
 						pixels[i] = (short)(((byteArray[j]&0xff)<<8) | (byteArray[j+1]&0xff));
+			}
+			if (fi.compression==FileInfo.LZW_WITH_DIFFERENCING) {
+				for (int b=base; b<pmax; b++) {
+					pixels[b] += last;
+					last = b % fi.width == fi.width - 1 ? 0 : pixels[b];
+				}
 			}
 			base += pixelsRead;
 			showProgress(k+1, fi.stripOffsets.length);
@@ -456,54 +467,39 @@ public class ImageReader {
 	}
 	
 	Object readRGB48(InputStream in) throws IOException {
-		int pixelsRead;
-		bufferSize = 24*width;
-		byte[] buffer = new byte[bufferSize];
-		short[] red = new short[nPixels];
-		short[] green = new short[nPixels];
-		short[] blue = new short[nPixels];
-		int totalRead = 0;
-		int base = 0;
-		int count, value;
-		int bufferCount;
-		
-		Object[] stack = new Object[3];
-		stack[0] = red;
-		stack[1] = green;
-		stack[2] = blue;
-		while (totalRead<byteCount) {
-			if ((totalRead+bufferSize)>byteCount)
-				bufferSize = byteCount-totalRead;
-			bufferCount = 0;
-			while (bufferCount<bufferSize) { // fill the buffer
-				count = in.read(buffer, bufferCount, bufferSize-bufferCount);
-				if (count==-1) {
-					if (bufferCount>0)
-						for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
-					totalRead = byteCount;
-					eofError();
-					break;
-				}
-				bufferCount += count;
+		int channels = 3;
+		short[][] stack = new short[channels][nPixels];
+		DataInputStream dis = new DataInputStream(in);
+		int pixel = 0;
+		int min=65535, max=0;
+		for (int i=0; i<fi.stripOffsets.length; i++) {
+			if (i>0) {
+				int skip = fi.stripOffsets[i] - fi.stripOffsets[i-1] - fi.stripLengths[i-1];
+				if (skip>0) dis.skip(skip);
 			}
-			totalRead += bufferSize;
-			showProgress(totalRead, byteCount);
-			pixelsRead = bufferSize/bytesPerPixel;
-			if (fi.intelByteOrder) {
-				for (int i=base,j=0; i<(base+pixelsRead); i++) {
-					red[i] = (short)(((buffer[j+1]&0xff)<<8) | (buffer[j]&0xff)); j+=2;
-					green[i] = (short)(((buffer[j+1]&0xff)<<8) | (buffer[j]&0xff)); j+=2;
-					blue[i] = (short)(((buffer[j+1]&0xff)<<8) | (buffer[j]&0xff)); j+=2;
-				}
-			} else {
-				for (int i=base,j=0; i<(base+pixelsRead); i++) {
-					red[i] = (short)(((buffer[j]&0xff)<<8) | (buffer[j+1]&0xff)); j+=2;
-					green[i] = (short)(((buffer[j]&0xff)<<8) | (buffer[j+1]&0xff)); j+=2;
-					blue[i] = (short)(((buffer[j]&0xff)<<8) | (buffer[j+1]&0xff)); j+=2;
+			int len = fi.stripLengths[i];
+			byte[] buffer = new byte[len];
+			dis.readFully(buffer);
+			int value;
+			int channel=0;
+			boolean intel = fi.intelByteOrder;
+			for (int base=0; base<len; base+=2) {
+				if (intel)
+					value = ((buffer[base+1]&0xff)<<8) | (buffer[base]&0xff);
+				else
+					value = ((buffer[base]&0xff)<<8) | (buffer[base+1]&0xff);
+				if (value<min) min = value;
+				if (value>max) max = value;
+				stack[channel][pixel] = (short)(value);
+				channel++;
+				if (channel==channels) {
+					channel = 0;
+					pixel++;
 				}
 			}
-			base += pixelsRead;
+			showProgress(i+1, fi.stripOffsets.length);
 		}
+		this.min=min; this.max=max;
 		return stack;
 	}
 
@@ -780,6 +776,18 @@ public class ImageReader {
 		return out.toByteArray();
 	}
  
+	/*
+	void debug(String label, InputStream in) {
+		int offset = -1;
+		if (in instanceof RandomAccessStream) {
+			try {
+				offset = ((RandomAccessStream)in).getFilePointer();
+			} catch(Exception e) {}
+		}
+		IJ.log(label+": debug: offset="+offset+", fi="+fi);
+	}
+	*/
+
 }
 
 /** A growable array of bytes. */
@@ -838,6 +846,6 @@ class ByteVector {
 		System.arraycopy(data, 0, bytes, 0, size);
 		return bytes;
 	}
-
+	
 }
 
