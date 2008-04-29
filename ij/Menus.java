@@ -11,6 +11,12 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.zip.*;
 
+import java.net.URL;
+import java.net.JarURLConnection;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+
 /**
 This class installs and updates ImageJ's menus. Note that menu labels,
 even in submenus, must be unique. This is because ImageJ uses a single
@@ -682,15 +688,22 @@ public class Menus {
     /** Opens the configuration file ("plugins.txt") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
 		try {
-			ZipFile jarFile = new ZipFile(jar);
-			Enumeration entries = jarFile.entries();
+			// in case its a regular file
+			if(!jar.startsWith("http"))
+				jar = "file:" + jar;
+			URL url = new URL("jar:" + jar + "!/");
+			JarURLConnection jarcon =
+				(JarURLConnection)url.openConnection();
+			JarFile jf = jarcon.getJarFile();
+			Enumeration entries = jf.entries();
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) entries.nextElement();
-        		if (entry.getName().endsWith("plugins.config"))
-					return jarFile.getInputStream(entry);
+				JarEntry entry=(JarEntry)entries.nextElement();
+			if (entry.getName().endsWith("plugins.config")) {
+					return jf.getInputStream(entry);
+				}
 			}
-		}
-    	catch (Exception e) {}
+		} catch (Exception e) {}
+
 		return autoGenerateConfigFile(jar);
 	}
 	
@@ -743,6 +756,20 @@ public class Menus {
 		
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
+		/*
+		 * Handling java webstart:
+		 * If the jnlp property is set, initialize jarFiles
+		 * and return
+		 */
+		String jnlp_jars = System.getProperty("jnlp");
+		if(jnlp_jars != null) {
+			String[] jars = Tools.split(jnlp_jars);
+			jarFiles = new Vector();
+			for(int i = 0; i < jars.length; i++)
+				jarFiles.addElement(jars[i]);
+
+			return new String[] {};
+		}
 		String homeDir = Prefs.getHomeDir();
 		if (homeDir==null)
 			return null;
@@ -1372,5 +1399,4 @@ public class Menus {
 		}
 		prefs.put(Prefs.MENU_SIZE, Integer.toString(fontSize));
 	}
-
 }
