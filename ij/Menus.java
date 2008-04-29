@@ -410,6 +410,8 @@ public class Menus {
     
     void addJarErrorHeading(String jar) {
         if (!isJarErrorHeading) {
+		if (jarError == null)
+			jarError = "";
                 if (!jarError.equals(""))
                     jarError += " \n";
                 jarError += "Plugin configuration error: " + jar + "\n";
