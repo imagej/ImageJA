@@ -652,6 +652,8 @@ public class Menus {
     
 	String getSubmenuName(String jarPath) {
 		//IJ.log("getSubmenuName: \n"+jarPath+"\n"+pluginsPath);
+		if(pluginsPath == null)
+			return null;
 		if (jarPath.startsWith(pluginsPath))
 			jarPath = jarPath.substring(pluginsPath.length() - 1);
 		int index = jarPath.lastIndexOf(File.separatorChar);
@@ -767,7 +769,6 @@ public class Menus {
 			jarFiles = new Vector();
 			for(int i = 0; i < jars.length; i++)
 				jarFiles.addElement(jars[i]);
-
 			return new String[] {};
 		}
 		String homeDir = Prefs.getHomeDir();
