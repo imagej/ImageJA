@@ -35,7 +35,7 @@ public class Opener {
 	private boolean silentMode;
 	private String omDirectory;
 	private File[] omFiles;
-	private static boolean openUsingPlugins = false;
+	private static boolean openUsingPlugins;
 
 	public Opener() {
 	}
