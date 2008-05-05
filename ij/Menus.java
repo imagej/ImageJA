@@ -191,14 +191,9 @@ public class Menus {
 		getMenu("Analyze>Gels", true);
 		Menu toolsMenu = getMenu("Analyze>Tools", true);
 
+		// the plugins will be added later, with a separator
 		addPluginsMenu();
-		if (applet==null) {
-			menuSeparators = new Properties();
-			installPlugins();
-			menuSeparators = null;
-			if (fontSize!=0)
-				mbar.setFont(getFont());
-		}
+
 		Menu window = getMenu("Window");
 		addPlugInItem(window, "Show All", "ij.plugin.WindowOrganizer(\"show\")", KeyEvent.VK_F, true);
 		addPlugInItem(window, "Put Behind [tab]", "ij.plugin.Commands(\"tab\")", 0, false);
@@ -226,6 +221,13 @@ public class Menus {
 		addPlugInItem(help, "Online Docs...", "ij.plugin.BrowserLauncher(\"online\")", 0, false);
 		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBoxJA", 0, false);
 				
+		if (applet==null) {
+			menuSeparators = new Properties();
+			installPlugins();
+			if (fontSize!=0)
+				mbar.setFont(getFont());
+		}
+
 		if (ij!=null && applet == null)
 			ij.setMenuBar(mbar);
 		
@@ -651,6 +653,8 @@ public class Menus {
 					openRecentMenu = result;
 			}
 			menus.put(menuName, result);
+			if (menuSeparators != null)
+				menuSeparators.put(result, result);
 		}
 		return result;
 	}
