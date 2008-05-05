@@ -273,6 +273,8 @@ public class Menus {
 		} else
 			menu.add(item);
 		item.addActionListener(ij);
+		if (menu == macrosMenu)
+			nMacros++;
 	}
 
 	void addPlugInItem(Menu menu, String label, String className, int shortcut, boolean shift) {
@@ -503,12 +505,26 @@ public class Menus {
 		nMacros++;
 	}
 
+	static int addPluginSeparatorIfNeeded(Menu menu) {
+		if (menuSeparators == null)
+			return 0;
+		Integer i = (Integer)menuSeparators.get(menu);
+		if (i == null) {
+			if (menu.getItemCount() > 0)
+				addSeparator(menu);
+			i = new Integer(menu.getItemCount());
+			menuSeparators.put(menu, i);
+		}
+		return i.intValue();
+	}
+
 	/** Inserts 'item' into 'menu' in alphanumeric order. */
 	static void addOrdered(Menu menu, MenuItem item) {
 		if (menu==pluginsMenu)
 			{menu.add(item); return;}
 		String label = item.getLabel();
-		for (int i=0; i<menu.getItemCount(); i++) {
+		int start = addPluginSeparatorIfNeeded(menu);
+		for (int i=start; i<menu.getItemCount(); i++) {
 			if (label.compareTo(menu.getItem(i).getLabel())<0) {
 				menu.insert(item, i);
 				return;
@@ -581,11 +597,7 @@ public class Menus {
 			return;
 		s = s.substring(firstQuote, s.length()); // remove menu
 		if (menu!=null) {
-			if (menuSeparators != null &&
-					menuSeparators.get(menu) == null) {
-				addSeparator(menu);
-				menuSeparators.put(menu, this);
-			}
+			addPluginSeparatorIfNeeded(menu);
             addPluginItem(menu, s);
             addSorted = false;
         }
@@ -640,10 +652,12 @@ public class Menus {
 					menuName.substring(offset + 1);
 				Menu parentMenu = getMenu(parentName);
 				result = new Menu(menuItemName);
+				addPluginSeparatorIfNeeded(parentMenu);
 				if (readFromProps)
 					result = addSubMenu(parentMenu,
 							menuItemName);
-				else if (parentName.startsWith("Plugins"))
+				else if (parentName.startsWith("Plugins") &&
+						menuSeparators != null)
 					addItemSorted(parentMenu, result,
 						parentName.equals("Plugins") ?
 							userPluginsIndex : 0);
@@ -653,8 +667,6 @@ public class Menus {
 					openRecentMenu = result;
 			}
 			menus.put(menuName, result);
-			if (menuSeparators != null)
-				menuSeparators.put(result, result);
 		}
 		return result;
 	}
