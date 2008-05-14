@@ -736,6 +736,8 @@ public class Menus {
 	
     /** Creates a configuration file for JAR/ZIP files that do not have one. */
 	InputStream autoGenerateConfigFile(String jar) {
+		if (jar.startsWith("file:"))
+			jar = jar.substring(5);
 		StringBuffer sb = null;
 		try {
 			ZipFile jarFile = new ZipFile(jar);
@@ -760,7 +762,7 @@ public class Menus {
 				}
 			}
 		}
-    	catch (Exception e) {}
+	catch (Exception e) { IJ.log("Warning: could not access " + jar); }
 		//IJ.log(""+(sb!=null?sb.toString():"null"));
 		if (sb==null)
 			return null;
