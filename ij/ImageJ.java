@@ -95,21 +95,28 @@ public class ImageJ extends Frame implements ActionListener,
 	private boolean embedded;
 	
 	boolean hotkey;
-	
+
 	/** Creates a new ImageJ frame that runs as an application. */
-	public ImageJ() {
-		this(null, STANDALONE);
+	public static ImageJ getImageJ() {
+		return getImageJ(null, STANDALONE);
 	}
 	
 	/** Creates a new ImageJ frame that runs as an applet. */
-	public ImageJ(ImageJApplet applet) {
-		this(applet, 0);
+	public static ImageJ getImageJ(ImageJApplet applet) {
+		return getImageJ(applet, 0);
+	}
+
+	static private ImageJ instance;
+	public static ImageJ getImageJ(ImageJApplet applet, int mode) {
+		if (instance == null)
+			instance = new ImageJ(applet, mode);
+		return instance;
 	}
 
 	/** If 'applet' is not null, creates a new ImageJ frame that runs as an applet.
 		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded 
 		version of ImageJ which does not start the SocketListener. */
-	public ImageJ(ImageJApplet applet, int mode) {
+	private ImageJ(ImageJApplet applet, int mode) {
 		super("ImageJA");
 		embedded = applet==null && mode==EMBEDDED;
 		this.applet = applet;
@@ -517,7 +524,7 @@ public class ImageJ extends Frame implements ActionListener,
   				return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
-			ij = new ImageJ(null, mode);
+			ij = getImageJ(null, mode);
 			ij.exitWhenQuitting = true;
 		}
 		int macros = 0;

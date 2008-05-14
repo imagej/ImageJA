@@ -78,7 +78,7 @@ public class ImageJApplet extends Applet {
     public void init() {
     	ImageJ ij = IJ.getInstance();
      	if (ij==null || (ij!=null && !ij.isShowing()))
-			new ImageJ(this);
+			ImageJ.getImageJ(this);
 		for (int i=1; i<=9; i++) {
 			String url = getParameter("url"+i);
 			if (url==null) break;
