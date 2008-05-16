@@ -755,6 +755,8 @@ public class IJ {
 			return flags;
 		int stackSize = imp.getStackSize();
 		if (stackSize>1) {
+			if (imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
+				return flags+PlugInFilter.DOES_STACKS;
 			String macroOptions = Macro.getOptions();
 			if (macroOptions!=null) {
 				if (macroOptions.indexOf("stack ")>=0)
