@@ -8,7 +8,6 @@ else
 fi
 (cd ../cvs-imageja && my-fetch-origin.sh)
 git tag v"$VERSION" origin
-git push vib
 git push dumbo
 git push orcz imageja:master imageja v"$VERSION"
 make signed-ij.jar
