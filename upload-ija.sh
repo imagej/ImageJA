@@ -14,6 +14,6 @@ make signed-ij.jar
 rsync -vau signed-ij.jar dscho@shell.sf.net:imageja/htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ origin > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
-curl -T "{ij-$VERSION.jar,ij-src-$VERSION.jar}" ftp://upload.sourceforge.net/incoming/
+rsync -e ssh -avP ij-$VERSION.jar ij-src-$VERSION.jar dscho@frs.sf.net:uploads/
 echo w3m http://sourceforge.net/project/admin/editpackages.php?group_id=150609
 
