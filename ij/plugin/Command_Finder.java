@@ -29,9 +29,9 @@ public class Command_Finder implements PlugIn, TextListener, ActionListener, Win
 	Button runButton;
 	Button cancelButton;
 
-	Hashtable<String,String> commandsHash;
+	Hashtable commandsHash;
 	String [] commands;
-	Hashtable<String,String> listLabelToCommand;
+	Hashtable listLabelToCommand;
 
 	public String makeListLabel( String command, String className ) {
 		return command + "  [" + className + "]";
@@ -48,7 +48,7 @@ public class Command_Finder implements PlugIn, TextListener, ActionListener, Win
 			if( commandName.length() == 0 )
 				continue;
 			String lowerCommandName = commandName.toLowerCase();
-			String className = commandsHash.get(commandName);
+			String className = (String) commandsHash.get(commandName);
 			if( lowerCommandName.indexOf(substring) >= 0 ) {
 				String listLabel = makeListLabel(commandName,className);
 				completions.add(listLabel);
@@ -71,7 +71,7 @@ public class Command_Finder implements PlugIn, TextListener, ActionListener, Win
 	}
 
 	public void runFromLabel( String listLabel ) {
-		String commandName = listLabelToCommand.get( listLabel );
+		String commandName = (String) listLabelToCommand.get( listLabel );
 		IJ.showStatus( "Running "+commandName );
 		IJ.doCommand( commandName );
 		d.dispose();
@@ -119,24 +119,24 @@ public class Command_Finder implements PlugIn, TextListener, ActionListener, Win
 
 		Set commandSet = commandsHash.keySet();
 
-		ArrayList<String> nonEmptyCommands = new ArrayList<String>();
-		for( Iterator<String> i = commandSet.iterator();
+		ArrayList nonEmptyCommands = new ArrayList();
+		for( Iterator i = commandSet.iterator();
 		     i.hasNext(); ) {
-			String command = i.next();
+			String command = (String) i.next();
 			String trimmedCommand = command.trim();
 			if( trimmedCommand.length() > 0 )
 				nonEmptyCommands.add( command );
 		}
 
-		commands = nonEmptyCommands.toArray( new String[0] );
+		commands = (String[])nonEmptyCommands.toArray( new String[0] );
 		Arrays.sort( commands );
 
-		listLabelToCommand = new Hashtable<String,String>();
+		listLabelToCommand = new Hashtable();
 
 		for( int i = 0; i < commands.length; ++i ) {
 			commands[i] = commands[i].trim();
 			String command = commands[i];
-			String className = commandsHash.get( command );
+			String className = (String) commandsHash.get( command );
 			String listLabel = makeListLabel( command, className );
 			if( commands.length > 0 )
 				listLabelToCommand.put( listLabel, command );
