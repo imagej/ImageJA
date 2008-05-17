@@ -15,8 +15,9 @@ if [ -z "$1" ]; then
 	VERSION="$(curl $SRC_URL/ | \
 		sed -n "s/^.*ij\([0-9a-z]*\)-src.zip.*$/\1/p" | \
 		tail -n 1)"
-	test ! -z $(git tag -l ij$VERSION) && {
-		echo "Already have $VERSION"
+	DOTVERSION=$(echo $VERSION | sed "s/^./&./")
+	git log $BRANCHNAME | grep "^      • $DOTVERSION, " && {
+		echo "Already have $DOTVERSION"
 		exit 0
 	}
 	ZIP=ij$VERSION-src.zip
@@ -29,7 +30,6 @@ if [ -z "$1" ]; then
 		echo "Could not get notes"
 		exit 1
 	}
-	DOTVERSION=$(echo $VERSION | sed "s/^./&./")
 	(cat $NOTES | \
 	 sed -n \
 		-e "s/^  • $DOTVERSION, /•&/" \
@@ -41,7 +41,6 @@ if [ -z "$1" ]; then
 		echo "Could not commit!"
 		exit 1
 	}
-	git tag ij$VERSION $BRANCHNAME
 	exit 0
 fi
 
