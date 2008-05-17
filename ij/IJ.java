@@ -87,6 +87,8 @@ public class IJ {
 		called macro using the getArgument() macro function. 
 		Returns any string value returned by the macro, or null. */
 	public static String runMacro(String macro, String arg) {
+		if (ij==null && Menus.getCommands()==null)
+			init();
 		Macro_Runner mr = new Macro_Runner();
 		return mr.runMacro(macro, arg);
 	}

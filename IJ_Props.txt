@@ -275,7 +275,6 @@ plug-in05="Edit...",ij.plugin.Compiler("edit")
 plug-in06="Compile and Run...",ij.plugin.Compiler
 plug-in07="Install PlugIn...",ij.plugin.PlugInInstaller
 plug-in08="Find...",ij.plugin.CommandFinder
-plug-in09=-
 #plug-in09=>"User_Plugins"
 
 # Install user plugins located in ij.jar to Plugins>User Plugins submenu
