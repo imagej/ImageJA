@@ -33,5 +33,5 @@ MacAdapter.class: plugins/MacAdapter.class
 	javac $(JAVACOPTS) $(JAVAS)
 
 clean:
-	rm $(COPYFILES) $(ALLCLASSES)
+	rm -f $(COPYFILES) $(ALLCLASSES)
 
