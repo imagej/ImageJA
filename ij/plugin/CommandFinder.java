@@ -18,7 +18,7 @@ import java.util.Set;
     below will only show commands that match that substring (case
     insensitively). */
 
-public class Command_Finder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener {
+public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener {
 
 	Dialog d;
 	TextField prompt;
