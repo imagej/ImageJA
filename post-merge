@@ -1,3 +1,7 @@
-VERSION="$(git log -1 --pretty=format:%s HEAD^2 |
-	sed -n "s/^[^0-9]*\([\\.0-9]*.\),.*$/\1/p")"
-git commit --amend -m "Sync with ImageJ $VERSION"
+case "$(git symbolic-ref HEAD)" in
+imageja)
+	VERSION="$(git log -1 --pretty=format:%s HEAD^2 |
+		sed -n "s/^[^0-9]*\([\\.0-9]*.\),.*$/\1/p")"
+	git commit --amend -m "Sync with ImageJ $VERSION"
+	;;
+esac
