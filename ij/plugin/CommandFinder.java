@@ -146,6 +146,15 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 				if (selected!=null)
 					runFromLabel(selected);
 			}
+		} else if (source==runButton) {
+			if (key==KeyEvent.VK_ENTER) {
+				String selected = completions.getSelectedItem();
+				if (selected!=null)
+					runFromLabel(selected);
+			}
+		} else if (source==cancelButton) {
+			if (key==KeyEvent.VK_ENTER)
+				d.dispose();
 		}
 	}
 
@@ -277,6 +286,8 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		runButton.addActionListener(this);
 		cancelButton.addActionListener(this);
+		runButton.addKeyListener(this);
+		cancelButton.addKeyListener(this);
 
 		Panel southPanel = new Panel();
 		southPanel.setLayout(new BorderLayout());
