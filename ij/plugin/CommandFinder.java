@@ -20,25 +20,45 @@ import java.util.Set;
 
 public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener, ItemListener {
 
+	class CommandAction {
+		CommandAction(String classCommand, MenuItem menuItem, String menuLocation) {
+			this.classCommand = classCommand;
+			this.menuItem = menuItem;
+			this.menuLocation = menuLocation;
+		}
+		String classCommand;
+		MenuItem menuItem;
+		String menuLocation;
+		public String toString() {
+			return "classCommand: " + classCommand + ", menuItem: "+menuItem+", menuLocation: "+menuLocation;
+		}
+	}
+
 	Dialog d;
 	TextField prompt;
 	List completions;
 	Button runButton;
 	Button cancelButton;
-	Checkbox showClassNamesCheckbox;
+	Checkbox fullInfoCheckbox;
 	Hashtable commandsHash;
 	String [] commands;
 	Hashtable listLabelToCommand;
 
-	protected String makeListLabel(String command, String className) {
-		if (className==null)
+	protected String makeListLabel(String command, CommandAction ca, boolean fullInfo) {
+		if (fullInfo) {
+			String result = command;
+			if( ca.menuLocation != null)
+				result += " (in " + ca.menuLocation + ")";
+			if( ca.classCommand != null )
+				result += " [" + ca.classCommand + "]";
+			return result;
+		} else {
 			return command;
-		else
-			return command+"  ["+className+"]";
+		}
 	}
 
 	protected void populateList(String matchingSubstring) {
-		boolean displayClassName=showClassNamesCheckbox.getState();
+		boolean fullInfo=fullInfoCheckbox.getState();
 		String substring = matchingSubstring.toLowerCase();
 		completions.removeAll();
 		for(int i=0; i<commands.length; ++i) {
@@ -46,11 +66,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			if (commandName.length()==0)
 				continue;
 			String lowerCommandName = commandName.toLowerCase();
-			String className = null;
-			if(displayClassName)
-				className = (String)commandsHash.get(commandName);
 			if( lowerCommandName.indexOf(substring) >= 0 ) {
-				String listLabel = makeListLabel(commandName,className);
+				CommandAction ca = (CommandAction)commandsHash.get(commandName);
+				String listLabel = makeListLabel(commandName, ca, fullInfo);
 				completions.add(listLabel);
 			}
 		}
@@ -75,9 +93,21 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	}
 
 	protected void runFromLabel(String listLabel) {
-		String commandName = (String)listLabelToCommand.get(listLabel);
-		IJ.showStatus("Running "+commandName);
-		IJ.doCommand(commandName);
+		String command = (String)listLabelToCommand.get(listLabel);
+		CommandAction ca = (CommandAction)commandsHash.get(command);
+		if (ca.classCommand != null ) {
+			IJ.showStatus("Running command "+ca.classCommand);
+			IJ.doCommand(command);
+		} else if (ca.menuItem != null) {
+			IJ.showStatus("Clicking menu item "+ca.menuLocation+" > "+command);
+			ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
+			ActionListener [] als = ca.menuItem.getActionListeners();
+			for (int i=0; i<als.length; ++i)
+				als[i].actionPerformed(ae);
+		} else {
+			IJ.error("BUG: nothing to run found for '"+listLabel+"'");
+			return;
+		}
 		d.dispose();
 	}
 
@@ -117,36 +147,75 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		populateList(prompt.getText());
 	}
 
+	public void parseMenu(String path, Menu menu) {
+		int n=menu.getItemCount();
+		for (int i=0; i<n; ++i) {
+			MenuItem m=menu.getItem(i);
+			String label=m.getLabel();
+			if (m instanceof Menu) {
+				Menu subMenu=(Menu)m;
+				parseMenu(path+" > "+label,subMenu);
+			} else {
+				String trimmedLabel = label.trim();
+				if (trimmedLabel.length()==0 || trimmedLabel.equals("-"))
+					continue;
+				CommandAction ca=(CommandAction)commandsHash.get(label);
+				if( ca == null )
+					commandsHash.put(label, new CommandAction(null,m,path));
+				else {
+					ca.menuItem=m;
+					ca.menuLocation=path;
+				}
+				CommandAction caAfter=(CommandAction)commandsHash.get(label);
+			}
+		}
+	}
+
+	public void findAllMenuItems() {
+		MenuBar menuBar = Menus.getMenuBar();
+		int topLevelMenus = menuBar.getMenuCount();
+		for (int i=0; i<topLevelMenus; ++i) {
+			Menu topLevelMenu=menuBar.getMenu(i);
+			parseMenu(topLevelMenu.getLabel(), topLevelMenu);
+		}
+	}
+
 	public void run(String ignored) {
 
-		commandsHash = ij.Menus.getCommands();
+		commandsHash = new Hashtable();
 
-		Set commandSet = commandsHash.keySet();
+		Hashtable realCommandsHash = ij.Menus.getCommands();
 
-		ArrayList nonEmptyCommands = new ArrayList();
-		for (Iterator i = commandSet.iterator();
+		Set realCommandSet = realCommandsHash.keySet();
+
+		for (Iterator i = realCommandSet.iterator();
 		     i.hasNext();) {
 			String command = (String)i.next();
+			// Some of these are whitespace only or separators - ignore them:
 			String trimmedCommand = command.trim();
-			if (trimmedCommand.length()>0)
-				nonEmptyCommands.add(command);
+			if (trimmedCommand.length()>0 && !trimmedCommand.equals("-")) {
+				commandsHash.put(command,
+						 new CommandAction((String)realCommandsHash.get(command),
+								   null,
+								   null));
+			}
 		}
 
-		commands = (String[])nonEmptyCommands.toArray(new String[0]);
+		// There are some menu items that don't have commands
+		// associated, such as those added by RefreshScripts,
+		// so look through all the menus as well:
+
+		findAllMenuItems();
+
+		commands = (String[])commandsHash.keySet().toArray(new String[0]);
 		Arrays.sort(commands);
 
 		listLabelToCommand = new Hashtable();
 
 		for (int i=0; i<commands.length; ++i) {
-			commands[i] = commands[i].trim();
-			String command = commands[i];
-			String className = (String)commandsHash.get(command);
-			if (commands.length>0) {
-				String listLabelWithClass = makeListLabel(command, className);
-				String listLabelWithoutClass = makeListLabel(command, null);
-				listLabelToCommand.put(listLabelWithClass, command);
-				listLabelToCommand.put(listLabelWithoutClass, command);				
-			}
+			CommandAction ca = (CommandAction)commandsHash.get(commands[i]);
+			listLabelToCommand.put(makeListLabel(commands[i], ca, true), commands[i]);
+			listLabelToCommand.put(makeListLabel(commands[i], ca, false), commands[i]);
 		}
 
 		ImageJ imageJ = IJ.getInstance();
@@ -155,10 +224,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		d.setLayout(new BorderLayout());
 		d.addWindowListener(this);
 
-		showClassNamesCheckbox = new Checkbox(
-			"Also display class names and arguments",
+		fullInfoCheckbox = new Checkbox(
+			"Show full information for each command",
 			false);
-		showClassNamesCheckbox.addItemListener(this);
+		fullInfoCheckbox.addItemListener(this);
 
 		Panel northPanel = new Panel();
 
@@ -188,7 +257,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		southPanel.setLayout(new BorderLayout());
 
 		Panel optionsPanel = new Panel();
-		optionsPanel.add(showClassNamesCheckbox);
+		optionsPanel.add(fullInfoCheckbox);
 
 		Panel buttonsPanel = new Panel();
 		buttonsPanel.add(runButton);
