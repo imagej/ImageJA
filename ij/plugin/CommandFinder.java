@@ -18,22 +18,27 @@ import java.util.Set;
     below will only show commands that match that substring (case
     insensitively). */
 
-public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener {
+public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener, ItemListener {
 
 	Dialog d;
 	TextField prompt;
 	List completions;
 	Button runButton;
 	Button cancelButton;
+	Checkbox showClassNamesCheckbox;
 	Hashtable commandsHash;
 	String [] commands;
 	Hashtable listLabelToCommand;
 
 	protected String makeListLabel(String command, String className) {
-		return command+"  ["+className+"]";
+		if (className==null)
+			return command;
+		else
+			return command+"  ["+className+"]";
 	}
 
 	protected void populateList(String matchingSubstring) {
+		boolean displayClassName=showClassNamesCheckbox.getState();
 		String substring = matchingSubstring.toLowerCase();
 		completions.removeAll();
 		for(int i=0; i<commands.length; ++i) {
@@ -41,7 +46,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			if (commandName.length()==0)
 				continue;
 			String lowerCommandName = commandName.toLowerCase();
-			String className = (String)commandsHash.get(commandName);
+			String className = null;
+			if(displayClassName)
+				className = (String)commandsHash.get(commandName);
 			if( lowerCommandName.indexOf(substring) >= 0 ) {
 				String listLabel = makeListLabel(commandName,className);
 				completions.add(listLabel);
@@ -61,6 +68,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		} else if (source == cancelButton) {
 			d.dispose();
 		}
+	}
+
+	public void itemStateChanged(ItemEvent ie) {
+		populateList(prompt.getText());
 	}
 
 	protected void runFromLabel(String listLabel) {
@@ -130,9 +141,12 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			commands[i] = commands[i].trim();
 			String command = commands[i];
 			String className = (String)commandsHash.get(command);
-			String listLabel = makeListLabel(command, className);
-			if (commands.length>0)
-				listLabelToCommand.put(listLabel, command);
+			if (commands.length>0) {
+				String listLabelWithClass = makeListLabel(command, className);
+				String listLabelWithoutClass = makeListLabel(command, null);
+				listLabelToCommand.put(listLabelWithClass, command);
+				listLabelToCommand.put(listLabelWithoutClass, command);				
+			}
 		}
 
 		ImageJ imageJ = IJ.getInstance();
@@ -141,11 +155,16 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		d.setLayout(new BorderLayout());
 		d.addWindowListener(this);
 
+		showClassNamesCheckbox = new Checkbox(
+			"Also display class names and arguments",
+			false);
+		showClassNamesCheckbox.addItemListener(this);
+
 		Panel northPanel = new Panel();
 
 		northPanel.add(new Label("Type part of a command:"));
 
-		prompt = new TextField("", 40);
+		prompt = new TextField("", 30);
 		prompt.addTextListener(this);
 		prompt.addKeyListener(this);
 
@@ -165,11 +184,20 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		runButton.addActionListener(this);
 		cancelButton.addActionListener(this);
 
-		Panel p = new Panel();
-		p.add(runButton);
-		p.add(cancelButton);
+		Panel southPanel = new Panel();
+		southPanel.setLayout(new BorderLayout());
 
-		d.add(p, BorderLayout.SOUTH);
+		Panel optionsPanel = new Panel();
+		optionsPanel.add(showClassNamesCheckbox);
+
+		Panel buttonsPanel = new Panel();
+		buttonsPanel.add(runButton);
+		buttonsPanel.add(cancelButton);
+
+		southPanel.add(optionsPanel, BorderLayout.CENTER);
+		southPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+		d.add(southPanel, BorderLayout.SOUTH);
 
 		int offsetX = 38;
 		int offsetY = 84;
