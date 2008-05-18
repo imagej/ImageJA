@@ -304,18 +304,38 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		d.add(southPanel, BorderLayout.SOUTH);
 
-		int offsetX = 38;
-		int offsetY = 84;
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		d.pack();
+
+		int dialogWidth = d.getWidth();
+		int dialogHeight = d.getHeight();
+
+		int screenWidth = (int)screenSize.getWidth();
+		int screenHeight = (int)screenSize.getHeight();
 
 		Point pos=imageJ.getLocationOnScreen();
 
-		// Move the dialog to slightly offset from the main ImageJ
-		// window:
-		d.setLocation((int)pos.getX()+38, (int)pos.getY()+84);
+		/* Generally try to position the dialog slightly
+		   offset from the main ImageJ window, but if that
+		   would push the dialog off to the screen to any
+		   side, adjust it so that it's on the screen.
+		*/
+		int initialX = (int)pos.getX() + 38;
+		int initialY = (int)pos.getY() + 84;
 
-		d.pack();
+		if (initialX+dialogWidth>screenWidth)
+			initialX = screenWidth-dialogWidth;
+		if (initialX<0)
+			initialX = 0;
+		if (initialY+dialogHeight>screenHeight)
+			initialY = screenHeight-dialogHeight;
+		if (initialY<0)
+			initialY = 0;
+
+		d.setLocation(initialX,initialY);
+
 		d.setVisible(true);
-
 	}
 
 	/* Make sure that clicks on the close icon close the window: */
