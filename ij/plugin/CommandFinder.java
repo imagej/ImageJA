@@ -116,11 +116,18 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		int items = completions.getItemCount();
 		Object source = ke.getSource();
 		if (source==prompt) {
+			/* If you hit enter in the text field, and
+			   there's only one command that matches, run
+			   that: */
 			if (key==KeyEvent.VK_ENTER) {
 				if (1==items) {
 					String selected = completions.getItem(0);
 					runFromLabel(selected);
 				}
+			/* If you hit the up or down arrows in the
+			   text field, move the focus to the
+			   completions list and select the item at the
+			   bottom or top of that list. */
 			} else if (key==KeyEvent.VK_UP) {
 				completions.requestFocus();
 				if(items>0)
@@ -131,6 +138,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 					completions.select(0);
 			}
 		} else if (source==completions) {
+			/* If you hit enter with the focus in the
+			   completions list, run the selected
+			   command */
 			if (key==KeyEvent.VK_ENTER) {
 				String selected = completions.getSelectedItem();
 				if (selected!=null)
@@ -146,6 +156,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	public void textValueChanged(TextEvent te) {
 		populateList(prompt.getText());
 	}
+
+	/* This function recurses down through a menu, adding to
+	   commandsHash the location and MenuItem of any items it
+	   finds that aren't submenus. */
 
 	public void parseMenu(String path, Menu menu) {
 		int n=menu.getItemCount();
@@ -171,6 +185,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		}
 	}
 
+	/* Finds all the top level menus from the menu bar and
+	   recurses down through each. */
+
 	public void findAllMenuItems() {
 		MenuBar menuBar = Menus.getMenuBar();
 		int topLevelMenus = menuBar.getMenuCount();
@@ -183,6 +200,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	public void run(String ignored) {
 
 		commandsHash = new Hashtable();
+
+		/* Find the "normal" commands; those which are
+		   registered plugins: */
 
 		Hashtable realCommandsHash = ij.Menus.getCommands();
 
@@ -201,11 +221,14 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			}
 		}
 
-		// There are some menu items that don't have commands
-		// associated, such as those added by RefreshScripts,
-		// so look through all the menus as well:
+		/* There are some menu items that don't correspond to
+		   plugins, such as those added by RefreshScripts, so
+		   look through all the menus as well: */
 
 		findAllMenuItems();
+
+		/* Sort the commands, generate list labels for each
+		 * and put them into a hash: */
 
 		commands = (String[])commandsHash.keySet().toArray(new String[0]);
 		Arrays.sort(commands);
@@ -217,6 +240,8 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			listLabelToCommand.put(makeListLabel(commands[i], ca, true), commands[i]);
 			listLabelToCommand.put(makeListLabel(commands[i], ca, false), commands[i]);
 		}
+
+		/* The code below just constructs the dialog: */
 
 		ImageJ imageJ = IJ.getInstance();
 
@@ -281,6 +306,8 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		d.setVisible(true);
 
 	}
+
+	/* Make sure that clicks on the close icon close the window: */
 
 	public void windowClosing(WindowEvent e) {
 		d.dispose();
