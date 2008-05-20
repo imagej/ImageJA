@@ -406,6 +406,7 @@ public class Menus {
             addJarErrorHeading(jar);
 			jarError += "    Duplicate command: " + s + "\n";
 		}
+		addPluginItem(s);
 		duplicateCommand = false;
     }
     
