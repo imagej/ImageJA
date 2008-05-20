@@ -105,7 +105,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
 			defaultText = new Vector(5);
 		}
 		numberField.addElement(label);
-		saveLabel(new Double(defaultValue), label);
+		saveLabel("" + defaultValue, label);
     }
     
     private void saveLabel(Object component, String label) {
@@ -114,7 +114,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
     	if (label.length()>0) {
     		if (label.charAt(0)==' ')
     			label = label.trim();
-			labels.put(component, label);
+			labels.put(label, component);
 		}
     }
     
@@ -132,6 +132,8 @@ public class GenericDialog implements java.awt.event.ActionListener {
 	* @param columns			width of the text field
 	*/
 	public void addStringField(String label, String defaultText, int columns) {
+		if (stringField == null)
+			stringField = new Vector(4);
 		stringField.addElement(label);
 		saveLabel(defaultText, label);
 		y++;
@@ -142,7 +144,9 @@ public class GenericDialog implements java.awt.event.ActionListener {
 	* @param defaultValue	the initial state
 	*/
     public void addCheckbox(String label, boolean defaultValue) {
-		checkbox.addElement(label);
+	        if (checkbox==null)
+		    checkbox = new Vector(4);
+                checkbox.addElement(label);
 		saveLabel(new Boolean(defaultValue), label);
 		y++;
     }
@@ -171,6 +175,8 @@ public class GenericDialog implements java.awt.event.ActionListener {
    * @param defaultItem	the menu item initially selected
    */
    public void addChoice(String label, String[] items, String defaultItem) {
+		if (choice==null)
+			choice = new Vector(4);
 		choice.addElement(label);
 		saveLabel(defaultItem, label);
 		saveLabel(items, label + ":items");
@@ -332,7 +338,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
     public String getNextChoice() {
 		if (choice==null)
 			return "";
-		String label = (String)choices.get(choiceIndex);
+		String label = (String)choice.get(choiceIndex);
 		String item = (String)labels.get(label);
 		item = Macro.getValue(macroOptions, label, item);
 		choiceIndex++;
@@ -341,7 +347,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
     
   	/** Returns the index of the selected item in the next popup menu. */
     public int getNextChoiceIndex() {
-		String label = (String)choices.get(choiceIndex);
+		String label = (String)choice.get(choiceIndex);
 		String[] items = (String[])labels.get(label + ":items");
 		String item = getNextChoice();
 		int selected = 0;
