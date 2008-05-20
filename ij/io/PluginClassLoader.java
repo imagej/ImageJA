@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 import java.util.zip.*;
 import ij.IJ;
+import ij.util.Tools;
 
 /** ImageJ uses this class loader to load plugins and resources from the
  * plugins directory and immediate subdirectories. This class loader will
@@ -18,7 +19,7 @@ import ij.IJ;
  * <p> The class loader does not recurse into subdirectories beyond the first level.
 */
 public class PluginClassLoader extends ClassLoader {
-    protected String path;
+    protected String[] paths;
     protected Hashtable cache = new Hashtable();
     protected Vector jarFiles;
 
@@ -32,6 +33,10 @@ public class PluginClassLoader extends ClassLoader {
 	public PluginClassLoader(String path) {
 		init(path);
 	}
+
+	public PluginClassLoader(String[] paths) {
+		init(paths);
+	}
 	
 	/** This version of the constructor is used when ImageJ is launched using Java WebStart. */
 	public PluginClassLoader(String path, boolean callSuper) {
@@ -40,9 +45,18 @@ public class PluginClassLoader extends ClassLoader {
 	}
 
 	void init(String path) {
-		this.path = path;
+		init(Tools.splitPathList(path));
+	}
+
+	void init(String[] paths) {
+		this.paths = paths;
 		jarFiles = new Vector();
 		//find all JAR files on the path and subdirectories
+		for (int i = 0; i < paths.length; i++)
+			addPath(paths[i]);
+	}
+
+	private void addPath(String path) {
 		File f = new File(path);
 		String[] list = f.list();
 		if (list==null)
@@ -77,9 +91,10 @@ public class PluginClassLoader extends ClassLoader {
 
         File resFile;
 
+	for (int j = 0; j < paths.length; j++) {
         //try plugins directory
         try {
-            resFile = new File(path, name);
+            resFile = new File(paths[j], name);
             if (resFile.exists()) {
               res = makeURL(resFile);
               return res; 
@@ -88,14 +103,14 @@ public class PluginClassLoader extends ClassLoader {
         catch (Exception e) {}
 
         //try subfolders
-        resFile = new File(path);
+        resFile = new File(paths[j]);
         String[] list = resFile.list();
         if (list!=null) {
             for (int i=0; i<list.length; i++) {
-                resFile = new File(path, list[i]);
+                resFile = new File(paths[j], list[i]);
                 if (resFile.isDirectory()) {
                     try {
-                        File f = new File(path+list[i], name);
+                        File f = new File(paths[j]+list[i], name);
                         if (f.exists()) {
                             res = makeURL(f);
                             return res;
@@ -106,6 +121,7 @@ public class PluginClassLoader extends ClassLoader {
                 }
             }
         }
+	}
 
         //otherwise look in JAR files
         byte [] resourceBytes;
@@ -158,8 +174,9 @@ public class PluginClassLoader extends ClassLoader {
 
         File resFile;
 
+	for (int j = 0; j < paths.length; j++) {
         //try plugins directory
-        resFile = new File(path, name);
+        resFile = new File(paths[j], name);
         try { // read the byte codes
             is = new FileInputStream(resFile);
         }
@@ -167,14 +184,14 @@ public class PluginClassLoader extends ClassLoader {
         if (is != null) return is;
 
         //try subdirectories
-        resFile = new File(path);
+        resFile = new File(paths[j]);
         String[] list = resFile.list();
         if (list!=null) {
             for (int i=0; i<list.length; i++) {
-                resFile = new File(path, list[i]);
+                resFile = new File(paths[j], list[i]);
                 if (resFile.isDirectory()) {
                     try {
-                        File f = new File(path+list[i], name);
+                        File f = new File(paths[j]+list[i], name);
                         is = new FileInputStream(f);
                     }
                     catch (Exception e) {}
@@ -182,6 +199,7 @@ public class PluginClassLoader extends ClassLoader {
                 }
             }
         }
+	}
 
         //look in JAR files
         byte [] resourceBytes;
@@ -232,7 +250,7 @@ public class PluginClassLoader extends ClassLoader {
         // try the local cache of classes
         result = (Class)cache.get(className);
 	if(forceLoad && result!=null) {
-		PluginClassLoader loader = new PluginClassLoader(path);
+		PluginClassLoader loader = new PluginClassLoader(paths);
 		result = loader.loadClass(className, resolveIt);
 		cache.put(className,result);
 		return result;
@@ -287,6 +305,15 @@ public class PluginClassLoader extends ClassLoader {
      */
 
     protected byte[] loadClassBytes(String name) {
+	for (int j = 0; j < paths.length; j++) {
+	    byte[] classBytes = loadClassBytes(paths[j], name);
+	    if (classBytes != null)
+		return classBytes;
+	}
+	return null;
+    }
+
+    protected byte[] loadClassBytes(String path, String name) {
         byte [] classBytes = null;
         classBytes = loadIt(path, name);
         if (classBytes == null) {

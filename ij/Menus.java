@@ -58,6 +58,7 @@ public class Menus {
 	private static ImageJApplet applet;
 	private static Hashtable demoImagesTable = new Hashtable();
 	private static String pluginsPath, macrosPath;
+	private static String[] pluginsPaths;
 	private static Properties menus = new Properties();
 	private static Properties menuSeparators;
 	static Menu window, openRecentMenu, pluginsMenu, shortcutsMenu, utilitiesMenu, macrosMenu;
@@ -674,13 +675,14 @@ public class Menus {
 	Menu getPluginsSubmenu(String submenuName) {
 		return getMenu("Plugins>" + submenuName);
     }
-    
+
 	String getSubmenuName(String jarPath) {
-		//IJ.log("getSubmenuName: \n"+jarPath+"\n"+pluginsPath);
-		if(pluginsPath == null)
+		if(pluginsPaths == null)
 			return null;
-		if (jarPath.startsWith(pluginsPath))
-			jarPath = jarPath.substring(pluginsPath.length() - 1);
+		for (int i = 0; i < pluginsPaths.length; i++)
+			if (jarPath.startsWith(pluginsPaths[i])) {
+				jarPath = jarPath.substring(pluginsPaths[i].length() - 1);			break;
+			}
 		int index = jarPath.lastIndexOf(File.separatorChar);
 		if (index<0) return null;
 		String name = jarPath.substring(0, index);
@@ -782,7 +784,7 @@ public class Menus {
 		}
 		return plugins2;
 	}
-		
+
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
 		/*
@@ -827,16 +829,30 @@ public class Menus {
 		File f = macrosPath!=null?new File(macrosPath):null;
 		if (f!=null && !f.isDirectory())
 			macrosPath = null;
-		f = pluginsPath!=null?new File(pluginsPath):null;
+
+		pluginsPaths = Tools.splitPathList(pluginsPath);
+		Vector v = new Vector();
+		for (int i = 0; i < pluginsPaths.length; i++)
+			getPlugins(v, pluginsPaths[i]);
+		if (v.size() == 0)
+			return null;
+
+		String[] list = new String[v.size()];
+		v.copyInto((String[])list);
+		StringSorter.sort(list);
+		return list;
+	}
+
+	public static void getPlugins(Vector v, String pluginsPath) {
+		File f = pluginsPath!=null?new File(pluginsPath):null;
 		if (f==null || (f!=null && !f.isDirectory())) {
 			//error = "Plugins folder not found at "+pluginsPath;
 			pluginsPath = null;
-			return null;
+			return;
 		}
 		String[] list = f.list();
 		if (list==null)
-			return null;
-		Vector v = new Vector();
+			return;
 		jarFiles = null;
 		macroFiles = null;
 		for (int i=0; i<list.length; i++) {
@@ -857,10 +873,6 @@ public class Menus {
 					checkSubdirectory(pluginsPath, name, v);
 			}
 		}
-		list = new String[v.size()];
-		v.copyInto((String[])list);
-		StringSorter.sort(list);
-		return list;
 	}
 	
 	/** Looks for plugins and jar files in a subdirectory of the plugins directory. */

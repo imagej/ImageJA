@@ -184,5 +184,12 @@ import java.io.*;
 		v.copyInto((String[])lines);
 		return lines;
 	}
-	
+
+	public static String[] splitPathList(String list) {
+		String[] result = split(list, File.pathSeparator);
+		for (int i = 0; i < result.length; i++)
+			if (!result[i].endsWith(File.separator))
+				result[i] += File.separator;
+		return result;
+	}
 }
