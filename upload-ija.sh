@@ -2,7 +2,12 @@
 
 set -e
 if [ -z "$1" ]; then
-	VERSION=$(git tag -l "ij*" | sort | tail -n 1 | sed "s/^ij\(.\)/\1./")
+	VERSION="$(git log -1 --pretty=format:%s HEAD^2 |
+                sed -n "s/^[^0-9]*\([\\.0-9]*.\),.*$/\1/p")"
+	test -z "$VERSION" && {
+		echo "Could not determine version"
+		exit 1
+	}
 else
 	VERSION="$VERSION"
 fi
