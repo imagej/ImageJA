@@ -48,7 +48,7 @@ case "$(git log --decorate imageja^..imageja cvs^..cvs | head -n 1)" in
 esac
 
 
-git tag v"$VERSION" cvs
+git tag v"$VERSION" imageja
 git push dumbo
 git push orcz imageja:master imageja v"$VERSION"
 make signed-ij.jar
