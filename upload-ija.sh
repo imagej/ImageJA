@@ -6,13 +6,54 @@ if [ -z "$1" ]; then
 else
 	VERSION="$VERSION"
 fi
-(cd ../cvs-imageja && my-fetch-origin.sh)
-git tag v"$VERSION" origin
+
+# CVS
+CVS=.git/cvs-checkout
+test -d $CVS ||
+(cd .git &&
+ cvs -d :ext:imageja.cvs.sf.net:/cvsroot/imageja co imageja &&
+ mv imageja cvs-checkout || {
+	echo "Could not checkout CVS"
+	exit 1
+ }
+)
+(cd $CVS &&
+ git-cvsimport -a -i -k -p -u,-b,HEAD) || {
+	echo "Could not update CVS"
+	exit 1
+}
+
+test -f .git/objects/info/alternates ||
+echo "$(pwd)/$CVS/.git/objects" > .git/objects/info/alternates
+
+test -z "$(git config remote.cvs.url)" && {
+	git config remote.cvs.url "$(pwd)/$CVS" &&
+	git config remote.cvs.fetch origin:refs/heads/cvs
+}
+
+git fetch cvs || {
+	echo "Could not fetch 'origin' from CVS checkout"
+	exit 1
+}
+
+test -z "$(git config alias.cvscione)" &&
+git config alias.cvscione \
+	"!sh -c 'git cvsexportcommit -w $CVS -c -p -u \$0^ \$0'"
+
+case "$(git log --decorate imageja^..imageja cvs^..cvs | head -n 1)" in
+*cvs*) ;; # everything okay
+*)
+	echo "CVS lags behind..."
+	exit 1;;
+esac
+
+
+git tag v"$VERSION" cvs
 git push dumbo
 git push orcz imageja:master imageja v"$VERSION"
 make signed-ij.jar
 rsync -vau signed-ij.jar dscho@shell.sf.net:imageja/htdocs/ij.jar
-git archive --format=zip --prefix=ij-src/ origin > ij-src-$VERSION.jar
+git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
 rsync -e ssh -avP ij-$VERSION.jar ij-src-$VERSION.jar dscho@frs.sf.net:uploads/
 echo w3m http://sourceforge.net/project/admin/editpackages.php?group_id=150609
