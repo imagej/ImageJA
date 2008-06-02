@@ -26,7 +26,7 @@ if [ -z "$1" ]; then
 		exit 1
 	}
 	NOTES=notes$VERSION.txt
-	test -f $NOTES || w3m -dump $NOTES_URL >$NOTES || {
+	test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
 		echo "Could not get notes"
 		exit 1
 	}
