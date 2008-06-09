@@ -21,7 +21,7 @@ ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)
 	jar cvmf MANIFEST.MF $@ $(COPYFILES) $(ALLCLASSES) $(TEXTFILES)
 
 headless.jar: ij/Menus.java ij/gui/GenericDialog.java
-	javac $^
+	javac -source 1.3 -target 1.3 $^
 	jar cvf $@ $(patsubst %.java,%.class,$^)
 
 signed-ij.jar: ij.jar
