@@ -20,7 +20,7 @@ JAVACOPTS=-O -classpath $(CLASSPATH) -source 1.3 -target 1.3
 ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)
 	jar cvmf MANIFEST.MF $@ $(COPYFILES) $(ALLCLASSES) $(TEXTFILES)
 
-headless.jar: ij/Menus.java ij/gui/GenericDialog.java
+headless.jar: ij/Menus.java ij/gui/GenericDialog.java ij/util/Tools.java
 	javac -source 1.3 -target 1.3 $^
 	jar cvf $@ $(patsubst %.java,%.class,$^)
 
