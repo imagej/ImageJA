@@ -55,7 +55,7 @@ esac
 
 git tag v"$VERSION" imageja
 git push dumbo
-git push orcz imageja:master imageja v"$VERSION"
+git push orcz imageja:master imageja imagej v"$VERSION"
 make signed-ij.jar
 rsync -vau signed-ij.jar shell.sf.net:imageja/htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
