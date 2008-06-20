@@ -76,8 +76,17 @@ public class RGBStackSplitter implements PlugInFilter {
              IJ.showProgress((double)i/n);
         }
     }
-    
-    void splitChannels(ImagePlus imp) {
+
+	public static ImagePlus[] splitChannelsToArray(
+		ImagePlus imp,
+		boolean closeAfter) {
+
+		if(!imp.isComposite()) {
+			String error="splitChannelsToArray was called "+
+				"on a non-composite image";
+			IJ.error(error);
+			return null;
+		}
 		int width = imp.getWidth();
 		int height = imp.getHeight();
 		int channels = imp.getNChannels();
@@ -85,6 +94,7 @@ public class RGBStackSplitter implements PlugInFilter {
 		int frames = imp.getNFrames();
 		int bitDepth = imp.getBitDepth();
 		int size = slices*frames;
+		ImagePlus[] result=new ImagePlus[channels];
 		HyperStackReducer reducer = new HyperStackReducer(imp);
 		for (int c=1; c<=channels; c++) {
 			ImageStack stack2 = new ImageStack(width, height, size); // create empty stack
@@ -95,13 +105,19 @@ public class RGBStackSplitter implements PlugInFilter {
 			imp2.setDimensions(1, slices, frames);
 			reducer.reduce(imp2);
 			imp2.setOpenAsHyperStack(true);
-			imp2.show();
+			result[c-1]=imp2;
 		}
 		imp.changes = false;
-		imp.close();
-    }
+		if (closeAfter)
+			imp.close();
+		return result;
+	}
+
+	void splitChannels(ImagePlus imp) {
+		ImagePlus[] a=splitChannelsToArray(imp,true);
+		for(int i=0;i<a.length;++i)
+			a[i].show();
+	}
 
 }
-
-
 
