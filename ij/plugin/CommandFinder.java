@@ -16,7 +16,15 @@ import java.util.Set;
     commands you might know the name of without having to go through
     all the menus.  If you type a part of a command name, the box
     below will only show commands that match that substring (case
-    insensitively). */
+    insensitively).  If only a single command matches then that
+    command can be run by hitting Enter.  If multiple commands match,
+    they can be selected by selecting with the mouse and clicking
+    "Run"; alternatively hitting the up or down arrows will move the
+    keyboard focus to the list and the selected command can be run
+    with Enter.
+
+    @author Mark Longair <mark-imagej@longair.net>
+ */
 
 public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener, ItemListener {
 
@@ -237,7 +245,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		findAllMenuItems();
 
 		/* Sort the commands, generate list labels for each
-		 * and put them into a hash: */
+		   and put them into a hash: */
 
 		commands = (String[])commandsHash.keySet().toArray(new String[0]);
 		Arrays.sort(commands);
