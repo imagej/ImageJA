@@ -45,13 +45,21 @@ test -z "$(git config alias.cvscione)" &&
 git config alias.cvscione \
 	"!sh -c 'git cvsexportcommit -w $CVS -c -p -u \$0^ \$0'"
 
-case "$(git log --decorate imageja^..imageja cvs^..cvs | head -n 1)" in
-*cvs*) ;; # everything okay
-*)
-	echo "CVS lags behind..."
-	exit 1;;
-esac
+test "$(git log -1 --pretty=format:%s%n%b cvs)" != \
+		"$(git log -1 --pretty=format:%s%n%b imageja^)" || {
+	git cvscione imageja &&
+	(cd $CVS && git-cvsimport -a -i -k -p -u,-b,HEAD) &&
+	git fetch cvs || {
+		echo "Could not update CVS"
+		exit 1
+	}
+}
 
+test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
+		"$(git log -1 --pretty=format:%s%n%b imageja)" || {
+	echo "CVS lags behind..."
+	exit 1
+}
 
 git tag v"$VERSION" imageja
 git push dumbo
