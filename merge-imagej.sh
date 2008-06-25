@@ -10,7 +10,8 @@ grep Sync .git/hooks/post-merge >/dev/null 2>/dev/null || {
 	exit 1
 }
 
-test $BRANCH != "$(git symbolic-ref HEAD)" && {
+test $BRANCH != "$(git symbolic-ref HEAD)" &&
+! git checkout ${BRANCH##refs/heads/} && {
 	echo "Must be on branch $BRANCH"
 	exit 1
 }
