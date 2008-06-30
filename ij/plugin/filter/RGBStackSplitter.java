@@ -5,6 +5,7 @@ import ij.gui.*;
 import ij.measure.Calibration;
 import ij.plugin.HyperStackReducer;
 import java.awt.*;
+import ij.io.FileInfo;
 
 /** Splits an RGB image or stack into three 8-bit grayscale images or stacks. */
 public class RGBStackSplitter implements PlugInFilter {
@@ -31,19 +32,23 @@ public class RGBStackSplitter implements PlugInFilter {
     	boolean keepSource = IJ.altKeyDown();
         String title = imp.getTitle();
         Calibration cal = imp.getCalibration();
+        FileInfo fi = imp.getOriginalFileInfo();
         split(imp.getStack(), keepSource);
         if (!keepSource)
             {imp.unlock(); imp.close();}
         ImagePlus rImp = new ImagePlus(title+" (red)",red);
         rImp.setCalibration(cal);
+        rImp.setFileInfo(fi);
         rImp.show();
         if (IJ.isMacOSX()) IJ.wait(500);
         ImagePlus gImp = new ImagePlus(title+" (green)",green);
         gImp.setCalibration(cal);
+        rImp.setFileInfo(fi);
         gImp.show();
         if (IJ.isMacOSX()) IJ.wait(500);
         ImagePlus bImp = new ImagePlus(title+" (blue)",blue);
         bImp.setCalibration(cal);
+        bImp.setFileInfo(fi);
         bImp.show();
     }
 
@@ -94,6 +99,7 @@ public class RGBStackSplitter implements PlugInFilter {
 		int frames = imp.getNFrames();
 		int bitDepth = imp.getBitDepth();
 		int size = slices*frames;
+		FileInfo fi = imp.getOriginalFileInfo();
 		ImagePlus[] result=new ImagePlus[channels];
 		HyperStackReducer reducer = new HyperStackReducer(imp);
 		for (int c=1; c<=channels; c++) {
@@ -105,6 +111,7 @@ public class RGBStackSplitter implements PlugInFilter {
 			imp2.setDimensions(1, slices, frames);
 			reducer.reduce(imp2);
 			imp2.setOpenAsHyperStack(true);
+			imp2.setFileInfo(fi);
 			result[c-1]=imp2;
 		}
 		imp.changes = false;
