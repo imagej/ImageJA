@@ -19,6 +19,7 @@ public class TiffDecoder {
 	public static final int PHOTO_INTERP = 262;
 	public static final int IMAGE_DESCRIPTION = 270;
 	public static final int STRIP_OFFSETS = 273;
+	public static final int ORIENTATION = 274;
 	public static final int SAMPLES_PER_PIXEL = 277;
 	public static final int ROWS_PER_STRIP = 278;
 	public static final int STRIP_BYTE_COUNT = 279;
@@ -31,6 +32,7 @@ public class TiffDecoder {
 	public static final int PREDICTOR = 317;
 	public static final int COLOR_MAP = 320;
 	public static final int SAMPLE_FORMAT = 339;
+	public static final int JPEG_TABLES = 347;
 	public static final int METAMORPH1 = 33628;
 	public static final int METAMORPH2 = 33629;
 	public static final int IPLAB = 34122;
@@ -87,14 +89,26 @@ public class TiffDecoder {
 			return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
 	}
 
-	int getShort() throws IOException {
+	final int getShort() throws IOException {
 		int b1 = in.read();
 		int b2 = in.read();
 		if (littleEndian)
-			return ((b2 << 8) + b1);
+			return ((b2<<8) + b1);
 		else
-			return ((b1 << 8) + b2);
+			return ((b1<<8) + b2);
 	}
+
+    final long readLong() throws IOException {
+    	if (littleEndian)
+        	return ((long)getInt()&0xffffffffL) + ((long)getInt()<<32);
+        else
+			return ((long)getInt()<<32) + ((long)getInt()&0xffffffffL);
+        	//return in.read()+(in.read()<<8)+(in.read()<<16)+(in.read()<<24)+(in.read()<<32)+(in.read()<<40)+(in.read()<<48)+(in.read()<<56);
+    }
+
+    final double readDouble() throws IOException {
+        return Double.longBitsToDouble(readLong());
+    }
 
 	int OpenImageFileHeader() throws IOException {
 	// Open 8-byte Image File Header at start of file.
@@ -118,10 +132,9 @@ public class TiffDecoder {
 		int value = 0;
 		int unused;
 		if (fieldType==SHORT && count==1) {
-				value = getShort();
-				unused = getShort();
-		}
-		else
+			value = getShort();
+			unused = getShort();
+		} else
 			value = getInt();
 		return value;
 	}	
@@ -268,6 +281,7 @@ public class TiffDecoder {
 			case IMAGE_WIDTH: name="ImageWidth"; break;
 			case IMAGE_LENGTH: name="ImageLength"; break;
 			case STRIP_OFFSETS: name="StripOffsets"; break;
+			case ORIENTATION: name="Orientation"; break;
 			case PHOTO_INTERP: name="PhotoInterp"; break;
 			case IMAGE_DESCRIPTION: name="ImageDescription"; break;
 			case BITS_PER_SAMPLE: name="BitsPerSample"; break;
@@ -284,6 +298,7 @@ public class TiffDecoder {
 			case PREDICTOR: name="Predictor"; break; 
 			case COLOR_MAP: name="ColorMap"; break; 
 			case SAMPLE_FORMAT: name="SampleFormat"; break; 
+			case JPEG_TABLES: name="JPEGTables"; break; 
 			case NIH_IMAGE_HDR: name="NIHImageHeader"; break; 
 			case META_DATA_BYTE_COUNTS: name="MetaDataByteCounts"; break; 
 			case META_DATA: name="MetaData"; break; 
@@ -435,9 +450,9 @@ public class TiffDecoder {
 						if (bpp==6)
 							error("ImageJ cannot open 48-bit LZW compressed TIFFs");
 						fi.compression = FileInfo.LZW;
-					} else if (value!=1 && !(value==7&&fi.width<500)) {
-						// don't abort with Spot camera compressed (7) thumbnails
-						// otherwise, this is an unknown compression type
+					} else if (value==7)
+						fi.compression = FileInfo.JPEG;
+					else if (value!=1) {
 						fi.compression = FileInfo.COMPRESSION_UNKNOWN;
 						error("ImageJ cannot open TIFF files " +
 							"compressed in this fashion ("+value+")");
@@ -461,11 +476,18 @@ public class TiffDecoder {
 							error("ImageJ cannot open16-bit float TIFFs");
 					}
 					break;
+				case JPEG_TABLES:
+					if (fi.compression==FileInfo.JPEG)
+						error("Cannot open JPEG-compressed TIFFs with separate tables");
+					break;
 				case IMAGE_DESCRIPTION: 
 					if (ifdCount==1) {
 						byte[] s = getString(count,value);
 						if (s!=null) saveImageDescription(s,fi);
 					}
+					break;
+				case ORIENTATION:
+					fi.nImages = 0; // file not created by ImageJ so look at all the IFDs
 					break;
 				case METAMORPH1: case METAMORPH2:
 					if (name.indexOf(".STK")>0 || name.indexOf(".stk")>0) {
@@ -573,8 +595,13 @@ public class TiffDecoder {
 		in.readFully(buffer, len);
 		len /= 2;
 		char[] chars = new char[len];
-		for (int j=0, k=0; j<len; j++)
-			chars[j] = (char)((buffer[k++]<<8) + buffer[k++]);
+		if (littleEndian) {
+			for (int j=0, k=0; j<len; j++)
+				chars[j] = (char)(buffer[k++] + (buffer[k++]<<8));
+		} else {
+			for (int j=0, k=0; j<len; j++)
+				chars[j] = (char)((buffer[k++]<<8) + buffer[k++]);
+		}
 		fi.info = new String(chars);
 	}
 
@@ -590,8 +617,13 @@ public class TiffDecoder {
 				in.readFully(buffer, len);
 				len /= 2;
 				char[] chars = new char[len];
-				for (int j=0, k=0; j<len; j++)
-					chars[j] = (char)((buffer[k++]<<8) + buffer[k++]);
+				if (littleEndian) {
+					for (int j=0, k=0; j<len; j++)
+						chars[j] = (char)(buffer[k++] + (buffer[k++]<<8));
+				} else {
+					for (int j=0, k=0; j<len; j++)
+						chars[j] = (char)((buffer[k++]<<8) + buffer[k++]);
+				}
 				fi.sliceLabels[index++] = new String(chars);
 				//ij.IJ.log(i+"  "+fi.sliceLabels[i-1]+"  "+len);
 			} else
@@ -603,7 +635,7 @@ public class TiffDecoder {
 		int n = metaDataCounts[first]/8;
 		fi.displayRanges = new double[n];
 		for (int i=0; i<n; i++)
-			fi.displayRanges[i] = in.readDouble();
+			fi.displayRanges[i] = readDouble();
 	}
 
 	void getLuts(int first, int last, FileInfo fi) throws IOException {

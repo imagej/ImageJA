@@ -6,7 +6,7 @@
 
 # Note that commands must be unique.
 
-# Version 1.38
+# Version 1.41
 
 # Popup Menu
 popup01=Undo
@@ -37,6 +37,7 @@ import06="Results...",ij.plugin.SimpleCommands("import")
 import07="URL...",ij.plugin.URLOpener
 import08="Stack From List...",ij.plugin.ListVirtualStack
 import09="TIFF Virtual Stack...",ij.plugin.FileInfoVirtualStack
+import10="AVI...",ij.plugin.AVI_Reader
 #import08="TWAIN...",ij.plugin.twain.Twain
 #import09="Capture Video...",QT_Capture
 #import10="QuickTime Movie...",Movie_Opener
@@ -50,7 +51,7 @@ save04="Text Image...",ij.plugin.filter.Writer("text")
 save05="ZIP...",ij.plugin.filter.Writer("zip")
 save06="Raw Data...",ij.plugin.filter.Writer("raw")
 save07="Image Sequence... ",ij.plugin.StackWriter
-save08="AVI... ",ij.plugin.filter.AVIWriter
+save08="AVI... ",ij.plugin.filter.AVI_Writer
 save09="BMP...",ij.plugin.filter.Writer("bmp")
 save10="PNG...",ij.plugin.filter.Writer("png")
 save11="PGM...",ij.plugin.filter.Writer("pgm")
@@ -89,7 +90,8 @@ options06="Colors...",ij.plugin.Colors
 options07="Appearance...",ij.plugin.Options("display")
 options08="Conversions...",ij.plugin.Options("conv")
 options09="Memory & Threads...",ij.plugin.Memory
-options10="Misc...",ij.plugin.Options("misc")
+options10="Proxy Settings...",ij.plugin.ProxySettings
+options11="Misc...",ij.plugin.Options("misc")
 
 # Plugins installed in the Image/Adjust submenu
 adjust01="Brightness/Contrast...[C]",ij.plugin.frame.ContrastAdjuster
@@ -100,13 +102,15 @@ adjust05="Size...",ij.plugin.filter.Resizer
 adjust06="Canvas Size...",ij.plugin.CanvasResizer
 
 # Plugins installed in the Image/Color submenu
-color01="RGB Split",ij.plugin.filter.RGBStackSplitter
-color02="RGB Merge...",ij.plugin.RGBStackMerge
-color03="Stack to RGB",ij.plugin.RGBStackConverter
-color04="Make Composite",ij.plugin.CompositeConverter
-color05="Show LUT",ij.plugin.filter.LutViewer
-color06="Edit LUT...",ij.plugin.LUT_Editor
-color07="Color Picker...[K]",ij.plugin.ColorPicker
+color01="Split Channels",ij.plugin.filter.RGBStackSplitter
+color02="Merge Channels...",ij.plugin.RGBStackMerge
+color03="Channels Tool... ",ij.plugin.frame.Channels
+color04=-
+color05="Stack to RGB",ij.plugin.RGBStackConverter
+color06="Make Composite",ij.plugin.CompositeConverter
+color07="Show LUT",ij.plugin.filter.LutViewer
+color08="Edit LUT...",ij.plugin.LUT_Editor
+color09="Color Picker...[K]",ij.plugin.ColorPicker
 
 # Plugins installed in the Image/Stacks submenu
 stacks01="Add Slice",ij.plugin.StackEditor("add")
@@ -132,7 +136,7 @@ hyperstacks01="New Hyperstack...",ij.plugin.HyperStackConverter("new")
 hyperstacks02="Stack to Hyperstack...",ij.plugin.HyperStackConverter("stacktohs")
 hyperstacks03="Hyperstack to Stack",ij.plugin.HyperStackConverter("hstostack")
 hyperstacks04="Reduce Dimensionality...",ij.plugin.HyperStackReducer
-hyperstacks05="Channels...[Z]",ij.plugin.frame.Channels
+hyperstacks05="Channels Tool...[Z]",ij.plugin.frame.Channels
 
 # Plugins installed in the Image/Rotate submenu
 rotate01="Flip Horizontally",ij.plugin.filter.Transformer("fliph")
@@ -144,10 +148,11 @@ rotate05="Arbitrarily...",ij.plugin.filter.Rotator
 # Plugins installed in the Image/Zoom submenu
 zoom01="In[+]",ij.plugin.Zoom("in")
 zoom02="Out[-]",ij.plugin.Zoom("out")
-zoom03="View 100%",ij.plugin.Zoom("100%")
-zoom04="Original Scale",ij.plugin.Zoom("orig")
+zoom03="Original Scale[4]",ij.plugin.Zoom("orig")
+zoom04="View 100%[5]",ij.plugin.Zoom("100%")
 zoom05="To Selection",ij.plugin.Zoom("to")
 #zoom06="Maximize",ij.plugin.Zoom("max")
+
 # Plugins installed in the Image/Lookup Tables submenu
 lookup01="Invert LUT",ij.plugin.LutLoader("invert")
 lookup02="Apply LUT",ij.plugin.filter.LutApplier
@@ -198,7 +203,7 @@ binary08="Close-",ij.plugin.filter.Binary("close")
 binary09="Options...",ij.plugin.filter.Binary("options")
 binary10=-
 binary11="Outline",ij.plugin.filter.Binary("outline")
-binary12="Fill Holes",ij.plugin.filter.BinaryFiller
+binary12="Fill Holes",ij.plugin.filter.Binary("fill")
 binary13="Skeletonize",ij.plugin.filter.Binary("skel")
 binary14=-
 binary15="Distance Map",ij.plugin.filter.EDM("edm")
@@ -270,11 +275,11 @@ tools07="Calibration Bar...",ij.plugin.filter.CalibrationBar
 plug-in01=>"Macros"
 plug-in02=>"Shortcuts"
 plug-in03=>"Utilities"
-plug-in04="New... ",ij.plugin.NewPlugin
-plug-in05="Edit...",ij.plugin.Compiler("edit")
-plug-in06="Compile and Run...",ij.plugin.Compiler
+plug-in04=>"New_"
+plug-in05="Compile and Run...",ij.plugin.Compiler
+plug-in06="Install PlugIn...",ij.plugin.PlugInInstaller
 plug-in07="Install PlugIn...",ij.plugin.PlugInInstaller
-plug-in08="Find...[l]",ij.plugin.CommandFinder
+plug-in08=-
 #plug-in09=>"User_Plugins"
 
 # Install user plugins located in ij.jar to Plugins>User Plugins submenu
@@ -299,15 +304,26 @@ shortcuts04=-
 # Plugins installed in the Plugins/Utilities submenu
 utilities01="Control Panel...",ij.plugin.ControlPanel
 utilities02="ImageJA Properties...",ij.plugin.JavaProperties
-utilities03="List Commands...",ij.plugin.CommandLister
-utilities04="List Shortcuts...",ij.plugin.CommandLister("shortcuts")
-utilities05="Threads...",ij.plugin.ThreadLister
-utilities06="Benchmark",ij.plugin.filter.Benchmark
-utilities07="Reset...",ij.plugin.SimpleCommands("reset")
-utilities08="Monitor Memory...",ij.plugin.MemoryMonitor
-utilities09="Search...",ij.plugin.SimpleCommands("search")
-utilities10="Capture Screen [G]",ij.plugin.ScreenGrabber
-utilities11="Update ImageJ...",ij.plugin.ImageJ_Updater
+utilities03="List Shortcuts...",ij.plugin.CommandLister("shortcuts")
+utilities04="Threads...",ij.plugin.ThreadLister
+utilities05="Benchmark",ij.plugin.filter.Benchmark
+utilities06="Reset...",ij.plugin.SimpleCommands("reset")
+utilities07="Monitor Memory...",ij.plugin.MemoryMonitor
+utilities08="Search...",ij.plugin.SimpleCommands("search")
+utilities09="Capture Screen [G]",ij.plugin.ScreenGrabber
+utilities10="Find Commands... [l]",ij.plugin.CommandFinder
+utilities11="Update ImageJ... ",ij.plugin.ImageJ_Updater
+
+# Plugins installed in the Plugins/New submenu
+new_01="Macro",ij.plugin.NewPlugin("macro")
+new_02="JavaScript",ij.plugin.NewPlugin("javascript")
+new_03=-
+new_04="Plugin",ij.plugin.NewPlugin("plugin")
+new_05="Plugin Frame",ij.plugin.NewPlugin("frame")
+new_06="Plugin Filter",ij.plugin.NewPlugin("filter")
+new_07=-
+new_08="Text Window...",ij.plugin.NewPlugin("text+dialog")
+new_09="Table...",ij.plugin.NewPlugin("table")
 
 # Plugins installed in the Help/About submenu
 about01="About This Submenu...",ij.plugin.SimpleCommands("about")
@@ -334,17 +350,17 @@ open11="CT (420K, 16-bit DICOM)",ij.plugin.URLOpener("ct.dcm.zip")
 open12="Dot Blot (7K)",ij.plugin.URLOpener("Dot_Blot.jpg")
 open13="Embryos (42K)",ij.plugin.URLOpener("embryos.jpg")
 open14="Enhance Me (25K)",ij.plugin.URLOpener("enhance-me.gif")
-open15="Fibroblast Cell Nucleus (17K)",ij.plugin.URLOpener("Fibroblast_Cell_Nucleus.jpg")
-open16="Fluorescent Cells (400K)",ij.plugin.URLOpener("FluorescentCells.zip")
-open17="Gel (105K)",ij.plugin.URLOpener("gel.gif")
-open18="HeLa Cells (1.3M, 48-bit RGB)",ij.plugin.URLOpener("hela-cells.zip")
-open19="Leaf (36K)",ij.plugin.URLOpener("leaf.jpg")
-open20="Lena (68K)",ij.plugin.URLOpener("lena.jpg")
-open21="Line Graph (21K)",ij.plugin.URLOpener("LineGraph.jpg")
-open22="Mandrill (70K)",ij.plugin.URLOpener("baboon.jpg")
-open23="MRI Stack (528K)",ij.plugin.URLOpener("mri-stack.zip")
-open24="M51 Galaxy (177K, 16-bits)",ij.plugin.URLOpener("m51.zip")
-open25="M51 Galaxy  (116K, RGB)",ij.plugin.URLOpener("m51.jpg")
+open15="Fluorescent Cells (400K)",ij.plugin.URLOpener("FluorescentCells.zip")
+open16="Gel (105K)",ij.plugin.URLOpener("gel.gif")
+open17="HeLa Cells (1.3M, 48-bit RGB)",ij.plugin.URLOpener("hela-cells.zip")
+open18="Leaf (36K)",ij.plugin.URLOpener("leaf.jpg")
+open19="Lena (68K)",ij.plugin.URLOpener("lena.jpg")
+open20="Line Graph (21K)",ij.plugin.URLOpener("LineGraph.jpg")
+open21="Mandrill (70K)",ij.plugin.URLOpener("baboon.jpg")
+open22="MRI Stack (528K)",ij.plugin.URLOpener("mri-stack.zip")
+open23="M51 Galaxy (177K, 16-bits)",ij.plugin.URLOpener("m51.zip")
+open24="M51 Galaxy  (116K, RGB)",ij.plugin.URLOpener("m51.jpg")
+open25="Neuron (1.6M, 5 channels)",ij.plugin.URLOpener("Rat_Hippocampal_Neuron.zip")
 open26="Organ of Corti (2.8M, 4D stack)",ij.plugin.URLOpener("organ-of-corti.zip")
 open27="Particles (75K)",ij.plugin.URLOpener("particles.gif")
 open28="T1 Head (2.4M, 16-bits)",ij.plugin.URLOpener("t1-head.zip")

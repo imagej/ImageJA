@@ -114,7 +114,7 @@ public class ShortProcessor extends ImageProcessor {
 		for (int i=0; i<size; i++) {
 			value = (pixels[i]&0xffff)-min;
 			if (value<0) value = 0;
-			value = (int)(value*scale);
+			value = (int)(value*scale+0.5);
 			if (value>255) value = 255;
 			pixels8[i] = (byte)value;
 		}
@@ -133,6 +133,21 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		lutAnimation = false;
 		return image;
+	}
+
+	/** Returns this image as an 8-bit BufferedImage . */
+	public BufferedImage getBufferedImage() {
+		return convertToByte(true).getBufferedImage();
+	}
+
+	/** Returns a copy of this image as a TYPE_USHORT_GRAY BufferedImage. */
+	public BufferedImage get16BitBufferedImage() {
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY);
+        Raster raster = bi.getData();
+        DataBufferUShort db = (DataBufferUShort)raster.getDataBuffer();
+        System.arraycopy(getPixels(), 0, db.getData(), 0, db.getData().length);
+        bi.setData(raster);
+        return bi;
 	}
 
 	/** Returns a new, blank ShortProcessor with the specified width and height. */

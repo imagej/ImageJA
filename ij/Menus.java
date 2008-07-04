@@ -543,28 +543,50 @@ public class Menus {
 			String jar = (String)jarFiles.elementAt(i);
 			InputStream is = getConfigurationFile(jar);
             if (is==null) continue;
+            int maxEntries = 100;
+            String[] entries = new String[maxEntries];
+            int nEntries=0, nEntries2=0;
             LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
             try {
                 while(true) {
                     String s = lnr.readLine();
-                    if (s==null) break;
-                    installJarPlugin(jar, s);
-                }
+                    if (s==null || nEntries==maxEntries-1) break;
+					if (s.length()>=3 && !s.startsWith("#")) {
+						entries[nEntries++] = s;
+						if (s.startsWith("Plugins>")) nEntries2++;
+					}
+	            }
             }
             catch (IOException e) {}
 			finally {
 				try {if (lnr!=null) lnr.close();}
 				catch (IOException e) {}
 			}
+			for (int j=0; j<nEntries; j++) {
+				String s = entries[j];
+				if (nEntries2<=3) {
+					if (s.startsWith("Plugins>")) {
+						int firstComma = s.indexOf(',');
+						int firstQuote = s.indexOf('"');
+						boolean pluginsDir = (new File(jar)).getParent().endsWith("plugins");
+						if (firstComma>8 && firstQuote>firstComma && !pluginsDir) {
+							String submenuName = s.substring(8, firstComma);
+							String prefix = "";
+							// "Extended Depth of Field" and "Particle Detector & Tracker" plugins
+							if (submenuName.startsWith("Extend")||submenuName.startsWith("Particle D"))
+								prefix = submenuName+": ";
+							//IJ.log(nEntries+" "+nEntries2+" "+jar+" "+s+"  "+submenuName);
+							s = "Plugins, \""+prefix+s.substring(firstQuote+1, s.length());
+						}
+					}
+				}
+				installJarPlugin(jar, s);
+			}
 		}		
 	}
     
     /** Install a plugin located in a JAR file. */
     void installJarPlugin(String jar, String s) {
-		//IJ.log(s);
-		if (s.length()<3) return;
-		char firstChar = s.charAt(0);
-		if (firstChar=='#') return;
 		addSorted = false;
 		Menu menu;
         if (s.startsWith("Plugins>")) {
@@ -575,7 +597,7 @@ public class Menus {
         		String name = s.substring(8, firstComma);
 				menu = getPluginsSubmenu(name);
 			}
-        } else if (firstChar=='"' || s.startsWith("Plugins")) {
+        } else if (s.startsWith("\"") || s.startsWith("Plugins")) {
         	String name = getSubmenuName(jar);
 		if (name!=null)
         		menu = getPluginsSubmenu(name);
@@ -874,20 +896,30 @@ public class Menus {
 		if (list==null)
 			return;
 		dir += "/";
+		int classCount=0, otherCount=0;
+		String className = null;
 		for (int i=0; i<list.length; i++) {
 			String name = list[i];
 			boolean hasUnderscore = name.indexOf('_')>=0;
 			if (hasUnderscore && name.endsWith(".class") && name.indexOf('$')<0) {
 				name = name.substring(0, name.length()-6); // remove ".class"
 				v.addElement(dir+name);
+				classCount++;
+				className = name;
 				//IJ.write("File: "+f+"/"+name);
 			} else if (hasUnderscore && (name.endsWith(".jar") || name.endsWith(".zip"))) {
 				if (jarFiles==null) jarFiles = new Vector();
 				jarFiles.addElement(f.getPath() + File.separator + name);
+				otherCount++;
 			} else if (hasUnderscore && (name.endsWith(".txt")||name.endsWith(".ijm"))) {
 				if (macroFiles==null) macroFiles = new Vector();
 				macroFiles.addElement(dir + name);
+				otherCount++;
 			}
+		}
+		if (Prefs.moveToMisc && classCount==1 && otherCount==0 && dir.indexOf("_")==-1) {
+			v.remove(dir+className);
+			v.addElement("Misc:"+dir+className);
 		}
 	}
 	
@@ -1124,18 +1156,19 @@ public class Menus {
 	/** Removes the specified item from the Window menu. */
 	static synchronized void removeWindowMenuItem(int index) {
 		//IJ.log("removeWindowMenuItem: "+index+" "+windowMenuItems2+" "+window.getItemCount());
-		if (ij==null)
-			return;
-		if (index>=0 && index<window.getItemCount()) {
-			window.remove(WINDOW_MENU_ITEMS+index);
-			if (index<windowMenuItems2) {
-				windowMenuItems2--;
-				if (windowMenuItems2==1) {
-					window.remove(WINDOW_MENU_ITEMS);
-					windowMenuItems2 = 0;
+		if (ij==null) return;
+		try {
+			if (index>=0 && index<window.getItemCount()) {
+				window.remove(WINDOW_MENU_ITEMS+index);
+				if (index<windowMenuItems2) {
+					windowMenuItems2--;
+					if (windowMenuItems2==1) {
+						window.remove(WINDOW_MENU_ITEMS);
+						windowMenuItems2 = 0;
+					}
 				}
 			}
-		}
+		} catch (Exception e) {}
 	}
 
 	/** Changes the name of an item in the Window menu. */
@@ -1167,8 +1200,13 @@ public class Menus {
 	public static synchronized void addOpenRecentItem(String path) {
 		if (ij==null) return;
 		int count = openRecentMenu.getItemCount();
-		if (count>0 && openRecentMenu.getItem(0).getLabel().equals(path))
-			return;
+		for (int i=0; i<count; ) {
+			if (openRecentMenu.getItem(i).getLabel().equals(path)) {
+				openRecentMenu.remove(i);
+				count--;
+			} else
+				i++;
+		}
 		if (count==MAX_OPEN_RECENT_ITEMS)
 			openRecentMenu.remove(MAX_OPEN_RECENT_ITEMS-1);
 		MenuItem item = new MenuItem(path);

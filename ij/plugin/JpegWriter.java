@@ -22,15 +22,14 @@ public class JpegWriter implements PlugIn {
 
     public void run(String arg) {
         ImagePlus imp = WindowManager.getCurrentImage();
-        if (imp==null)
-	 return;
+        if (imp==null) return;
         imp.startTiming();
         saveAsJpeg(imp,arg,quality);
         IJ.showTime(imp, imp.getStartTime(), "JpegWriter: ");
     }
 
     /** Thread-safe method. */
-    static public void write(ImagePlus imp, String path, int quality) {
+    static public void save(ImagePlus imp, String path, int quality) {
 	if (imp==null) return;
 	imp.startTiming();
 	new JpegWriter().saveAsJpeg(imp,path,quality);

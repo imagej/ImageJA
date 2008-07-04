@@ -10,6 +10,7 @@ import ij.text.*;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
+import ij.macro.Interpreter;
 import ij.util.Tools;
 
 /** Implements ImageJ's Analyze Particles command.
@@ -366,7 +367,6 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 					makeCustomLut();
 				drawIP.setColorModel(customLut);
 				drawIP.setFont(new Font("SansSerif", Font.PLAIN, 9));
-
 			}
 			outlines.addSlice(null, drawIP);
 
@@ -700,13 +700,17 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		}
 		if (addToManager) {
 			if (roiManager==null) {
-				Frame frame = WindowManager.getFrame("ROI Manager");
-				if (frame==null)
-					IJ.run("ROI Manager...");
-				frame = WindowManager.getFrame("ROI Manager");
-				if (frame==null || !(frame instanceof RoiManager))
-					{addToManager=false; return;}
-				roiManager = (RoiManager)frame;
+				if (Macro.getOptions()!=null && Interpreter.isBatchMode())
+					roiManager = Interpreter.getBatchModeRoiManager();
+				if (roiManager==null) {
+					Frame frame = WindowManager.getFrame("ROI Manager");
+					if (frame==null)
+						IJ.run("ROI Manager...");
+					frame = WindowManager.getFrame("ROI Manager");
+					if (frame==null || !(frame instanceof RoiManager))
+						{addToManager=false; return;}
+					roiManager = (RoiManager)frame;
+				}
 				if (resetCounter)
 					roiManager.runCommand("reset");
 			}
@@ -780,10 +784,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				prefix = "Count Masks of ";
 			else
 				prefix = "Drawing of ";
-
-			drawIP.setMinAndMax(0, maxParticleCount);
 			outlines.update(drawIP);
-					   
 			new ImagePlus(prefix+title, outlines).show();
 		}
 		if (showResults && !processStack) {

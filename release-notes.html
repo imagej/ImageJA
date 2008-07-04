@@ -5,24 +5,19 @@
 </head>
 <body>
 
-<li> <u>1.41a, 21 April 2008</u>
+<li> <u>1.41g, 1 July 2008</u>
 <ul>
-<li> The Java version is displayed in the status bar on startup.
-<li> Fixed a bug that caused images saved in TIFF format to have their
-contents shifted left if the "Info" property was set to an empty string.
-<li> Fixed a bug, introduced in v1.40c,  that caused stacks saved in TIFF format to have their
-contents shifted left if any slice had a blank label and all
-other slice labels where null.
-
-<li> The <i>Duplicate</i>, <i>Scale</i>, <i>Adjust&gt;Size</i>, <i>Z Project</i>,
-<i>Reduce Dimensionality</i>, <i>Image Calculator</i>,  <i>Make Binary</i> and 
-<i>Convert to Mask</i> commands now work
-correctly with hyperstacks that have custom channel LUTs.
-<li> The <i>Edit&gt;Copy to System</i> command works with composite color images.
-<li> Fixed a bug that caused the setAutoThreshold() macro function to sometimes
-not produce the same result as the "Auto" button in the "Threshold" window.
-<li> Fixed a bug that caused the getLut() macro function to throw an exception
-when attempting to retrieve a LUT from a composite image in batch mode
+<li> Dialogs can now be canceled by clicking on the close box.
+<li>  Added <i>Merge Channels</i>, <i>Edit LUT</i>, <i>Red</i>, <i>Green</i>, <i>Blue</i>, <i>Cyan</i>, <i>Magenta</i>,
+ <i>Yellow</i> and <i>Grays</i> command to the <i>More&#xbb; </i>menu in the "Channels" tool.
+ <li> Split the <i>Plugins&gt;New</i> command into a submenu with <i>Macro</i>, <i>JavaScript</i>, <i>Plugin</i>, <i>Plugin Filter</i>,
+ <i>Plugin Frame</i>, <i>Text Window</i> and <i>Table</i> commands.
+<li> Thanks to a patch by Ulf Dittmer, the <i>File&gt;Open Recent</i> menu 
+no longer lists files multiple times.
+<li> The "The calibration of this image conflicts with the current global calibration."
+warning message is not displayed for images opened in macros.
+<li> The waitForUser() macro function remembers the dialog box location.
+<li> The PlugInClassLoader loads classes from JAR files faster.
 </ul>
 
 </body>

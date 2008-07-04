@@ -40,6 +40,7 @@ public class Functions implements MacroConstants, Measurements {
     boolean antialiasedText;
     StringBuffer buffer;
     RoiManager roiManager;
+    Properties props;
     
     boolean saveSettingsCalled;
 	boolean usePointerCursor, hideProcessStackDialog;
@@ -200,6 +201,7 @@ public class Functions implements MacroConstants, Measurements {
 			case GET_VALUE: value = getValue(); break;
 			case STACK: value = doStack(); break;
 			case MATCHES: value = matches(); break;
+			case GET_STRING_WIDTH: value = getStringWidth(); break;
 			default:
 				interp.error("Numeric function expected");
 		}
@@ -236,6 +238,7 @@ public class Functions implements MacroConstants, Measurements {
 			case STRING: str = doString(); break;
 			case EXT: str = doExt(); break;
 			case EXEC: str = exec(); break;
+			case LIST: str = doList(); break;
 			default:
 				str="";
 				interp.error("String function expected");
@@ -567,7 +570,7 @@ public class Functions implements MacroConstants, Measurements {
         	interp.getRightParen();
         	return;
 		}
-		double arg1 = (int)interp.getExpression();
+		double arg1 = interp.getExpression();
 		if (interp.nextToken()==')')
 			{interp.getRightParen(); setColor(arg1); return;}
 		int red=(int)arg1, green=(int)getNextArg(), blue=(int)getLastArg();
@@ -2511,8 +2514,22 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		Calibration cal = calibrated?imp.getCalibration():null;
 		ImageProcessor ip = getProcessor();
-		ip.setRoi(imp.getRoi());
-		ImageStatistics stats = ImageStatistics.getStatistics(ip, params, cal);
+		ImageStatistics stats = null;
+		Roi roi = imp.getRoi();
+		if (roi!=null && roi.isLine()) {
+			ProfilePlot profile = new ProfilePlot(imp);
+			double[] values = profile.getProfile();
+			ImageProcessor ip2 = new FloatProcessor(values.length, 1, values);
+			if (roi instanceof Line) {
+				Line l = (Line)roi;
+				if ((l.y1==l.y2||l.x1==l.x2)&&l.x1==l.x1d&& l.y1==l.y1d&& l.x2==l.x2d&& l.y2==l.y2d)
+					ip2.setRoi(0, 0, ip2.getWidth()-1, 1);
+			}
+			stats = ImageStatistics.getStatistics(ip2, params, cal);
+		} else {
+			ip.setRoi(roi);
+			stats = ImageStatistics.getStatistics(ip, params, cal);
+		}
 		if (calibrated)
 			count.setValue(stats.area);
 		else
@@ -2645,6 +2662,8 @@ public class Functions implements MacroConstants, Measurements {
 				gd.addNumericField(prompt, defaultNumber, decimalPlaces, columns, units);
 			} else if (name.equals("addCheckbox")) {
 				gd.addCheckbox(getFirstString(), getLastArg()==1?true:false);
+			} else if (name.equals("addCheckboxGroup")) {
+				addCheckboxGroup(gd);
 			} else if (name.equals("addMessage")) {
 				gd.addMessage(getStringArg());
 			} else if (name.equals("addChoice")) {
@@ -2686,6 +2705,21 @@ public class Functions implements MacroConstants, Measurements {
 		return null;
 	}
 	
+	void addCheckboxGroup(GenericDialog gd) {
+		int rows = (int)getFirstArg();
+		int columns = (int)getNextArg();
+		interp.getComma();
+		String[] labels = getStringArray();
+		int n = labels.length;
+		double[] dstates = getLastArray();
+		if (n!=dstates.length)
+			interp.error("labels.length!=states.length");
+		boolean[] states = new boolean[n];
+		for (int i=0; i<n; i++)
+			states[i] = dstates[i]==1.0?true:false;
+		gd.addCheckboxGroup(rows, columns, labels, states);
+	}
+
 	void getDateAndTime() {
 		Variable year = getFirstVariable();
 		Variable month = getNextVariable();
@@ -2787,6 +2821,7 @@ public class Functions implements MacroConstants, Measurements {
 		interp.getRightParen();
 		ImageCalculator ic = new ImageCalculator();
 		ic.calculate(operator, img1, img2);
+		resetImage();
 	}
 
 	void setRGBWeights() {
@@ -2892,9 +2927,9 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("dateLastModified"))
 			return (new Date(f.lastModified())).toString();
 		else if (name.equals("delete")) {
-			if (isValid(f)) 
-				f.delete();
-			return null;
+			String ok = null;
+			if (isValid(f)) ok=f.delete()?"1":"0";
+			return ok;
 		} else
 			interp.error("Unrecognized File function "+name);
 		return null;
@@ -3185,6 +3220,12 @@ public class Functions implements MacroConstants, Measurements {
 			Analyzer.setMeasurement(LABELS, state);
 		else if (arg1.startsWith("limit to"))
 			Analyzer.setMeasurement(LIMIT, state);
+		else if (arg1.equals("area"))
+			Analyzer.setMeasurement(AREA, state);
+		else if (arg1.equals("mean"))
+			Analyzer.setMeasurement(MEAN, state);
+		else if (arg1.startsWith("std"))
+			Analyzer.setMeasurement(STD_DEV, state);
 		else
 			interp.error("Invalid option");
 	}
@@ -3501,6 +3542,8 @@ public class Functions implements MacroConstants, Measurements {
 			setDisplayMode(imp, getStringArg());
 		else if (name.equals("getDisplayMode"))
 			getDisplayMode(imp);
+		else if (name.equals("setActiveChannels"))
+			setActiveChannels(imp, getStringArg());
 		else if (name.equals("swap"))
 			swapStackImages(imp);
 		else
@@ -3508,6 +3551,19 @@ public class Functions implements MacroConstants, Measurements {
 		return Double.NaN;
 	}
 	
+	void setActiveChannels(ImagePlus imp, String channels) {
+		if (!imp.isComposite())
+			interp.error("Composite image required");
+		boolean[] active = ((CompositeImage)imp).getActiveChannels();
+		for (int i=0; i<CompositeImage.MAX_CHANNELS; i++) {
+			boolean b = false;
+			if (channels.length()>i && channels.charAt(i)=='1')
+				b = true;
+			active[i] = b;
+		}
+		imp.updateAndDraw();
+	}
+
 	void setDisplayMode(ImagePlus imp, String mode) {
 		mode = mode.toLowerCase(Locale.US);
 		if (!imp.isComposite())
@@ -3632,6 +3688,62 @@ public class Functions implements MacroConstants, Measurements {
 		}
 		waitForUserDialog = new WaitForUserDialog(title, text);
 		waitForUserDialog.show();
+	}
+	
+	double getStringWidth() {
+		resetImage();
+		ImageProcessor ip = getProcessor();
+		setFont(ip);
+		return ip.getStringWidth(getStringArg()); 
+	}
+
+	String doList() {
+		interp.getToken();
+		if (interp.token!='.')
+			interp.error("'.' expected");
+		interp.getToken();
+		if (!(interp.token==WORD||interp.token==ARRAY_FUNCTION))
+			interp.error("Function name expected: ");
+		if (props==null)
+			props = new Properties();
+		String value = null;
+		String name = interp.tokenString;
+		if (name.equals("get")) {
+			value = props.getProperty(getStringArg());
+			value = value!=null?value:"";
+		} else if (name.equals("set")||name.equals("add")||name.equals("put"))
+			props.setProperty(getFirstString(), getLastString());
+		else if (name.equals("clear")||name.equals("reset"))
+			props.clear();
+		else if (name.equals("setList"))
+			setProperties();
+		else if (name.equals("getList"))
+			value = getProperties();
+		else if (name.equals("size")||name.equals("getSize")) {
+			interp.getParens();
+			value = ""+props.size();
+		} else
+			interp.error("Unrecognized List function");
+		return value;
+	}
+	
+	void setProperties() {
+		String list = getStringArg();
+		props.clear();
+		try {
+			InputStream is = new ByteArrayInputStream(list.getBytes("utf-8"));
+			props.load(is);
+		} catch(Exception e) {
+			interp.error(""+e);
+		}
+	}
+	
+	String getProperties() {
+		interp.getParens();
+		String list = props.toString();
+		list = list.substring(1, list.length()-1);
+		list = list.replaceAll(", ", "\n");
+		return list;
 	}
 
 } // class Functions

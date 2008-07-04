@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.awt.datatransfer.*;																																																																																													
+import java.lang.reflect.*;
 import ij.*;
 import ij.gui.*;
 import ij.util.Tools;
@@ -18,8 +19,19 @@ import ij.io.SaveDialog;
 public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	TextListener, ClipboardOwner, MacroConstants {
 	
-	public static final int MAX_SIZE=28000, MAX_MACROS=50, XINC=10, YINC=18;
+	public static String JavaScriptIncludes =
+		"importPackage(Packages.ij);"+
+		"importPackage(Packages.ij.gui);"+
+		"importPackage(Packages.ij.process);"+
+		"importPackage(Packages.ij.measure);"+
+		"importPackage(java.lang);"+
+		"importPackage(java.awt);"+
+		"function print(s) {IJ.log(s);};";
+	public static String JS_NOT_FOUND = 
+		"JavaScript.jar was not found in the plugins\nfolder. It can be downloaded from:\n \nrsb.info.nih.gov/ij/download/tools/JavaScript.jar";
+	public static final int MAX_SIZE=28000, XINC=10, YINC=18;
 	public static final int MONOSPACED=1, MENU_BAR=2;
+	public static final int MACROS_MENU_ITEMS = 6;
 	static final String FONT_SIZE = "editor.font.size";
 	static final String FONT_MONO= "editor.font.mono";
 	private TextArea ta;
@@ -124,8 +136,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			setMenuBar(mb);
 		
 		m = new Menu("Font");
-		m.add(new MenuItem("Make Text Smaller", new MenuShortcut(KeyEvent.VK_J)));
-		m.add(new MenuItem("Make Text Larger", new MenuShortcut(KeyEvent.VK_K)));
+		m.add(new MenuItem("Make Text Smaller", new MenuShortcut(KeyEvent.VK_N)));
+		m.add(new MenuItem("Make Text Larger", new MenuShortcut(KeyEvent.VK_M)));
 		m.addSeparator();
 		monospaced = new CheckboxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
 		if ((options&MONOSPACED)!=0) monospaced.setState(true);
@@ -161,14 +173,17 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
 		ta.setCaretPosition(0);
 		setWindowTitle(name);
-		if (name.endsWith(".txt") || name.endsWith(".ijm") || name.indexOf(".")==-1) {
-			// 'baseCount' in MacroInstaller must be updated if items are added to this menu
+		if (name.endsWith(".txt") || name.endsWith(".ijm") || name.endsWith(".js")|| name.indexOf(".")==-1) {
 			macrosMenu = new Menu("Macros");			
 			macrosMenu.add(new MenuItem("Run Macro", new MenuShortcut(KeyEvent.VK_R)));
 			macrosMenu.add(new MenuItem("Evaluate Line", new MenuShortcut(KeyEvent.VK_E)));
 			macrosMenu.add(new MenuItem("Abort Macro"));
 			macrosMenu.add(new MenuItem("Install Macros", new MenuShortcut(KeyEvent.VK_I)));
+			macrosMenu.add(new MenuItem("Function Finder...", new MenuShortcut(KeyEvent.VK_F, true)));
 			macrosMenu.addSeparator();
+			macrosMenu.add(new MenuItem("Evaluate JavaScript", new MenuShortcut(KeyEvent.VK_J, false)));
+			macrosMenu.addSeparator();
+			// MACROS_MENU_ITEMS must be updated if items are added to this menu
 			macrosMenu.addActionListener(this);
 			mb.add(macrosMenu);
 			if (text.indexOf("macro ")!=-1)
@@ -292,6 +307,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	}
 	
 	void runMacro() {
+		if (getTitle().endsWith(".js"))
+			{evaluateJavaScript(); return;}
 		int start = ta.getSelectionStart();
 		int end = ta.getSelectionEnd();
 		String text;
@@ -302,6 +319,26 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		new MacroRunner(text);
 	}
 	
+	void evaluateJavaScript() {
+		if (!getTitle().endsWith(".js"))
+			setTitle(SaveDialog.setExtension(getTitle(), ".js"));
+		int start = ta.getSelectionStart();
+		int end = ta.getSelectionEnd();
+		String text;
+		if (start==end)
+			text = ta.getText();
+		else
+			text = ta.getSelectedText();
+		if (text.equals("")) return;
+		if (IJ.isJava16() && !IJ.isMacOSX()) {
+			IJ.runPlugIn("JavaScriptEvaluator", text);
+			return;
+		} else {
+			Object js = IJ.runPlugIn("JavaScript", JavaScriptIncludes+text);
+			if (js==null) IJ.error(JS_NOT_FOUND);
+		}
+	}
+
 	void evaluateLine() {
 		int start = ta.getSelectionStart();
 		int end = ta.getSelectionEnd();
@@ -464,6 +501,10 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				IJ.beep();		
 		} else if ("Install Macros".equals(what))
 				installMacros(ta.getText(), true);
+		else if ("Function Finder...".equals(what))
+			new FunctionFinder();
+		else if ("Evaluate JavaScript".equals(what))
+			evaluateJavaScript();
 		else if ("Print...".equals(what))
 			print();
 		else if (what.startsWith("Paste"))

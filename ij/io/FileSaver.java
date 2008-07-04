@@ -214,10 +214,7 @@ public class FileSaver {
 		false if the image is not 8-bits or there is an I/O error. */
 	public boolean saveAsGif(String path) {
 		if (!okForGif(imp)) return false;
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.GifWriter", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		IJ.runPlugIn(imp, "ij.plugin.GifWriter", path);
 		updateImp(fi, fi.GIF_OR_JPG);
 		return true;
 	}
@@ -246,7 +243,8 @@ public class FileSaver {
 		@see ij.plugin.JpegWriter#getQuality
 	*/
 	public boolean saveAsJpeg(String path) {
-		JpegWriter.write(imp,path,JpegWriter.getQuality());
+		Object jpegWriter = null;
+		IJ.runPlugIn(imp, "ij.plugin.JpegWriter", path); //ts
 		if (!(imp.getType()==ImagePlus.GRAY16 || imp.getType()==ImagePlus.GRAY32))
 			updateImp(fi, fi.GIF_OR_JPG);
 		return true;
@@ -264,10 +262,7 @@ public class FileSaver {
 
 	/** Save the image in BMP format using the specified path. */
 	public boolean saveAsBmp(String path) {
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.BMP_Writer", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		IJ.runPlugIn(imp, "ij.plugin.BMP_Writer", path);
 		return true;
 	}
 
@@ -289,10 +284,7 @@ public class FileSaver {
 		and RGB images in PPM (portable pixmap) format,
 		using the specified path. */
 	public boolean saveAsPgm(String path) {
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.PNM_Writer", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		IJ.runPlugIn(imp, "ij.plugin.PNM_Writer", path);
 		return true;
 	}
 
@@ -314,10 +306,7 @@ public class FileSaver {
 	/** Save the image in PNG format using the specified path. 
 		Requires Java 1,4 or later. */
 	public boolean saveAsPng(String path) {
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.PNG_Writer", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		IJ.runPlugIn(imp, "ij.plugin.PNG_Writer", path);
 		return true;
 	}
 
@@ -335,10 +324,7 @@ public class FileSaver {
 	/** Save the image in FITS format using the specified path. */
 	public boolean saveAsFits(String path) {
 		if (!okForFits(imp)) return false;
-		ImagePlus tempImage = WindowManager.getTempCurrentImage();
-		WindowManager.setTempCurrentImage(imp);
-		IJ.runPlugIn("ij.plugin.FITS_Writer", path);
-		WindowManager.setTempCurrentImage(tempImage);
+		IJ.runPlugIn(imp, "ij.plugin.FITS_Writer", path);
 		return true;
 	}
 

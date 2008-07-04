@@ -35,8 +35,8 @@ import ij.util.Tools;
 * to spaces when the dialog is displayed. For example, change the checkbox labels
 * "Show Quality" and "Show Residue" to "Show_Quality" and "Show_Residue".
 */
-public class GenericDialog extends Dialog implements ActionListener,
-TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
+public class GenericDialog extends Dialog implements ActionListener, TextListener, 
+FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	public static final int MAX_SLIDERS = 25;
 	protected Vector numberField, stringField, checkbox, choice, slider;
@@ -68,6 +68,7 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
     private final static String previewRunning = "wait...";
     private boolean recorderOn;         // whether recording is allowed
     private boolean yesNoCancel;
+    private char echoChar;
 
     /** Creates a new GenericDialog with the specified title. Uses the current image
     	image window as the parent frame or the ImageJ frame if no image windows
@@ -93,6 +94,7 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		macroOptions = Macro.getOptions();
 		macro = macroOptions!=null;
 		addKeyListener(this);
+		addWindowListener(this);
     }
     
 	//void showFields(String id) {
@@ -220,6 +222,8 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 
 		TextField tf = new TextField(defaultText, columns);
 		if (IJ.isLinux()) tf.setBackground(Color.white);
+		tf.setEchoChar(echoChar);
+		echoChar = 0;
 		tf.addActionListener(this);
 		tf.addTextListener(this);
 		tf.addFocusListener(this);
@@ -234,6 +238,12 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 			saveLabel(tf, label);
 		y++;
     }
+    
+    /** Sets the echo character for the next string field. */
+    public void setEchoChar(char echoChar) {
+    	this.echoChar = echoChar;
+    }
+    
 	/** Adds a checkbox.
 	* @param label			the label
 	* @param defaultValue	the initial state
@@ -290,7 +300,11 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
      * if automatic preview is desired, null otherwise.
      */
     public void addPreviewCheckbox(PlugInFilterRunner pfr) {
-        if (previewCheckbox != null) return;
+        if (previewCheckbox != null)
+        	return;
+    	ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp!=null && imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
+			return;
         this.pfr = pfr;
         addCheckbox(previewLabel, false, true);
     }
@@ -300,7 +314,11 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
      * Note that a GenericDialog can have only one PreviewCheckbox
      */
     public void addPreviewCheckbox(PlugInFilterRunner pfr, String label) {
-        if (previewCheckbox != null) return;
+        if (previewCheckbox != null)
+        	return;
+    	ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp!=null && imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
+			return;
         previewLabel = label;
         this.pfr = pfr;
         addCheckbox(previewLabel, false, true);
@@ -1083,4 +1101,16 @@ TextListener, FocusListener, ItemListener, KeyListener, AdjustmentListener {
 		}
 	}
     	
+    public void windowClosing(WindowEvent e) {
+		wasCanceled = true; 
+		dispose(); 
+    }
+    
+    public void windowActivated(WindowEvent e) {}
+    public void windowOpened(WindowEvent e) {}
+    public void windowClosed(WindowEvent e) {}
+    public void windowIconified(WindowEvent e) {}
+    public void windowDeiconified(WindowEvent e) {}
+    public void windowDeactivated(WindowEvent e) {}
+
 }

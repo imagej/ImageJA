@@ -86,6 +86,8 @@ public class Animator implements PlugIn {
 		Calibration cal = imp.getCalibration();
 		if (cal.fps!=0.0)
 			animationRate = cal.fps;
+		if (animationRate<0.1)
+			animationRate = 1.0;
 		int frames = imp.getNFrames();
 		int slices = imp.getNSlices();
 		
@@ -203,7 +205,7 @@ public class Animator implements PlugIn {
 			animationRate = cal.fps;
 		else if (cal.frameInterval!=0.0 && cal.getTimeUnit().equals("sec"))
 			animationRate = 1.0/cal.frameInterval;
-		int decimalPlaces = (int)animationRate==animationRate?0:1;
+		int decimalPlaces = (int)animationRate==animationRate?0:3;
 		GenericDialog gd = new GenericDialog("Animation Options");
 		gd.addNumericField("Speed (0.1-1000 fps):", animationRate, decimalPlaces);
 		gd.addNumericField("First Frame:", firstFrame, 0);
@@ -224,7 +226,7 @@ public class Animator implements PlugIn {
 		cal.loop = gd.getNextBoolean();
 		start = gd.getNextBoolean();
 		if (speed>1000.0) speed = 1000.0;
-		if (speed<0.1) speed = 0.1;
+		//if (speed<0.1) speed = 0.1;
 		animationRate = speed;
 		if (animationRate!=0.0)
 			cal.fps = animationRate;
@@ -235,13 +237,26 @@ public class Animator implements PlugIn {
 	void nextSlice() {
 		if (!imp.lock())
 			return;
-		if (IJ.altKeyDown())
-			slice += 10;
-		else
-			slice++;
-		if (slice>nSlices)
-			slice = nSlices;
-		swin.showSlice(slice);
+		boolean hyperstack = imp.isHyperStack();
+		if (hyperstack && imp.getNChannels()>1) {
+			int c = imp.getChannel() + 1;
+			int channels = imp.getNChannels();
+			if (c>channels) c = channels;
+			swin.setPosition(c, imp.getSlice(), imp.getFrame());
+		} else if (hyperstack && imp.getNSlices()>1) {
+			int z = imp.getSlice() + 1;
+			int slices = imp.getNSlices();
+			if (z>slices) z = slices;
+			swin.setPosition(imp.getNChannels(), z, imp.getFrame());
+		} else {
+			if (IJ.altKeyDown())
+				slice += 10;
+			else
+				slice++;
+			if (slice>nSlices)
+				slice = nSlices;
+			swin.showSlice(slice);
+		}
 		imp.updateStatusbarValue();
 		imp.unlock();
 	}
@@ -249,13 +264,24 @@ public class Animator implements PlugIn {
 	void previousSlice() {
 		if (!imp.lock())
 			return;
-		if (IJ.altKeyDown())
-			slice -= 10;
-		else
-			slice--;
-		if (slice<1)
-			slice = 1;
-		swin.showSlice(slice);
+		boolean hyperstack = imp.isHyperStack();
+		if (hyperstack && imp.getNChannels()>1) {
+			int c = imp.getChannel() - 1;
+			if (c<1) c = 1;
+			swin.setPosition(c, imp.getSlice(), imp.getFrame());
+		} else if (hyperstack && imp.getNSlices()>1) {
+			int z = imp.getSlice() - 1;
+			if (z<1) z = 1;
+			swin.setPosition(imp.getNChannels(), z, imp.getFrame());
+		} else {
+			if (IJ.altKeyDown())
+				slice -= 10;
+			else
+				slice--;
+			if (slice<1)
+				slice = 1;
+			swin.showSlice(slice);
+		}
 		imp.updateStatusbarValue();
 		imp.unlock();
 	}

@@ -41,7 +41,7 @@ public class CompositeImage extends ImagePlus {
 	public CompositeImage(ImagePlus imp) {
 		this(imp, COLOR);
 	}
-
+	
 	public CompositeImage(ImagePlus imp, int mode) {
 		if (mode<COMPOSITE || mode>GRAYSCALE)
 			mode = COLOR;
@@ -75,9 +75,8 @@ public class CompositeImage extends ImagePlus {
 		setCalibration(imp.getCalibration());
 		FileInfo fi = imp.getOriginalFileInfo();
 		if (fi!=null) {
-			displayRanges = fi.displayRanges; ////////////////////////
+			displayRanges = fi.displayRanges; 
 			channelLuts = fi.channelLuts;
-			fi.displayRanges = null;
 		}
 		setFileInfo(fi);
 		Object info = imp.getProperty("Info");
@@ -141,9 +140,10 @@ public class CompositeImage extends ImagePlus {
 			lut = new LUT[channels];
 			LUT lut2 = channels>MAX_CHANNELS?createLutFromColor(Color.white):null;
 			for (int i=0; i<channels; ++i) {
-				if (channelLuts!=null && i<channelLuts.length)
+				if (channelLuts!=null && i<channelLuts.length) {
 					lut[i] = createLutFromBytes(channelLuts[i]);
-				else if (i<MAX_CHANNELS)
+					customLuts = true;
+				} else if (i<MAX_CHANNELS)
 					lut[i] = createLutFromColor(colors[i]);
 				else
 					lut[i] = (LUT)lut2.clone();
@@ -172,7 +172,14 @@ public class CompositeImage extends ImagePlus {
 		}
 	}
 
-	public void updateImage() {
+	public void updateAndDraw() {
+		updateImage();
+		if (win!=null)
+			notifyListeners(UPDATED);
+		draw();
+	}
+
+	public synchronized void updateImage() {
 		int imageSize = width*height;
 		int nChannels = getNChannels();
 		int redValue, greenValue, blueValue;
@@ -218,6 +225,7 @@ public class CompositeImage extends ImagePlus {
 		if (cip==null||cip[0].getWidth()!=width||cip[0].getHeight()!=height||getBitDepth()!=bitDepth) {
 			setup(nChannels, getImageStack());
 			rgbPixels = null;
+			rgbSampleModel = null;
 			if (currentChannel>=nChannels) {
 				setSlice(1);
 				currentChannel = 0;
@@ -454,10 +462,10 @@ public class CompositeImage extends ImagePlus {
 	
 	/* Returns the LUT used by the specified channel. */
 	public LUT getChannelLut(int channel) {
-		if (channel<1 || channel>lut.length)
-			throw new IllegalArgumentException("Channel out of range");
 		int channels = getNChannels();
 		if (lut==null) setupLuts(channels);
+		if (channel<1 || channel>lut.length)
+			throw new IllegalArgumentException("Channel out of range");
 		return lut[channel-1];
 	}
 	

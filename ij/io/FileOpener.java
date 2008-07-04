@@ -119,7 +119,7 @@ public class FileOpener {
 					mode = CompositeImage.GRAYSCALE;
 				}
         		imp = new CompositeImage(imp, mode);
-        		if (!planar) {
+        		if (!planar && fi.displayRanges==null) {
         			for (int c=1; c<=3; c++) {
         				imp.setPosition(c, 1, 1);
         				imp.setDisplayRange(minValue, maxValue);
@@ -384,7 +384,7 @@ public class FileOpener {
 		
 	void checkForCalibrationConflict(ImagePlus imp, Calibration cal) {
 		Calibration gcal = imp.getGlobalCalibration();
-		if  (gcal==null || !showConflictMessage)
+		if  (gcal==null || !showConflictMessage || IJ.isMacro())
 			return;
 		if (cal.pixelWidth==gcal.pixelWidth && cal.getUnit().equals(gcal.getUnit()))
 			return;

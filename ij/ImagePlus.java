@@ -96,10 +96,9 @@ public class ImagePlus implements ImageObserver, Measurements {
 		title="null";
     }
     
-    /** Constructs an ImagePlus from an AWT Image. The first argument
-		will be used as the title of the window that displays the image.
-		Throws an IllegalStateException if an error occurs 
-		while loading the image. */
+    /** Constructs an ImagePlus from an Image or BufferedImage. The first 
+		argument will be used as the title of the window that displays the image.
+		Throws an IllegalStateException if an error occurs while loading the image. */
     public ImagePlus(String title, Image img) {
 		this.title = title;
     	ID = --currentID;
@@ -388,13 +387,21 @@ public class ImagePlus implements ImageObserver, Measurements {
 		activated = true;
 	}
 		
-	/** Returns the current AWT image. */
+	/** Returns this image as a AWT image. */
 	public Image getImage() {
 		if (img==null && ip!=null)
 			img = ip.createImage();
 		return img;
 	}
 		
+	/** Returns this image as a BufferedImage. */
+	public BufferedImage getBufferedImage() {
+		if (isComposite())
+			return (new ColorProcessor(getImage())).getBufferedImage();
+		else
+			return ip.getBufferedImage();
+	}
+
 	/** Returns this image's unique numeric ID. */
 	public int getID() {
 		return ID;
@@ -408,6 +415,9 @@ public class ImagePlus implements ImageObserver, Measurements {
 			BufferedImage bi = (BufferedImage)img;
 			if (bi.getType()==BufferedImage.TYPE_USHORT_GRAY) {
 				setProcessor(null, new ShortProcessor(bi));
+				return;
+			} else if (bi.getType()==BufferedImage.TYPE_BYTE_GRAY) {
+				setProcessor(null, new ByteProcessor(bi));
 				return;
 			}
 		}
@@ -1238,7 +1248,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (Roi.previousRoi!=null) {
 			Roi pRoi = Roi.previousRoi;
 			Rectangle r = pRoi.getBounds();
-			if (r.width<=width || r.height<=height) { // will it fit in this image?
+			if (r.width<=width || r.height<=height || isSmaller(pRoi)) { // will it (mostly) fit in this image?
 				roi = (Roi)pRoi.clone();
 				roi.setImage(this);
 				if (r.x>=width || r.y>=height || (r.x+r.width)<=0 || (r.y+r.height)<=0) // does it need to be moved?
@@ -1250,6 +1260,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 	}
 	
+	boolean isSmaller(Roi r) {
+		ImageProcessor mask = r.getMask();
+		if (mask==null) return false;
+		mask.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
+		ImageStatistics stats = ImageStatistics.getStatistics(mask, MEAN+LIMIT, null);
+		return stats.area<=width*height;
+	}
+	
 	/** Implements the File/Revert command. */
 	public void revert() {
 		if (getStackSize()>1) // can't revert stacks
@@ -1257,6 +1275,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		FileInfo fi = getOriginalFileInfo();
 		boolean isFileInfo = fi!=null && fi.fileFormat!=FileInfo.UNKNOWN;
 		if (!(isFileInfo || url!=null))
+			return;
+		if (getStackSize()>1 && (fi==null||fi.fileFormat!=FileInfo.TIFF||fi.compression!=FileInfo.COMPRESSION_NONE))
 			return;
 		if (ij!=null && changes && isFileInfo && !Interpreter.isBatchMode() && !IJ.isMacro() && !IJ.altKeyDown()) {
 			if (!IJ.showMessageWithCancel("Revert?", "Revert to saved version of\n\""+getTitle()+"\"?"))
@@ -1403,12 +1423,16 @@ public class ImagePlus implements ImageObserver, Measurements {
 			roi.setImage(null);
 		if (stack!=null) {
 			Object[] arrays = stack.getImageArray();
-			if (arrays!=null)
+			if (arrays!=null) {
 				for (int i=0; i<arrays.length; i++)
 					arrays[i] = null;
+			}
 		}
 		img = null;
-		//System.gc();
+		if (stack!=null||WindowManager.getWindowCount()==0) {
+			if (IJ.debugMode) IJ.log("System.gc()");
+			System.gc();
+		}
 	}
 	
 	/** Set <code>ignoreFlush true</code> to not have the pixel 
@@ -1744,6 +1768,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return openAsHyperStack;
 	}
 	
+	/** Returns true if this is a CompositeImage. */
 	public boolean isComposite() {
 		return compositeImage && getNChannels()>1 && (this instanceof CompositeImage);
 	}

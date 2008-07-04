@@ -4,6 +4,7 @@ import ij.process.*;
 import ij.gui.*;
 import ij.plugin.Macro_Runner;
 import ij.plugin.frame.Recorder;
+import ij.plugin.frame.RoiManager;
 import ij.util.Tools;
 import java.awt.*;
 import java.util.*;
@@ -36,7 +37,7 @@ public class Interpreter implements MacroConstants {
 	int startOfLocals = 0;
 
 	static Interpreter instance, previousInstance;
-	static boolean batchMode;
+	public static boolean batchMode;
 	static Vector imageTable; // images opened in batch mode
 	boolean done;
 	Program pgm;
@@ -645,6 +646,12 @@ public class Interpreter implements MacroConstants {
 				String name = pgm.table[token2>>TOK_SHIFT].str;
 				if (name.equals("getNumber") || name.equals("getCheckbox"))
 					return STRING_FUNCTION; 
+			} else if (pgm.table[address].type==FILE) {
+				int token2 = pgm.code[pc+4];
+				String name = pgm.table[token2>>TOK_SHIFT].str;
+				if (name.equals("exists")||name.equals("isDirectory")||name.equals("length")
+				||name.equals("getLength")||name.equals("rename")||name.equals("delete"))
+					return STRING_FUNCTION;
 			}
 			return Variable.STRING;
 		}
@@ -1633,6 +1640,23 @@ public class Interpreter implements MacroConstants {
  	public static String getAdditionalFunctions() {
  		return additionalFunctions;
 	} 
+	
+	/** Returns the batch mode RoiManager instance. */
+	public static RoiManager getBatchModeRoiManager() {
+		Interpreter interp = getInstance();
+		if (interp!=null && isBatchMode() && RoiManager.getInstance()==null) {
+			if (interp.func.roiManager==null)
+				interp.func.roiManager = new RoiManager(true);
+			return interp.func.roiManager;
+		} else
+			return null;
+	}
+	
+	/** Returns true if there is an internal batch mode RoiManager. */
+	public static boolean isBatchModeRoiManager() {
+		Interpreter interp = getInstance();
+		return interp!=null && isBatchMode() && interp.func.roiManager!=null;
+	}
 
 } // class Interpreter
 

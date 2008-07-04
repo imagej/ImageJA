@@ -42,6 +42,13 @@ import ij.measure.Calibration;
 
    Added z pixel aspect ratio support for multi-slice DICOM volumes.
    Michael Abramoff, 31-10-2000
+
+   Added DICOM tags to the dictionary (now contains about 2700 tags).
+   implemented getDouble() for VR = FD (Floating Double) and getFloat()
+   for VR = FL (Floating Single).
+   Extended case statement in getHeaderInfo to retrieve FD and FL values.
+   Johannes Hermen, Christian Moll, 25-04-2008
+
    */
 
 public class DICOM extends ImagePlus implements PlugIn {
@@ -183,6 +190,7 @@ class DicomDecoder {
 
 	private static final int PIXEL_REPRESENTATION = 0x00280103;
 	private static final int TRANSFER_SYNTAX_UID = 0x00020010;
+	private static final int SLICE_THICKNESS = 0x00180050;
 	private static final int SLICE_SPACING = 0x00180088;
 	private static final int SAMPLES_PER_PIXEL = 0x00280002;
 	private static final int PHOTOMETRIC_INTERPRETATION = 0x00280004;
@@ -238,11 +246,25 @@ class DicomDecoder {
 	public DicomDecoder(String directory, String fileName) {
 		this.directory = directory;
 		this.fileName = fileName;
+		String path = null;
+		if (dictionary==null) {
+			path = Prefs.getHomeDir()+File.separator+"DICOM_Dictionary.txt";
+			File f = new File(path);
+			if (f.exists()) try {
+				dictionary = new Properties();
+				InputStream is = new BufferedInputStream(new FileInputStream(f));
+				dictionary.load(is);
+				is.close();
+				if (IJ.debugMode) IJ.log("DicomDecoder: using "+dictionary.size()+" tag dictionary at "+path);
+			} catch (Exception e) {
+				dictionary = null;
+			}
+		}
 		if (dictionary==null) {
 			DicomDictionary d = new DicomDictionary();
 			dictionary = d.getDictionary();
+			if (IJ.debugMode) IJ.log("DicomDecoder: "+path+" not found; using "+dictionary.size()+" tag built in dictionary");
 		}
-		IJ.register(DICOM.class);
 	}
   
 	String getString(int length) throws IOException {
@@ -281,6 +303,58 @@ class DicomDecoder {
 			return ((b3<<24) + (b2<<16) + (b1<<8) + b0);
 		else
 			return ((b0<<24) + (b1<<16) + (b2<<8) + b3);
+	}
+
+	double getDouble() throws IOException {
+		int b0 = getByte();
+		int b1 = getByte();
+		int b2 = getByte();
+		int b3 = getByte();
+		int b4 = getByte();
+		int b5 = getByte();
+		int b6 = getByte();
+		int b7 = getByte();
+		long res = 0;
+		if (littleEndian) {
+			res += b0;
+			res += ( ((long)b1) << 8);
+			res += ( ((long)b2) << 16);
+			res += ( ((long)b3) << 24);
+			res += ( ((long)b4) << 32);
+			res += ( ((long)b5) << 40);
+			res += ( ((long)b6) << 48);
+			res += ( ((long)b7) << 56);         
+		} else {
+			res += b7;
+			res += ( ((long)b6) << 8);
+			res += ( ((long)b5) << 16);
+			res += ( ((long)b4) << 24);
+			res += ( ((long)b3) << 32);
+			res += ( ((long)b2) << 40);
+			res += ( ((long)b1) << 48);
+			res += ( ((long)b0) << 56);
+		}
+		return Double.longBitsToDouble(res);
+	}
+    
+	float getFloat() throws IOException {
+		int b0 = getByte();
+		int b1 = getByte();
+		int b2 = getByte();
+		int b3 = getByte();
+		int res = 0;
+		if (littleEndian) {
+			res += b0;
+			res += ( ((long)b1) << 8);
+			res += ( ((long)b2) << 16);
+			res += ( ((long)b3) << 24);     
+		} else {
+			res += b3;
+			res += ( ((long)b2) << 8);
+			res += ( ((long)b1) << 16);
+			res += ( ((long)b0) << 24);
+		}
+		return Float.intBitsToFloat(res);
 	}
   
 	byte[] getLut(int length) throws IOException {
@@ -471,7 +545,7 @@ class DicomDecoder {
 					getSpatialScale(fi, scale);
 					addInfo(tag, scale);
 					break;
-				case SLICE_SPACING:
+				case SLICE_THICKNESS: case SLICE_SPACING:
 					String spacing = getString(elementLength);
 					fi.pixelDepth = s2d(spacing);
 					addInfo(tag, spacing);
@@ -646,6 +720,20 @@ class DicomDecoder {
 		if (value!=null)
 			return id+": "+value;
 		switch (vr) {
+			case FD:
+				if (FD==8)
+					value = Double.toString(getDouble());
+				else
+					for (int i=0; i<elementLength; i++) getByte();
+				break;
+			case FL:
+				if (FD==8)
+					value = Float.toString(getFloat());
+				else
+					for (int i=0; i<elementLength; i++) getByte();
+				break;
+			case UT:
+				throw new IOException("ImageJ cannot read UT (unlimited text) DICOMs");
 			case AE: case AS: case AT: case CS: case DA: case DS: case DT:  case IS: case LO: 
 			case LT: case PN: case SH: case ST: case TM: case UI:
 				value = getString(elementLength);
@@ -662,7 +750,7 @@ class DicomDecoder {
 				break;
 			case IMPLICIT_VR:
 				value = getString(elementLength);
-				if (elementLength<=4 || elementLength>44) value=null;
+				if (elementLength>44) value=null;
 				break;
 			case SQ:
 				value = "";
@@ -755,8 +843,6 @@ class DicomDictionary {
 	}
 
 	String[] dict = {
-		//"00020000=ULFile Meta Elements Group Len",
-		//"00020001=OBFile Meta Info Version",
 		"00020002=UIMedia Storage SOP Class UID", 
 		"00020003=UIMedia Storage SOP Inst UID",
 		"00020010=UITransfer Syntax UID",
@@ -766,6 +852,7 @@ class DicomDictionary {
 		
 		"00080005=CSSpecific Character Set",
 		"00080008=CSImage Type",
+		"00080010=CSRecognition Code",
 		"00080012=DAInstance Creation Date",
 		"00080013=TMInstance Creation Time",
 		"00080014=UIInstance Creator UID",
@@ -783,6 +870,7 @@ class DicomDictionary {
 		"00080033=TMImage Time",
 		"00080034=TMOverlay Time",
 		"00080035=TMCurve Time",
+		"00080041=LOData Set Subtype",
 		"00080042=CSNuclear Medicine Series Type",
 		"00080050=SHAccession Number",
 		"00080052=CSQuery/Retrieve Level",
@@ -790,6 +878,7 @@ class DicomDictionary {
 		"00080058=AEFailed SOP Instance UID List",
 		"00080060=CSModality",
 		"00080064=CSConversion Type",
+		"00080068=CSPresentation Intent Type",
 		"00080070=LOManufacturer",
 		"00080080=LOInstitution Name",
 		"00080081=STInstitution Address",
@@ -800,11 +889,13 @@ class DicomDictionary {
 		"00080100=SHCode Value",
 		"00080102=SHCoding Scheme Designator",
 		"00080104=LOCode Meaning",
+		"00080201=SHTimezone Offset From UTC",
 		"00081010=SHStation Name",
 		"00081030=LOStudy Description",
 		"00081032=SQProcedure Code Sequence",
 		"0008103E=LOSeries Description",
 		"00081040=LOInstitutional Department Name",
+		"00081048=PNPhysician(s) of Record",
 		"00081050=PNAttending Physician's Name",
 		"00081060=PNName of Physician(s) Reading Study",
 		"00081070=PNOperator's Name",
@@ -1137,10 +1228,13 @@ class DicomDictionary {
 		"00200020=CSPatient Orientation",
 		"00200022=USOverlay Number",
 		"00200024=USCurve Number",
+		"00200030=DSImage Position",
 		"00200032=DSImage Position (Patient)",
 		"00200037=DSImage Orientation (Patient)",
+		"00200050=DSLocation",
 		"00200052=UIFrame of Reference UID",
 		"00200060=CSLaterality",
+		"00200070=LOImage Geometry Type",
 		"00200080=UIMasking Image UID",
 		"00200100=ISTemporal Position Identifier",
 		"00200105=ISNumber of Temporal Positions",
@@ -1179,6 +1273,10 @@ class DicomDictionary {
 		"00280108=USSmallest Pixel Value in Series",
 		"00280109=USLargest Pixel Value in Series",
 		"00280120=USPixel Padding Value",
+		"00280300=CSQuality Control Image",
+		"00280301=CSBurned In Annotation",
+		"00281040=CSPixel Intensity Relationship",
+		"00281041=SSPixel Intensity Relationship Sign",
 		"00281050=DSWindow Center",
 		"00281051=DSWindow Width",
 		"00281052=DSRescale Intercept",
@@ -1191,6 +1289,7 @@ class DicomDictionary {
 		"00281201=USRed Palette Color Lookup Table Data",
 		"00281202=USGreen Palette Color Lookup Table Data",
 		"00281203=USBlue Palette Color Lookup Table Data",
+		"00282110=CSLossy Image Compression",
 		"00283000=SQModality LUT Sequence",
 		"00283002=USLUT Descriptor",
 		"00283003=LOLUT Explanation",
