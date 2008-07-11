@@ -41,7 +41,7 @@ sub getFile {
 	if ($#list > 0 && $list[9] >= $date) {
 		return;
 	}
-	`wget -O $path $baseURL$path`;
+	`curl --silent $baseURL$path > $path`;
 	utime $date, $date, $path;
 	append('.wsync-add', $path);
 }
@@ -56,12 +56,12 @@ sub handleDir {
 		$path2 .= "/";
 	}
 
-	`wget -O .index.html $baseURL$path`;
+	`curl --silent $baseURL$path > .index.html`;
 
 	my %exists = ("." => 1, ".." => 1);
 	open my $f, "<.index.html";
 	while (<$f>) {
-		if (/A HREF="([^"]*)".*(\d\d)-([^-]*)-(\d\d\d\d) *(\d\d):(\d\d)/) {
+		if (/a href="([^"]*)".*(\d\d)-([^-]*)-(\d\d\d\d) *(\d\d):(\d\d)/) {
 			my $p = $1;
 			my $date = parseDate($4, $3, $2, $5, $6);
 			if ($p =~ /\//) {
