@@ -1,18 +1,23 @@
 #!/bin/sh
 
 TOOLS_DIR="$(cd "$(dirname "$0")" && pwd)"
-case "$1" in
-macros)
+case "$1,$3" in
+macros,)
 	CURRENT=macros
 	BASE_URL="http://rsb.info.nih.gov/ij/macros/"
 ;;
-*)
+,)
 	CURRENT=current
 	BASE_URL="http://rsb.info.nih.gov/ij/source/"
 ;;
+*)
+	CURRENT="$1"
+	BASE_URL="$2"
+	CURRENT_DIR="$3"
+	NO_PUSH=t
+;;
 esac
-
-CURRENT_DIR="$TOOLS_DIR/../.git/$CURRENT"
+test -z "$CURRENT_DIR" && CURRENT_DIR="$TOOLS_DIR/../.git/$CURRENT"
 
 # set up working directory
 test -d "$CURRENT_DIR" ||
@@ -54,4 +59,4 @@ exit
 
 GIT_AUTHOR_NAME="Wayne Rasband" GIT_AUTHOR_EMAIL="wsr@nih.gov" \
 	git commit -m "updated $(date +"%d.%m.%Y %H:%M")" &&
-	git push orcz HEAD
+	(test ! -z "$NO_PUSH" || git push orcz HEAD)
