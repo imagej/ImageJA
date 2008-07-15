@@ -2,8 +2,12 @@
 
 use Time::Local;
 
+if ($#ARGV ge 0) {
+	$baseURL = $ARGV[0];
+} else {
+	$baseURL = "http://rsb.info.nih.gov/ij/source/";
+}
 @stack = ("");
-$baseURL = "http://rsb.info.nih.gov/ij/source/";
 
 unlink '.wsync-all';
 unlink '.wsync-add';

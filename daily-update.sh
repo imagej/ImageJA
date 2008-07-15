@@ -1,7 +1,17 @@
 #!/bin/sh
 
 TOOLS_DIR="$(cd "$(dirname "$0")" && pwd)"
-CURRENT=current
+case "$1" in
+macros)
+	CURRENT=macros
+	BASE_URL="http://rsb.info.nih.gov/ij/macros/"
+;;
+*)
+	CURRENT=current
+	BASE_URL="http://rsb.info.nih.gov/ij/source/"
+;;
+esac
+
 CURRENT_DIR="$TOOLS_DIR/../.git/$CURRENT"
 
 # set up working directory
@@ -26,7 +36,7 @@ test refs/heads/$CURRENT = $(git symbolic-ref HEAD) || {
 	exit
 }
 
-perl "$TOOLS_DIR"/wsync.perl
+perl "$TOOLS_DIR"/wsync.perl "$BASE_URL"
 if [ -f .wsync-add ]; then
 	cat .wsync-add | tr "\n" "\0" | xargs -0r perl "$TOOLS_DIR"/mac2unix.pl
 	cat .wsync-add | tr "\n" "\0" | xargs -0r git-update-index --add
