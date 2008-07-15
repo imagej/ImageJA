@@ -1,0 +1,1239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Plugins</title>
+<link rel="stylesheet" type="text/css" href="../docs/ij.css" />
+<link rel="shortcut icon" href="http://rsb.info.nih.gov/ij/favicon.ico">
+<style type="text/css">
+body {max-width: 60em;}
+</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../index.html">home</a> | <a href="../notes.html">news</a> | <a href="../docs/index.html">docs</a> | <a href="../download.html">download</a> | plugins | <a href="../developer/index.html">macros/dev</a> | <a href="../links.html">links</a></p>
+<h1>Plugins</h1>
+
+<blockquote>
+
+<font size=+1>
+<font color="#224488" face="Helvetica, Arial" size=+2><b>Contents</b></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#acq">Acquisition </a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#analysis">Analysis</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#collections">Collections</a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#color">Color</a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#filters">Filters</a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#graphics">Graphics</a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#io">Input/Output </a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#examples">Programming Examples </a><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#stacks">Stacks </a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#utilities">Utilities</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#more">More Sites with Plugins</a><br>
+</font>
+<p>
+
+<a name=acq>
+<font color="#224488" face="Helvetica, Arial" size=+1><b>Acquisition</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="imaq.html">Hamamatsu Orca 12-bit Camera</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="shading-corrector.html">Shading Corrector</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="qt-capture.html">QuickTime Capture</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="twain.html">TWAIN</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jtwain.html">JTwain</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="sensicam.html">SensiCam Long Exposure Camera</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://rsb.info.nih.gov/ij/macros/tools/VideoCaptureTool.txt">Video Capture Macro Tool</a>
+(Video for Windows via <a href="http://www.virtualdub.org/">VirtualDub</a>)
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.scioncorp.com/pages/technical_support.htm#Modules">www.scioncorp.com:</a>
+Scion Frame Grabbers and Firewire Cameras
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.qimaging.com/">www.qimaging.com:</a>
+QImaging Firewire Cameras  
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pmmh.espci.fr/~daerr/progs/#ScionFGAkiz">ScionFGAkiz:</a>
+Scion full-frame-rate capture  
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pmmh.espci.fr/~daerr/progs/#FWCamAkiz">FWCamAkiz:</a>
+Mac OS X Firewire Cameras  
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pixelsmart.com/">www.pixelsmart.com:</a>
+PixelSmart Frame Grabbers  
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.bruxton.com/SIDX/">www.bruxton.com:</a>
+Andor, Cooke, Hamamatsu, PCO, Princeton Instruments, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Photometrics, Red Shirt Imaging and SciMeasure Cameras  
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.aas2.com/">www.aas2.com:</a>
+Ann Arbor Sensor Systems AXT100<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Thermal Imaging  Camera 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pco.de/pco/php/support/drivers_1-en__01040202.html">www.pco.de:</a>
+Cooke PCO, Sensicam and Pixelfly Cameras 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.mbl.edu/research/labs/adlc/CamAcqJ/index.html">mbl.edu:</a>
+CamAcqJ plugin for QImaging Retiga cameras (Windows only)
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.fclab.com/ImageJ.htm">www.fclab.com:</a>
+<a href="http://www.fclab.com/">FCLab</a>
+FC1000/2000 USB 2.0 Cameras (Windows only)
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://micro-manager.org/">micro-manager.org</a>
+(<i>&mu;Manager</i>): 
+Open source, multi-platform, extendable;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+stage, filter wheel and shutter control; serial I/O; Zeiss and Nikon <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+microscopes; Hamamatsu, Andor, PVCAM, DVC and IIDC Firewire cameras;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Shutters, stages, etc. by Vincent (Uniblitz), Ludl, Prior, ASI and Sutter
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.xlimaging.us/Image%20J%20Page.htm">xlimaging.us:</a>
+XLi megapixel USB 2.0 cameras (Windows only)
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.phase-hl.com/cgi-bin/querypage.cgi?FireCamIJ_uk">PHASE GmbH:</a>
+Firewire camera control software (Windows only)
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.eslide.net/civilcapture.php">CivilCapture:</a>
+Capture images using the
+<a href="http://lti-civil.org/">LTI-Civil</a> Java library
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.lumenera.com/">Lumenera:</a>
+Infinity USB 2.0 cameras (Mac only)
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.dagemti.com/?page=downloads&sec=software">Dage-MTI:</a>
+Plugin for XLV, XL16 and XLM cameras (Windows only)
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>
+
+
+<a name=analysis></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Analysis</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="acf.html">Autocorrelation</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mri-t2.html">MRI t2 calculations</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="line-analyzer.html">Line Analyzer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="image_correlator.html">Image Correlator</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="particle-remover.html">Particle Remover</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="circularity.html">Circularity</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mtf.html">Modulation Transfer Function</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="roi.html">Specify ROI</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="line.html">Specify Line Selection</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="comment-writer.html">Comment Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="histo16.html">16-bit Histogram</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="results.html">Results and Text</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="grid.html">Draw line or point grids</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="moments.html">Moment Calculator</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="batch-statistics.html">Batch Statistics</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="cell-counter.html">Cell Counter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="oval-profile.html">Oval Profile Plot</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-comparison.html">Color Comparison</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="radial-profile.html">Radial Profile Plot</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="microscope-scale.html">Microscope Scale</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mri-analysis.html">MRI Analysis Calculator</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="sync-windows.html">Sync Measure 3D</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hough-circles.html">Hough Circles</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="enclose.html">Convex Hull, Circularity, Roundness</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fraclac/fraclac.html">Fractal Dimension and Lacunarity</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="measure-label.html">Measure And Label</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="colocalization.html">Colocalization</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="granulometry.html">Granulometry</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="texture.html">Texture Analysis</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="named-measurement.html">Named Measurements</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="cell-outliner.html">Cell Outliner</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="grid-cycloid-arc.html">Grid Cycloid Arc</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-profiler.html">RGB Profiler</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="colocalization-finder.html">Colocalization Finder</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="spectrum-extractor.html">Spectrum Extractor</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="contact-angle.html">Contact Angle</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rg2bcolocalization.html">RG2B Colocalization</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-profiler.html">Color Profiler</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hull-circle.html">Hull and Circle</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mru/mru.html">MR Urography</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="template-matching.html">Template Matching</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="imt-snake.html"> Extract IMT from ultrasound images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="itcn.html"> ITCN (Image-based Tool for Counting Nuclei)</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="multi-cell-outliner.html"> Multi Cell Outliner</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fret/fret-calc.html">FRETcalc - FRET by acceptor photobleaching</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="track/jacop.html">JACoP (Just Another Co-localization Plugin)</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fret-analyzer/fret-analyzer.htm">FRET and Colocalization Analyzer</a>
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="casa.html">CASA (Computer Assisted Sperm Analyzer)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="radial-profile-ext.html">Radial Profile Plot Extended</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="concentric-circles.html">Concentric Circles (non-destructive overlay)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="azimuthal-average.html">Azimuthal Average</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="se-mtf/index.html">Slanted Edge Modulation Transfer Function</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="3d-noise.html">Calculate 3D Noise</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fwhm/index.html">FWHM (analyze photon detector pinhole images)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>
+
+<a name=collections></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Collections</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ucsd.html">UCSD Confocal Microscopy Plugins</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mbf-collection.html">MBF <i>ImageJ for Microscopy</i> Collection by Tony Collins</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>
+
+
+<a name=color></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Color</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-split.html">RGB Stack Splitter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-merge.html">RGB Stack Merge</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hsb-split.html">HSB Stack Splitter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="recolor.html">RGB Recolor</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lut-lister.html">LUT Lister</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-counter.html">Color Counter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-picker.html">Color Picker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-gray-merge.html">RGB Gray Stack Merge</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-chooser.html">Color Chooser</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lut-panel.html">LUT Panel</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-histogram.html">Color Histogram</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-measure.html">RGB Measure</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lut-editor.html">LUT Editor</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-inspector.html">3D Color Inspector/Color Histogram</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgb-measure-plus.html">RGB Measure Plus</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-space-converter.html">Color Space Converter</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="color-transforms.html">Color Transformer (Luv, Lab, HSI, HSV, HSL, etc.)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>
+
+
+<a name=filters></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Filters</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="convolver.html">Real Convolver</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fft.html">FFT</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="log-filter.html">LoG Filtering</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="normalize.html">Background Subtraction and Normalization</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ce.html">Contrast Enhancer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="background.html">Background Correction</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="swapper.html">Byte Swapper</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dct.html">Discrete Cosine Transform (DCT)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fft-filter.html">FFT Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fftj.html">FFTJ and DeconvolutionJ</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="expander.html">Unpack 12-bit Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="de-interlace.html">De-interlace</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="gaussian-filter.html">2D Gaussian Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="kalman.html">Kalman Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="de.html">Dual-Energy Algorithm</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="anisotropic-diffusion.html">Anisotropic Diffusion (edge-preserving noise reduction)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mixture-modeling.html">Mixture Modeling Thresholding</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="otsu-thresholding.html">Otsu Thresholding</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="watershed.html">Watershed Segmentation</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="gray-morphology.html">Grayscale Morphology</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="entropy.html">Maximum Entropy Thresholding</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hybrid2dmedian.html">2D Hybrid Median Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hybrid3dmedian.html">3D Hybrid Median Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="spectral-unmixing.html">Spectral Unmixing</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="haar-wavelet-filter.html">Haar Wavelet Filter and Adaptive Median Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="a-trous-wavelet-filter.html">'A trous' Wavelet Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="multi-thresholder.html">MultiThresholder (Isodata, Entropy, Otsu, Mixture Modeling)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="kuwahara.html">Kuwahara Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="gran-filter.html">Granulometric Filtering</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="windowed-sinc-filter.html">Windowed-Sinc Filter (low pass time series filter)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="anisotropic-diffusion-2d.html">Anisotropic Diffusion 2D (edge-preserving noise reduction)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="auto-gamma.html">Auto Gamma (gamma correction)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="linearize-gel-data.html">Linearize Gel Data</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="radon-transform.html">Radon Transform (back projection, sinogram)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="correct-shift.html">Correct X Shift of Confocal Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="multi-otsu-threshold.html">Multi Otsu Threshold</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="spectral-unmixing-plugin.html">Spectral Unmixing of Bioluminescence Signals</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lipschitz/index.html">Lipschitz Filter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="float-morphology.html">Float Morphology (erode, dilate, open, close)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="x-shifter.html">X_Shifter (correct pixel mismatch of confocal images)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="sigma-filter.html">Sigma Filter (edge-preserving noise reduction)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rolling-ball.html">Rolling Ball Background Subtraction</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mean-shift.html">Mean Shift Filter (edge-preserving smoothing)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>
+
+
+<a name=graphics></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Graphics</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="arrow.html">Arrow</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="text-demo.html">Text Demo</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="movie-player.html">QuickTime Movie Player</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="surface-plotter.html">3D Surface Plotter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="brush.html">Paint Brush</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="resizer.html">Resize Canvas</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="example-plot.html">Example Plot</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="morph.html">Morph one image to another</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="random-ovals.html">Random Ovals</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="java2d-3d-text.html">3D Text Demo using Java 2D</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="reducer.html">Reduce size using averaging</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="image-layering.html">Image Layering Toolbox</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="contour-plotter.html">Contour Plotter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="animated-sine.html">Animated Sine Wave</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dynamic-profiler.html">Dynamic Profiler</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="z-profiler.html">Z-Axis Profiler</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dotted-line.html">Dotted and Dashed Lines</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="radial-grid.html">Radial Grid</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="surface-plot-3d.html">Interactive 3D Surface Plots</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fractal-generator.html">Fractal Generator</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="DLA.html">Diffusion Limited Aggregate Models</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="FGM.html">Fractal Growth Models</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="polar-transformer.html">Polar Transformer (convert to polar coordinates)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>
+
+<a name=io></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Input/Output</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="analyze.html">Open and save Analyze format images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ahf.html">Open and save ASCII header format images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="spe.html">Open and save SPE Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jimi.html">Open and save PNG, PICT, Targa, etc. using Jimi</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="biorad.html">Open Biorad Z-Series</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="leica.html">Open Leica SP multi-channel stacks</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="batch-converter.html">Batch Converter</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="movie-opener.html">Open QuickTime Movies</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="movie-writer.html">Save stack as QuickTime movie</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="file-opener.html">Open Multiple Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="raw-file-opener.html">Import Multiple Raw Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stack-writer.html">Jimi Stack Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="avi.html">AVI Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jmf.html">JMF Movie Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="list-opener.html">Open Images Using a File List</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="agr.html">Animated Gif Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="leica-splitter.html">Leica SP Splitter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="pds.html">Open PDS Images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="roi-importer.html">Import polygon ROI from a text file</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lut-importer.html">Import LUT from a text file</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="path-writer.html">Save evenly spaced ROI coordinates</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="gif-stack-writer.html">Save stacks as animated gifs</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="avi-reader.html">AVI Reader</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="lsm-reader.html">LSM Reader (Zeiss LSM 510 confocal microscopes)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="bmp-writer.html">Save in BMP format</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="import-dicom.html">Import DICOM Sequences</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="guess-raw.html">Quess RAW</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="image-viewer.html">Image Viewer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="file-handler.html">Handle Extra File Types</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="iplab-reader.html">IPLab Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dicom-rewriter.html">DICOM Rewriter (Anonymizer)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="excel-writer.html">Excel Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="multi-opener.html">Multi FDF and VFF Opener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="open-sif.html">Opens Andor SIF Files</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="qt-extractor.html">QuickTime Still Extractor</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="png-writer.html">PNG Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="exif-reader.html">EXIF Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jmf-player.html">JMF Movie Player</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dicom-sort.html">DICOM Sort</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="bruker.html">Import Bruker NMR Files</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="avi-splitter.html">AVI Splitter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dicom-analyzer.html">DICOM Directory Analyser</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="zvi-reader.html">Zeiss ZVI Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="xyz2dem-importer.html">Import Digital Elevation Model from text file</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="isac.html">Open/save ISAC images (e.g., Fuji BAS scanners)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="DM3_Reader.html">Gatan DM3 Reader</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="track/delta.html">Deltavision Opener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="afm.html">Open Molecular Imaging and Nanoscope AFM files</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="nifti.html">NIfTI Input/Output</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="iireader.html">Packard InstantImager Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="unc.html">Open and Save UNC format images</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="qt-stack-writer.html">QuickTime Stack Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="pdf-writer.html">PDF Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="leica-tiff.html">Open Leica SP2 TIFF Sequence</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="pnm-writer.html">PGM/PPM/PNM Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="eps-writer.html">EPS (Encapsulated PostScript) Writer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="perkinelmer-reader.html">PerkinElmer Reader</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="nd2-reader.html">Nikon ND2 Reader (Windows only)</a>
+<br>
+
+
+<a name=examples></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Programming Examples</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="primes.html">Primes</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="steps.html">Step Maker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="display-updater.html">Display Updater</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mouse-listener.html">Mouse Listener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ip-demo.html">Image Processing Demo</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="key-listener.html">Key Listener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="fov-calculator.html">Field of View Calculator</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="gear-math.html">Gear Math</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="circle-test.html">Circle Test</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="panel-window.html">Image Window with Panel</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="tutorial.html">Examples from the Tutorial</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="inverter.html">Image Inverter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="bouncer.html">Window Focus Bouncer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="escape.html">Escape (aborting a filter)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="particle-analyzer.html">Custom Particle Analyzer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="packages.html">Using Packages for Utility Classes</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="command-line.html">Command Line Example</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="graphic-overlay.html">Non-destructive Graphic Overlay</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="pcl-demo.html">Load images, text and macros from a JAR file</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="dialog-grid.html">Add grid of numeric fields to a dialog</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jar-demo.html">Package plugins in a JAR file</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="preference-demo.html">Save/Restore User Preferences</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mysql.html">Link ImageJ to MySQL</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="image-listener.html">Image Listener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="signed-16bit-image.html">Create signed 16-bit image from array</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="editor-demo.html">Display text in an editor window</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="sine-cosine.html">Add values to the Results Table</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="jcalc.html">JCalc (an example PlugInFrame)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="tool-demo.html">Tool Demo (install and use tools)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="calculate-mean.html">Calculate Mean (using selection masks)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="blend-images.html">Blend Images using toFloat(i,fp) and setPixels(i,fp)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="imp-props.html">Get and set image properties using macros</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="5d-extensions.html">Image5D Macro Language Extensions</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rss-feed.html">RSS Feed Reader</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+
+<a name=stacks></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Stacks</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="tracker.html">Object Tracker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="reverser.html">Stack Reverser</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="group.html">Group_ZProjector</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="concatenator.html">Concatenator</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="combiner.html">Stack Combiner</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stack-histogram.html">Stack Histogram</>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stack-maker.html">Stack Maker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="slice-remover.html">Slice Remover</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="multitracker.html">MultiTracker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="click-forward.html">Click Forward</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="splitter.html">Stack Splitter</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stamper.html">Time Stamper</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="builder.html">Stack Builder</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hypervolume-shuffler.html">Hypervolume (4D Stack) Shuffler</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="inserter.html">Stack Inserter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="voxel-counter.html">Voxel Counter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="normalizer.html">Stack Normalizer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stack-focuser.html">Stack Focuser (extended depth of field)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hypervolume-browser.html">HyperVolume (4D Stack) Browser</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="substack-maker.html">Substack Maker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="hypervolume-opener.html">Hypervolume Opener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="virtual-opener.html">Virtual Stack Opener</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="slice-labeler.html">Slice Labeler</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="rgbzprojector.html">RGB Zprojector</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="track/track.html">Manual Tracking</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="substack-select.html">Substack Select</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="volume-viewer.html">Volume Viewer/3D-Slicer</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="image5d.html">Image5D</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="track/objects.html">3D Object Counter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="track/builder.html">Stack Builder</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="concatenate.html">Concatenate Images or Stacks</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="time-series.html">Time Series Analyzer</a>
+<br>
+
+<a name=utilities></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>Utilities</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="background-task.html">Background Task</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="pcp.html">Plugins Control Panel</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="straighten.html">Straighten Curved Objects</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="plasma.html">"Plasma" Benchmark</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="closer.html">Window Closer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="clipboard.html">Copy/Paste to System Clipboard</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="thumbnail-maker.html">Thumbnail Maker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="sync-windows.html">Sync Windows</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="calculator-plus.html">Image Calculator Plus</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="javascript.html">JavaScript Editor</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="drag-and-drop.html">Drag and Drop</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="patchwork.html">Combine Images to Create Mosaic</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="window-level.html">Adjust Window and Level</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="joel_stamper.html">Joel Time Stamper</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="query-header.html">Query DICOM Header</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ratio-plus.html">Calculate Fura-2 (calcium) Ratios</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="benchmarks.html">Benchmarks</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="stitch-bliss.html">Stitch BLISS Tile Images </a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="command-line-macros.html">Command Line Macros</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="anaglyph.html">Anaglyph (creates stereo images)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="converter.html">Convert Images to 16-bit Signed</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="cairn-splitter.html">Cairn Optosplit Image Splitter</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="action-bar.html">Action Bar (a customizable tool bar)</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="roi-brush.html">ROI Brush Tool</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="roi-adjust.html">ROI Adjust Tool</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="imagej-updater.html">ImageJ Updater (updates to latest ij.jar)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ccd-snr/index.html">Calculate SNR of CCD Cameras</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="tirf/index.html">Calculate TIRF Penetration Depth</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="ccd-noise/index.html">Calculate CCD Readout Noise </a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+
+<a name=more></a>
+<p><font color="#224488" face="Helvetica, Arial" size=+1><b>More Sites with Plugins</b> <a HREF="index.html">[top]</a></font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://webscreen.ophth.uiowa.edu/bij">Michael Abramoff</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>
+<a href="http://webscreen.ophth.uiowa.edu/bij/vr.htm">VolumeJ</a>,
+<a href="http://webscreen.ophth.uiowa.edu/bij/flowj.htm">FlowJ</a>,
+<a href="http://webscreen.ophth.uiowa.edu/bij/flow3j.htm">Flow3J</a>,
+<a href="http://webscreen.ophth.uiowa.edu/bij/surfacej.htm">SurfaceJ</a>,
+<a href="http://webscreen.ophth.uiowa.edu/bij/">Register ROI</a>,
+</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>
+<a href="http://webscreen.ophth.uiowa.edu/bij/pca.htm">PCA (Principal Component Analysis)</a>
+</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.snv.jussieu.fr/~wboudier/softs.html">Thomas Boudier</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Active Contours (Snakes), Canny-Deriche Filter,  
+</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Shape Analysis by Fourier Descriptors</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.gcsca.net/IJPlugins.html">Gary Chinga</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Surface roughness  statistics, Dynamic (adaptive) threshold,</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Shape descriptors, Image correlation, Stack plots,</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>StereoJ (height maps from stereo pair)</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.ulfdittmer.com/imagej/">Ulf Dittmer</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Expression (applies formulas to images), HPGL Reader, Warp,</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>OpenGL Example, PxM Reader (imports PBM, PGM and PPM),</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Pixellate, Seam Carving, Animated PNG (APNG) Writer</font> 
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.optinav.com/imagej.html">Bob Dougherty</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Ellipse ROI, Live Histogram, Measure Stack, Multi Measure, </font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>NTSC DV2Float, QuickTime Grab, Layers, Stack Sorter, Measure </font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>ROI, Polynomial Fit, PLOT3D I/O, Polar Gradient, 3D Fast Hartley</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Transform (FHT, FFT), 2D and 3D Deconvolution, Diffraction PSF 3D</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>3D Local Thickness, MicroArray Profile, Label Image</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pvv.org/~perchrh/imagej/">Per Christian Henden</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Fractal Count, Map Fractal Count, Susan Filtering, </font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Extrude Map, Gaussian Noise</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://flybrain.stanford.edu/imageJplugins/">Gregory Jefferis</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Biorad Reader, BioRad Writer, Amira Reader</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Amira Writer, IGS Raw Reader (gzip)</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.dentistry.bham.ac.uk/landinig/software/software.html">Gabriel Landini</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Convolution filters, game of life, contour lines , morphological</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>operators, dilation, erosion, 4- and 8-connected particle analysis</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>color thresholding,
+<a href="http://www.dentistry.bham.ac.uk/landinig/software/cdeconv/cdeconv.html">Color Deconvolution</a> (stain separation)
+</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.med.harvard.edu/JPNM/ij/plugins/">Tony Parker</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Dispose All Windows, Interfile Encoder/Decoder, Lookup Tables 
+</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Align Stacks, Orthogonal Views (axial, coronal, and sagital)</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.diagnosticarea.com/plugins.html">Dimiter Prodanov</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Grayscale Morphology, Grayscale Covariogram (and variogram)
+</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Grayscale Granulometry</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://ij-plugins.sourceforge.net/">Jerek Sacha</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1> Image IO (uses JAI to open addition image types)</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Clustering, Texture Synthesus, 3D Toolkit, Half-Median</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>RGB to CIE L*a*b*, Multiband Sobel edges, VTK Examples</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1><a href="http://ij-plugins.sourceforge.net/plugins/dcraw/">DCRaw</a>
+ (digital camera raw images), ImageJ for Zaurus PDA</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://valelab.ucsf.edu/~nico/IJplugins/">Nico Stuurman</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>MultiTracker2, RGB Stack Merge2, ICS Opener, Optical Insights 
+</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Running Z Projector, Binner, QED Swap</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://homepages.inf.ed.ac.uk/s9808248/imagej/">Mark Longair</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Simple Neurite Tracer, Three Pane Crop, Unpack To PNG,
+</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Quantile Based Normalization, Find Connected Regions,</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Mask Of Nearby Points, "Tubeness" (useful for tracing</font> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>neurons or blood vessels)</font> 
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ </a>
+<font size=-1>
+(Geometric Transformations up to 4D)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Affine, Crop, Embed, Mirror, Rotate, Scale, Shift, Turn
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.imagescience.org/meijering/software/featurej/">FeatureJ </a>
+<font size=-1>
+(Image Feature Extraction)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Canny edges, derivatives, Hessian,
+ Laplacian, eigenvalues, statistics
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.imagescience.org/meijering/software/randomj/">RandomJ </a>
+<font size=-1>
+(Image Randomization)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Binomial, Exponential, Gamma, Gaussian, Poisson, Uniform  
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.imagescience.org/meijering/software/neuronj/">NeuronJ</a>
+<font size=-1>
+(Neurite Tracing and Quantification)
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.loci.wisc.edu/ome/formats.html">LOCI Bio-Formats library</a>
+<font size=-1>
+(Reads microscopy file formats)
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PIC, MetaMorph STK, LSM, FluoView, IPLab, Deltavision,  Leica LEI,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ABD, GEL, Imaris, Openlab LIFF and RAW, DM3, PerkinElmer,
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Image-Pro Sequence, NEF, PICT, IPW, PGM, OIB
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+AxioVision ZVI, Image Cytometry Standard ICS and IDS, UltraView ERS
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DICOM, PNG, GIF, BMP, EPS, OME-XML, OME-TIFF, ABD TIFF
+</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://imagejdocu.tudor.lu/imagej-documentation-wiki/plugins">ImageJ Documentation Wiki</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Align_4, Align_RGB_planes, Align_Slice</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Fourier Shape Analysis</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Threshold_Colour, Colour_Deconvolution, Lut_Panel</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Canny-Deriche Edge Detection, Fit Polynomial</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>
+<a href="http://imagejdocu.tudor.lu/imagej-documentation-wiki/plugins/the-tudor-dicom-toolkit">Tudor DICOM Toolkit</a>,
+LSM_Reader, SIMS_Toolbox</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Morphological Operators, 3D binary morphological filters</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Active contour (Snake), LiveWire, Bezier Curve ROI</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Quadratic Curve ROI, HyperVolume_Browser, Surface Blur</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>TrakEM2, Image5D, Thresholding by connection</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Cell Image Analyzer, IJUpdate, LSMToolbox, Action Bar</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Nonuniform Background Removal, 3D Filters, Wait For User</font>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=-1>Pixel Inspecter</font>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/differentials">Image Differentials (gradient, Laplacian, and Hessian)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/pointpicker">Point Picker</a>
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/turboreg/">TurboReg (image registration)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.maths.soton.ac.uk/staff/D'Alessandro/morpho/">Neuron Morphology</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/algorithms/ijplugins/resize/index.html">Cubic Spline Resizing</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://php.iupui.edu/~mmiller3/ImageJ/">Segmenting Assistant</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.disi.unige.it/person/BerteroM/MedNuc/">NucMed Collection (PET/SPECT imaging)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.nano.geo.uni-muenchen.de/~fxj/nanoinformatics.html">Jython, FFT, Lecture Notes (German)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://marcora.caltech.edu/jython_imagej_howto.htm">Install and use Jython with ImageJ</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/demo/fractsplines/java.html">Fractional Splines and Wavelets</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.iftm.de/telemedizin/dcmimex.htm">DICOM Import and Export (uses dcm4che library)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/sage/soft/watershed/">Watershed Algorithm</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.pensament.net/java/">3D Editing</a>
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/demo/edf/index.html">Extended Depth of Field (in focus images from 3D objects)</a>
+<img src="../images/updated.gif" width=38 height=11 alt="[Updated]">
+ 
+ <br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://yawi3d.sourceforge.net/">Yawi3D (Yet Another Wand for ImageJ 3D)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/UnwarpJ/">UnwarpJ (registration using warping)</a>
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.stanford.edu/~jefferis/ImageJ/Biorad_Writer.html">Save in Biorad PIC format</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://grove.ufl.edu/~ksamn2/plugins.html#COLOC"> Find Colocalized Pixels in RGB Channels</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://grove.ufl.edu/~ksamn2/plugins.html#AREA"> Measure Total  Above Thresholded  Area in a Stack</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/stackreg/">StackReg (recursive alignment [registration] of stacks)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.stanford.edu/~bbusse/work/downloads.html">MultiStackReg (multi-stack alignment)</a>
+<img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/demo/deconvolution3D/">3D Deconvolution in Optical Microscopy</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.unil.ch/cig/page16989.html">PixFRET (FRET calculations)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.cs.uta.fi/~vt72556/software/largemontage/">LargeMontage (creates a montage from image files)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.dmi.unict.it/~iplab/imagej/index.htm">Power and log transforms, contrast stretching, spatial filtering</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/sage/soft/spottracker/">SpotTracker (particle tracking over noisy image sequences)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://ciar.rcm.upr.edu/projects/imageJ">Visible Human Preprocessing Toolkit</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://ciar.rcm.upr.edu/projects/imageJ">Multiple Image Processor (batch process images)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.dstretch.com/index.html">DStretch (digital enhancement of pictographs)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://ip.beckman.uiuc.edu/Software/SplineSnake/">SplineSnake (segmentation using active contour)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/sage/soft/mij/">MIJ (interfacing ImageJ and Matlab)</a>
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/demo/dropanalysis/">DropSnake and LB_ADSA (contact angle measurement)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://wbgn013.biozentrum.uni-wuerzburg.de/ImageJ/">Read, write and display Amira files</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.loci.wisc.edu/4d/#browser">LOCI 4D Data Browser</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://sourceforge.net/project/showfiles.php?group_id=164574">QA-Distri (plugins for QA in digital radiology)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://biocomp.cnb.uam.es/~iarganda/bUnwarpJ/">bUnwarpJ (bidirectional elastic registration of images)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.eslide.net/ijstage.php">IJStage and IJSerial (microscope stage control and serial I/O)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://wbgn013.biozentrum.uni-wuerzburg.de/ImageJ/scrollable-stackwindow.html">Scrollable StackWindow (mouse wheel support for stacks)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://imagejdocu.tudor.lu/Members/ppirrotte/ijupdate">IJUpdate (updates ImageJ to stable or test releases)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://imagejdocu.tudor.lu/Members/ppirrotte/lsmtoolbox">LSMToolbox (open Zeiss confocal microscope images)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.embl-heidelberg.de/ExternalInfo/almf/htdocs/almf_website/html/PE_Plugins.htm">Open and z-project PerkinElmer Ultraview ERS RAW-files</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://weeman.inf.ethz.ch/particletracker/">ParticleTracker (particle detection and tracking from digital videos)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.imagescience.org/meijering/software/mtrackj/">MTrackJ (track and analyze moving objects in image sequences)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://imagejdocu.tudor.lu/Members/ppirrotte/ijproxy">IJProxy (proxy server settings for ImageJ)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.fh-luh.de/fb5/en/summer_academy/download/2006/inhomogen_diffusion.html">Inhomogen Isotropic Diffusion 2D Filter</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://marcora.caltech.edu/imagej_ruby_howto.htm">Install and use Ruby to write an ImageJ plugin</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.astro.physik.uni-goettingen.de/~hessman/ImageJ/Book/">Introduction to Astronomical Image Processing using ImageJ</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.ibidi.de/applications/ap_chemo.html">Chemotaxis and Migration Tool</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.nanoimaging.de/View5D/">View5D (interactively display datasets with up to 5 dimensions)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://alger.bmap.ucla.edu/PushTool">RoiPushTool (edit area selections using circular brush)</a>
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://alger.bmap.ucla.edu/WindowLevelMacro/">WindowLevelTool (adjust window/level by dragging the mouse)</a>
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://biocomp.cnb.uam.es/%7Eiarganda/SplineDeformationGenerator/">SplineDeformationGenerator (cubic B-spline deformations)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://rsb.info.nih.gov/ij/plugins/azimuthal-average.html">Azimuthal Average</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://mulcyber.toulouse.inra.fr/projects/maisimul/">MAI Simulator (generates simulated DNA microarray images)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://sparkmasterhome.googlepages.com/">SparkMaster (calcium spark analysis)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://piotr.wendykier.googlepages.com/spectraldeconvolution">Spectral Deconvolution (2D and 3D Tikhonov and TSVD deblurring)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://bigwww.epfl.ch/thevenaz/mosaicj/">MosaicJ (build a mosaic from overlapping partial images)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.nrims.hms.harvard.edu/NRIMS_ImageJ.php">OpenMIMS (Multi Isotope Mass Spectrometry)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://piotr.wendykier.googlepages.com/iterativedeconvolution">Iterative Deconvolution 2D (deblurring using MRNSD, CGLS or HyBR)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.cs.cmu.edu/~kangli/code/Image_Stabilizer.html">Image Stabilizer (stabilizes jittery stacks using Lucas-Kanade method)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www-lgc.toulouse.inra.fr/internet/index.php/Tools/Multiple-Stack-Viewer.html">Multiple Stack Viewer (opens multiples stacks in a window)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://cs.joensuu.fi/pages/ageenko/research/rtools.htm">Mathematical Morphology (25 plugins that use structuring elements)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+ 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://staff.fh-hagenberg.at/burger/imagej/"">MovieIO (library for reading and writing video files frame-by-frame)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.ucm.es/info/fismed/CDMAM/CDMAM_archivos/frame.htm"">Turning CDMAM (moves the discs inside CDMAM phantoms)</a>
+ <img src="../images/new.gif" width=22 height=10 alt="[new]">
+
+<br>
+
+</blockquote>
+
+<p class=navbar> <a href="index.html">top</a> | <a href="../index.html">home</a> | <a href="../notes.html">news</a> | <a href="../docs/index.html">docs</a> | <a href="../download.html">download</a> | plugins | <a href="../developer/index.html">macros/dev</a> | <a href="../links.html">links</a></p>
+
+</body>
+</html>
