@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>Image5D</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Image5D</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Walter (walter at biz.uni-muenchen.de)
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.37b or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Image_5D.jar">Image_5D.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Image_5D.jar">Image_5D.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be four new commands (<i>Open Series As Image5D</i>, <i>Stack to Image5D</i>,
+<i>RGB to Image5D</i> and
+<i>HyperVolume Opener</i>) in the <i>Plugins/Image5D</i> submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+These plugins extend image stacks to 5 dimensions: x, y, channel (color), slice (z), frame (t). Unlike the 
+<A HREF="hypervolume-browser.html">HyperVolume Browser</A>,
+an Image5D has a "true" 5D format. That way plugins working on stacks should 
+usually work as expected on the currently displayed stack of an Image5D (just try a z-projection to see 
+what this means).
+Image5Ds are displayed in a window with two scrollbars for slice and 
+time below the image and a panel with controls to change the current 
+channel and its color to the right of the image. A dropdown menu allows to 
+change the display of the channels. Options are one channel in gray, 
+one channel in color and an overlay of selected channels. 
+<p>
+
+<img SRC="images/Image5D-color.jpg" width=374 height=398 alt="Image5D-color">
+<img SRC="images/Image5D-gray.jpg" width=374 height=398 alt="Image5D-gray">
+<img SRC="images/Image5D-overlay.jpg" width=374 height=398 alt="Image5D-overlay">
+<p>
+
+In the one channel color and overlay modes one can open a panel to select the display color 
+of a channel or to edit a more refined LUT with the ImageJ LUT Editor. 
+<p>
+To create an Image5D, use the plugins "Open Series as Image5D", "Stack to Image5D" or "RGB to Image5D". 
+<p>
+Open Series as Image5D opens a series of images or stacks from harddisk and converts it to an Image5D. 
+Stack to Image5D converts an already opened stack to an Image5D, and RGB to Image5D converts an 
+RGB image or stack to an Image5D.
+<p>
+Missing features:
+<ol>
+<li> Saving just saves the current stack, not the full dataset.
+<li> Calibration functions do not work.
+<li> Converting the type (8-bit, 16-bit, float) does not work.
+<li> Display changes in overlay mode are SLOW.
+</ol>
+
+Known bugs: none so far
+<p>
+A sample 5D data set
+<a href="http://rsb.info.nih.gov/ij/images/mitosis-5d.zip">is available</a>.
+In consists of HeLa cells with an H2B-GFP construct to stain the chromatin imaged 
+in fluorescence and transmission. A large part of the GFP fluorescence is bleached 
+in the second frame and the cells go through mitosis, later. It has 2 channels, 24 slices and 7 frames.
+The file (mitosis-5d.zip) is a TIFF 
+stack contained in a ZIP archive. To view it with Image5D, open it using <i>File/Open</i> or drag and drop, 
+then convert it to an Image5D using <i>Plugins/Image5D/Stack to Image5D</i>.
+<p>
+A sample
+<a href="http://rsb.info.nih.gov/ij/macros/images/MyoblastCells.zip">16-bit RGB data set</a>
+of triple labeled cloned myoblast cells is also available.
+To view it with Image5D, open it using <i>File/Open</i> or drag and drop, 
+then convert it to an Image5D using <i>Plugins/Image5D/Stack to Image5D</i>.
+This image is courtasy of Dr. Angelica Keller and Juliette Peltzer,
+Faculte des Sciences et Technologies,
+Universite Paris 12 Val de Marne, France.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="sync-windows.html">Sync Windows and Sync Measure 3D</a><br>
+<a href="spectral-unmixing.html">Spectral Unmixing Plugins</a><br>
+<a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ</a>, 
+<a href="http://www.imagescience.org/meijering/software/featurej/">FeatureJ</a>,
+<a href="http://www.imagescience.org/meijering/software/randomj/">RandomJ</a> and
+<a href="http://www.imagescience.org/meijering/software/mtrackj/">MTrackJ</a>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td>
+<b>2005/06/03</b>
+<li> First version
+
+<br>&nbsp;<br>
+<b>2005/06/17 (version 1.1)</b>
+<li> Included the 
+<a href="hypervolume-opener.html">HyperVolume Opener</a>
+plugin into Image5D. The HyperVolume Opener is called 
+from the Open_Stack_As_Image5D plugin.
+<li>The HyperVolume Opener uses Windows XP style file sorting, i.e. digits appearing 
+in the filename are treated as numbers and sorted accordingly. This works nicely with 
+filenames of the style name-&lt;ch&gt;-&lt;z&gt;-&lt;t&gt;.tif even if the numbers &lt;ch&gt;... don't have leading zeros.
+<li>Overwrote getImageStack() to return an ImageStack (not an Object[]). In the end this will make 
+it possible to save Image5Ds.
+<li> Added the method "public String getI5DMetaData()" to return Image5D specific 
+metadata for saving. Currently an empty string is returned.
+<li> Checking ImageJ version in Stack_to_Image5D and RGB_to_Image5D plugins.
+
+<br>&nbsp;<br>
+<b>2005/06/23 (version 1.1.1)</b> 
+<li>Fixed a bug in "Open Series as Image5D" that could lead to a wrong 
+datastack size when a directory contains several Hypervolumes.
+
+<br>&nbsp;<br>
+<b>2005/06/25 (version 1.1.2)</b>
+<li> Fixed a bug in the setStack() method that led to incorrect 
+cooperation with the TransformJ plugins.
+
+<br>&nbsp;<br>
+<b>2005/10/24 (version 1.1.4)</b>
+<li> Speeded up display by a factor of at least two by caching. 
+<li> Added support of calibration functions.
+<li> Added Saving and Loading of Image5Ds, including metadata.
+Metadata includes (beyond the usual metadata for ImageJ stacks) 
+lookup tables and contrast and brightness values.
+<li> Added a Plugin to transfer the colormaps and channel labels of one 
+open Image5D to another one ("Transfer_Channel_Settings").
+<li> Added a Plugin to make z-Projections of Image5Ds ("Z_Project") 
+<li> Added a Plugin to make montages of Image5Ds ("Make_Montage")
+<li> Inherited ImagePlus.flush(). This fixed a memory leak.
+<li> Added a Plugin to convert the current timeframe of an Image5D to an 
+RGB stack using the current view settings ("Image5D_Stack_to_RGB").
+<li> Added a Plugin to Convert an Image5D to an ImageStack 
+("Image5D_to_Stack"). 
+<li> Modified the "RGB_to_Image5D" plugin so that Hypervolumes containing 
+z- and t- information can be converted.
+<li> Added a Plugin to create a new Image5D ("New_Image5D").
+<li> Added a Plugin to select the displayed channel/slice/timeframe and the 
+display mode ("Set_Position"). 
+<li> Added a Plugin to change the display state (display in overlay / as 
+gray) of a channel ("Set_Channel_Display").
+<li> Added a Plugin to change the labels of the channels of an Image5D 
+("Set_Channel_Labels"). 
+<li>The last three plugins give Image5D some macro scripting 
+capability.
+
+<br>&nbsp;<br>
+<b>2005/10/24 (version 1.1.5)</b>
+<li>The HyperVolumeOpener copies the calibration across from the first image in a series (Feature by Jonathan Jackson)
+<li>Fixed a bug in Open_Image5D, so that the pixel width, height, depth and frame interval are now read correctly. (Bug reported by Erik Meijering)
+<li>Added a button, which enables selecing the color of a channel by a Dialog with three sliders for RGB. The three-slider RGB-Dialog is also opened by double-clicking on the Color Palette of the color selector.
+<li>Added the plugin "Virtual_Image5D_Opener" to open file series as Image5Ds from disk. I.e. just the currently displayed data is in RAM. Everything else is on disk.
+<li>Added an option to the Transfer_Channel_Settings plugin to copy the DensityCalibrations from one Image5D to another Image5D.
+<li>Corrected a bug that would cause an exception with the montage and z-project plugins when single frames were processed with output as Image5D selected.
+<li>Recommendation:
+  Erik Meijering updated his 
+<a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ</a>, 
+<a href="http://www.imagescience.org/meijering/software/featurej/">FeatureJ</a>,
+<a href="http://www.imagescience.org/meijering/software/randomj/">RandomJ</a> and
+<a href="http://www.imagescience.org/meijering/software/mtrackj/">MTrackJ</a>
+plugins to work with Image5Ds.
+
+<br>&nbsp;<br>
+<b>2006/10/05 (version 1.1.7)</b>
+<li>The z-/t-/ch-changer (slider, or selector for the channel in overlay mode) is only displayd when the size
+   of the respective dimension is >1.
+<li> Image5Ds react smoother to resizing.
+<li> The Image5D_stack_to_RGB plugin transfers the calibration of the Image5D to the resulting RGB stack.
+   This feature was proposed by Jerome Mutterer.
+<li> The Hypervolume_Opener now ignores .roi-files and calculates the increments starting from the "start"-value
+   (i.e. as one would expect). This change was proposed by Jonathan Jackson.
+<li>Added keyboard shortcuts for selecting the current channel, slice and frame:<br>
+    &nbsp;&nbsp;&nbsp;channel: PageDown and PageUp or numpad 7 and 8<br>
+    &nbsp;&nbsp;&nbsp;slice: shift-PageDown and PageUp or numpad 4 and 5<br>
+    &nbsp;&nbsp;&nbsp;frame: ctrl-PageDown and PageUp or numpad 1 and 2<br>
+    &nbsp;&nbsp;&nbsp;This feature was proposed by Michael Murray.<br>
+<li> Added a rudimentary "about" dialog that can be used to check the installed Image5D version.
+
+<br>&nbsp;<br>
+<b>2006/09/20 (version 1.1.6)</b>
+<li>Restructured to use Java packages. The previous version
+(<A HREF="download/jars/Image_5D_1.1.5.jar">Image_5D_1.1.5.jar</A>)
+is available for use with the PerkinElmer plugin
+as of September 2006.
+
+<br>&nbsp;<br>
+<b>2007/08/14 (version 1.2.0)</b>
+<li> Added a "Tiled" display mode, that displays all color channels on separate canvases in the same window.
+   ROIs are shown in all channels. Copy/paste and most tools from the ImageJ toolbar work in the
+   channel canvases.
+<li> Added a plugin to duplicate an Image5D.
+<li> Scrollbars for selecting ch/z/t are no longer blinking on Windows.
+<li> Enabled using the getInfo("image.subtitle") macro function for Image5Ds.
+   Fix provided by Sebastien Huart (Sebastien.Huart_AT_curie.fr)
+<li> Added Mousewheel control of Channels and Frames (like the slice slider of the Stack Window).
+   Pressing shift while moving the wheel moves the frame ("shi-F-t as in Frame").
+   Pressing ctrl while moving the wheel moves the channel ("C-trl as in Channel").
+<li> Adapted modifiers (Ctrl/Shift) of keyboard shortcuts to match the Mousewheel modifiers:
+    channel: ctrl-PageDown and PageUp or numpad 7 and 8
+    slice: PageDown and PageUp or numpad 4 and 5 (no modifier)
+    frame: shift-PageDown and PageUp or numpad 1 and 2       - The "Transfer Channel Settings" and the "Set Channel Display" plugins are now macro-recordable.
+<li> The values of all channels at the current cursor location are displayed in the statusbar in overlay and
+   tiled mode.    - Image5Ds now display the slice labels in the info line.
+<li> In the "Stack to Image5D" plugin, the default choice of dimension orders (ch/z/t) now conforms to the
+   order in ImageJ.
+<li> Fixed a bug that caused the Image5D returned by the "Stack to Image5D" plugin was not the current image.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
