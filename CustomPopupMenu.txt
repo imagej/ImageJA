@@ -1,0 +1,22 @@
+// Custom Popup Menu
+//
+// This macro demostrates how to customize the menu that pops up
+// when you right click on an image. Add it to the StartupMacros file
+// to have the popup menu customized when ImageJ is launched.
+//
+// This macro requires ImageJ 1.38c or later.
+
+  var pmCmds = newMenu("Popup Menu",
+       newArray("Help...", "Rename...", "Duplicate...", "Original Scale", "Paste Control...",
+       "-", "Record...", "Capture Screen ", "Monitor Memory...", "Startup Macros...", "Search...",
+       "-", "Find Maxima..."));
+
+  macro "Popup Menu" {
+      cmd = getArgument();
+      if (cmd=="Help...")
+           showMessage("About Popup Menu",
+               "To customize this menu, edit the line that starts with\n"+
+               "\"var pmCmds\" in ImageJ/macros/StartupMacros.txt.");
+      else
+          run(cmd);
+  }

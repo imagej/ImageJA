@@ -1,0 +1,22 @@
+// Print to Text Window
+
+  s1 = "This macro demonstrates how to display text in a text window.\n"
+  s2 = "It uses the Plugins>New>Text Window commad to open the window\n"
+  s3 = "if it is not already open. Note that newline characters (backslash-n) \n"
+  s4 = "are not automatically added by the print() function.\n"
+
+  requires("1.38m");
+  title1 = "Text Window";
+  title2 = "["+title1+"]";
+  f = title2;
+  if (isOpen(title1))
+     print(f, "\\Update:"); // clears the window
+  else {
+     if (getVersion>="1.41g") 
+        run("Text Window...", "name="+title2+" width=50 height=6");
+     else
+        run("New... ", "name="+title2+" type=[Text File] width=50 height=6");
+  }
+  print(f, s1);
+  print(f, s2);
+  print(f, s3+s4);

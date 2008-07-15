@@ -1,0 +1,16 @@
+  var cmds = newArray("Add Slice", "Delete Slice", "Next Slice");
+
+  macro "AutoRun" {
+      requires("1.38b");
+      addMenu("Stacks Menu", cmds);
+  }
+
+  macro "Stacks Menu" {
+      cmd = getArgument();
+      id (cmd== cmds[0])
+           print("Add Slice");
+     else if (cmd== cmds[1])
+            print("Delete Slice");
+     else if (cmd== cmds[2])
+            print("Next Slice");
+ }

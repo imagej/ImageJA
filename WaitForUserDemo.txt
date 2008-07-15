@@ -1,0 +1,18 @@
+// Wait For User Demo
+//
+// This macro demonstrates how to
+// use the waitForUser function.
+
+  requires("1.39r");
+  run("Blobs (25K)");  // open sample image
+  ID = getImageID();
+  run("Threshold...");  // open Threshold tool
+  title = "WaitForUserDemo";
+  msg = "If necessary, use the \"Threshold\" tool to\nadjust the threshold, then click \"OK\".";
+  waitForUser(title, msg);
+  selectImage(ID);  //make sure we still have the same image
+  getThreshold(lower, upper);
+  if (lower==-1)
+      exit("Threshold was not set");
+  run("Analyze Particles...",
+     "size=0-Infinity circularity=0.00-1.00 clear summarize");

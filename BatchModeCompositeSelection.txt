@@ -1,0 +1,20 @@
+// "BatchModeCompositeSelection"
+// This macro demonstrates how to create a 
+// composite selection in batch mode.
+
+// Requires ImageJ 1.37l or later.
+
+setBatchMode(true);
+run("Blobs (25K)"); // open "Blobs" sample image
+setThreshold(125, 248);
+doWand(80, 36);
+setKeyDown("shift");
+doWand(99, 75);
+setKeyDown("shift");
+doWand(105, 111);
+setKeyDown("shift");
+makeRectangle(107, 112, 40, 40);
+setKeyDown("shift");
+makeOval(135, 140, 30, 30);
+run("Fill");
+setBatchMode(false); // display the image

@@ -1,0 +1,26 @@
+// Measure And Label
+//
+// This macro measures the current selection, outlines it in 
+// the current foreground color, prompts the user for a label,
+// draws the measurement number and label, and adds
+// the label to last row in the the "Results" table. Add this
+// macro to ImageJ/macros/StartupMacros.txt to have it
+// automatically installed when ImageJ is launched. Change
+// the name to "Measure And Set Label [m]" to have it run 
+// when the user presses the "m" key.
+
+  macro "Measure And Label" {
+       fontSize = 12;
+       label = getString("Label:", "A");
+       run("Measure");
+       setResult("Label", nResults-1, label)
+       updateResults();
+       setJustification("center");
+       setFont("SansSerif", fontSize);
+       run("Draw");
+       getBoundingRect(x, y, width, height);
+       label2 = "" + nResults+"-"+label;
+       drawString(label2, x+width/2, y+height/2+fontSize/2);
+  }
+
+

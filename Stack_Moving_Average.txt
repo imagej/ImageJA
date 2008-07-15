@@ -1,0 +1,39 @@
+// Stack Moving Average
+//
+// This macro does a 3, 5 or 7 slice moving average in the z direction
+// of a stack. Note that the first (n-1)/2 and the last (n-1)/2 slices
+// of the resulting stack should probably be discarded since the 
+// convolving filter averages olong the edge by extending edge pixels,
+// causing the first and last slice to be over-weighted.
+
+  k3 = "[0 1 0 0 1 0 0 1 0]";
+  k5 = "[0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0]";
+  k7a = "[0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1";
+  k7b = " 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0]";
+  k7 = k7a + k7b;
+  Dialog.create("Running Average");
+  Dialog.addChoice("Slices to Average:", newArray("3", "5", "7"));
+  Dialog.addCheckbox("Keep Source Stack", true);
+  Dialog.show;
+  n = Dialog.getChoice;
+  keep = Dialog.getCheckbox;
+  kernel = k3;
+  if (n=="5")
+      kernel = k5;
+  else if (n=="7")
+      kernel = k7;
+  if (nSlices==1)
+      exit("Stack required");
+  id1 = getImageID;
+  // re-slicing may not work if stack is scaled
+  setVoxelSize(1, 1, 1, "pixel");
+  getMinAndMax(min, max);
+  run("Reslice [/]...", "input=1 output=1 start=Top");
+  id2 = getImageID;
+  if (!keep) {selectImage(id1); close;}
+  selectImage(id2);
+  run("Convolve...", "text1="+kernel+" normalize stack");
+  run("Reslice [/]...", "input=1 output=1 start=Top");
+  setMinAndMax(min, max); 
+  selectImage(id2);
+  close;

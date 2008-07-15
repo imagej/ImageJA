@@ -1,0 +1,22 @@
+// "SelectionIntersection"
+// This macro creates a selection that is the intersection
+// of two selections in the ROI Manager.
+
+  requires("1.37j");
+  orig = getImageID();
+  setBatchMode(true);
+  if (roiManager("Count")!=2)
+      exit("Two ROIs in ROI Manager required");
+  roiManager("Select", 0);
+  run("Create Mask");
+  rename("Mask1");
+  mask1 = getImageID();
+  roiManager("Select", 1);
+  run("Create Mask");
+  mask2 = getImageID();
+  imageCalculator("AND", mask2, mask1);
+  run("Create Selection");
+  roiManager("Add");
+  selectImage(orig);
+  roiManager("Select", 2);
+  roiManager("Rename", "Intersection");

@@ -1,0 +1,10 @@
+// Measure Stack
+//
+// This macro measure all the slices in a stack.
+
+  macro "Measure Stack" {
+       for (n=1; n<=nSlices; n++) {
+          setSlice(n);
+          run("Measure");
+      }
+  }

@@ -1,0 +1,29 @@
+// "Display Pixel Values"
+//
+// This macro displays the values of the pixels in the 
+// current image or selection in the "Results" window.
+// The width of the image or selection must be 124 
+// pixels or less.
+
+
+ macro "Display Pixel Values" {
+     getSelectionBounds(xbase, ybase, width, height);
+     if (width>124)
+         exit("Image or selection width limited to 124 pixels");
+     labels = newArray(width+1);
+     labels[0] = "Y";
+     for (i=0; i<width; i++)
+        labels[i+1] = toString(xbase+i);
+     rgb = bitDepth == 24;
+     run("Clear Results");
+     for (row=0; row<height; row++) {
+        setResult(labels[0], row, ybase+row);
+        for (i=0; i<width; i++) {
+              v = getPixel(xbase+i, ybase+row);
+              if (rgb)
+                  v = round(((v>>16)&0xff+(v>>8)&0xff+v&0xff)/3);
+              setResult(labels[i+1], row, v);
+        }
+     }
+     updateResults();
+ }

@@ -1,0 +1,33 @@
+//   Virtual Stack From List
+//
+// This macro generates a list of the images in two folders and
+// then uses that list to open the images in both folders as a 
+// virtual stack. Edit the 'nDirs' variable to use more than two 
+// folders. Edit 'startingImage' to start reading at other than 
+// the first image in each folder. Set 'increment' to 2 to read
+// every other image, 3 to read every third image, etc.
+
+  requires("1.39l");
+  nDirs = 2;
+  startingImage = 1;
+  increment = 1;
+  dir = newArray(nDirs);
+  labels = newArray("1st", "2nd", "3rd", "4th");
+  for (i=0; i<nDirs; i++) {
+     if (i==0) id ="First";
+     else if (i==1) id ="Second";
+     else if (i==2) id = "Third";
+     else id = ""+(i+1)+"th";
+     dir[i] = getDirectory("Select "+id+" Directory");
+  }
+  path = getDirectory("temp")+"list.txt";
+  f = File.open(path);
+  index = 0;
+  for (i=0; i<nDirs; i++) {
+      list = getFileList(dir[i]);
+      for (j=startingImage-1; j<list.length; j+=increment)
+          print(f, dir[i]+list[j]);
+  }
+  File.close(f);
+  run("Stack From List...", "open="+path+" use");
+

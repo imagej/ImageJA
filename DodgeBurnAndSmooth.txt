@@ -1,0 +1,43 @@
+// Dodge Burn And Smooth
+//
+// These macros demonstrate how to use the "QueueMacros" 
+// option to avoid "Image is locked" error messages caused by
+// overlapping macro execution. Change 'true' to 'false' in the
+// setOptions() call and you will get "Image is locked" errors,
+// especially with the Smooth macro, and with large selections
+// and/or a slow computer. The macros will need to be re-installed
+// by pressing ctrl-i (Macros>Install Macros) each time
+// setOption() is modified.
+//
+// Note that the "QueueMacros" option does not work with macros
+// using function key shortcuts in ImageJ 1.41g and earlier.
+
+  var xx = setup(); // runs when macros are installed
+  function setup() {
+      setOption("QueueMacros", true);
+      return true;
+  }
+
+  macro "Dodge [d]"{
+      makeSelection();
+      run("Add...", "value=5");
+  }
+
+  macro "Burn [b]"{
+      makeSelection();
+      run("Subtract...", "value=5");
+  }
+
+  macro "Smooth [s]"{
+      makeSelection();
+      //run("Smooth");
+      run("Gaussian Blur...", "sigma=1");
+  }
+
+  function makeSelection() {
+      if (selectionType==-1) {
+          getCursorLoc(x, y, z, modifiers);
+          size = getWidth/5;
+          makeOval(x-size/2, y-size/2, size, size);
+      }
+  }

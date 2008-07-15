@@ -1,0 +1,56 @@
+// This macro demonstrates how macros can call Java
+// classes. It uses the call() function added in ImageJ 1.37c,
+// which was contributed by Johannes Schindelin. The call
+// function calls a public static method, passing an arbitrary 
+// number of string arguments, returning a string. If a Java
+// method returns a value that is not a string (e.g., boolean,
+// int, long, etc) then that value is converted to a string.
+
+    requires("1.37c");
+    print("ImageJ version:", call("ij.IJ.getVersion")); // same as getVersion()
+    print("java.version:", call("java.lang.System.getProperty", "java.version"));
+    print("user.home:", call("java.lang.System.getProperty", "user.home"));
+    print("user.dir:", call("java.lang.System.getProperty", "user.dir"));
+    print("Images URL:", call("ij.Prefs.getImagesURL"));
+    print("Plugins path:", call("ij.Menus.getPlugInsPath"));
+
+    // V1.37e or later is required to call methods that do not return a string.
+    // Note that non-string returned values are converted to strings.
+    if (getVersion>="1.37e") {
+        print("Time:", call("java.lang.System.currentTimeMillis")); // returns a string
+        print("Free memory:", call("ij.IJ.freeMemory")); // returns a string
+        print("Max memory:", parseInt(call("ij.IJ.maxMemory"))/(1024*1024)+"MB");
+        print("Alt key down:", call("ij.IJ.altKeyDown")); // returns "true" or "false"
+        print("Is Macintosh:", call("ij.IJ.isMacintosh")); // returns "true" or "false"
+        call("java.lang.System.gc"); // run garbage collector
+        call("ij.IJ.beep");
+        prefsString = call("ij.Prefs.get", "demo.string", "Text for preferences file");
+        prefsString = getString("Text:", prefsString);
+        call("ij.Prefs.set", "demo.string", prefsString);
+   } else
+       print("V1.37e or later is required to call methods that do not return a string");
+
+    // Call three methods in CallDemo.class, located in the
+    // plugins folder. The first method that has no arguments,
+    // the second has one and a third has two.
+    call("CallDemo.method0");
+    call("CallDemo.method1", "arg1");
+    call("CallDemo.method2", "arg1", "arg2");
+
+// This is what the methods in CallDemo.java look like:
+//
+//     public static String method0() {
+//         return "method0";
+//     }
+//
+//     public static String method1(String arg1) {
+//         return "method1"+"("+arg1+")";
+//     }
+//
+//     public static String method2(String arg1, String arg2) {
+//         return "method2"+"("+arg1+", "+arg2+")";
+//     }
+//
+// The source for the CallDemo class is at
+// <http://rsb.info.nih.gov/ij/download/docs/CallDemo.java>
+// Use ImageJ's Plugins>Compile and Run command to compile it.

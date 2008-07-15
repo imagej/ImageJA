@@ -1,0 +1,23 @@
+// Add CheckboxGroup Demo
+//
+// This macro demonstrates how to use the
+// Dialog.addCheckboxGroup(rows,columns,labels,defaults)
+// macro function.
+
+  rows = 2;
+  columns = 3;
+  n = rows*columns;
+  labels = newArray(n);
+  defaults = newArray(n);
+  for (i=0; i<n; i++) {
+    labels[i] = "Checkbox "+i+1;
+    if ((i%2)==0)
+       defaults[i] = true;
+    else
+       defaults[i] = false;
+  }
+  Dialog.create("Checkbox Group");
+  Dialog.addCheckboxGroup(rows,columns,labels,defaults);
+  Dialog.show();
+  for (i=0; i<n; i++)
+     print(labels[i]+": "+Dialog.getCheckbox());

@@ -1,0 +1,28 @@
+// OpenTextImagesAsStack
+//
+// This macro opens a sequence of text images as a stack.
+
+  dir = getDirectory("Choose a Directory");
+  list = getFileList(dir);
+  setBatchMode(true); // runs 6 times faster in batch mode
+  run("Text Image... ", "open="+dir+list[0]);
+  run("Copy");
+  width = getWidth;
+  height = getHeight;
+  close();
+  newImage(dir, "32-bit Black", width, height, list.length);
+  id = getImageID;
+  run("Paste");
+  for (i=1; i<list.length; i++) {
+     showProgress(i, list.length);
+     run("Text Image... ", "open="+dir+list[i]);
+     run("Copy");
+     close();
+     selectImage(id);
+     setSlice(i+1);
+     run("Paste");
+  }
+  setSlice(1);
+  resetMinAndMax;
+  run("Select None");
+  setBatchMode(false);

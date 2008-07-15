@@ -1,0 +1,29 @@
+// Time-lapse Capture
+//
+// Uses the QuickTime Capture plugin to capture a sequence
+// of frames as a stack. Requires a version of the plugin at
+// <http://rsb.info.nih.gov/ij/plugins/qt-capture.html>
+// dated 2007/05/22 or later.
+
+  frames = 50;
+  interval = 2; // seconds
+  start = getTime;
+  setBatchMode(true);
+  for (i=1; i<=frames; i++) {
+      showProgress(i, frames);
+      run("Video", "grab");
+      image = getImageID;
+      if (i==1) {
+          newImage("Video","RGB",getWidth,getHeight,frames);
+          stack = getImageID;
+      }
+      selectImage(image);
+      run("Copy");
+      close;
+      selectImage(stack);
+      setSlice(i);
+      run("Paste");
+      setMetadata(d2s((getTime-start)/1000,2));
+      while (getTime-start<interval*i*1000) wait(1);
+  }
+  setBatchMode(false);

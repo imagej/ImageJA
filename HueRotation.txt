@@ -1,0 +1,31 @@
+// "HueRotation"
+// This macro rotates the hue values of
+// an RGB image by a specified angle.
+// Author: Jerome Mutterer
+
+  if (bitDepth!=24)
+       exit("This macro requires an RGB image");
+
+  v=getNumber("Hue Rotation (0-360¡)",30);
+  if (v<0) v=360-v;
+  v=v/360*255;
+
+  setBatchMode(true);
+  run("Select None");
+  run("Duplicate...", "title=copy_"+getTitle());
+  run("HSB Stack");
+  t=getTitle();
+  run("Duplicate...", "title=hue");
+  run("16-bit");
+  run("Add...", "value="+v);
+  for (i=1; i<=v; i++)
+      changeValues (255+i, 255+i, i);
+  setMinAndMax(0, 255);
+  run("8-bit");
+  run("Select All");
+  run("Copy");
+  selectWindow(t);
+  run("Paste");
+  run("RGB Color");
+  run("Select None");
+  setBatchMode(false);

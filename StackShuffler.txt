@@ -1,0 +1,71 @@
+// Stack Shuffler
+//
+// Author: Michael Doube
+//
+// I wanted to shuffle images in a stack into order of severity of
+// pathology for later rank analysis, so I wrote this little macro set 
+// to help. I traverse the slices of the stack with [<] and [>], and decide 
+// whether to promote [l] or demote [j] the slice to a severe position 
+// (high slice number) or mild position (low slice number), based on a 
+// comparison between the image of interest and its neighbors in the stack.
+//
+// Requires ImageJ 1.38g or later to avoid "Image is Locked" errors that
+// can occur when two or more macros run at the same time. V1.38g adds 
+// the setOption("QueueMacros", true), which causes macros invoked using 
+// keyboard shortcuts to run on the event dispatch thread, and therefore
+// run in sequence. Long-running macros that update the screen should not
+// be given keyboard shortcuts because they will not work correctly in 
+// "QueueMacros" mode.
+
+
+  macro "Promote Slice... [l]"{
+     n = getSliceNumber();
+     if (n==nSlices)
+        exit("Can't promote the last image of a stack");
+     name = getMetadata;
+     run("Select All");
+     run("Copy");
+     run("Delete Slice");
+     setSlice(n);
+     run("Add Slice");
+     run("Paste");
+     setMetadata(name);
+  }
+
+  macro "Demote Slice... [j]"{
+     n = getSliceNumber();
+     if (n==1)
+        exit("Can't demote the first image of a stack");
+     name = getMetadata;
+     run("Select All");
+     run("Copy");
+     run("Delete Slice");
+     if (n==2) {
+        setSlice(1);
+        setKeyDown("alt");
+     } else
+        setSlice(n-2);
+     run("Add Slice");
+     run("Paste");
+     setMetadata(name);
+  }
+  
+  // This is an example of a long-running macro that does not
+  // work correctly in "QueueMacros" mode when invoked using
+  // a keyboard shortcut.  Macros like this should not be given
+  // a keyboard shortcut to avoid having screen updates delayed
+  // until they finish.
+  macro "Animate" {
+      for (i=1; i<=nSlices; i++) {
+          setSlice(i);
+          wait(100);
+      }
+  }
+
+
+  var xx = setup(); // call setup() when macros installed
+  function setup() {
+     requires("1.38g");
+     setOption("QueueMacros", true);
+     return true;
+  }
