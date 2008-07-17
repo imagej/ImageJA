@@ -12,7 +12,7 @@ download_plugin () {
 	CONTENTS="$(eval curl --silent $OPT $BASE_URL/$FILE)"
 	test -z "$CONTENTS" && return
 	echo "$CONTENTS" > "$FILE"
-	FILES="$(echo "$CONTENTS" |
+	FILES="$(echo "$CONTENTS" | tr '\r' '\n' |
 	  sed -n '/Source:/,/Description:/s/.*a href="\([^"]*\)".*/\1/pi' |
 	  sort | uniq)"
 	test -z "$FILES" && return
@@ -38,7 +38,9 @@ download_plugin () {
 		printf "100644 $sha1 0\t$f\n"
 	done | git update-index --index-info &&
 	git diff-index --cached --quiet HEAD && return
-	sha1=$(echo "$CONTENTS" | w3m -cols 72 -dump -T text/html |
+	sha1=$(echo "$CONTENTS" |
+		w3m -cols 72 -dump -T text/html |
+		sed -e 1N -e '/^home | /d' |
 		eval git commit-tree $(git write-tree) $PARENT) &&
 	git update-ref $BRANCH $sha1
 	NEED_TO_PUSH=t
