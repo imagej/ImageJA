@@ -1,0 +1,23 @@
+// Sample Images Menu
+//
+// Adding this macro code to ImageJ/macros/StartupMacros.txt
+// adds a menu to the tool bar that lists all the images, LUTs
+// and macros in the in the SampleImages directory in your
+// home directory. Requires ImageJ 1.38b or later.
+
+  var imagesDir = getDirectory("home")+"SampleImages"+File.separator;
+  var imageList = getImageList();
+  var iCmds = newMenu("Images Menu Tool", imageList);
+
+  macro "Images Menu Tool - C037T0b11IT4b09mTcb09g" {
+       open(imagesDir +getArgument());
+  }
+
+  function getImageList() {
+      requires("1.38b");
+      list = newArray("'<home-dir>/SampleImages' directory not found");
+      if (!File.exists(imagesDir))
+           return list;
+     else
+         return  getFileList(imagesDir);
+  }

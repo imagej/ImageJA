@@ -1,0 +1,35 @@
+// Developer toolset:
+// Some useful tools/links  by G Landini
+
+macro "ImageJ Documentation Action Tool - C037T4e16?" {
+        run("URL...", "url=http://rsbweb.nih.gov/ij/docs/");
+    }
+
+macro "Macro Recorder Action Tool - C037L494fL4990L90b0Lc1c3L82a4Lb58bL7c4fDb4L5a5dL6b6cD7b" {
+        run("Record...");
+    }
+
+macro "Macro Functions Action Tool - C037T3d14M" {
+        run("URL...", "url=http://rsbweb.nih.gov/ij/developer/macro/functions.html");
+    }
+
+macro "ImageJ Source Code Action Tool - C037L00a0L03f3L06a6L09c9L0cfcL0fbf" {
+        run("URL...", "url=http://rsb.info.nih.gov/ij/developer/source/");
+    }
+
+macro "News Action Tool - C037T0c11NT7c09eTcc09w" {
+        run("URL...", "url=http://rsbweb.nih.gov/ij/notes.html");
+    }
+
+macro "Capture Screen. Action Tool - C037R01fdR2397" {
+        run("Capture Screen ") ;
+    }
+
+macro "Memory Monitor Action Tool - C037P084881cafa0" {
+        run("Monitor Memory...");
+    }
+
+macro "Search... Action Tool - C037O00aaL99ff" {
+        run("Search...");
+    }
+
