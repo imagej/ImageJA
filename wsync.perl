@@ -60,7 +60,7 @@ sub handleDir {
 		$path2 .= "/";
 	}
 
-	`curl --silent $baseURL$path > .index.html`;
+	`curl --silent $baseURL$path2 > .index.html`;
 
 	my %exists = ("." => 1, ".." => 1);
 	open my $f, "<.index.html";
