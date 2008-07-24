@@ -13,7 +13,7 @@
         showProgress(i, list.length);
         open(path);
         title = getTitle();
-        run("Set Scale...", "distance=1 known=25 pixel=1 unit=µm");
+        run("Set Scale...", "distance=1 known=25 pixel=1 unit=um");
         run("Save");
         close();
   }
