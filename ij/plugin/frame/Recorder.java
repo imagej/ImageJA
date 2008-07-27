@@ -280,11 +280,21 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
 	}
 	
 	static boolean isSaveAs() {
-		Menu saveAsMenu = Menus.getSaveAsMenu();
-		for(int i=0;i<saveAsMenu.getItemCount();i++)
-			if(commandName.equals(saveAsMenu.getItem(i).getLabel()))
-				return true;
-		return false;
+		return commandName.equals("Tiff...")
+			|| commandName.equals("Gif...")
+			|| commandName.equals("Jpeg...")
+			|| commandName.equals("Text Image...")
+			|| commandName.equals("ZIP...")
+			|| commandName.equals("Raw Data...")
+			|| commandName.equals("BMP...")
+			|| commandName.equals("PNG...")
+			|| commandName.equals("PGM...")
+			|| commandName.equals("FITS...")
+			|| commandName.equals("LUT...")
+			|| commandName.equals("Selection...")
+			|| commandName.equals("XY Coordinates...")
+			|| commandName.equals("Measurements...")
+			|| commandName.equals("Text... ");
 	}
 
 	static void appendNewImage() {
@@ -379,7 +389,7 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener {
     
     public void windowClosing(WindowEvent e) {
     	close();
-    }
+	}
 
 	public void close() {
 		super.close();
