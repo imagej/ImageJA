@@ -80,6 +80,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
 	private static String[] arguments;
+	private static String title = "ImageJA";
 	
 	private Toolbar toolbar;
 	private Panel statusBar;
@@ -110,7 +111,7 @@ public class ImageJ extends Frame implements ActionListener,
 		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded 
 		version of ImageJ which does not start the SocketListener. */
 	public ImageJ(ImageJApplet applet, int mode) {
-		super("ImageJA");
+		super(title);
 		embedded = applet==null && mode==EMBEDDED;
 		this.applet = applet;
 		String err1 = Prefs.load(this, applet);
@@ -529,6 +530,8 @@ public class ImageJ extends Frame implements ActionListener,
 						port = DEFAULT_PORT+delta;
 				} else if (args[i].startsWith("-debug"))
 					IJ.debugMode = true;
+				else if (args[i].startsWith("-title="))
+					title = args[i].substring(7);
 			} 
 		}
   		// If ImageJ is already running then isRunning()
@@ -651,8 +654,9 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 		if (!changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
-			GenericDialog gd = new GenericDialog("ImageJA", this);
-			gd.addMessage("Are you sure you want to quit ImageJA?");
+			GenericDialog gd = new GenericDialog(getTitle(), this);
+			gd.addMessage("Are you sure you want to quit "
+				+ getTitle() + "?");
 			gd.showDialog();
 			quitting = !gd.wasCanceled();
 		}
