@@ -1,0 +1,20 @@
+// Scale Selection
+// Resizes the selection by a specified scale.
+
+  scale = getNumber("Scale: ", 0.5);
+  if (selectionType==9) { //composite
+     setBatchMode (true);
+     run("Duplicate...", "title=temp");
+     run("Create Mask");
+     run("Size...", "width="+getWidth*scale+" constrain");
+     run("Create Selection");
+     close();
+     setBatchMode (false);
+     run("Restore Selection");
+  } else {
+     getSelectionCoordinates(x, y);
+     for (i=0; i<x.length; i++) {
+        x[i] = x[i]*scale;
+        y[i] = y[i]*scale;
+  }
+  makeSelection(selectionType, x, y);
