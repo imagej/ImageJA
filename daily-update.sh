@@ -48,9 +48,10 @@ if [ -f .wsync-add ]; then
 	cat .wsync-add | tr "\n" "\0" | xargs -0r git-update-index --add
 fi
 if [ -f .wsync-remove ]; then
-	cat .wsync-remove | tr "\n" "\0" | xargs git-ls-files | xargs -0r rm
-	cat .wsync-remove | tr "\n" "\0" | xargs git-ls-files |
-	 xargs -0r git-update-index --remove
+	cat .wsync-remove | tr "\n" "\0" | xargs -0r git-ls-files -z |
+		xargs -0r rm
+	cat .wsync-remove | tr "\n" "\0" | xargs -0r git-ls-files -z |
+		xargs -0r git-update-index --remove
 fi
 
 # Nothing to do?
