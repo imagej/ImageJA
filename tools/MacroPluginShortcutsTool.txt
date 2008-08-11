@@ -1,0 +1,152 @@
+// A tool making plugin shortcut for macros and tools:
+// A plugin shortcut is available after ImageJ restarting, in the Plugins<My Favorite Macros menu.
+// This tool installs its own plugin shortcut, if placed into the ImageJ/macros/tools folder.
+
+// Author : Gilles Carpentier
+// Faculte des Sciences et Technologies,
+// Universite Paris 12 Val de Marne, France.
+
+var KindOfMacro= 0,sortoption=0;
+var favoritefoldername= "My Favorite Macros";
+var macroname= "",optionchoice="Only macro sets and tools";
+
+macro "Install Macro Plugins Shortcuts Tool - C00fD00D01D02D03D04D05D06D07D08D10D14D15D16D25D5fD6cD6dD6eD6fD7cD7dD7eD7fD8bD8cD8dD8eD8fD9cD9dD9eD9fDacDadDaeDafDbcDbdDbeDbfDccDcdDceDcfDdcDddDdeDdfDedDeeDefDfdDfeDffC555D3dC33fDd0C051D4aC03fDe0De1De2De3De4De5De6De7De8De9DeaDebDecDf0Df1Df2Df3Df4Df5Df6Df7Df8Df9DfaDfbDfcCaaaD2fCeeeD0aD0bD0cD0dD0eD1aD20D21D22D23D24D27D28D30D31D34D36D40D41D44D50D51D60D61D70D71D80D81D90D91Da0Da1Db0Db1Dc0C111D64C999D1cCaaeD18C565D4bDbaC11fD17CbbdD09C050D2cD2dD2eD32D39D3aD42D48D49D52D57D58D62D63D66D67D72D73D74D75D76D77D82D83D84D85D86D92D93D94D95D96Da2Da3Da4Da5Da6Db2Db3Db4Db5Db6Db7Db8C02dD7bC66eDdbC262D3cCcccD0fD1bD1fD6aDaaDbbDcbDd2Dd3Dd4Dd5Dd6Dd7Dd8Dd9DdaC141D56C9bbD89CeeeD45Dc1C565D38C33fD5dCbbdDd1C030D68C696Dc2Dc3Dc4Dc5Dc6Dc7Dc8Dc9C55eD4fCcccD3fC131D53C999D46CbbfD12D13C888D69C77fD35C252D47C333D97C8abD7aCeeeD19C020D59Db9C575D43D78CcccD37D4dD54D79D98Da9C8a8DcaC13dD8aC253D87C050D3bDa7C333D2aCaaaD3eD4cD4eC78cD9aC99fD11C444Da8C99dD26C666D1eCabbD99C11dD5eC030D2bC888D55D5cDabC8b9D33C777D1dCbbbD29D88C888D6bCbbbD5bC12dD9bC787D5a"{
+}
+
+macro "Install Macro Plugins Shortcuts Tool Selected"{
+	requires("1.37g");
+	choicemenu=newArray("Only macro sets and tools", "All macros");
+	Dialog.create("Macro & Tool Sort Choice");
+	Dialog.addMessage("Display Macro sets and Tools only, or all kind of macros?\n(\"all macros\" option gives a very long list, less manageable).");
+	Dialog.addChoice("->",choicemenu,toString(optionchoice));
+	Dialog.show();
+	optionchoice= Dialog.getChoice();
+	if (optionchoice == "Only macro sets and tools") sortoption=0;
+	if (optionchoice == "All macros") sortoption=1;
+
+	macroname = GetMacroListMenu ();
+	InstallPluginsStarter(macroname,1);
+	if (File.exists(getDirectory("macros") + "tools/MacroPluginShortcutsTool.txt")) {
+		macroname="MacroPluginShortcutsTool.txt";KindOfMacro= 1;
+		InstallPluginsStarter(macroname,0);
+	}
+}
+
+function InstallPluginsStarter(macroname,comment) {
+	codemacrostarter ="run\(\"Install...\", \"install=[\"+getDirectory(\"macros\")+\"" + macroname + "\]\"\);";
+	codetoolstarter = "run\(\"Install...\", \"install=[\"+getDirectory(\"macros\")+\"tools/" + macroname + "\]\"\);";
+	StarterDir = getDirectory("startup") + favoritefoldername + "/";
+	if (getDirectory("plugins") == "") exit ("Unable to find the Plugins directory; something wrong in the ImageJ folder.");
+	pluginlocation = getDirectory("plugins");
+	pluginname = ShortMacroName (macroname);
+	// Create a <favoritefoldername> repertory in the ImageJ Plugins folder.
+	StarterDir = pluginlocation+favoritefoldername+File.separator;
+	File.makeDirectory(StarterDir);
+	if (!File.exists(StarterDir)) exit ("Unable to create Image Bio Methods Macros directory, something wrong in the ImageJ folder.");
+	starterplugin = StarterDir + pluginname +"_ .ijm";
+	//Write the new macro
+	codestarter=codemacrostarter;
+	if (KindOfMacro == 1) codestarter=codetoolstarter;
+	f= File.open(starterplugin);
+	print (f,codestarter);
+	File.close(f);
+ 	if (comment==1) {
+		showMessage ("Installation of the Plugin \"" +pluginname+ "\" is completed.\nIt will be available after ImageJ restarting, in the \"Plugins->" + favoritefoldername + "\" menu.");
+	}
+}
+
+function GetMacroListMenu () {
+	if (getDirectory("macros") == "") exit ("Unable to find the macros directory; something wrong in the ImageJ folder.");
+	macrostoolslocation = getDirectory("macros") + "tools/";
+	if (File.isDirectory(macrostoolslocation) == 0) exit ("Unable to find the tools directory on the macros directory; something wrong in the ImageJ folder.");
+	macrosfolder = getDirectory("macros");
+	listofmacro = getFileList(macrosfolder); listoftools = getFileList(macrostoolslocation);
+	NbMacro= getMacroNumber (listofmacro,sortoption,macrosfolder); NbTools= getMacroNumber (listoftools,sortoption,macrostoolslocation); NbToolsandMacros=(NbMacro + NbTools);
+	MacrosandTools1 = newArray(NbToolsandMacros+2); MacrosandTools1[0] =-1;
+	MacrosandTools2 = newArray(NbToolsandMacros+2); MacrosandTools2[0] ="--- Macro List ---";PlaceOfMacro=1;
+	PlaceintheMenu(MacrosandTools1,MacrosandTools2,PlaceOfMacro,listofmacro,0,sortoption,macrosfolder);
+	MacrosandTools2[NbMacro+1]="--- Tools List ---";
+	PlaceintheMenu(MacrosandTools1,MacrosandTools2,(NbMacro+2),listoftools,1,sortoption,macrostoolslocation);
+	macrochosen = "--- Macro List ---";
+       showProgress(1.0);
+	while (macrochosen == "--- Tools List ---" || macrochosen == "--- Macro List ---"){
+		Dialog.create("Macro & Tool Choice");
+		Dialog.addMessage("Choose a Macro or a Tool in the popup menu\n(list of macros, following by the list of tools):");
+		Dialog.addChoice("->",MacrosandTools2);
+		Dialog.addMessage("\nNumber of macros="+ NbToolsandMacros + "  ("+NbMacro+" \"Macros\", "+NbTools+" \"Tools\")");
+		Dialog.show();
+		macrochosen=  Dialog.getChoice();
+		for (i=1; i<=NbToolsandMacros; i++) {
+			if (MacrosandTools2[i] == macrochosen) KindOfMacro = MacrosandTools1[i];
+		}
+	}
+	return macrochosen;
+}
+
+function ShortMacroName (longname) {
+	shortnames = longname;
+	if (endsWith(longname, ".txt") || endsWith(longname, ".ijm")) shortnames = substring(longname, 0, (lengthOf(longname)-4));
+	return shortnames;
+}
+
+function getMacroNumber (lmacros,sortoption,dirmac) {
+	NumberOfMacro=0;
+     	for (i=0; i<lmacros.length; i++) {
+         	showProgress(i,lmacros.length);
+		if (endsWith(lmacros[i], ".txt") || endsWith(lmacros[i], ".ijm")) {
+			if (sortoption == 1) NumberOfMacro ++;
+			if (sortoption == 0) {
+				testmac=sort(dirmac,lmacros[i]);
+				if (testmac==1) NumberOfMacro ++;
+			}
+		}		
+	}
+	return NumberOfMacro;
+}
+
+function PlaceintheMenu (MacrosandTools1,MacrosandTools2,place,listdir,kind,sortoption,dirmac) {
+     	for (i=0; i< listdir.length; i++) {
+         	showProgress(i, listdir.length);
+		if (endsWith(listdir[i], ".txt") || endsWith(listdir[i], ".ijm")) {
+			if (sortoption == 1) {
+				MacrosandTools1[place]=kind; MacrosandTools2[place] =listdir[i];
+				place ++;
+			}
+			if (sortoption == 0) {
+				testmac=sort(dirmac,listdir[i]);
+				if (testmac==1) {
+					MacrosandTools1[place]=kind; MacrosandTools2[place] =listdir[i];
+					place ++;
+				}
+			}		
+		}
+	}
+	return MacrosandTools1;
+	return MacrosandTools2;
+}
+
+function sort(dirmac,mac){
+	testmac=0;
+	macropath=dirmac+mac;
+	macrocontent = File.openAsString(macropath);
+	nummacro=nmac(macrocontent, "macro");
+	if (nummacro >1)  testmac=1;
+	if (indexOf(macrocontent, "Tool")>0) testmac=1;
+	return testmac;
+}
+
+function nmac(macrotext,kindof){
+	nummac=0;
+	while (indexOf(macrotext, kindof)> -1) {
+		if (indexOf(macrotext, kindof)>-1){
+			macrotext=substring(macrotext, (indexOf(macrotext, kindof)+lengthOf(kindof)), lengthOf(macrotext));
+			index=0;
+			while (indexOf(macrotext, " ") ==0){macrotext=substring(macrotext,1, (lengthOf(macrotext)));}
+			if (startsWith(macrotext, "\"") || startsWith(macrotext, "'" )) nummac ++;
+		}
+	}
+	return nummac;
+}
+
+
+
