@@ -1,0 +1,51 @@
+// Quick Set Scale v0.99 - 15/10/2007
+// Copyleft - Bruno C. Vellutini [organelas@gmail.com]
+// Macro specific for Compound Microscope Zeiss Axioplan2 and Stereoscope Zeiss Stemi SV11 APO
+// with photos taken with a Nikon Coolpix 4500 camera (max zoom)
+// If you are using this macro you need to input your own values
+// specific for your scope and camera set up
+
+  var global = false;
+
+  macro "Unused Tool - " {}
+
+  macro "Quick Set Scale Action Tool - C037L1cfcL1a1eLfafeL8b8dL5b5dLbbbdT0707qT4707uT8707iTa707cTe707k" {
+
+     Dialog.create("Quick Set Scale");
+     // Write the name of the equipments you want to quickly set scale in the array below
+     Dialog.addChoice("Equipment:", newArray("Microscopio Zeiss Axioplan2", "Lupa Zeiss Stemi SV11 APO"));
+     Dialog.show();
+     equip = Dialog.getChoice();
+
+     // Options for Axioplan2
+     if (equip=="Microscopio Zeiss Axioplan2") {
+        // Write the magnifications available for your equipment
+        magnifications = newArray("2.5x", "10x", "20x", "40x", "100x");
+        scales = newArray("2.0450",  "0.5277", "0.2571", "0.1333", "0.05255");
+        setScale("Zeiss Axioplan2", magnifications, scales);
+     }
+
+     // Options for Stereoscope.
+     if (equip=="Lupa Zeiss Stemi SV11 APO") {
+        magnifications = newArray("0.6x", "0.8x", "1.0x", "1.2x", "1.6x", "2.0x", "2.5x", "3.2x", "4.0x", "5.0x", "6.6x");
+        scales = newArray("5.788712012", "4.246284501",  "3.318620781", "2.631509697", "2.087682672",
+           "1.680672269", "1.353784505",  "1.06835324", "0.850340136", "0.661371287",  "0.506072874");
+        setScale("Lupa Zeiss Stemi SV11 APO", magnifications, scales);
+      }
+  }
+
+
+  function setScale(name, mag, scale) {
+     Dialog.create(name);
+     Dialog.addChoice("Objective:", mag);
+     Dialog.addCheckbox("Global Scale", global);
+     Dialog.show();
+     magnification = Dialog.getChoice();
+     global = Dialog.getCheckbox();
+     options = " distance=1 pixel=1 unit=micron known=";
+     for (i=0; i<mag.length; i++) {
+        if (magnification==mag[i]) options = options + scale[i];
+     }	
+     if (global) options = options + " global";
+     run("Set Scale...", options);
+  }

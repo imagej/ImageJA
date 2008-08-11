@@ -1,0 +1,115 @@
+//-------------------- C a p t u r e  T o o l ---------------------
+// ImageJ Macro for capturing video on Windows computers via VirtualDub.
+// Output can be a video or a still image (e.g., average of video frames).
+//
+// Usage:
+// -- VirtualDub Installation and setup:
+// (1) Create a directory named "VirtualDub" in the parent directory of the "ImageJ" program directory.
+// (2) Get Virtualdub from http://virtualdub.sourceforge.net/
+//     Copy the contents of the VirtualDub zip archive (version 1.7 or later) into this directory.
+// (3) Save any open documents and start VirtualDub.exe
+// (4) File>Capture AVI...
+// (5) Device> select video device (WARNING: sometimes, this may crash Windows, e.g.
+//     when selecting a VFW driver). Make sure you have saved your work!
+// (6) In Video>Format (if not available, Video>Set Custom Format), select size&compression.
+//     YUY2, YUYV and YVYU formats can be read by ImageJ and causes no quality deterioration.
+//     These options create smaller files and and sometimes work better than uncompressed
+//     24-bit or 32-bit RGB.
+//     In Video>Compression, select "Uncompressed RGB/YCbCr".
+//     Sometimes, it may be necessary to select a Video>Preview Acceleration method for preview
+//     or to switch between "preview" and "overlay" methods for preview.
+//     Further options such as brightness/contrast etc. with the given capture device may be available
+//     in several Menu items from Video>Source to Video>Levels.
+// (7) In the capture menu, make sure that "Enable multisegment capture" is off.
+//     In Capture>Settings, unclick "Wait OK for Capture" and set the desired frame rate
+//     (frames per second).
+// (8) Select an output file with File>Set Capture File...; start capture with F5 and stop with ESC
+// (9) Quit VirtualDub.
+// -- ImageJ operations:
+// (10) Use File>Import>AVI... to open the test file created by VirtualDub.
+//     If ImageJ cannot open it, go back to step 6 and select a format supported by ImageJ.
+//     Make sure to check the first and last frame; VirtualDub creates a corrupted
+//     first or last frame with some video sources.
+//     If corrupted, these can be skipped in the capture options (step 11).
+// (11) Right-click the capture (camera) icon to set the capture options.
+// (12) Now everything is ready for image capture with this macro:
+//     Left-click the capture icon (VirtualDub must be closed or NOT in capture mode at this time).
+//     The macro calls VirtualDub to capture for a given time, reads the avi file and (if set in
+//     the options) processes it, e.g. by averaging the frames or deleting frames with low
+//     intensity.
+
+  var capturedNumber = 0;	//for Capture Tool: number captured movies/images
+  var capturedVirtualStack = 0;
+  var captureTime = parseInt(call("ij.Prefs.get", "captureTool.captureTime","2"));
+  var captureFirst = parseInt(call("ij.Prefs.get", "captureTool.firstFrame","1"));
+  var captureLast = parseInt(call("ij.Prefs.get", "captureTool.lastFrame","0"));
+  var captureGray = parseInt(call("ij.Prefs.get", "captureTool.toGrayScale","0"));
+  var captureFlip = parseInt(call("ij.Prefs.get", "captureTool.flipVertical ","0"));
+  var captureType = call("ij.Prefs.get", "captureTool.outType","Virtual Stack");
+
+macro 'Capture Action Tool - C000F14faF24faP4461b1d40Cfffo5577' {
+    requires("1.41d");
+    virtualDub = getDirectory("startup")+"..\\VirtualDub\\VirtualDub";
+    if (! File.exists(virtualDub+".exe"))
+      exit("Error - Cannot capture: VirtualDub not found at\n"+virtualDub);
+    if (capturedVirtualStack!=0 && isOpen(capturedVirtualStack)) {
+      selectImage(capturedVirtualStack);
+      discard = getBoolean("Discard "+getTitle+"?");
+      if (!discard) exit ("Nothing captured (would overwrite previous virtual stack)");
+      close();
+    }
+    aviFile = getDirectory("temp")+"ij$CaptureTemp.avi";
+    if (File.exists(aviFile)) ok=File.delete(aviFile);
+    setBatchMode(true);
+    showProgress(0.01);
+    showStatus("Capture: opening AVI file...");
+    status=exec(virtualDub+" /capture /capfile "+aviFile+" /capstart "+captureTime+"s /x");
+    captureToolClicks = 0;
+    if (! File.exists(aviFile))
+      exit("Error- File created by VirtualDub capture not found:\n"+aviFile);
+    wait(50);
+    args = " ";
+    if (captureGray) args = args + "convert ";
+    if (captureType != "Stack") args = args + "use ";  //virtual stack, also for sum, average etc.
+    if (captureFlip) args = args + "flip ";
+    run("AVI...", "select=["+aviFile+"] first="+captureFirst+" last="+captureLast+args);
+    wait(50);
+    stackID = getImageID();
+    capturedNumber++;
+    rename ("Capture_"+capturedNumber);
+    ns = nSlices();
+    if (indexOf(captureType, "Stack")<0 && ns > 1) {
+      run("Z Project...", "start=1 stop="+nSlices+" projection=["+captureType+"]");
+      rename (getTitle()+" (from "+ns+" frames)");
+      selectImage(stackID);
+      close();
+    }
+    if (captureType=="Virtual Stack") capturedVirtualStack = getImageID();
+    showProgress(1.0);
+    setBatchMode("exit and display");
+}
+
+//-------------------- C a p t u r e  T o o l   O p t i o n s ---------------------
+macro 'Capture Action Tool Options'  {
+    Dialog.create("Capture Options");
+    Dialog.addNumber("Capture Time", captureTime,0,6,"seconds");
+    Dialog.addNumber("First Frame", captureFirst);
+    Dialog.addNumber("Last Frame *", captureLast);
+    Dialog.addCheckbox("Convert to Gray", captureGray);
+    Dialog.addCheckbox("Flip Vertical", captureFlip);
+    Dialog.addChoice("Output **", newArray("Stack", "Virtual Stack", "Average Intensity", "Sum Slices", "Median"), captureType);
+    Dialog.addMessage("*  Frame number or 0 for 'end', -1 for 'end-1', etc.\n** Output 'Sum Slices' & 'Median' works for grayscale only.");
+    Dialog.show();
+    captureTime = round(Dialog.getNumber());
+    captureFirst= round(Dialog.getNumber());
+    captureLast= round(Dialog.getNumber());
+    captureGray= Dialog.getCheckbox();
+    captureFlip= Dialog.getCheckbox();
+    captureType = Dialog.getChoice();
+    call("ij.Prefs.set", "captureTool.captureTime",toString(captureTime));
+    call("ij.Prefs.set", "captureTool.firstFrame",toString(captureFirst));
+    call("ij.Prefs.set", "captureTool.lastFrame",toString(captureLast));
+    call("ij.Prefs.set", "captureTool.toGrayScale",toString(captureGray));
+    call("ij.Prefs.set", "captureTool.flipVertical ",toString(captureFlip));
+    call("ij.Prefs.set", "captureTool.outType",captureType);
+}

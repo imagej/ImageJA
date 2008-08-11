@@ -1,0 +1,86 @@
+// Reorder montages created with
+// Image>Stacks>Make Montage
+// (or create puzzles) with this macro
+// set adapted from arrowtool.txt
+// Author Jerome Mutterer
+
+  var mw = 2;
+  var mh = 3;
+  var iw, ih, t;
+
+  macro "Unused Tool-1 - " {}  // leave slot between text tool and magnifying glass unused
+  macro "Unused Tool-2 - " {}  // leave slot between dropper and shuffler unused
+
+  macro "Montage Shuffler Tool - C000D37D38D39D46D47D4bD4cD55D56D57D5aD5bD5cD5dD62D65D66D69D6aD6bD6cD6dD6eD72D73D74D75D79D7aD7bD7cD7dD7eD82D83D84D85D86D87D8bD8cD8dD8eD92D93D94D95D96D9aD9bD9cDa3Da4Da5DaaDabDb3Db4Db5Db9DbaDbbDc8Dc9DcaDd8Dd9"{
+      getCursorLoc(x, y, z, flags); 
+      xstart = x; ystart = y; 
+      x2=x; y2=y; 
+      while (flags&16 !=0) { 
+          getCursorLoc(x, y, z, flags); 
+          if (x!=x2 || y!=y2) 
+              makeLine(xstart, ystart, x, y); 
+              x2=x; y2=y; 
+              wait(10); 
+      }
+      if (x!=xstart || y!=ystart) {
+              sc = floor(xstart/(iw/mw));
+		tc = floor(x/(iw/mw));
+		sr = floor(ystart/(ih/mh));
+		tr = floor(y/(ih/mh));
+		swap(sc,sr,tc,tr);
+      }
+  }
+
+  macro "Montage Shuffler Tool Options..." {
+      Dialog.create("Shuffler");
+      Dialog.addNumber ("Width:", mw);
+      Dialog.addNumber ("Height:", mh);
+      Dialog.show();
+      mw = Dialog.getNumber();
+      mh = Dialog.getNumber();
+      iw = getWidth();
+      ih = getHeight();
+      t = getTitle();
+  }
+
+  function swap (a,b,c,d) {
+      setupUndo();
+      setBatchMode(true);
+      makeRectangle(a*(iw/mw),b*(ih/mh),(iw/mw),(ih/mh));
+      run("Duplicate...", "title=tmp");
+      selectWindow(t);
+      makeRectangle(c*(iw/mw),d*(ih/mh),(iw/mw),(ih/mh));
+      run("Copy");
+      makeRectangle(a*(iw/mw),b*(ih/mh),(iw/mw),(ih/mh));
+      run("Paste");
+      selectWindow("tmp");
+      run("Select All");
+      run("Copy");
+      selectWindow(t);
+      makeRectangle(c*(iw/mw),d*(ih/mh),(iw/mw),(ih/mh));
+      run("Paste");
+      setBatchMode(false);
+  }
+
+  // bonus Lena puzzle game
+
+  macro "Lena Puzzle Tool - C313DceDcfDdcDddDdeDdfDeaDebDecDedDeeDf3Df4Df7Df8Df9DfaCc77D35D3fD41D44D45D50D55D64D69D6dD76DafDbdDc4Dc6DcaCb55D04D0fD1fD2fD6eD72D73D74D79D88D89D9aD9bD9eDdaDe6De7Cd99D10D11D56D60D65D95D9cDabDb5Db6Db7Db8Db9DbaDd3Dd4C634D13D22D33D43D61D62D63D71Db3Dc2De9Df1Df2DfdDfeDffCd87D16D17D29D39D3aD3bD4aD4bD4cD5aD5bD5cD67D68D6bD77D7fD96D97Dc7Cc66D05D06D14D31D34D51D75D78D83D84D85D99Dc5Dd6Dd8Dd9CdbaD00D01D03D12D20D30D90D9dDa1Da9DaaDadDb1Db2Dc1C413D23D32D42D52Dc3Dd2De2De3De4DefDf0Df5Df6DfbDfcCd77D15D18D19D25D2aD2bD2cD3cD3eD4dD5dD6cD7cD7dDbcDc8Dc9Cd65D07D09D0aD0bD0cD0dD0eD1dD1eD5fD6fD7aD7bD87D8bCe99D26D27D36D37D38D46D47D48D57D70D80D81D8dD8fD91D94D9fCa45D24D40D4eD5eD7eD8eDaeDb4DbfDcdDd1Dd5DdbDe1De5De8Cd98D28D49D58D59D66D8cD92D93DbbDe0Cd66D08D1aD1bD1cD2dD2eD3dD4fD6aD82D86D8aD98DbeDcbDccDd7CedcD02D21D53D54Da0Da2Da3Da4Da5Da6Da7Da8DacDb0Dc0Dd0" {
+  }
+
+  macro "Lena Puzzle Tool Selected"{
+      run("Lena (68K)");
+      t = getTitle();
+      iw = getWidth();
+      ih = getHeight();
+      mw = 4;
+      mh = 4;
+      for (i=0; i<20; i++) {
+          c1 = floor (random()*5);
+          r1 = floor (random()*5);
+          c2 = floor (random()*5);
+          r2 = floor (random()*5);
+          swap(c1,r1,c2,r2);
+      }
+      setTool(16);
+      exit("Move pieces by dragging\nwith the shuffler tool");
+  }
