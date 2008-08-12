@@ -1,0 +1,51 @@
+// Save Virtual Stack As 8-bit TIFFs
+
+// This macro saves a 16-bit virtual stack as a sequence of 8-bit images.
+// The images are linearly scaled from min-max to 0-255, where min
+// and max are the minimum and maximum pixel values in the stack.
+
+  n = nSlices;
+  if (bitDepth!=16 || n==1)
+      exit("16-bit Stack required");
+  showStatus("Calculating stack min and max");
+  setBatchMode(true);
+  max = 0;
+  min = 65535;
+  for (i=1; i<=n; i++) {
+      showProgress(i, n);
+      setSlice(i);
+      getRawStatistics(nPixels, mean, imin, imax);
+    if (imin<min) min = imin;
+    if (imax>max) max = imax;
+  }
+  Dialog.create("Save As 8-Bit Series");
+  Dialog.addNumber("Minimum:", min);
+  Dialog.addNumber("Maximum", max);
+  Dialog.addMessage("Images will be linearly scaled\nfrom min-max to 0-255.\n");
+  Dialog.show();
+  min = Dialog.getNumber();
+  max = Dialog.getNumber();
+  dir = getDirectory("Choose Destination Directory ");
+  scale = 256/(max-min+1);
+  setBatchMode(true);
+  name = getTitle;
+  run("Conversions...", "");
+  for (i=1; i<=n; i++) {
+      showProgress(i, n);
+      setSlice(i);
+      run("Duplicate...", "title=temp");
+      if (min!=0) run("Subtract...", "value="+min);
+      run("Multiply...", "value="+scale);
+      run("8-bit");
+      saveAs("tif", dir+name+"-"+pad(i));
+      close;
+  }
+  run("Conversions...", "scale");
+
+
+  function pad(n) {
+      n = toString(n);
+      while (lengthOf(n)<5)
+          n = "0"+n;
+      return n;
+  }

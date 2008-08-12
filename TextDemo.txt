@@ -1,0 +1,57 @@
+// This macro demonstrates the use of the setFont(), drawString() 
+// setJustification() and setColor() functions. The antialiasing option 
+// in setFont() was added in ImageJ 1.37e. The ability to draw multiple
+// lines with one call to drawString was added in 1.38a.
+
+  requires("1.33j"); // setFont() added in 1.33j
+  newImage("temp", "RGB white", 450, 300, 1);
+
+  setColor(0, 0, 0);
+  x=10; y=20;
+  drawString("This is the default font.", x, y);
+
+  setFont("SansSerif", 9);
+  y += 20;
+  drawString("This is 9-point, 'SansSerif'", x, y);
+
+  setFont("Monospaced", 12);
+  y += 20;
+  drawString("This is 12-point, 'Monospaced'", x, y);
+
+  setFont("Serif", 18, "antiliased");
+  y += 30;
+  drawString("This is 18-point, 'Serif', antialiased'", x, y);
+
+  setFont("SansSerif", 20, "bold");
+  y += 30;
+   drawString("This is 20-point, 'SansSerif', bold", x, y);
+
+  setFont("SansSerif" , 24, "italic");
+  y += 30;
+  setColor(0, 0, 255);
+  drawString("24-point, 'SansSerif', italic", x, y);
+
+ setFont("SansSerif" , 28, "antialiased");
+  y += 35;
+  setColor(255, 0, 0);
+  drawString("28-point, 'SansSerif', antialiased", x, y);
+
+  y += 40;
+  setFont("Serif" , 14, "antialiased");
+  setColor(0, 0, 0);
+  if (getVersion<"1.38a") {
+     x = 30;
+     drawString("ImageJ 1.38 or later is required to", x, y);
+     y += 15;
+     drawString("draw multiple, justified lines.", x, y);
+     exit;
+  }
+  s = "Multiple lines of\n"+
+      "14-point, antialiased\n"+
+      "Serif text\n";
+  drawString(s+"left-justified", 20, y);
+  setJustification("center");
+  drawString(s+"centered", 220, y);
+  setJustification("right");
+  drawString(s+"right-justified", 430, y);
+

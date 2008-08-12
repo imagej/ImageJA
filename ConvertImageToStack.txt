@@ -1,0 +1,12 @@
+// "ConvertImageToStack"
+//
+// This macro expands a single image into a
+// stack by duplicating the image a specified  
+// number of times.
+
+  n = getNumber("Stack Size:", 10);
+  run("Copy");
+  for (i=0; i<n-1; i++) {
+      run("Add Slice");
+      run("Paste");
+  }

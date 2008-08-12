@@ -1,0 +1,294 @@
+//Title: MacrosAndToolsUpdater-Tool
+//First version: 30/08/2006
+
+// The MacrosAndToolsUpdater-Tool perfoms a live update of the ImageJ macros repertory. 
+// The tool looks for new and updated macros and tools, and install them. The old versions
+// are archived. An installation report is given.
+// For a routine use, a plugin shortcut can be installed using the MacroPluginShortcutsTool.txt
+// available at http://rsb.info.nih.gov/ij/macros/tools/MacroPluginShortcutsTool.txt
+
+// Author : Gilles Carpentier
+// Faculte des Sciences et Technologies,
+// Universite Paris 12 Val de Marne, France.
+
+var distantmacrosrep = "http://rsb.info.nih.gov/ij/macros/";
+var distanttoolsrep = "http://rsb.info.nih.gov/ij/macros/tools/";
+// set the next line to the url of the macro list
+var urllist="http://image.bio.methods.free.fr/ij/ijupdatetest/ListOfMacros.txt";distantmacrolink = "";
+var KindOfMacro=0,report=0,updates=0,nMacroinL=0,nToolinL=0,TheReport="";
+
+macro "On Line Macro Global Update Tool- CcccD5fD6fD7fD8fD9fC78bD17D19D2aD33D37D3bD42D4cD75D95DceDd5Dd9De6Df7Df9CddeDa3C36bD27D28D3aD57D58D59D66D76D77D86D87Da7Db8Dd6De8De9CeeeD00D01D02D04D06D07D08D09D0bD0dD0fD10D11D12D14D1bD1dD1fD20D21D22D2dD30D31D32D40D46D47D48D49D50D5bD60D70D71D72D74D7dD80D81D82D84D8dD90D91D92D94D9dDa0Da1Da2Da4Db0Db1DbbDc0Dc1Dc6Dc7Dc8Dc9Dd0Dd1Dd2De0De1De2DedDf0Df1Df2Df4DfbDfdDffC8beD3cD3dD4dD5aD6aD79D7aD7bD85D8bD9aDaaDc3Dc4Dd3Dd4CeeeD03D05D0aD0cD0eD13D15D1cD1eD23D2eD3eD4aD55D6cD73D7cD7eD83D8cD8eD93D9cD9eDb5DcaDdeDe3DeeDf3Df5DfcDfeC559D18D26D34D35D36D41D51D61DafDbfDcfDdaDdbDddDeaDf8CcddD2fD5cD6dD6eDabDb2Db4Dc2DefC99bD16D24D39D45D54D56D64D65Da5DacDb6DbcDcbDd7DecDfaCdefD67D8aC59dD29D2bD68D69D78D88D96D97D98D99Da6Da8Da9Db9De5De7CacdD1aD2cD38D4bD4eD5dD5eD6bD89D9bDb3DbaDc5Dd8De4Df6C348D25D43D44Db7DccDdcDebCcccD3fD4fDdf"{
+}
+
+macro "On Line Macro Global Update Tool Selected" {
+	requires("1.37q");
+	distantmacrolink = urllist
+	if (File.openUrlAsString(distantmacrolink) == "") exit ("No internet acces to the macros list");
+	Dialog.create("Macro & Tool Updater");
+	Dialog.addMessage("The updater will look for new available macros and tools.");
+	Dialog.addMessage("\nChoose Updater Options:");
+	Dialog.addCheckbox("- Check for macros and tools updates (longer query):", 0);
+	Dialog.addMessage("\nThis option check for modifications, corrections or \nimprovements for the Macros and Tool already installed \nonto your ImageJ version.");
+	Dialog.addCheckbox("- Make an installation report.", 1);
+	Dialog.show();
+	updates= Dialog.getCheckbox();
+	report= Dialog.getCheckbox();
+	// To get the content of the distant list of macros.
+	showStatus("Internet link...");
+	macrotextnih =File.openUrlAsString(distantmacrolink);
+	showStatus("");
+	// To obtain the separated lists of macros and tools from the distant file list.
+	lines=split(macrotextnih,"\n");
+	getMandTNumber (lines);
+	lMacro = newArray(nMacroinL); lTool = newArray(nToolinL);
+	lMacro = lPlace (lines,lMacro,"Macro "); lTool = lPlace (lines,lTool,"Tool ");
+	// To get the contents of local ImageJ (Macros, Tools) folders, into separated lists of macros and tools.
+	if (getDirectory("macros") == "") exit ("Unable to find the macros directory; something wrong in the ImageJ folder.");
+	macrostoolslocation = getDirectory("macros") + "tools/";
+	if (File.isDirectory(macrostoolslocation) == 0) exit ("Unable to find the tools directory on the macros directory; something wrong in the ImageJ folder.");
+	macrosfolder = getDirectory("macros");
+	listofmacro = getFileList(macrosfolder); listoftools = getFileList(macrostoolslocation);
+	NbMacro= getMacroNumber (listofmacro); NbTools= getMacroNumber (listoftools); NbToolsandMacros=(NbMacro + NbTools);
+	FMacros = newArray(NbMacro); FTools =newArray(NbTools);
+	FMacros = lPlace (listofmacro,FMacros,""); FTools = lPlace (listoftools,FTools,"");
+	// To get the new macros and tools present in the list, not into the local ImageJ.
+	nbNewMacro= (nMacroinL - nbThings(lMacro,FMacros)); nbNewTools= (nToolinL - nbThings(lTool,FTools));
+	NewMacros = newArray(nbNewMacro); NewTools =newArray(nbNewTools);
+	NewMacros = PlaceNewThings (lMacro,FMacros,NewMacros); NewTools = PlaceNewThings (lTool,FTools,NewTools);
+	// To get the new macro and tool updates available for the local ImageJ macros and tools.
+	if(updates==1) {
+		SortedNewMacros = newArray(NbMacro);
+		UpdatedMacro = newArray(Nbmacroupdates (FMacros,lMacro,distantmacrosrep,macrosfolder,SortedNewMacros));
+		UpdatedMacro = placeUpdatemacro(UpdatedMacro,FMacros,SortedNewMacros);
+		SortedNewTools = newArray(NbTools);
+		UpdatedTool = newArray(Nbmacroupdates (FTools,lTool,distanttoolsrep,macrostoolslocation,SortedNewTools));
+		UpdatedTool = placeUpdatemacro(UpdatedTool,FTools,SortedNewTools);
+	} else {UpdatedMacro=0;UpdatedTool=0;}
+	// To make a dialog box to the user.
+	Messagenew=""; messageupdat="";
+	if ((NewMacros.length > 0) || (NewTools.length > 0)) {
+		Messagenew = "- There are "+ NewMacros.length + " new Macro(s), and " + NewTools.length + " new Tool(s), available on line.";
+	} else {Messagenew = "- There is no new Macro or Tool available.";}
+	if(updates==1) {
+		if ((UpdatedMacro.length > 0) || (UpdatedTool.length > 0)) {
+			messageupdat="- There are "+ UpdatedMacro.length + " Macro(s), and " + UpdatedTool.length + " Tool(s), updated available on line.";
+		} else {messageupdat="- No Macro or Tool update available.";}
+	} else {messageupdat = "- Macros and Tools Update were not queried.";} 
+	continue = "";
+	if ((messageupdat != "- Macros and Tools Update were not queried.") ||  (Messagenew != "- There is no new Macro or Tool available.")) continue = " \n-> Perform the installation?";
+	if ((Messagenew=="- There is no new Macro or Tool available.") && (messageupdat=="- No Macro or Tool update available.")) exit("No new macro or update available: your ImageJ Macro folder is up to date.");
+	showProgress(1.0);
+	showMessageWithCancel("Installation User Confirmation",Messagenew +"\n"+ messageupdat + "\n"+ continue);
+	if (continue == "") exit;
+	// To perform the installation of the new macros and tools.
+	if ((NewMacros.length > 0) || (NewTools.length > 0)) {
+		instalmacro(NewMacros,distantmacrosrep,macrosfolder);
+		instalmacro(NewTools,distanttoolsrep,macrostoolslocation);
+	}
+	// To update the macros and tools.
+	if (updates==1) {
+		if ((UpdatedMacro.length > 0) || (UpdatedTool.length > 0)) {
+			archmacros(UpdatedMacro,macrosfolder,"Archived Macros");
+			archmacros(UpdatedTool,macrostoolslocation,"Archived Tools");
+			instalmacro(UpdatedMacro,distantmacrosrep,macrosfolder);
+			instalmacro(UpdatedTool,distanttoolsrep,macrostoolslocation);
+		}
+	}
+	// To make the installation report.
+	if (report==1) rapport (FMacros,FTools,lMacro,lTool,NewMacros,NewTools,UpdatedMacro,UpdatedTool,macrosfolder,"Update reports");
+}
+	// Contents of arrays:
+	// FMacros, FTools ; lists of macros and tools into your ImageJ.
+	// lMacro, lTool ; lists of macros and tools into the online ImageJ macro list.
+	// NewMacros, NewTools ; lists of new macros and tools into the online ImageJ macro list.
+	// UpdatedMacro, UpdatedTool ; lists of macros and tools updates available on the ImageJ web site.
+
+macro "Get the list of available macros and tools Tool - CcccD55D57D5aD66D6aD7bD81D85D8aD93Da6DadDbdDc6Dd6C333Db1Dc2Dd3CeeeD34D35D4cD69D77Dc9Dd9CdddD32D33D42D43D47D52D53D59D63D64D73D7aD87D89D97D99D9bDa9Db9DcaDd8CbbbD58D75D7dD8bD96D9dDa4CfffD00D01D02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eD0fD10D11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fD20D21D22D23D24D25D26D27D28D29D2aD2bD2cD2dD2eD2fD30D3bD3cD3dD3eD40D4eD50D5eD60D6eD70D7eD80D8eD90D9eDa0DaeDb0DbeDc0Dc1DceDd0Dd1Dd2De0De1De2De3De4De5De6De7De8De9DeaDebDecDedDeeDefDf0Df1Df2Df3Df4Df5Df6Df7Df8Df9DfaDfbDfcDfdDfeDffCdddD31D41D44D4aD4bD51D54D5bD62D67D72D74D83D84D8dDa7Db2Db7Dc7DcbDcdDd7CaaaD95Db5CfffD38D39D3aD6cD7cD8cDb3DbcDccDdbDdcDddDdeCbbbD45D5dD68D6bD78D88D92D9aDaaDabDb4Db8DbbDc8CcccD46D48D4dD56D61D6dD71D76D82D86D94Da1Da2Da3DbaDc3Dc4Dd4C777D3fD4fD5fD6fD7fD8fD9fDafDbfDcfDdfCeeeD36D37D49D5cD79D9cDacDdaCaaaD65D91D98Da5Da8Db6Dc5Dd5"{
+}
+macro "Get the list of available macros and tools Tool Selected" {
+	requires("1.37i");
+	showMessageWithCancel ("Get on line available macro list?");
+	run("URL...", "url=["+urllist+"]");
+}
+// ---- functions ----- //
+// Function giving the number (NumberOfMacro) of macros and tools contained in the list (lmacros).
+function getMacroNumber (lmacros) {
+	NumberOfMacro=0;
+     	for (i=0; i<lmacros.length; i++) {
+         	showProgress(i,lmacros.length);
+		if (endsWith(lmacros[i], ".txt") || endsWith(lmacros[i], ".ijm")) NumberOfMacro ++;	}
+	return NumberOfMacro;
+}
+
+// Function giving the macros number (nMacroinL) and the tools number (nToolinL) contained in the array (lmacros).
+// Macros are sorted according to .txt or .img suffixes and 'Macro' or 'Tool' preffixes.
+function getMandTNumber (lmacros) {
+	nMacroinL=0;nToolinL=0;
+     	for (i=0; i<lmacros.length; i++) {
+         	showProgress(i,lmacros.length);
+		if (endsWith(lmacros[i], ".txt") || endsWith(lmacros[i], ".ijm")) {
+			if (startsWith(lmacros[i], "Macro ")) nMacroinL ++;
+			if (startsWith(lmacros[i], "Tool ")) nToolinL ++;
+		}		
+	}
+}
+
+// Function giving the list of macros (Lele) with the preffix (kind) contained into the list (lmacros).
+function lPlace (lmacros,Lele,kind) {
+	compteur=0;
+     	for (i=0; i<lmacros.length; i++) {
+         	showProgress(i,lmacros.length);
+		if (endsWith(lmacros[i], ".txt") || endsWith(lmacros[i], ".ijm")) {
+			if (startsWith(lmacros[i], kind)) {
+				Lele[compteur]=substring(lmacros[i],lengthOf(kind),lengthOf(lmacros[i]));
+				compteur ++;
+			}
+		}		
+	}
+	return Lele;
+}
+
+// Function setting in the report (TheReport) the content of the list (tab), adding the preffix (prefix).
+function listit (tab,prefix) {
+	for (i=0; i<tab.length; i++) {
+		TheReport=TheReport + "\n"+ prefix+tab[i];
+	}
+}
+
+// Function giving the number of elements contained in the first list (liste1) and in the second list (liste2).
+function nbThings(liste1,liste2) {
+	compteur=0;
+     	for (i=0; i<liste1.length; i++) {
+		showProgress(i,liste1.length);
+		for (j=0; j<liste2.length; j++) {
+			if (liste1[i]==liste2[j]) compteur ++;
+		}
+	}
+	return compteur;
+}
+
+// Function giving the list of elements (New) contained in the first list (liste1) and in the second list (liste2).
+function PlaceNewThings (liste1,liste2,New) {
+	newcompteur=0;
+	test=0;
+	for (i=0; i<liste1.length; i++) {
+		showProgress(i,liste1.length);
+		for (j=0; j<liste2.length; j++) {
+			if (liste1[i]==liste2[j]) test ++;
+		}
+		if (test==0) {
+			New[newcompteur]=liste1[i];
+			newcompteur ++;
+		}
+		test=0;
+	}
+	return New;
+}
+
+// Function sorting the number of elements (compteur) which are macros and tools and can be updated (sorted [n], if n=1 the macro is updatable).
+function Nbmacroupdates (macrolocalist,macrodistlist,urlrep,localrep,sorted) {
+	compteur=0;
+	for (i=0; i<macrolocalist.length; i++) {
+		showProgress(i,macrolocalist.length);
+		for (j=0; j<macrodistlist.length; j++) {
+			if (macrolocalist[i]==macrodistlist[j]) {
+				macrotextnih=getdistantmacro (macrodistlist[j],urlrep);				macropath = localrep + macrolocalist[i];
+				if (File.exists(macropath)) {
+					thelocalmacro = File.openAsString(macropath);
+					if (thelocalmacro != macrotextnih) {
+						compteur=compteur+1;
+						sorted[i]=1;
+					}
+				}
+			}
+		}
+	}
+	return compteur;
+}
+
+// Function giving the list (listupdate) of macros and tools which can be updated.
+function placeUpdatemacro(listupdate,locallist,Sorted) {
+	compteur=0;
+	for (i=0; i<Sorted.length; i++) {
+		if (Sorted[i] == 1) {
+			listupdate[compteur]=locallist[i];
+			compteur++;
+		}
+	}
+	return listupdate;
+}
+
+// Function archiving the old macros of the list (list) into the folder (foldername) of the repertory (localrep).
+function archmacros(list,localrep,foldername){
+	// Create an Archived Tools directory in tools repertory
+	if (list.length > 0) {
+		ArchDir = localrep+foldername+File.separator;
+		File.makeDirectory(ArchDir);
+		if (!File.exists(ArchDir)) exit("Unable to create the "+foldername+" directory, something wrong in the ImageJ folder");
+	}
+	for (i=0; i<list.length; i++) {
+		if (File.exists(localrep+list[i])) {
+			thelocalmacro = File.openAsString(localrep+list[i]);
+			f= File.open(ArchDir + list[i]);
+			print (f,thelocalmacro);
+			File.close(f);
+		}
+	}
+}
+
+// Function installing a list (list) of distant macros located at (urlrep), into the local folder (localrep).
+function instalmacro(list,urlrep,localrep){
+	for (i=0; i<list.length; i++) {
+		macrotextnih= getdistantmacro (list[i],urlrep);
+		f= File.open(localrep + list[i]);
+		print (f,macrotextnih);
+		File.close(f);
+	}
+}
+
+// Function giving the content of a distant macro (name) located at the distant repertory (urlrep).
+function getdistantmacro (name,urlrep) {
+	distantmacrolink = urlrep + name;
+	if (indexOf(distantmacrolink, " ") > -1) {
+		while (indexOf(distantmacrolink, " ") > -1) {
+			distantmacrolink=substring(distantmacrolink, 0, (indexOf(distantmacrolink, " ")))+"%20"+substring(distantmacrolink, (indexOf(distantmacrolink, " ")+1),lengthOf(distantmacrolink) );
+		}
+	}
+	showStatus("Internet link...");
+	macrotextnih =File.openUrlAsString(distantmacrolink);
+	showStatus("");
+	return macrotextnih;
+}
+
+// Function making a detailed report of every list obtained.
+function rapport (FMacros,FTools,lMacro,lTool,NewMacros,NewTools,UpdatedMacro,UpdatedTool,localrep,foldername) {
+	TheReport="";
+	getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
+	reportname=  ""+dayOfMonth+"-"+(month+1) +"-"+year+" at "+hour+"."+minute+"."+second+"";
+	TheReport=TheReport + "Installation report for the update performed on: "+reportname;
+	if ((NewMacros.length+NewTools.length)>0) {
+		TheReport=TheReport +"\n\n--- The following new Macros and Tools have been installed: ";
+		TheReport=TheReport + "("+(NewMacros.length+NewTools.length)+" Macros: "+NewMacros.length+ " \"macros\" & "+NewTools.length+" \"tools\"):";
+		listit (NewMacros,"Macro ");
+		if (NewTools.length > 0) TheReport=TheReport + "\n--------";
+		listit (NewTools,"Tool ");
+	}
+	if(updates==1) {
+		TheReport=TheReport + "\n\n--- The following Macros and Tools update have been performed: ";
+		TheReport=TheReport +"("+(UpdatedMacro.length+UpdatedTool.length)+" Macros: "+UpdatedMacro.length+ " \"macros\" & "+UpdatedTool.length+" \"tools\"):";
+		listit  (UpdatedMacro,"Macro "); if (UpdatedTool.length > 0) TheReport=TheReport + "\n--------"; listit (UpdatedTool,"Tool ");
+	}
+	if (updates==0) TheReport=TheReport + "\n\n--- The Macros and Tools updated have not been queried.";
+	TheReport=TheReport + "\n\n--- Note: the list of macros and tools installed onto you computer before this update ---";
+	TheReport=TheReport + "\n      ("+(FMacros.length+FTools.length)+" Macros: "+ FMacros.length + " \"macros\" & "+FTools.length+" \"tools\"):";
+	listit (FMacros,"Macro ");TheReport=TheReport +"\n--------";listit (FTools,"Tool ");
+	TheReport=TheReport +"\n\n--- Note: the list of macros and tools available at the ImageJ web site ---";
+	TheReport=TheReport + "\n      ("+(lMacro.length+lTool.length)+" Macros: "+ lMacro.length + " \"macros\" & "+lTool.length+" \"tools\"):";
+	listit (lMacro,"Macro "); TheReport=TheReport +"\n--------"; listit (lTool,"Tool ");
+	UpdateReports = localrep+foldername+File.separator;
+	File.makeDirectory(UpdateReports);
+	if (!File.exists(UpdateReports)) exit("Unable to create the "+foldername+" directory, something wrong in the ImageJ folder");
+	f= File.open(UpdateReports + reportname+".txt" );	print (f,TheReport);
+	File.close(f);
+	if (File.exists(UpdateReports + reportname+".txt")) open(UpdateReports + reportname+".txt");
+}

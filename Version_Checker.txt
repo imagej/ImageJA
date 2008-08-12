@@ -1,0 +1,17 @@
+// version checking macro
+
+  requires("1.37q");
+  notes = File.openUrlAsString("http://rsb.info.nih.gov/ij/notes.html");
+  if (notes=="")
+     exit("Unable to open ImageJ \"News\" (http://rsb.info.nih.gov/ij/notes.html)");
+  vl = substring(notes, indexOf(notes,"<h3>"),indexOf(notes,"</h3>"));
+  version = substring(vl,indexOf(vl," ")+1,indexOf(vl,","));
+  if (getVersion()>version) {
+     showMessageWithCancel("Version Checker",
+        "Your Version : "+getVersion()+"\nCurrent Version : " + version
+        + "\nClick 'OK' to visit IJ's website");
+     run("ImageJ Web Site...");
+  } else {
+     showMessage("Version Checker",
+        "You are running the latest version of ImageJ ("+version+")");
+  }

@@ -1,0 +1,11 @@
+// Copy Results to Clipboard
+//
+// This macro demonstrates how to copy a Results
+// table column to the system clipboard.
+
+  requires("1.38r");
+  String.resetBuffer;
+  for (i=0; i<nResults; i++)
+      String.append(getResult("Area", i) + "\n");
+  String.copy(String.buffer);
+ 

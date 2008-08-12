@@ -1,0 +1,27 @@
+  requires("1.39l");
+  startingImage = 2;
+  increment = 30;
+  dir = newArray(100);
+
+  dir[0] = "C:\\images\\001007\\";
+  dir[1] = "C:\\images\\011107\\";
+  dir[2] = "C:\\images\\021107\\";
+
+  dir[0] = "/Users/Shared/Downloads/001007/";
+  dir[1] = "/Users/Shared/Downloads/011107/";
+  dir[2] = "/Users/Shared/Downloads/021107/";
+
+  path = getDirectory("temp")+"list.txt";
+  f = File.open(path);
+  index = 0;
+  while (dir[index]!=0) {
+      list = getFileList(dir[index]);
+      for (i=startingImage-1; i<list.length; i+=increment) {
+          print(f, dir[index]+list[i]);
+          //print(dir[index]+list[i]);
+      }
+      index++;
+  }
+  File.close(f);
+   run("Stack From List...", "open="+path+" use");
+

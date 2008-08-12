@@ -1,0 +1,72 @@
+// Calibration Bar Macros
+//
+// These macros add a calibration to the current image 
+// or stack, or to all the images and stacks in a folder.
+
+  var location = "[Upper Right]";
+  var fil = "White";
+  var label = "Black";
+  var number = "5";
+  var decimal = "0";
+  var font = "12";
+  var zoom = "1";
+
+  addBar(); exit;
+
+  // Adds a calibration bar to all the images in a stack
+  macro "Add Calibration Bar" {
+     addBar();
+  }
+
+  // Adds a calibration bar to all the images and stacks in a folder
+  macro "Batch Add Calibration Bar" {
+      dir = getDirectory("Choose a Directory ");
+      list = getFileList(dir);
+      setBatchMode(true);
+      for (i=0; i<list.length; i++) {
+          path = dir+list[i];
+          open(path);
+          id = getImageID();
+          addCalibrationBar();
+          save(path+"-bar.tif");
+          close();   
+          selectImage(id);
+          close(); 
+      }
+  }
+
+
+  function addBar() {
+     setBatchMode(true);
+     run("Select None");
+     addCalibrationBar();
+     setBatchMode(false);
+
+  }
+
+  function addCalibrationBar() {
+     if (bitDepth==24)
+         exit("Bars cannot be added to RGB images: "+getTitle);
+     nS = nSlices;
+     stackID = getImageID();
+     setSlice(1);
+     run("Calibration Bar...", "location="+location+" fill="+fil+" label="+label+" number="+number+" decimal="+decimal+" font="+font+" zoom="+zoom);
+     barID = getImageID();
+     for (n=2; n<=nS; n++) {
+        showProgress(n, nS);
+        selectImage(stackID);
+        setSlice(n);
+        run("Calibration Bar...", "location="+location+" fill="+fil+" label="+label+" number="+number+" decimal="+decimal+" font="+font+" zoom="+zoom);
+        run("Cut");
+        close();
+        selectImage(barID);
+        run("Add Slice");
+        run("Paste");
+     }
+     run("Select None");
+     setSlice(1);
+     selectImage(stackID);
+     setSlice(1);
+     selectImage(barID);
+  }
+

@@ -1,0 +1,31 @@
+// "PlotProfileWithSD"
+// This macro is a customized version of the Plot Profile
+// command that calculates the standard deviation of each 
+// Y intensity column and displays it as an error bar. The
+// mean intensities and standard deviations are also 
+// displayed in the "Results" table. The size of the error
+// bars is determined by the 'errorBarScale' variable.
+
+  errorBarScale = 0.2;
+  if (selectionType!=0)
+      exit("Rectangular selection required");
+  getSelectionBounds(xbase, ybase, width, height);
+  profile = newArray(width);
+  sd = newArray(width);
+  n = height;
+  for (x=xbase; x<xbase+width; x++) {
+      makeRectangle(x, ybase, 1, height);
+      getStatistics(area, mean, min, max, std);
+      profile[x-xbase] = mean;
+      sd[x-xbase] = std;
+  }
+  makeRectangle(xbase, ybase, width, height);
+  run("Clear Results");
+  for (i=0; i<width; i++) {
+      setResult("Mean", i, profile[i]);
+      setResult("SD", i, sd[i]);
+      sd[i] *= errorBarScale;
+  }
+  updateResults;
+  Plot.create("Profile Plot", "X", "Value", profile);
+  Plot.add("error bars", sd);

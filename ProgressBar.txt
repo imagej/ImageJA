@@ -1,0 +1,28 @@
+// Progress Bar
+//
+// This macro demonstrates how to display status
+// information and a progress bar in a text window. 
+// It uses the Plugins>New>Text Window command
+// to open the text window.
+
+  requires("1.38m");
+  title = "[Progress]";
+  if (getVersion>="1.41g")
+     run("Text Window...", "name="+ title +" width=25 height=2 monospaced");
+  else
+     run("New... ", "name="+ title +" type=[Text File] width=25 height=2 monospaced");
+  for (i=0; i<100; i++) {
+     print(title, "\\Update:"+i+"/"+100+" ("+(i*100)/100+"%)\n"+getBar(i, 100));
+     wait(200);
+  }
+  print(title, "\\Close");
+
+  function getBar(p1, p2) {
+        n = 20;
+        bar1 = "--------------------";
+        bar2 = "********************";
+        index = round(n*(p1/p2));
+        if (index<1) index = 1;
+        if (index>n-1) index = n-1;
+        return substring(bar2, 0, index) + substring(bar1, index+1, n);
+  }

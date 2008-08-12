@@ -1,0 +1,16 @@
+// Save Inverted FITS
+
+// ImageJ saves images in FITS format with the origin at the lower
+// left corner. You can have it save with the origin in the upper left
+// corner by adding the this macro to the StartupMacros.txt file in 
+// the ImageJ/macros folder or by copying this file to the ImageJ/plugins
+// folder or subfolder. Restart ImageJ and there will be a new 
+// "Save Inverted FITS" command in either the Plugins>Macros,
+// submenu, directly in the Plugins menu, or in the submenu of the
+// Plugins menu corresponding to the subfolder. 
+
+   macro "Save Inverted FITS" {
+       run("Flip Vertically");
+       saveAs("FITS", "");
+       run("Flip Vertically");
+  }

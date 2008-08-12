@@ -1,0 +1,61 @@
+// Exec Examples
+//
+// This macro demonstrates how to use the exec() function 
+// that was added in ImageJ 1.39c. This function executes a
+// native command and returns the output of that command as
+// a string. In most of the examples below the output is displayed
+// in the Log window since it is not assigned to a string.
+
+
+// Linux and Mac OS X examples
+
+   // run command with no arguments
+   exec("ls");
+
+   // run command with arguments
+   exec("ls /tmp");
+
+   // run command with arguments containing spaces
+   exec("grep", "public static",  "/Users/wayne/ImageJ/source/ij/ImageJ.java");
+
+   // run command built into shell
+   exec("sh", "-c", "cd /tmp; pwd");
+
+   // open web page in default browser on a Mac
+   exec("open", "http://rsb.info.nih.gov/ij/");
+
+   // parse command output
+   words = split(exec("uptime"));
+   print("This computer has been up for "+words[2]+" days");
+
+   // open contents of Results table in Excel on a Mac
+   if (nResults==0) exit("Results table is empty");
+   path = getDirectory("home")+"Results.xls";
+   saveAs("Measurements", path);
+   exec("open", path);
+
+
+// Windows examples
+
+   // run command with no arguments
+   exec("help");
+
+   // run command with arguments
+   exec("help rename");
+
+   // run command built into command interpreter
+   exec("cmd /c dir");
+
+   // run command with argument containing spaces
+   exec("cmd", "/c", "dir", "c:\\program files");
+
+   // open web page in default browser
+   exec("open", "http://rsb.info.nih.gov/ij/");
+
+   // open contents of Results table in Excel
+   if (nResults==0) exit("Results table is empty");
+   path = getDirectory("home")+"Results.xls";
+   saveAs("Measurements", path);
+   //exec("open", path);
+   exec("cmd", "/c", "start", "excel.exe", path);
+

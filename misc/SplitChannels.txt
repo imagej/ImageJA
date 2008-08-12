@@ -1,0 +1,3 @@
+setBatchMode(true);
+run("New HyperStack...", "title=HyperStack type=8-bit display=Color width=300 height=200 channels=3 slices=30 frames=50");
+setBatchMode(false);

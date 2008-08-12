@@ -1,0 +1,126 @@
+
+// Includes some on line resources on the tool bar:
+
+// Author : Gilles Carpentier
+// Faculte des Sciences et Technologies,
+// Universite Paris 12 Val de Marne, France.
+
+// - On Line Notice Tool: open an url containing a notice.
+// - Download & Install Macro Tool: download and install a macro tool on line.
+// - Download Sample Image Tool: Download a demo Image.
+// - On Line Kit Tool: Install a macro, open the on line notice and downolad a sample image.
+
+var distantmacrolink = "http://rsb.info.nih.gov/ij/macros/tools/3FluoLablelingExploringTools.txt";
+var onlinedoclink = "http://image.bio.methods.free.fr/Fluotooldoc.html";
+var demoimagelink = "http://rsb.info.nih.gov/ij/macros/images/myotube.tif.zip";
+var macroname = "3FluoLablelingExploringTools.txt";
+var shortmacroname = macroname;
+var demoimagename = "myotube.tif";
+
+
+macro "Download Sample Image Tool - C010D4fD6cD7bD99Dc7C720D4cC040Dd0C770Dc4C010D5cCa40DefC440Db2Cd70D96C020D11D7cDb9C760D07D24Db3C230D0fCa80D26D44C120D3dDa8Cc40D78C460D04D22Ccb0D84C020D10D3eD3fD4dD4eD8bDa0Db1Db8Dc8De2C750D1cD72C050De0Df0Df2C880D15C020Dd2Df8Ca60D19DacC630D1dD2dD8dCc90Da6C030D8cD9aDc9Dd1C860D08C250D81Ca90Db5C220D5fDecCc60D57D59C570D61Ccc0D36C010D00D01D2fD5dD8aDaaDb0Dc0Dd7Dd8De7C830DdfC140D7dC980D63C020De8DeaCc50D48D66C450D1eDc3De4Ce70DcdC670D14C250D03Da9Cb80D27Da4C120DabCd50D77C460De6Cea0D38DccC850DedC150Dc1De3C980Db6C030D5eD9bDe1Cb60DfcDffC540D0dCca0D64C970D83D93C260Df3Cc90D94C220D6eCd60D3aC670Dc6Ceb0D46C730D7aDdcC140D02C970Da3C110Db7DfaCc50D3bD4bD76C540D6fDdeCd80DeeC760D09C330D0eDcaCa70D73C120Df7Cc40D69C550Dd4Ccb0D45C840D89C240D50C890D33C030D1fDa1Ca60DcbC640D0bD92Cca0D74D9eDadC960D1aD1bD8eC350D60D91De9Cc90D28D29D2aC230D12Cc60D79C670D42Cdc0D55C930D3cC140D21D70D90Ca80D17D9dC120D6dDf9C540Da2Ce80D88C770D43C340D13Cb90DfdC130Dd3Cd40D68C560D05Ceb0D75Ca50Da7C150D40C9a0Dc5C030Df1Cb60D47C640D7eCf80D86C260D41Cbb0D35D54C320DddCd60DceC590Df5Ced0D9fC730D6bC040D30C870D16C010DebCb50D5bC440D9cCd80D95DbcC330D51DbaCd40D58Cda0D39C790D06C960D7fCcd0D8fCe70D49DbfC670D52D62C130Dd9Cc50D97C470D71Df6C850D0aC990D53Ce90D85DbeCab0D25C230D2eC680D32Cec0DfeC730D82C040D20C970D18Db4Cb80Da5Cd40D67C650DdaCdb0D65C750DbbC7a0Dd5Ca60DdbCc70D6aDafC570Dd6Cdd0D37C940D98C340Dc2C130Df4Ce50D4aD5aC560D0cCfb0DbdCa50D2bC160D80C9a0D34Cb70D56C550D23C360D31C330DfbCe60D87C690De5Cfd0DaeCb50DcfC970D2c"{
+}
+macro "Download Sample Image Tool Selected" {
+	requires("1.35r");
+	OpenImageLink(1);
+}
+
+macro "On Line Notice Tool - C000Da9DadDb6DbdDc5Dc6Dd3Dd4Dd5Dd6DddC20fD11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fC0f3D42D43D44D45D46D47D48D49D4aD4bD4cD4dD4eD4fC0feD32D33D34D35D36D37D38D39D3aD3bD3cD3dD3eC444DdeDefC73fD01Cfd0D62D63D64D65D66D67D68D69D6aD6bD6cD6dD6eCeeeD90D95Da1Da4Db0Db2Db3De0De8Df0Df7DfaC222DeeC06fD22D23D24D25D26D27D28D29D2aD2bD2cD2dD2eC7f0D52D53D54D55D56D57D58D59D5aD5bD5cD5dD5eCcccDbfDf9Cf74D70Ca99D97C888Da8CfffD9bD9cC000Dc4Dd2C64fD10C0f4D41C0ffD31D3fCf40D71D72D73D74D75D76D77D78D79D7aD7bD7cD7dD7eD7fCa7fD00Cfd0D61D6fCfefD91C444Db5DdaDe9C06fD21D2fC7f0D51D5fCeddD96Cf88D82D83D84D85D8bD8cCaaaDccDeaDfdC999DcfCfffD9fDafDb1Db8De1C666Dc7C84fD02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eC333Da6Da7DaaDb9DbcDd9DdcCdddD9aDa2Da3Dc8DdbDecCaaaDabDaeDc1De3De4De5De6Cf89D8dC222DcdDedDfeDffC4ffD30CfffDebDf1Df2Df3Df4Df5Df6DfcC48fD20C4f6D40CeeeD92D93D94Da0DcbDf8DfbCbbbDb4Dd8C9f4D50C555Dc2C73fD0fC333DbbDc3Dc9Dd1CdddDe7Cf89D81D86D8aD8fC111DbaDd7CdeeDa5CbbbDb7Dc0De2Cf99D87D88D89C777DacDcaCcbbD9eCfaaD80C999D98Cf89D8eC999D9dC766D99C555DceC888DbeCfd4D60C777DdfC666Dd0"{
+}
+
+macro "On Line Notice Tool Selected" {
+	showMessageWithCancel  ("A notice is avaible on line. Open it with your default web browser?");
+	run("URL...", "url=["+onlinedoclink +"/"+"]");
+} 
+
+macro "Download & Install Macro Tool - CcccD55D57D5aD66D6aD7bD81D85D8aD93Da6DadDbdDc6Dd6C333Db1Dc2Dd3CeeeD34D35D4cD69D77Dc9Dd9CdddD32D33D42D43D47D52D53D59D63D64D73D7aD87D89D97D99D9bDa9Db9DcaDd8CbbbD58D75D7dD8bD96D9dDa4CfffD00D01D02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eD0fD10D11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fD20D21D22D23D24D25D26D27D28D29D2aD2bD2cD2dD2eD2fD30D3bD3cD3dD3eD40D4eD50D5eD60D6eD70D7eD80D8eD90D9eDa0DaeDb0DbeDc0Dc1DceDd0Dd1Dd2De0De1De2De3De4De5De6De7De8De9DeaDebDecDedDeeDefDf0Df1Df2Df3Df4Df5Df6Df7Df8Df9DfaDfbDfcDfdDfeDffCdddD31D41D44D4aD4bD51D54D5bD62D67D72D74D83D84D8dDa7Db2Db7Dc7DcbDcdDd7CaaaD95Db5CfffD38D39D3aD6cD7cD8cDb3DbcDccDdbDdcDddDdeCbbbD45D5dD68D6bD78D88D92D9aDaaDabDb4Db8DbbDc8CcccD46D48D4dD56D61D6dD71D76D82D86D94Da1Da2Da3DbaDc3Dc4Dd4C777D3fD4fD5fD6fD7fD8fD9fDafDbfDcfDdfCeeeD36D37D49D5cD79D9cDacDdaCaaaD65D91D98Da5Da8Db6Dc5Dd5"{
+}
+macro "Download & Install Macro Tool Selected" {
+	requires("1.37i");
+	if (endsWith(macroname, ".txt")) shortmacroname = substring(macroname, 0, indexOf(macroname, ".txt"));
+	showMessageWithCancel ("On line Install the \"" +shortmacroname+ "\"?");
+	run("URL...", "url=["+distantmacrolink+"]");
+}
+
+macro "On Line Kit Tool - C20fD11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fCf40D71D72D73D74D75D76D77D78D79D7aD7bD7cD7dD7eD7fC0feD32D33D34D35D36D37D38D39D3aD3bD3cD3dD3eCaaaDb6De2De9Df6Df9C06fD22D23D24D25D26D27D28D29D2aD2bD2cD2dD2eCf88D82D83D84D85D8bD8cCeeeD9dDa0DbaDc8C0f4D41C64fD10Cf74D70CdddD93D94D98Da3Da4DaaDb4Db5Dc4DcbDd8DdaDe8DeaDecDfaCcccDa6Da8DabDb7DbbDccDd2Dd6DdbDe4Df7DfeCa7fD00CcccD97D99D9eDa7Db2DbeDc2Dc7Dd3Dd7De5Df2Df3Df4CfffD91D9fDa1DafDb1DbfDc1DcfDd1DdfDe1DefDf1DffC7f0D52D53D54D55D56D57D58D59D5aD5bD5cD5dD5eC0ffD31D3fCbbbD96DaeDb9DbcDc9Dd9De3DebDfbDfcC06fD21D2fCf89D81D86D8aD8fCfffDbdDcdDddC666Dd0C84fD02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eCfd0D61D6fCdddD92D95D9bD9cDa2Da5DacDb3Db8Dc3Dc5Dd4Dd5DdeDf8CfaaD80CbbbDa9Dc0Dc6DceDdcDe7DeeDf5Cf89D8eCeeeD90D9aDadDb0DcaDe0DedDf0DfdC4f6D40C73fD01Cfd0D62D63D64D65D66D67D68D69D6aD6bD6cD6dD6eC7f0D51D5fC4ffD30C48fD20Cf89D8dC9f4D50Cfd4D60C73fD0fCf99D87D88D89CaaaDe6"{
+}
+macro "On Line Kit Tool Selected" {
+	requires("1.37i");
+	if (endsWith(macroname, ".txt")) shortmacroname = substring(macroname, 0, indexOf(macroname, ".txt"));
+	showMessageWithCancel ("Run on line \"kit\" \"" +shortmacroname+ "\"?");
+	demoimalocation = getDirectory("startup");
+	run("URL...", "url=["+onlinedoclink +"/"+"]");
+	OpenImageLink(0);
+	run("URL...", "url=["+distantmacrolink+"]");
+	selectWindow (distantmacrolink);
+	run('Close');
+	// message dedicated to this macro example
+	showMessageWithCancel ("Start using \"" +shortmacroname+ "\" by making a panel:\nPress \"p\", or use (Plugins -> Macros -> Presentation Panel) submenu.");
+}
+
+macro "On Line Macro Update Tool- CcccD5fD6fD7fD8fD9fC78bD17D19D2aD33D37D3bD42D4cD75D95DceDd5Dd9De6Df7Df9CddeDa3C36bD27D28D3aD57D58D59D66D76D77D86D87Da7Db8Dd6De8De9CeeeD00D01D02D04D06D07D08D09D0bD0dD0fD10D11D12D14D1bD1dD1fD20D21D22D2dD30D31D32D40D46D47D48D49D50D5bD60D70D71D72D74D7dD80D81D82D84D8dD90D91D92D94D9dDa0Da1Da2Da4Db0Db1DbbDc0Dc1Dc6Dc7Dc8Dc9Dd0Dd1Dd2De0De1De2DedDf0Df1Df2Df4DfbDfdDffC8beD3cD3dD4dD5aD6aD79D7aD7bD85D8bD9aDaaDc3Dc4Dd3Dd4CeeeD03D05D0aD0cD0eD13D15D1cD1eD23D2eD3eD4aD55D6cD73D7cD7eD83D8cD8eD93D9cD9eDb5DcaDdeDe3DeeDf3Df5DfcDfeC559D18D26D34D35D36D41D51D61DafDbfDcfDdaDdbDddDeaDf8CcddD2fD5cD6dD6eDabDb2Db4Dc2DefC99bD16D24D39D45D54D56D64D65Da5DacDb6DbcDcbDd7DecDfaCdefD67D8aC59dD29D2bD68D69D78D88D96D97D98D99Da6Da8Da9Db9De5De7CacdD1aD2cD38D4bD4eD5dD5eD6bD89D9bDb3DbaDc5Dd8De4Df6C348D25D43D44Db7DccDdcDebCcccD3fD4fDdf"{
+}
+macro "On Line Macro Update Tool Selected" {
+	requires("1.37i");
+	if (endsWith(macroname, ".txt")) shortmacroname = substring(macroname, 0, indexOf(macroname, ".txt"));
+	showMessageWithCancel ("Looking for \"" +shortmacroname+ "\" update ?");
+	run("URL...", "url=["+distantmacrolink+"]");
+	selectWindow(distantmacrolink);
+	macrotextnih = getInfo();
+	run('Close');
+	if (getDirectory("macros") == "") exit ("Unable to find the Macros directory; something wrong in the ImageJ folder.");
+	macrostoolslocation = getDirectory("macros") + "tools/";
+	if (File.isDirectory(macrostoolslocation) == 0) exit ("Unable to find the tools directory on the Macros directory; something wrong in the ImageJ folder.");
+	macropath = macrostoolslocation + macroname;
+	if (File.exists(macropath)) {
+			thelocalmacro = File.openAsString(macropath);
+			if (thelocalmacro == macrotextnih) {
+			showMessage ("Your version of \"" +shortmacroname+ "\" is up to date.");
+			exit;
+		} else {
+			//update:
+			// Create an Archived Tools directory in tools repertory
+			ArchDir = macrostoolslocation+"Archived Tools"+File.separator;
+			File.makeDirectory(ArchDir);
+			if (!File.exists(ArchDir)) exit("Unable to create directory, something wrong in the ImageJ folder");
+			showMessageWithCancel ("An update for the macro \"" +shortmacroname+ "\" is available.\nDo you want to install the new version?");
+			//Archive the local macro
+			f= File.open(ArchDir + macroname);
+			print (f,thelocalmacro);
+			File.close(f);
+			//Write the new macro
+			f= File.open(macropath);
+			print (f,macrotextnih);
+			File.close(f);
+			showMessage ("Installation of the macro \"" +shortmacroname+ "\" is completed.");
+		}
+	} else {
+		showMessageWithCancel ("The macro \"" +shortmacroname+ "\" isn't in you Macros repertory.\nDo you want to install it?");
+		f= File.open(macropath);
+		print (f,macrotextnih);
+		File.close(f);
+		showMessage ("Installation of the macro \"" +shortmacroname+ "\" is completed.");
+	}
+}
+
+function OpenImageLink(question) {
+	// Check if already downloaded.
+	demoimalocation = getDirectory("startup");	
+	fildestination = demoimalocation+ "Downloaded Demo Images/" + demoimagename;
+	if (File.exists(fildestination)) {
+		if (question ==1 ) showMessageWithCancel ("The \"" + demoimagename + "\" has already been downloaded. Open it?");
+		open(fildestination);
+	}
+	else {
+		showMessageWithCancel ("ImageJ will download a demo image. Continue?");
+		run("URL...", "url=["+demoimagelink+"]");
+		imageid = getImageID();
+		nomdimage = getTitle;
+		// Create a <Downloaded Demo Images> repertory in ImageJ folder.
+		ImaDemo = demoimalocation+"Downloaded Demo Images"+File.separator;
+		File.makeDirectory(ImaDemo);
+		if (!File.exists(ImaDemo)) exit("Unable to create directory, something wrong in the ImageJ folder");
+		selectWindow(nomdimage);
+		save(""+ImaDemo+""+ nomdimage +"");
+	}
+}

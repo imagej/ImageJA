@@ -1,0 +1,12 @@
+// Save As JPEG
+//
+// This macro prompts the user to change the JPEG quality setting before
+// saving. Add it to the ImageJ/macros/StartupMacros.txt file to create a
+// Plugins>Macros>Save As JPEG command with a "j" keyboard shortcut.
+
+  macro "Save As JPEG... [j]" {
+     quality = call("ij.plugin.JpegWriter.getQuality");
+     quality = getNumber("JPEG quality (0-100):", quality);
+     run("Input/Output...", "jpeg="+quality);
+     saveAs("Jpeg");
+  }

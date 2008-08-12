@@ -1,0 +1,56 @@
+// Shrink Selection
+//
+// This macro shrinks a selection by
+// a specified distance. Unlike the
+// Edit>Selection/Enlarge command,
+// it does not shrink polygonal selections 
+// from the edges of the image.
+
+  pixels = 5;
+  saveSettings();
+  rectOrOval = selectionType==0 || selectionType==1;
+  getPixelSize(unit, pixelWidth, pixelHeight);
+  n = pixels*pixelWidth;
+  decimalPlaces = 0;
+  if (floor(n)!=n) decimalPlaces = 2;
+  Dialog.create("Shrink Selection");
+  Dialog.addNumber("    Shrink by", n, decimalPlaces, 4, unit);
+  Dialog.show();
+  n = Dialog.getNumber();
+  pixels = round(n/pixelWidth);
+  if (rectOrOval)
+      shrinkRectOrOval(pixels);
+  else
+      shrink(pixels);
+  restoreSettings();
+
+   function shrinkRectOrOval(n) {
+       getBoundingRect(x, y, width, height);
+       x += n;
+       y += n;
+       width = width - 2*n;
+       height = height - 2*n;
+       if (width>0 && height>0) {
+           if (selectionType==0)
+               makeRectangle(x, y, width, height);
+           else
+               makeOval(x, y, width, height);
+       }
+   }
+
+   function shrink(n) { 
+       if (pixels>255) 
+           exit("Cannot shrink by more than 255 pixels"); 
+       id = getImageID();
+       setBatchMode(true); 
+       width = getWidth();
+       height = getHeight();
+       run("Options...", "iterations=1 count=1"); 
+       run("Create Mask");
+       run("Distance Map");
+       setThreshold(n+1, 255);
+       run("Create Selection");
+       close(); 
+       selectImage(id); 
+       run("Restore Selection"); 
+   } 

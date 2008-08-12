@@ -1,0 +1,34 @@
+// "Shift RGB Channel"
+// This macro shifts the red, green or blue channel in
+// an RGB image by a specified number of pixels.
+
+  if (bitDepth!=24 || nSlices!=1)
+      exit("RGB Image required");
+  Dialog.create("RGB Shift");
+  Dialog.addChoice("Channel:", newArray("Red", "Green", "Blue"));
+  Dialog.addNumber("X Shift:", 10);
+  Dialog.addNumber("Y Shift:", 10);
+  Dialog.addCheckbox("Create New Image", true);
+  Dialog.show();
+  xshift = Dialog.getNumber();
+  yshift = Dialog.getNumber();
+  channel = Dialog.getChoice();
+  create = Dialog.getCheckbox();
+  setBatchMode(true);
+  if (create) {
+      setKeyDown("alt");
+      run("Duplicate...");
+  }
+  run("RGB Stack");
+  if (channel=="Green")
+      setSlice(2);
+  else if (channel=="Blue")
+      setSlice(3);
+  run("Select All");
+  setBackgroundColor(0, 0, 0);
+  run("Cut");
+  setKeyDown("none");
+  makeRectangle(xshift, yshift, getWidth, getHeight);
+  run("Paste");
+  run("RGB Color");
+  setBatchMode(false);

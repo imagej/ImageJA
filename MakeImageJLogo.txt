@@ -1,0 +1,30 @@
+// Make ImageJ Logo
+//
+// Creates the logo used on the ImageJ home page.
+// "Wide Latin" is a TrueType font distributed with
+// Microsoft Office 2004 for the Mac.
+//
+  font1 = "Wide Latin";
+  font2 = "Dialog";
+  setFont(font1, 36, "antialiased");
+  w=400; h=100;
+  newImage("imagej-logo", "RGB", w, h, 1);
+  setColor(50, 80, 160);
+  drawString("ImageJ", 20, 50);
+  setFont(font2, 13, "antialiased");
+  drawString("Image Processing and Analysis in Java", 20, 64);
+  xmin=w; xmax=0; ymin=h; ymax=0;
+  for (x=0; x<w; x++) {
+      for (y=0; y<h; y++) {
+          if (getPixel(x, y)!=-1) {
+              if (x<xmin) xmin = x;
+              if (x>xmax) xmax = x;
+              if (y<ymin) ymin = y;
+              if (y>ymax) ymax = y;
+          }
+      }
+  }
+  makeRectangle(xmin, ymin, xmax-xmin+1, ymax-ymin+1);
+  setKeyDown("shift");
+  run("Crop");
+  run("8-bit Color", "number=32");

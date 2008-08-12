@@ -1,0 +1,147 @@
+// "Toolbar Menus"
+//
+// This toolset demonstrates how to add popup menus  
+// to the ImageJ toolbar. Four menus are provided:
+//
+//    "Dev" - Websites and commands for ImageJ developers
+//    "Stk" - A duplicate of the Image>Stacks sub-menu
+//    "Lut" - A list of the LUTs in the ImageJ/luts folder
+//    "Web" - Links to the ImageJ website
+//
+// These macros require ImageJ 1.38b or later.
+
+  var xx = requires138b(); // check version at install time
+  function requires138b() {requires("1.38b"); return 0; }
+  
+
+  macro "Unused Tool -" {}
+
+
+  var dCmds = newMenu("Developer Menu Tool",
+      newArray("ImageJ Website","News", "ImageJ Wiki", "Resources", "Macro Language", "Macros", "Macro Functions", 
+      "Startup Macros...", "Plugins", "Source Code", "List Archives", "-", "Record...", "Capture Screen ", 
+      "Monitor Memory...", "List Commands...", "Control Panel...", "Search...", "Debug Mode"));
+      
+  macro "Developer Menu Tool - C037T0b11DT7b09eTcb09v" {
+       cmd = getArgument();
+       if (cmd=="ImageJ Website")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/");
+       else if (cmd=="News")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/notes.html");
+       else if (cmd=="ImageJ Wiki")
+           run("URL...", "url=http://imagejdocu.tudor.lu/imagej-documentation-wiki/");
+       else if (cmd=="Resources")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/developer/");
+       else if (cmd=="Macro Language")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/developer/macro/macros.html");
+       else if (cmd=="Macros")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/macros/");
+        else if (cmd=="Macro Functions")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/developer/macro/functions.html");
+        else if (cmd=="Plugins")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/plugins/");
+        else if (cmd=="Source Code")
+           run("URL...", "url=http://rsbweb.nih.gov/ij/developer/source/");
+        else if (cmd=="List Archives")
+           run("URL...", "url=https://list.nih.gov/archives/imagej.html");
+        else if (cmd=="Debug Mode")
+           setOption("DebugMode", true);
+	 else if (cmd!="-")
+            run(cmd);
+  }
+
+
+  var sCmds = newMenu("Stacks Menu Tool", 
+       newArray("Add Slice", "Delete Slice", "Next Slice [>]", "Previous Slice [<]", "Set Slice...", "-",
+       "Convert Images to Stack", "Convert Stack to Images", "Make Montage...", "Reslice [/]...", "Z Project...",
+       "3D Project...", "Plot Z-axis Profile", "-", "Start Animation", "Stop Animation", "Animation Options...",
+       "-", "MRI Stack (528K)"));
+       
+  macro "Stacks Menu Tool - C037T0b11ST8b09tTcb09k" {
+      cmd = getArgument();
+      if (cmd!="-") run(cmd);
+  }
+
+
+  var luts = getLutList();
+  var lCmds = newMenu("LUT Menu Tool", luts);
+  
+  macro "LUT Menu Tool - C037T0b11LT6b09UTcb09T" {
+       cmd = getArgument();
+  	if (cmd!="-") run(cmd);
+  }
+  
+  function getLutList() {
+      lutdir = getDirectory("startup")+"luts"+File.separator;
+      list = newArray("No LUTs in the '/ImageJ/luts' folder");
+      if (!File.exists(lutdir))
+           return list;
+      rawlist = getFileList(lutdir);
+      if (rawlist.length==0)
+           return list;
+      count = 0;
+      for (i=0; i< rawlist.length; i++)
+          if (endsWith(rawlist[i], ".lut")) count++;
+      if (count==0)
+          return list;
+      list = newArray(count);
+      index = 0;
+      for (i=0; i< rawlist.length; i++) {
+          if (endsWith(rawlist[i], ".lut"))
+              list[index++] = substring(rawlist[i], 0, lengthOf(rawlist[i])-4);
+      }
+      return list;
+  }
+
+
+ var websites = newArray(
+      "ImageJ Website-http://rsbweb.nih.gov/ij/",
+      "News-http://rsbweb.nih.gov/ij/notes.html",
+      "ImageJ Wiki-http://imagejdocu.tudor.lu/imagej-documentation-wiki/",
+      //"Resources-http://rsbweb.nih.gov/ij/developer/",
+      //"Macro Language-http://rsbweb.nih.gov/ij/developer/macro/macros.html",
+      //"Macros-http://rsbweb.nih.gov/ij/macros/",
+      //"Macro Functions-http://rsbweb.nih.gov/ij/developer/macro/functions.html",
+      //"Plugins-http://rsbweb.nih.gov/ij/plugins/",
+      //"Source Code-http://rsbweb.nih.gov/ij/developer/source/",
+      "List Archives-https://list.nih.gov/archives/imagej.html",
+      "Documentation-http://rsb.info.nih.gov/ij/docs/index.html",
+      "   File-http://rsb.info.nih.gov/ij/docs/menus/file.html",
+      "   Edit-http://rsb.info.nih.gov/ij/docs/menus/edit.html",
+      "   Image-http://rsb.info.nih.gov/ij/docs/menus/image.html",
+      "   Process-http://rsb.info.nih.gov/ij/docs/menus/process.html",
+      "   Analyze-http://rsb.info.nih.gov/ij/docs/menus/analyze.html",
+      "   Plugins-http://rsb.info.nih.gov/ij/docs/menus/plugins.html",
+      "   Window-http://rsb.info.nih.gov/ij/docs/menus/window.html");
+  var wCmds = getCommands();
+  var urls = newArray(0);
+  var wCmds = newMenu("Websites Menu Tool", wCmds);
+
+  macro "Websites Menu Tool - C037T0b11WT8b09eTdb09b" {
+       cmd = getArgument();
+       if (urls.length==0) urls = getUrls();
+       for (i=0; i<wCmds.length; i++) {
+           if (cmd==wCmds[i])
+               {run("URL...", "url="+urls[i]); exit;}
+       }
+   }
+   function getCommands() {
+       n = websites.length;
+       wCmds = newArray(n);
+       for (i=0; i<n; i++) {
+           site = websites[i];
+           index = indexOf(site, "-");
+           wCmds[i] = substring(site, 0, index);
+       }
+       return wCmds;
+   }
+   function getUrls() {
+       n = websites.length;
+       urls = newArray(n);
+       for (i=0; i<n; i++) {
+           index = indexOf(websites[i], "-");
+           urls[i] = substring(websites[i], index+1, lengthOf(websites[i]));
+       }
+       return urls;
+   }
+

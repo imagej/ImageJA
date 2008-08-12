@@ -1,0 +1,40 @@
+// "Topolines"
+// This macro creates a selection whose outlines are 
+// topographic lines, i.e. they show lines of equal value.
+
+  requires("1.37j");
+  orig = getImageID();
+  setBatchMode(true);
+  run("Select None");
+  getMinAndMax(min, max);
+  step = floor((max-min)/10);
+  start = min + step;
+  Dialog.create("Topolines");
+  Dialog.addNumber("value of lowest isoline", start);
+  Dialog.addNumber("isoline step", step);
+  Dialog.show();
+  start = Dialog.getNumber();
+  step = Dialog.getNumber();
+
+  for (i = start; i < max; i += step) {
+    selectImage(orig);
+    run("Duplicate...", "title=mask"+i);
+    setThreshold(i, max);
+    run("Threshold", "  thresholded remaining black");
+    if (i == start)
+      mask1 = getImageID();
+    else {
+      mask2 = getImageID();
+      imageCalculator("XOR", mask1, mask2);
+      selectImage(mask2); close();
+    }
+  }
+  selectImage(mask1);
+  run("Create Selection");
+  n = roiManager("Count");
+  roiManager("Add");
+  close();
+  selectImage(orig);
+  roiManager("Select", n);
+  roiManager("Delete");
+  resetThreshold();
