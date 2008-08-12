@@ -1,7 +1,0 @@
-// Converts a signed 16-bit image to an unsigned 16-bit image
-
-   run("32-bit");
-   getStatistics(area, mean, min, max);
-   if (min<0)
-       run("Add...", "value="+abs(min));
-   run("16-bit");

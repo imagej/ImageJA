@@ -1,7 +1,0 @@
-   w=512; h=512;
-  newImage("Test", "8-bit Black", w, h, 1);
-  setColor(255);
-  for (i=0; i<200; i++)
-    fillOval(random*w, random*h, 10, 10);
-  setThreshold(255, 255);
-  run("Analyze Particles...", "show=Nothing display clear");
