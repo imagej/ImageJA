@@ -1,0 +1,33 @@
+// Curve Fitting Demo
+//
+// This macro demonstates how to use the Fit.* functions.
+
+  x = newArray(0, 1, 2, 3, 4, 5);
+  y = newArray(0, 0.9, 4.5, 8, 18, 24);
+  
+  // straight line fit
+  r2 = Fit.doFit("Straight Line", x, y);
+  print("R^2="+d2s(r2,3)+", a="+d2s(Fit.p(0),6)+", b="+d2s(Fit.p(1),6));
+
+  // do and plot all possible fits
+  setBatchMode(true);
+  for (i=0; i<Fit.nEquations; i++) {
+     r2 = Fit.doFit(i, x, y);
+     Fit.plot();
+     if (i==0)
+         stack = getImageID;
+     else {
+         run("Copy");
+         close();
+         selectImage(stack);
+         run("Add Slice");
+         run("Paste");
+     }
+     print(""); print(Fit.name(i));
+     print("   R^2="+d2s(r2,3));
+     for (j=0; j<Fit.nParams; j++)
+         print("   p["+j+"]="+d2s(Fit.p(j),6));
+   }
+  setBatchMode(false);
+  run("Select None");
+  rename("Curve Fits");
