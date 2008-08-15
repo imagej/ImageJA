@@ -3,12 +3,13 @@
 // in a stack and stores then in another stack.
 
 macro "Stack profile Plot" {
-    requires("1.33r");
+    ymin = 0;
+    ymax = 255;
     saveSettings();
     if (nSlices==1)
       exit("Stack required");
     run("Profile Plot Options...", 
-      "width=400 height=200 minimum=0 maximum=255 fixed");
+      "width=400 height=200 minimum="+ymin+" maximum="+ymax+" fixed");
     setBatchMode(true);
     stack1 = getImageID;
     stack2 = 0;
