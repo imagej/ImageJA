@@ -1,6 +1,7 @@
 // Curve Fitting Demo
 //
-// This macro demonstates how to use the Fit.* functions.
+// This macro demonstates how to use the Fit.* functions,
+// which were added to the macro language in v1.41k.
 
   x = newArray(0, 1, 2, 3, 4, 5);
   y = newArray(0, 0.9, 4.5, 8, 18, 24);
