@@ -3,11 +3,9 @@
 // function or having to put a simicolon at the end
 // of each line. 
 
-// Press control+c to evaluate the following 
-// expressions. Select a line and press control_c  to
-// evaluate a single expression.
-
-  requires("1.32g")  // for expressions that start with "("
+// Press control+r to evaluate the following 
+// expressions. Select a line and press control+e
+// to evaluate a single expression.
 
   2+2
   (2.5+1)/3
