@@ -1,0 +1,52 @@
+// Plot Spline Fit Line
+//
+// This macro demonstrate the use of the
+// run("Fit Spline", "straighten") function,
+// which was added in version 1.41h.
+
+  createTestImage = true; 
+  if (createTestImage) {
+    if (!isOpen("Test"))
+        newImage("Test", "8-bit Black", 500, 250, 1);
+     makeLine(45,180,76,164,109,112,152,80,190,112,
+       207,151,250,170,286,145,343,137,367,109,
+       413,128,438,156,483,131);
+  }
+  getSelectionCoordinates(x, y);
+  n1 = x.length;
+  Plot.create("Spline Fit Line", "X", "Y", x, y);
+  if (createTestImage ) Plot.setLimits(200,300,140,175);
+  Plot.add("circle", x, y);
+  run("Fit Spline", "straighten");
+  getSelectionCoordinates(x, y);
+  Plot.setColor("red");
+  Plot.add("dot", x, y);
+  Plot.setColor("blue");
+  Plot.show();
+  min=10e9; max=0;
+  n=0; sum=0;
+  for (i=1; i<x.length; i++) {
+      distance = sqrt((x[i]-x[i-1])*(x[i]-x[i-1])+(y[i]-y[i-1])*(y[i]-y[i-1]));
+       sum += distance;
+       n++;
+       if (distance<min) min = distance;
+       if (distance>max) max = distance;
+       if (distance>1.01 || distance<0.99)
+          print("error at "+i+" ("+d2s(distance,9)+")");
+  }
+  print("");
+  print("points: "+n1);
+  print("spline fit points: "+x.length);
+  print("spacing:");
+  print("   min: "+min);
+  print("   max: "+max);
+  print("   average: "+sum/n);
+  exit;
+
+  run("Fit Spline");
+
+  run("Fit Spline", "straighten");
+
+  run("Fit Spline", "remove");
+
+  run("Measure");
