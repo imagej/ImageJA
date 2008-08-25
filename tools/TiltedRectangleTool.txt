@@ -1,0 +1,42 @@
+// Tilted Reactangle Tool
+//
+// This macro tool draws a tilted rectangle.
+// Click and drag the mouse to set the rectangle's axis and length.
+// After the mouse button is released, drag to set the rectangle's width.
+// Click to finish. 
+
+  macro "Tilted Rectangle Tool -C000L1991L91e6Le66eL6e19" {
+     run("Line Width...", "line=1");
+     getPixelSize(unit, pixelWidth, pixelHeight);
+     getCursorLoc(x, y, z, flags); 
+     xstart = x; ystart = y; 
+     x2=x; y2=y;
+     while (flags!=0) { 
+        getCursorLoc(x, y, z, flags); 
+        if (x!=x2 || y!=y2) 
+           makeLine(xstart, ystart, x, y); 
+           x2=x; y2=y; 
+           wait(10); 
+        }
+        if (x!=xstart || y!=ystart)
+           drawTitledRect(xstart, ystart, x, y);
+  }
+
+  function drawTitledRect(x1, y1, x2, y2) {
+     l=sqrt ((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+     a = atan ((x2-x1)/(y2-y1));
+     x3=0;y3=0;
+     while (flags==0) {
+        getCursorLoc(x, y, z, flags); 
+        if (x!=x3 || y!=y3) {
+           w=sqrt ((x2-x)*(x2-x)+(y2-y)*(y2-y));
+           wsa = w*sin((PI/2)+a);
+           wca = w*cos((PI/2)+a);
+           makePolygon( x2 + wsa,y2 + wca,x2 - wsa,y2 - wca,x1 - wsa,y1 - wca,x1 + wsa,y1 + wca);
+           showStatus('length: '+d2s(pixelWidth*l,2)+' width: '+d2s(pixelHeight*w*2,2)+ ' '+unit+' angle: '+d2s(a*180/PI,2));
+           x3=x;y3=y;
+           wait(10); 
+        }
+     }
+  }
+
