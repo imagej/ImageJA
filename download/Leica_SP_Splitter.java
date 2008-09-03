@@ -109,7 +109,7 @@ class LeicaTiffDecoder extends TiffDecoder{
 		super(directory, name);
 	}
 
-	public void decodeImageDescription(byte[] description, FileInfo fi) {	
+	public void saveImageDescription(byte[] description, FileInfo fi) {	
 		if (new String (description,0,8).equals("[GLOBAL]")) {
 			if (debugMode) ij.IJ.write ("Leica file detected..." + "\n");
 			String file_specs = new String (description);
