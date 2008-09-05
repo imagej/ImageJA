@@ -1,0 +1,2112 @@
+/////////////////////////////////////////////////////////////////////// 
+// Dot Blot Analyzer
+// 
+// avaible in the IJ macros toolsets repertory at  
+// http://rsb.info.nih.gov/ij/macros/toolsets/Dot Blot Analyzer.txt
+/////////////////////////////////////////////////////////////////////// 
+// Author: Gilles Carpentier, Faculte des Sciences et
+// Technologies,  Universite Paris 12 Val de Marne, France
+
+// More information is available at
+// http://image.bio.methods.free.fr/dotblot.html
+
+// First version  4/09/2008
+// Requires the ImageJ 1.40a 
+
+// graphic interface variable
+var defaultradius=25,subTitleofImage="no",radius="",theVolume="",rmBack ="Linear";
+var blotscale=1;
+var blotName="",blotinitName="",Linter=600,Hinter=120,xSizeBlot=0,ySizeBlot=0;
+var resultFolderName="Result Documents";
+var Topmarge=10,Botommarge=10,Leftmarge=10,Rightmarge=10;
+var paletteName="Dot Blot Analyzer Palette",winName2= "Analysed Dot Blot",folderpath="",endPalette="",nomSavedPalette="",gridModelName="";
+var workingI="working blot",workingID,tempclip;
+var largeline=1,Lpalette=0,Hpalette=0,largbuton=60, hautbuton=25,distBord=15,disthaut=5;
+var Hdisplay=40,xDisplay,yDisplay,larDisplay,livedisplay=1;
+var palette=0,reponse=0,cancel=0,analyseIt=0;
+var dyn=0,cursorok=0,KindofArea="";
+var blotx1,blotx2,bloty1,bloty2;
+var interx1,interx2,intery1,intery2;
+var cancelx1,cancelx2,cancely1,cancely2;
+var colboxOriY,kindofColoBox="",SelectedColor="";
+var analysex1,analysex2,analysey1,analysey2;
+var enhX1, enhY1, enhX2, enhY2, enhenceChoice=0,sat=0,incresat=0.2;
+var lutX1,lutX2,lutY1,lutY2,lutChoice=0,lutDisplay="LUT: Grey";
+var resX1,resX2,resY1,resY2;
+var sizex1,sizex2,sizey1,sizey2;
+var box1x,box1y;
+var box2x,box2y;
+var box3x,box3y;
+var box4x,box4y;
+
+// cursor variables and settings 
+var addMx1,addMy1,addMx2,addMy2;
+var rmMx1,rmMy1,rmMx2,rmMy2;
+var erMx1,erMy1,erMx2,erMy2;
+var mesurx1,mesury1,mesurx2,mesury2;
+var x,  y, w=-1, h=-1, xx, yy, px = newArray(6), py = newArray(6);
+var selectionRayon=17,increment=1,xmes,ymes;
+var selectionColor="magenta",initselectionColor="",initiate=0;
+var r, g, b;
+var ForGColor="cyan", initForGColor="";
+var BackGColor="", initBackGColor="";
+// single measurement variables and graphic interface elements
+var addMx1,addMy1,addMx2,addMy2;
+var rmMx1,rmMy1,rmMx2,rmMy2;
+var erMx1,erMy1,erMx2,erMy2;
+var mesurx1,mesury1,mesurx2,mesury2;
+var measurementTab="Measurements - Tab";
+var measurementTabEXL;
+var resultListSize=0;
+var mes=newArray(200);
+var mesX=newArray(200);
+var mesY=newArray(200);
+var mesRadius=newArray(200);
+
+// grid variables
+var alteuu=0,lastmesnumber=0;
+var nbcol=7,nbline=4;
+var nbcolX1,nbcolX2,nbcolY1,nbcolY2;
+var nblineX1,nblineX2,nblineY1,nblineY2;
+var HLboxX1, HLboxY1,HLboxX2, HLboxY2,HLX=0,HLY=0,statutHL=0;
+var HRboxX1, HRboxY1,HRboxX2, HRboxY2,HRX=0,HRY=0,statutHR=0;
+var LLboxX1, LLboxY1,LLboxX2, LLboxY2,LLX=0,LLY=0,statutLL=0; 
+var LRX=0,LRY=0;
+var ansvers1,ansvers2;
+var showmes=0,showrep=0,showgrid=0;
+var DotStatus = "Single";
+var GridStatus=1;
+var singX1=0,singX2=0,singY1=0;
+var gridCx1=0,gridCx2=0,gridCy1=0,gridCy2;
+var endx1=0, endx2=0, endy1=0, endy2=0;
+var ImaDemo="";
+var Ax=0,XhorizontalOrd=0,Ay=0,YhorizontalOrd=0,spaceX=0,spaceY=0,deltaspaceY=0,deltaspaceY=0;
+var windowTabName="Grid Measurements Table",nameOfGridTab="["+windowTabName+"]";
+var gridcol=0,gridline=0;
+var Red="", Green="", Blue="", color ="", previousColor="";
+var gridModelName="Grid Modelled";
+var gridModelStatus=0;
+var errorNetMessage ="Error: ";
+var onlinedoclink = "http://image.bio.methods.free.fr/dotblot.html";
+var urllist = "http://image.bio.methods.free.fr/ij/ijupdatetest/ListOfMacros.txt";// to check the internet access
+var demoimagelink1 ="http://rsb.info.nih.gov/ij/images/Dot_Blot.jpg",demoimagename1="Dot_Blot.jpg";
+var demoimagelink2 ="http://image.bio.methods.free.fr/ij/ijmacro/dotblot/Dot_Blot-ScionNIH_Image.tif.zip",demoimagename2="Dot_Blot-scion_NIH.tif";
+
+var xx = requires140a (); // check version at install time
+function requires140a() {requires("1.40a"); return 0;}
+
+// leave slot between ImageJ tools, and allow user interaction
+macro "  Tool-1 - " {
+
+	if (palette==1 && getTitle == paletteName  && dyn ==1 && cancel==0 && reponse ==0) {
+		if (isOpen(paletteName)) {
+			if (isKeyDown("alt")) {alteuu=1; } else {alteuu=0;}
+			goGraphInt ();
+		}
+	}
+
+	if (palette==0 && getTitle ==paletteName  && dyn ==1 && cancel==1 && reponse ==1) {
+		palette=0;cursorok=1;
+		if (isOpen(paletteName)) {
+			selectImage (paletteName);
+			close ();	
+			if (isOpen(blotName)) {selectImage(blotName);close ();}
+			if (isOpen(gridModelName)) {selectImage(gridModelName);close ();}
+			if (isOpen(measurementTab)) {selectWindow(measurementTab);print(measurementTabEXL, "\\Close");}
+			if (isOpen(windowTabName)) {selectWindow(windowTabName);print(nameOfGridTab, "\\Close");}
+		}
+		if (initselectionColor != "") {setColorComponent (initForGColor,initBackGColor,initselectionColor);}
+	}
+
+	if (palette==1 && (getTitle !=paletteName ||  ! isOpen(paletteName)) && dyn ==1 && cancel==0 && reponse ==0) {
+		palette=0;cursorok=0;
+		if (isOpen(paletteName)) {
+			selectImage (paletteName);
+			close ();	
+			showMessage("No user ansvers from the \""+paletteName+"\". \nThe tool has been unselected.");
+		}
+		if (isOpen(blotName)) {selectImage(blotName);close ();}
+		if (initselectionColor != "") {setColorComponent (initForGColor,initBackGColor,initselectionColor);}
+	}
+
+	if (palette==0 && getTitle ==paletteName  && dyn ==1 && cancel==0 && reponse ==1 && analyseIt==0 && cursorok==1) {
+		locationCursor (1);
+		analyseIt=0;reponse=0;cursorok=0;palette=1;
+	}
+
+} 
+
+var mCmds = newMenu("Dot Blot Analysis Menu Tool",newArray("Analyse a Dot Blot","-","Download\/Open The ImageJ Demo Dot Blot Image \(28 wells\)","Download\/Open Demo Dot Blot Image \(96 wells\)"));
+macro "Dot Blot Analysis Menu Tool - C000C111Db5C111C222Db2C222D78C222C333D28D7bC333C444D2bC444D7eC444C555D68C555D2eDf8C555D25C555C666D38C666D22C666D6bC666DfbC666D75C666D72C666C777D3bC777D6eC777D3eC777C888Df5C888D35C888Df2C888D32D65C888Db3C888D2dC888D62C888C999D7dC999CaaaD23CaaaDc5CaaaD6dDc2CaaaDb4CbbbD3dD79CbbbD29CbbbDb8CbbbD27CbbbD2aCbbbD73CbbbDbbCbbbD77CbbbD33Da5CbbbD24D2cD7aDb6CcccDa2CcccD7cCcccD74CcccD39CcccDf3CcccD69CcccD26D63CcccD67CcccD37D3aCcccD6aCdddDf7Df9CdddD3cCdddD36CdddD34D64CdddD6cD76DfaCdddD18Df4CdddD1bCdddD15CdddDb1CdddD12D1eD21D66Dc3CdddDa3CeeeD1dD71Df6DfcCeeeD31Dc8CeeeD13Db9CeeeD61Da4CeeeD17D19D1aD48D88Da8Db7DcbDe8CeeeD14D16D4bD8bDc4CeeeD02D0bD1cD42D45D58Da6DabDc6CeeeD00D03D04D05D08D0dD4eD5bD82D85D8eDbaDe5DebCeeeD06D07D09D10D11D43D52D55De2CeeeD01D0aD0cD0eD20D4dD5eCeeeD30D44D47D49D4aD4cD5dDf1CeeeD46D53D54D57D59D5aD5cCeeeD41D51D56D60D8dDa1DbcCeeeD40D50D83D84D89D8cCfffD87D8aDa9Dc1CfffD70D81D86Da0Db0CfffD92D95D98D9bDa7DaaCfffD90D91D93D94D96D97D99D9aD9cD9dDc9De3CfffD80D9eDacDc7De4De7DeaCfffDc0DcaDd2Dd3Dd4Dd5Dd6De1De6De9CfffDd0De0CfffD7fDadDaeDd1Dd7Dd9DdaDdbCfffD2fDd8CfffDccDecDf0CfffD3fD6fCfffDdcCfffD1fCfffD0fD4fD5fD8fD9fCfffDafDbdDbeDbfDcdDceDcfDddDdeDdfDedDeeDefDfdDfeDff"{
+	cmd = getArgument();
+	if (cmd !="-" && cmd == "Download\/Open The ImageJ Demo Dot Blot Image \(28 wells\)") {OpenImageLink(0,demoimagelink1,demoimagename1);}
+	if (cmd !="-" && cmd == "Download\/Open Demo Dot Blot Image \(96 wells\)") {OpenImageLink(0,demoimagelink2,demoimagename2);}
+	if (cmd !="-" && cmd =="Analyse a Dot Blot") {doBlotAnalyse();}
+}
+
+var ftabCmds = newMenu("Measurement Documents Menu Tool",newArray("Save Results Documents","Save Results Documents at the Dot Blot Image Location","-","Close Results Documents","-" ,"Save Grid Results Table as Excel Type File","Save Single Measurements Table as Excel Type File", "-","Save Grid Results Table as Excel Type File at the Dot Blot Image Location","Save Single Measurements Table as Excel Type File at the Dot Blot Image Location"));
+macro "Measurement Documents Menu Tool - C323D21D23CdccD7cDdcDecCa6aD46D48D4aD4eD52D82Dc2Df2CfffD00D01D02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eD0fD10D11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fD20D30D40D50D60D64D69D6bD6dD6fD70D74D79D7bD7dD7fD80D90D99D9bD9dD9fDa0Da4Da9DabDadDafDb0Db4Db9DbbDbdDbfDc0Dd0Dd4Dd9DdbDddDdfDe0De4De9DebDedDefDf0C868D56D58D5aD5eCfefD65D75CcccD66D68D6aD6eD76D78D7aD7eD84D89D8bD8dD8fD96D98D9aD9eDa6Da8DaaDaeDb6Db8DbaDbeDc4Dc9DcbDcdDcfDd6Dd8DdaDdeDe6De8DeaDeeDf4Df9DfbDfdDffC747D31D41D61D71D72D91Da1Db1Dd1De1CdcdDacDbcCd8dD39D62C999D86D88D8aD8eDc6Dc8DcaDceDf6Df8DfaDfeCfffD67D77D97Da7Db7Dd7De7C646D27CccdD6cD9cCb7bD37C888D63D73D93D95Da3Da5Db3Db5Dd3Dd5De3De5C747D3aCfefD94CcacD85C999D8cDccDfcC535D2cD51D81Dc1Df1Ca7aD57C868D55Cd9dD32D42D44D49D4bD4dD4fD92Db2C666D83Dc3Dc5Df3Df5Cc8cD47C858D36D38CcbcD87Df7C535D26D28D2aD2eC646D22D24D29D2bD2dD2fD43Cb7bDd2C757D35D3eCcbcDc7C545D53Ca8aD54D59D5bD5dD5fC969D3cDa2Cc8cD3bD3dD3fC858D45C424D25C646D33Cb7bD34D4cC868D5cC969De2" {
+	cmd = getArgument();
+	if (cmd !="-" && cmd == "Save Results Documents at the Dot Blot Image Location") {SaveDocRes(folderpath);}
+	if (cmd !="-" && cmd == "Save Results Documents") {SaveDocRes("--");}
+	if (cmd !="-" && cmd == "Close Results Documents") {CloseDocRes();}
+	if (cmd !="-" && cmd == "Save Grid Results Table as Excel Type File") {saveTab ("",windowTabName);}
+	if (cmd !="-" && cmd == "Save Single Measurements Table as Excel Type File") {saveTab ("",measurementTab);}
+	if (cmd !="-" && cmd == "Save Grid Results Table as Excel Type File at the Dot Blot Image Location") {saveTab (folderpath,windowTabName);}
+	if (cmd !="-" && cmd == "Save Single Measurements Table as Excel Type File at the Dot Blot Image Location") {saveTab (folderpath,measurementTab);}
+}
+
+macro "Abort \(Download\/Erase Cursor\) Action Tool - C810Dc2Df7Ca55D42D51Ce20D7dD8cDd6CfffD88Da7Cd20DadCfedD3eD55D5bDa9Dc1Ce40D63De6CfffD00D01D03D04D05D06D07D08D09D0aD0cD0dD0eD0fD10D11D14D1cD1dD1eD1fD20D21D22D2fD31D3fD40D66D6aDaaDb0Db5DbbDc0De0DefDf0Df1Df2Df3DfdDfeDffC811Da1Dd3Cc77D1bD6cCe20Dc7CfffD23D65D79DdfCc31D68Da4CeffDeeCd52D27D4dC910D7fD8fDbfDf9Cd64D4bD75Db7Dc6Ce30D39D47D48D74D85Da3CfffD13D30Da6Dd0De1Cc20DacDbdDdaDdbCfffD98Cd42D28D52D5eDe5Ca21D71D81D91DcaCfecD5aD67D69D96Cf30D3aD3bD94Db3Cc32D25D2bD34D9bCfffD12D50D70D80D87D89D90D99Da0Db6Dd1De2Cf63D64D72D82Db2DbeC910D9fDafDecDf8Cb66D17D19D1aDa8Ce20D37D49Dd7Dd8CeffD6bD77D97Cd20D6dD7cDc9CffeD4fD60D7aD9aDbaCf52D35D44D53D6eC821D5fD61De4DfbCebbD15DbcDcbDcfDdeCf30D58D73D83D93Cd41D3cD95De7CfffD2eD78Cf53Dc3DcdDd4DebCa20D6fDccCc75D18D24D5cD7bD8aCf30D36D84Cd30D46D59D8bDd5CfffD02D0bD2dD41D76Cf42D26D8eD9eDdcCa32D2cD3dD4eDb9CfedD56Da5Dd2DedDfcCe31D2aD57D5dDeaCc41D43D4cD86DaeCf63D62D92Da2C810DddDf6DfaCa66D16D33Ce30Dc8Cd20D8dD9cD9dDd9CfeeD32DabDe3Df4Cd51D29D7eC822Db1Df5Cea7Db4Dc5Ce30D4aDb8De9Cd40D38Dc4De8Cd53D45D54C911Dce" {
+	ereaseCursor ();
+	abortProcess ();
+}
+
+macro "On Line Documentation Action Tool - C000Da9DadDb6DbdDc5Dc6Dd3Dd4Dd5Dd6DddC20fD11D12D13D14D15D16D17D18D19D1aD1bD1cD1dD1eD1fC0f3D42D43D44D45D46D47D48D49D4aD4bD4cD4dD4eD4fC0feD32D33D34D35D36D37D38D39D3aD3bD3cD3dD3eC444DdeDefC73fD01Cfd0D62D63D64D65D66D67D68D69D6aD6bD6cD6dD6eCeeeD90D95Da1Da4Db0Db2Db3De0De8Df0Df7DfaC222DeeC06fD22D23D24D25D26D27D28D29D2aD2bD2cD2dD2eC7f0D52D53D54D55D56D57D58D59D5aD5bD5cD5dD5eCcccDbfDf9Cf74D70Ca99D97C888Da8CfffD9bD9cC000Dc4Dd2C64fD10C0f4D41C0ffD31D3fCf40D71D72D73D74D75D76D77D78D79D7aD7bD7cD7dD7eD7fCa7fD00Cfd0D61D6fCfefD91C444Db5DdaDe9C06fD21D2fC7f0D51D5fCeddD96Cf88D82D83D84D85D8bD8cCaaaDccDeaDfdC999DcfCfffD9fDafDb1Db8De1C666Dc7C84fD02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eC333Da6Da7DaaDb9DbcDd9DdcCdddD9aDa2Da3Dc8DdbDecCaaaDabDaeDc1De3De4De5De6Cf89D8dC222DcdDedDfeDffC4ffD30CfffDebDf1Df2Df3Df4Df5Df6DfcC48fD20C4f6D40CeeeD92D93D94Da0DcbDf8DfbCbbbDb4Dd8C9f4D50C555Dc2C73fD0fC333DbbDc3Dc9Dd1CdddDe7Cf89D81D86D8aD8fC111DbaDd7CdeeDa5CbbbDb7Dc0De2Cf99D87D88D89C777DacDcaCcbbD9eCfaaD80C999D98Cf89D8eC999D9dC766D99C555DceC888DbeCfd4D60C777DdfC666Dd0"{
+	doc ();
+} 
+
+macro "Version and Update Infos Action Tool - CcccD5fD6fD7fD8fD9fC78bD17D19D2aD33D37D3bD42D4cD75D95DceDd5Dd9De6Df7Df9CddeDa3C36bD27D28D3aD57D58D59D66D76D77D86D87Da7Db8Dd6De8De9CeeeD00D01D02D04D06D07D08D09D0bD0dD0fD10D11D12D14D1bD1dD1fD20D21D22D2dD30D31D32D40D46D47D48D49D50D5bD60D70D71D72D74D7dD80D81D82D84D8dD90D91D92D94D9dDa0Da1Da2Da4Db0Db1DbbDc0Dc1Dc6Dc7Dc8Dc9Dd0Dd1Dd2De0De1De2DedDf0Df1Df2Df4DfbDfdDffC8beD3cD3dD4dD5aD6aD79D7aD7bD85D8bD9aDaaDc3Dc4Dd3Dd4CeeeD03D05D0aD0cD0eD13D15D1cD1eD23D2eD3eD4aD55D6cD73D7cD7eD83D8cD8eD93D9cD9eDb5DcaDdeDe3DeeDf3Df5DfcDfeC559D18D26D34D35D36D41D51D61DafDbfDcfDdaDdbDddDeaDf8CcddD2fD5cD6dD6eDabDb2Db4Dc2DefC99bD16D24D39D45D54D56D64D65Da5DacDb6DbcDcbDd7DecDfaCdefD67D8aC59dD29D2bD68D69D78D88D96D97D98D99Da6Da8Da9Db9De5De7CacdD1aD2cD38D4bD4eD5dD5eD6bD89D9bDb3DbaDc5Dd8De4Df6C348D25D43D44Db7DccDdcDebCcccD3fD4fDdf" {
+	VersionInfos ();
+}
+
+macro "About \"Dot Blot Analyzer\" Action Tool - C000D84Cb9fD25De7CaaaD14D2dDa0DafDecDfaCedfD49D4aD4bD4cD58D68D9bDb9DbaDbbDbcC889D2cDebCddfD52CcccD0bD22CeeeD00D03D0cD0fD10D1fD20D2fD30D40Dc0Dd0DdfDe0DefDf0Df1Df2Df3DfcDfeDffC666D07D70CdcfD34D35Dc4CbacD86D91CfefD6bD6dD7cD8cD8dD8eD9cD9dDadC97aDd3De5CedfD99CeeeD01D02D04D0dD0eD11D12D1eD21D3fDcfDd1De1De2DeeDf4DfdCfefD7dC545D94Da5CdbeDa4Da7CbabD05D50DaeCfefD7eC98aD32Da1CecfD39D3aD3bD46D48D57D67Da8Db6Db8Dc9DcaDcbDccCdcdD81C878D1bD60D65CdcfD29D36D38D47D77Db7Dc8Dd9DdaCcbcD7aDbfDc1De3C98bD16D24D75DeaCedfD56D66D73D76D83D93Da3C212D7bD88D96D97CcaeD26D3cDdbCaaaD3eD5fCfdfD59C889D15D1aD78Dc2CdcfD45Db4Db5Dc6CdddD13D31D4fDdeDedDfbC777D09D7fD85D90Df7CeceDbdCbadD18D55Db2De9Ca9aD5eDcdDceDdcC656D08D64D80D87D8bCdbfD28D2aD37Dc7Dd8CbbbD1cD42Dd2Df5CfdfD5aD5bD5cD5dD69D6aD6cD9aDa9DabDacC999D0aD41DddDf6CdddD1dD2eD9eDb0C888D06D4eD6fD9fDf9CcbdD54D71D98Dc3Ca9dD17D19Dd4De6C000D74D79D95CcafDd5Dd6De8CedfD62D72D92C889D51Db1DbeCedfD53D63Da2CdcdD6eC777D8fDf8CdcfD43D44Db3Dc5CbadD2bD33C99aD23De4C545D89Da6CcbfD27Dd7CbabD61CedfD82DaaC98aD3dCdceD4dD8a" {
+	about1 ();
+}
+
+///////////////// Functions ////////////////////
+
+function locationCursor (curs) {
+	// set the location of the cursor and kind of cursor (single analyse or grid repair setting)
+	display ("");
+	if (curs == 1) {
+		if (x ==0) {ereaseCursor ();initiate=1;}
+		checkInitColor ();
+		getCursorLoc(x, y, z, flags);
+		if (initiate ==1) {makeCursor(x,y,w,h,1);initiate=0;}
+		xstart=x; ystart=y;
+		w = getWidth(); h = getHeight();
+		x2=x; y2=y;
+		while (flags&16!=0) {
+			getCursorLoc(x, y, z, flags);
+			if (x!=x2 || y!=y2) {
+				makeCursor(x,y,w,h,1);
+			}
+			x2=x; y2=y;
+			wait(10);
+		};
+		if (initselectionColor != "") {setColorComponent (initForGColor,initBackGColor,initselectionColor);}
+	} 
+	// when the cursor is set
+	if (x!=xstart || y!=ystart) {
+		measureCircle ();
+		display ("Blot Cursor coordinates: x="+ floor (xx-blotx1) + " \("+ floor (xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+floor (yy-bloty1)*blotscale +"\)"+ "\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)"+ " " + kindofColoBox + " "+ SelectedColor);
+		if (statutHL ==1 || statutHR ==1 || statutLL ==1) {
+			ansvers2=1;
+			HautDroite (0,0,1);
+			BasGauche (0,0,1);
+			HautGauche (0,0,1);
+		}
+		palette=1;dyn=1;reponse=0;cancel=0;cursorok=0;
+		setTool(10);
+	}
+} 
+
+function makeCursor(x,y,w,h,undo) {
+	if (undo == 1) run("Undo");
+	showStatus("Target: x image="+ x + " \(x blot="+(x-blotx1) +"\) " +", y image="+y + " \(y blot="+ (y-bloty1)+"\)");
+	xori=blotx1;yori=bloty1;w=blotx2;h=bloty2;
+	if ((x-selectionRayon) < blotx1) {x=blotx1+selectionRayon;}
+	if ((y-selectionRayon) < bloty1) {y=bloty1+selectionRayon;}
+	if ((x+selectionRayon) >=  blotx2) {x=blotx2-1-selectionRayon;}
+	if ((y+selectionRayon) >=  bloty2) {y=bloty2-1-selectionRayon;}
+	if (livedisplay ==1) display ("Blot Cursor coordinates: x="+ floor(x-blotx1) + " \("+ floor(x-blotx1)*blotscale +"\) " +", y="+floor(y-bloty1) + " \("+ floor(y-bloty1)*blotscale +"\)"+"\n" + "\("+KindofArea + "\)" + " " + radius +kindofColoBox + " "+ SelectedColor);
+	px[0]=xori; py[0]=y;
+	px[1]=w; py[1]=y;
+	px[2]=x; py[2]=y;
+	px[3]=x; py[3]=yori;
+	px[4]=x; py[4]=h;
+	px[5]=x; py[5]=y;
+	setupUndo();
+	makeSelection("polgon", px, py);
+	setLineWidth(1);
+	// set the grid repair selection color
+	if (statutHL ==1 || statutHR ==1 || statutLL ==1)  {
+		setColor (220,220,0);
+		setColorComponent (ForGColor,BackGColor,selectionColor);
+	} 
+	else {
+		setColorComponent (ForGColor,BackGColor,selectionColor);
+		getColorValues(ForGColor); setColor (r,g,b);
+	}
+	drawOval((x-selectionRayon),(y-selectionRayon),2*selectionRayon,2*selectionRayon);
+	xx=x; yy=y;
+}
+
+function makeCircle(x,y,w,h,undo,radius) {
+	setLineWidth(1);
+	drawOval((x-radius),(y-radius),2*radius,2*radius);
+}
+
+function makeLine(x1,y1,x2,y2) {
+	if (x1>blotx1 && x1 < blotx2 && y1 >bloty1 && y1 <bloty2 && x2 < blotx2 && x2 > blotx1 && y2 <bloty2 && y2 >bloty1) {
+		setLineWidth(1);
+		drawLine(floor(x1),floor(y1),floor(x2),floor(y2));
+	}
+}
+
+function ChangeSize (CSize) {
+	if ((selectionRayon+CSize)>4) selectionRayon=selectionRayon+CSize;
+	measureCircle ();
+	KindofArea="Interface";radius="radius="+toString(selectionRayon)+ " \("+toString(selectionRayon*2)+"\)";
+	display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius+ kindofColoBox + " "+ SelectedColor);
+}
+
+function measureCircle () {
+	makeWork (); // create-select the batch working image
+	xmes=xx-blotx1;
+	ymes=yy-bloty1;
+	makeOval((xmes*blotscale-selectionRayon*blotscale),(ymes*blotscale-selectionRayon*blotscale),2*selectionRayon*blotscale,2*selectionRayon*blotscale);
+	getStatistics(area, mean);
+	volume = floor (area*mean);
+	theVolume=toString(volume);
+	selectImage (paletteName);
+	setBatchMode(false);
+}
+
+function addvalue (clickx, clicky) {
+	if (clickx > addMx1 && clickx < addMx2 && clicky > addMy1 && clicky <addMy2) {
+		DotStatus = "Single";
+		if (theVolume != "") {
+			resultListSize=resultListSize+1;
+			lastmesnumber=resultListSize;
+			if (! isOpen(measurementTab))   {
+				measurementTabEXL="["+measurementTab + "]";
+				run("New... ", "name="+measurementTabEXL+" type=Table");
+				print(measurementTabEXL, "\\Headings:Number\t X coordinate\tY coordinate\tIntegrated Area\tRadius\t");
+				selectWindow (measurementTab);
+				setLocation(0,Hpalette+138);
+				selectImage (paletteName);
+			} 
+			if (resultListSize > 0) {
+				mes[resultListSize-1]=theVolume;
+				mesX[resultListSize-1]=xmes*blotscale; mesY[resultListSize-1]=ymes*blotscale;
+				mesRadius[resultListSize-1]=selectionRayon;
+				printrayon=toString (mesRadius[resultListSize-1]+ " \("+ (blotscale*mesRadius[resultListSize-1])+"\)");
+				print(measurementTabEXL, (resultListSize) + "\t" + mesX[resultListSize-1] + "\t" + mesY[resultListSize-1] + "\t" + mes[resultListSize-1] + "\t" + printrayon + "\t");
+			}
+		test3cursor ();
+		KindofArea="Interface";
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)"+ "\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)"+  ": One added value " + kindofColoBox + " "+ SelectedColor);
+		}
+	updateSingleStatusInfo ();
+	}
+}
+
+function rmvalue (clickx, clicky) {
+	if (clickx > rmMx1 && clickx < rmMx2 && clicky > rmMy1 && clicky <rmMy2) {
+		DotStatus = "Single";
+		if (isOpen (measurementTab)  ) {
+			if (alteuu == 1 && lastmesnumber != 0 ) {resultListSize=lastmesnumber;}
+			if (resultListSize > 0) {
+				print(measurementTabEXL, "\\Clear");
+				if (alteuu == 0 && resultListSize >0) {lastmesnumber=resultListSize;resultListSize=resultListSize-1;}
+					for (i=0; i<resultListSize; i++) {
+						printrayon=toString (mesRadius[i]+ " \("+ (blotscale*mesRadius[i])+"\)");
+						print(measurementTabEXL,  (i+1) + "\t" +mesX[i] + "\t" + mesY[i]  + "\t" + mes[i] + "\t" + printrayon+ "\t");
+					}
+				test3cursor (); 
+			}
+		}
+		updateSingleStatusInfo ();
+		if (alteuu == 1 && lastmesnumber != 0) {
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius +  ": Restored measurement " + kindofColoBox + " "+ SelectedColor);
+		}
+		if (alteuu == 0 && lastmesnumber != 0) {
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius +  ": Erased measurement " + kindofColoBox + " "+ SelectedColor);
+		}
+	}
+}
+
+function erMeasurement (clickx, clicky) {
+	if (clickx > erMx1 && clickx < erMx2 && clicky > erMy1 && clicky < erMy2) {
+		DotStatus = "Single";
+		if ( isOpen(measurementTab))   {
+			if (alteuu == 0 && resultListSize >0) {
+				lastmesnumber=resultListSize;
+				Dialog.create("User Choice");
+				Dialog.addChoice("Delete the measurements ?", newArray("No","Yes") ,"no");
+				Dialog.show();
+				choix=Dialog.getChoice();
+				if (choix == "Yes") {print(measurementTabEXL, "\\Clear");resultListSize=0;resetblot (1,1,1,1);}
+			}
+			if (alteuu == 1) {
+				resultListSize=lastmesnumber;
+			}
+			test3cursor (); 
+		}
+		updateSingleStatusInfo ();
+		if (alteuu == 0) {
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius +  ": Erased Measurement(s) " + kindofColoBox + " "+ SelectedColor);
+		}
+		if (alteuu == 1) {
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius +  ": Restored Measurement(s) " + kindofColoBox + " "+ SelectedColor);
+		}
+	}
+}
+
+function restaureMes () {
+	DotStatus = "Single";
+	if ( isOpen(measurementTab))   {
+		if (lastmesnumber != 0 ) {
+			print(measurementTabEXL, "\\Clear");
+			for (i=0; i<resultListSize; i++) {
+				printrayon=toString (mesRadius[i]+ " \("+ (blotscale*mesRadius[i])+"\)");
+				print(measurementTabEXL,  (i+1) + "\t" +mesX[i] + "\t" + mesY[i]  + "\t" + mes[i] +  "\t"+ printrayon +"\t");
+			}
+		}
+	}
+	updateSingleStatusInfo ();
+}
+
+function showMesure (clickx,clicky) {		
+	if (clickx > mesurx1 && clickx < (mesurx1+mesurx2) && clicky > mesury1 && clicky < (mesury1+mesury2/2)) {
+		DotStatus = "Single";
+		test3cursor (); 
+		updateSingleStatusInfo ();
+		KindofArea="Interface";
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius +  ": Single measure mode " + kindofColoBox + " "+ SelectedColor);
+	}
+}
+
+function circleAutoSize (clickx,clicky) {
+	if (clickx > sizex1 && clickx < (sizex1+sizex2-24) && clicky > sizey1 && clicky < (sizey1+sizey2)) {
+		run("Undo");
+		run("Select None");
+		makeTemps (0);
+		makeWork ();
+		run("Make Binary");
+		run("Set Measurements...", "area center fit redirect=None decimal=0");
+		run("Clear Results");
+		run("Analyze Particles...", "size=0-Infinity circularity=0.00-1.00 show=Nothing");
+		close ();
+		nmes=nResults;
+		if (nmes >0) {
+			elipselist=newArray(nmes);
+			elipselistx=newArray(nmes);
+			elipselisty=newArray(nmes);
+			for (a=0 ; a< nmes ; a++) {
+				elipselist[a]=getResult("Major", a);
+				elipselistx[a]=getResult("XM", a);
+				elipselisty[a]=getResult("YM", a);
+			}	
+			sort (elipselist,elipselistx,elipselisty);
+			pertinantnumber=(elipselist.length-1);
+			pertinantvalue=xSizeBlot/10;
+			perttest=elipselist[elipselist.length-1];
+			while (elipselist[pertinantnumber] >= (xSizeBlot/10) && pertinantnumber>=0) {
+				pertinantnumber = pertinantnumber-1;
+				if (pertinantnumber <0) exit ("Pertinant circle radius can't be found. Tool desactivated.");			}
+			if (pertinantnumber>-1) {
+			xauto=floor (elipselistx[pertinantnumber]);
+			yauto=floor (elipselisty[pertinantnumber]);
+			selectionRayon=floor (elipselist[pertinantnumber]/blotscale/2+1);
+			setBatchMode(false);
+			test3cursor (); 
+			makeCursor((xauto/blotscale+blotx1),(yauto/blotscale+bloty1),w,h,1);
+			measureCircle ();
+			KindofArea="Interface";radius="Auto Radius="+toString(selectionRayon)+ " \("+toString(selectionRayon*2)+"\)";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius+ kindofColoBox + " "+ SelectedColor);
+			x=xauto/blotscale+blotx1;y=yauto/blotscale+bloty1;
+			} else showMessage ("Pertinant circle radius can't be found.");
+		}
+	}
+}
+
+function updateSingleStatusInfo () {
+	// update the single statut interface
+	setBatchMode(true);
+	setColor (90,90,130);
+	fillRect ((singX1+1), (singY1+1), (singX2-2), 15);
+	fillRect (gridCx1+1, gridCy1+1, gridCx2-2, gridCy2/2);
+	fillRect (gridCx1+1, gridCy1+gridCy2/2+2, gridCx2-2, gridCy2/2-2);
+	if (DotStatus == "Single") {setColor(0,220,0);} else {setColor(220,0,0);}
+	setJustification("center");
+	setFont("SansSerif", 12,"antialiased");
+	drawString("Measurements:", singX1+1+(singX2)/2,singY1+15) ;
+	if (DotStatus == "Grid") {setColor(0,220,0);} else {setColor(220,0,0);}
+	setJustification("center");
+	drawString("Grid:", gridCx1+1+(gridCx2)/2,gridCy1+15);
+	if (gridModelStatus == 1) {setColor(0,220,0);} else {setColor(220,0,0);}
+	setJustification("center");
+	drawString("Model", gridCx1+1+(gridCx2)/2,gridCy1+32);
+}
+
+function showGrid (clickx,clicky) {		
+	if (clickx > gridCx1 && clickx < (gridCx1+gridCx2) && clicky > gridCy1 && clicky < (gridCy1+gridCy2/2)) {
+		DotStatus = "Grid";
+		test3cursor (); 
+		updateSingleStatusInfo ();
+		KindofArea="Interface";
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius + ": Grid measure mode " + kindofColoBox + " "+ SelectedColor);
+	}
+}
+
+function showModel (clickx,clicky) {
+	if (clickx > gridCx1 && clickx < (gridCx1+gridCx2) && clicky > (gridCy1 +gridCy2/2+2) && clicky < (gridCy1+gridCy2)) {
+		if (gridModelStatus==0) { gridModelStatus =1;}
+		else {if (gridModelStatus==1) gridModelStatus =0;}
+		if (gridModelStatus==0) { if (isOpen(gridModelName)) {selectImage(gridModelName);close ();}}
+		DotStatus = "Grid";
+		test3cursor (); 
+		updateSingleStatusInfo ();
+		KindofArea="Interface";
+		if (gridModelStatus==1) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Model selected "+ kindofColoBox + " "+ SelectedColor);
+		if (gridModelStatus==0) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Model unselected "+ kindofColoBox + " "+ SelectedColor);
+	}
+}
+
+// Derived from http://rsb.info.nih.gov/ij/macros/SortDemo.txt
+// author Wayne Rasband
+
+function sort(a,b,c) {quickSort(a,b,c, 0, lengthOf(a)-1);}
+
+function quickSort(a,b,c, from, to) {
+      i = from; j = to;
+      center = a[(from+to)/2];
+      do {
+		while (i<to && center>a[i]) i++;
+		while (j>from && center<a[j]) j--;
+		if (i<j) {
+			temp=a[i]; a[i]=a[j]; a[j]=temp;
+			temp=b[i];b[i]=b[j]; b[j]=temp;
+			temp=c[i];c[i]=c[j]; c[j]=temp;
+		}
+		if (i<=j) {i++; j--;}
+      } while(i<=j);
+      if (from<j) quickSort(a,b,c, from, j);
+      if (i<to) quickSort(a,b,c, i, to);
+}
+
+function ereaseCursor () {
+	run("Undo");
+	run("Select None");
+	if (initselectionColor != "") {setColorComponent (initForGColor,initBackGColor,initselectionColor);}
+}
+
+function makeTemps (option) {
+	setBatchMode(true);
+	if (option == 1 && isOpen(tempclip)) {
+		selectImage (tempclip);
+		run("Select All");
+		run("Copy");
+	} else {
+		if (! isOpen(tempclip)) {
+			newImage(workingI,"8-bit Black",xSizeBlot,ySizeBlot,1);
+			run("Paste");
+			run("Select None");
+			tempclip =getImageID();
+		}
+	}
+}
+
+function makeWork () {
+	setBatchMode(true);
+	if (! isOpen(workingID)) {
+		newImage(workingI,"8-bit Black",xSizeBlot,ySizeBlot,1);
+		run("Paste");
+		run("Select None");
+		workingID =getImageID();
+	}
+}
+
+function OpenImageLink(question,demoimagelink,demoim) {
+	// download demo images
+	// Check if already downloaded.
+	if (isOpen(demoim)) exit ("The \"" + demoim + "\" is already opened");
+	demoimalocation = getDirectory("startup");	
+	fildestination = demoimalocation+ "Downloaded Demo Images/" + demoim;
+	if (File.exists(fildestination)) {
+		if (question ==1 ) showMessageWithCancel ("The \"" + demoim + "\" has already been downloaded. Open it?");
+		open(fildestination);
+	}
+	else {
+		netTest ();
+		showMessageWithCancel ("ImageJ will download a demo image. Continue?");
+		run("URL...", "url=["+demoimagelink+"]");
+		imageid = getImageID();
+		nomdimage = getTitle;
+		// Create a <Downloaded Demo Images> repertory in ImageJ folder.
+		ImaDemo = demoimalocation+"Downloaded Demo Images"+File.separator;
+		File.makeDirectory(ImaDemo);
+		if (!File.exists(ImaDemo)) exit("Unable to create directory, something wrong in the ImageJ folder");
+		selectWindow(nomdimage);
+		save(""+ImaDemo+""+ nomdimage +"");
+	}
+}
+
+
+function UndoLast () {run("Undo");}
+
+//////////////////
+// graphic interface
+//////////////////
+
+function goGraphInt () {
+	kindofColoBox="";SelectedColor="";radius="";
+	clickx=0;clicky=0;
+	reponse=0;cancel=0;dyn =0;
+	if (! isOpen(paletteName)) {reponse=1;cancel=1;}
+	getCursorLoc(clickx, clicky, z, flags);
+	// test color boxes for cross hair
+	testcolor= coloBoxes(0,1,clickx,clicky,"crosshair",0);
+	if (testcolor != "") {
+		kindofColoBox="crosshair";SelectedColor=testcolor;selectionColor=SelectedColor;
+		KindofArea="Interface";
+		ereaseCursor ();
+		test3cursor ();
+		makeCursor(x,y,w,h,1);
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius + kindofColoBox + " "+ SelectedColor);
+	}
+	// test color boxes for circle
+	testcolor= coloBoxes(0,1,clickx,clicky,"circle",0);
+	if (testcolor != "") {
+		kindofColoBox="circle";SelectedColor=testcolor;ForGColor=SelectedColor;
+		KindofArea="Interface";
+		ereaseCursor ();
+		test3cursor ();
+		makeCursor(x,y,w,h,1);
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\)" + " " + radius + kindofColoBox + " "+ SelectedColor);
+	}
+	// test the circle size
+	boxstatut=adjustBoxes(box1x,box1y,0,1,clickx,clicky);
+	if (boxstatut == 2) {
+		if (statutHL !=1 && statutHR !=1 && statutLL !=1) {ChangeSize (-1);test3cursor ();gridAnalyse ();}
+	} 
+	if (boxstatut == 3) {
+		if (statutHL !=1 && statutHR !=1 && statutLL !=1) {ChangeSize (1);test3cursor ();gridAnalyse ();}
+	} 
+	// test the histogram normalisation
+	enhenceHisto (clickx,clicky);
+	// test the lut choice for blot preview
+	lutanvers=checkLUT (clickx,clicky);
+	if (lutanvers ==1) {		
+		applyLut ();
+		test3cursor (); 
+		measureCircle ();
+		KindofArea ="Interface";
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  lutDisplay + radius+ kindofColoBox + " "+ SelectedColor);
+	}
+	// test the saturation level for histogram normalisation
+	boxstatut=adjustBoxes(box2x,box2y,0,1,clickx,clicky);
+	if (boxstatut == 2) {satHisto (-incresat);} 
+	if (boxstatut == 3) {satHisto (incresat);} 	
+	// test the reset blot preview
+	if (checkClean (clickx,clicky)==1) {
+		resetblot (0,0,0,1);
+		test3cursor ();
+		KindofArea ="Interface";
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  " Initial Blot Preview "+ kindofColoBox + " "+ SelectedColor);
+	}
+	// test the autosize cursor
+	if (statutHL !=1 && statutHR !=1 && statutLL !=1) {circleAutoSize (clickx,clicky);}
+	// test the result table management
+	addvalue (clickx,clicky);
+	rmvalue (clickx, clicky);
+	erMeasurement (clickx, clicky);
+	showMesure (clickx,clicky);
+	// adjust the number of columns of the grid
+	boxstatut=adjustBoxes(box3x,box3y,0,1,clickx,clicky);
+	if (boxstatut == 2) {DotStatus = "Grid";setColNumber (-1);}	if (boxstatut == 3) {DotStatus = "Grid";setColNumber (1);}
+	// adjust the number of lines of the grid
+	boxstatut=adjustBoxes(box4x,box4y,0,1,clickx,clicky);
+	if (boxstatut == 2) {DotStatus = "Grid";setLineNumber (-1);}
+	if (boxstatut == 3) {DotStatus = "Grid";setLineNumber (1);}
+	// check for the 3 angle limiting the grid
+	HautDroite (clickx,clicky,0);
+	BasGauche (clickx,clicky,0);
+	HautGauche (clickx,clicky,0);
+	// test the grid box
+	showGrid (clickx,clicky);
+	// test the model box
+	showModel (clickx,clicky);
+	// cancel !!rajouter la reinitialisation du foreground color?
+	if (Cancel (clickx,clicky) == 1) {cancel=1;reponse=1;palette=0;}
+	// end, finish analysis
+	endQuit (clickx,clicky);
+	// location of the click into the blot area
+	if (Blot (clickx,clicky) == 1) {KindofArea="Dot blot";reponse =1; palette=0;analyseIt=0;cursorok=1;} else {KindofArea="Interface";}
+	// check for the erease drawing
+	if (eraseDraw (clickx,clicky) ==1) {
+		resetblot (1,1,1,1);
+	}
+	dyn =1;
+}
+
+function getBlotSample () {
+	run("Select None");
+	selectImage (blotName);
+	run("Duplicate...", "title=temp");
+	run("Invert");
+	makeRectangle(0,0,xSizeBlot,ySizeBlot);
+	run("Copy");run("Select None");close ();
+}
+
+function resetblot (saturation,enh,lut,curs) {
+	// reset the visualisations settings: if saturation, enh, lut != 0 user settings are kept
+	if (saturation==0) sat=0;
+	if (enh==0) enhenceChoice=0;
+	if (lut ==0) lutChoice=0;
+	applyLut ();
+	if (curs ==1) makeCursor(x,y,w,h,1);
+}
+
+function blotForPalette () {
+	makeTemps (0);
+	makeWork ();
+	if ( isOpen(workingID)) {
+		selectImage (workingID);
+		run("Size...", "width=["+xSizeBlot/blotscale+"] height=["+ySizeBlot/blotscale+"]  interpolate");
+		run("Select All");run("Copy");close ();
+		selectImage(paletteName);
+		run("Paste");run("Select None");
+	}
+	makeTemps (1);
+	selectImage(paletteName);
+}
+
+function coloBoxes(draw,detect,clickx,clicky,kind,update) {
+	if (kind == "crosshair") ori=40+interx1;
+	if (kind == "circle") ori=Linter/2+20+interx1;
+	colboxOriY=yDisplay-25;
+	xcolorbox=20;ycolorbox=10;spcol=(Linter-8*xcolorbox)/48;
+	setLineWidth(largeline);detectcol=-1;democolor="";
+	for (a=0;a<8;a++) {
+		setColor(255,0,93);
+		if (detect==1) {
+			if (clicky >colboxOriY && clicky < (colboxOriY+ycolorbox)) {
+				if (clickx > (a*xcolorbox+a*spcol+spcol)+ori && clickx < ((a*xcolorbox+a*spcol+spcol)+xcolorbox)+ ori)  {detectcol=a;kindofColoBox=kind;}
+			}
+		}		
+		if (draw==1) {setLineWidth(largeline);drawRect ((a*xcolorbox+a*spcol+spcol)+ori, colboxOriY, xcolorbox, ycolorbox);}
+		if (a==0) {getColorValues ("red");if (detect==1 && detectcol==0) {democolor ="red";}}
+		if (a==1) {getColorValues ("green");if (detect==1 && detectcol==1) {democolor ="green";}}
+		if (a==2) {getColorValues ("blue");if (detect==1 && detectcol==2) {democolor ="blue";}}
+		if (a==3) {getColorValues ("cyan");if (detect==1 && detectcol==3) {democolor ="cyan";}}
+		if (a==4) {getColorValues ("yellow");if (detect==1 && detectcol==4) {democolor ="yellow";}}
+		if (a==5) {getColorValues ("magenta");if (detect==1 && detectcol==5) {democolor ="magenta";}}
+		if (a==6) {getColorValues ("black");if (detect==1 && detectcol==6) {democolor ="black";}}
+		if (a==7) {getColorValues ("white");if (detect==1 && detectcol==7) {democolor ="white";}}
+		if (draw==1) {setColor(r, g, b);fillRect ((a*xcolorbox+a*spcol+spcol+1) +ori, colboxOriY+1 , (xcolorbox-2), (ycolorbox-2));}
+	}
+	// draw graphique legend
+	if (update==1) {
+		getColorValues(ForGColor); setColor (r,g,b);
+		setLineWidth(largeline);
+		drawOval((Linter-16+interx1-22),(colboxOriY-3),16,16);
+		drawOval((interx1+Linter/2-8),(colboxOriY-3),16,16);
+		getColorValues(selectionColor); setColor (r,g,b);
+		drawLine((Linter/2+interx1),(colboxOriY-8),(Linter/2+interx1),(colboxOriY+18));
+		drawLine((Linter/2-14+interx1),(colboxOriY+5),(Linter/2+14+interx1),(colboxOriY+5));
+		drawLine((30+interx1),(colboxOriY-8),(30+interx1),(colboxOriY+18));
+		drawLine((30+interx1-11),(colboxOriY+5),(30+interx1+11),(colboxOriY+5));
+	}
+	return democolor;
+}
+
+function adjustBoxes(xbx,ybx,draw,detect,clickx,clicky) {
+	xadjustbox=14;yadjustbox=25;
+	setLineWidth(1);status=0;
+	if (detect==1) {
+		if (clicky >(ybx) && clicky < (ybx+yadjustbox/2-1) && clickx > (xbx) && clickx < (xbx+xadjustbox)) {status=3;}
+		if (clicky >(ybx+yadjustbox/2) && clicky < (ybx+yadjustbox) && clickx > xbx && clickx < (xbx+xadjustbox)) {status=2;}
+	}
+	if (draw==1) {
+		setColor(100,50,50);fillRect ((xbx+1), (ybx+1), (xadjustbox-1), (yadjustbox-1));run("Select None");
+		setColor(255,0,93);drawRect (xbx, ybx, xadjustbox, yadjustbox); run("Select None");
+		drawLine ((xbx), (ybx+yadjustbox/2-1), (xbx+xadjustbox-1), (ybx+yadjustbox/2-1));
+		setFont("SansSerif", 15,"antialiased");setColor(0,255,0);
+		setJustification("left");
+		drawString("-",(xbx+3),(ybx+27));
+		drawString("+",(xbx+1),(ybx+15));
+	}
+	return status;
+}
+
+function enhenceHisto (clickx,clicky) {
+	// normalize the histogram, taking account the saturation level, and lut choices
+	if (clickx > enhX1 && clickx < enhX1+enhX2-20 &&  clicky > enhY1 && clicky < enhY1+enhY2) {
+		run("Undo");
+		makeTemps (0);
+		makeWork ();	
+		if (enhenceChoice ==0) {
+			run("Enhance Contrast", "saturated=["+sat+"] normalize");
+			enhenceChoice =1;
+		} else {enhenceChoice =0;}
+		if (lutChoice==0) run("Grays");
+		if (lutChoice==1) {run("Grays");run("Invert");}
+		if (lutChoice==2) {run("Fire");}
+		if (lutChoice==3) {if (File.exists(getDirectory("imagej")+"luts/royal.lut")) {run("royal");} else {run("Spectrum");}}
+		run("Size...", "width=["+xSizeBlot/blotscale+"] height=["+ySizeBlot/blotscale+"]  interpolate");
+		run("Select All");run("Copy");
+		selectImage (paletteName);
+		makeRectangle (blotx1, bloty1, xSizeBlot/blotscale, ySizeBlot/blotscale);
+		run("Paste");
+		run("Select None");	
+		makeTemps (1);
+		selectImage (paletteName);
+		setBatchMode(false);
+		test3cursor ();
+		KindofArea= "Interface";
+		measureCircle ();
+		if (enhenceChoice == 1) {histo="Normalized Contrast Sat="+d2s(sat,2)+"%";} else {histo="Initial Contrast";}
+		display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  histo + radius+ kindofColoBox + " "+ SelectedColor);
+	}
+}
+
+function checkClean (clickx,clicky) {
+	// locate click for supress visuals improvements
+	statut=0;
+	if (clickx > resX1 && clickx < (resX1+ resX2) && clicky > resY1 && clicky < (resY1+resY2)) {statut=1;} 
+	return statut;
+}
+
+function Cancel (clickx,clicky) {
+	// locate click for cancel the analysis
+	testcancel=0;
+	if (clickx > cancelx1 && clickx < cancelx2 &&  clicky > cancely1 && clicky < cancely2) {testcancel=1;}
+	return testcancel;	
+}
+
+function Blot (clickx,clicky) {
+	// locate the actions into the blot area
+	if (clickx >= blotx1   && clickx < blotx2  &&  clicky >= bloty1  && clicky < bloty2) {testpal=1;} else {testpal=0;} return testpal;
+} 
+
+function eraseDraw (clickx,clicky) {
+	// locate click for erease the drawings onto blot area
+	testErase=0;
+	if (clickx > analysex1 && clickx < analysex2 &&  clicky > analysey1-4 && clicky < analysey2+4) {testErase=1;}
+	return testErase;
+}
+
+function endQuit (clickx,clicky) {
+	if (clickx > endx1 && clickx < (endx2+endx1) &&  clicky > endy1 && clicky < endy1+endy2) {
+		palette=0;cursorok=0;dyn=0;
+		if (isOpen(paletteName)) {
+			selectImage (paletteName);
+			makeRectangle (blotx1, bloty1, xSizeBlot/blotscale, ySizeBlot/blotscale);
+			run("Crop");
+			rename(blotinitName+ "-Grph");
+			endPalette=getTitle;
+			showMessage("End of analyse");
+		}
+		if (initselectionColor != "") {setColorComponent (initForGColor,initBackGColor,initselectionColor);}
+	}
+}
+
+function updateThePalette () {
+	setBatchMode(true);
+	run("Select None");
+	coloBoxes(1,0,0,0,"crosshair",1);
+	coloBoxes(1,0,0,0,"circle",1);
+	// update-refresh the single measures
+	if (showmes ==1) {
+		run("Undo");
+		run("Select None");
+		if ( isOpen(measurementTab))   {
+			if (lastmesnumber != 0 ) {
+				resetblot (1,1,1,0);
+				setBatchMode(true);
+				restaureMes ();
+				setColorComponent (ForGColor,BackGColor,selectionColor);
+				getColorValues(ForGColor); setColor (r,g,b);
+				for (i=0; i<resultListSize; i++) {
+					makeCircle((mesX[i]/blotscale+blotx1),(mesY[i]/blotscale+bloty1),w,h,0, mesRadius[i]);
+				}
+				makeCursor(x,y,w,h,1);
+			}
+		}
+		makeCursor(x,y,w,h,1);
+	}
+	// update-refresh the grid limits
+	if (showrep ==1) {
+		resetblot (1,1,1,0);
+		if (LLX !=0 && LLY !=0) {
+			setColor(0,255,0);
+			if (updateRefCircle(LLX,LLY) == 1) {
+				makeCircle((LLX+blotx1),(LLY+bloty1),w,h,0,(selectionRayon));
+			} else {
+				LLX=0; LLY=0;   LRX=0; LRY=0;
+				updateThePalette ();
+				waitForUser("Setting mistake 1","Out of blot area, \"Low Left\" grid cursor has been reinitialized. \nIt is incompatible with the circle RADIUS and\/or LINES and \nCOLUMNS numbers set");
+			}
+		}
+		if (HRX !=0 && HRY !=0) {
+			setColor(0,255,0);
+			if (updateRefCircle(HRX,HRY) == 1) {
+				makeCircle((HRX+blotx1),(HRY+bloty1),w,h,0,(selectionRayon));
+			} else {
+				HRX=0; HRY=0;   LRX=0; LRY=0;
+				updateThePalette ();
+				waitForUser("Setting mistake 2","Out of blot area, \"High Right\" grid cursor has been reinitialized. \nIt is incompatible with the circle RADIUS and\/or LINES and \nCOLUMNS numbers set");
+			}
+		}
+		if (HLX !=0 && HLY !=0) {
+			setColor(0,255,0);
+			if (updateRefCircle(HLX,HLY) == 1) {
+				makeCircle((HLX+blotx1),(HLY+bloty1),w,h,0,(selectionRayon));
+			} else {
+				HLX=0;  HLY=0;   LRX=0; LRY=0;
+				updateThePalette ();
+				waitForUser("Setting mistake 3","Out of blot area, \"High Left\" grid cursor has been reinitialized. \nIt is incompatible with the circle RADIUS and\/or LINES and \nCOLUMNS numbers set");
+			}
+		}
+
+		// check for the grid ref cursors positions (limits) regarding the circle radius changing
+		if (LRX >0 && LRY >0 && HLX >0 && HRX >0 && LLX>0 ) {
+			if (updateRefCircle(LRX,LRY) == 1) {
+				dxc= ((HRX-HLX)/(nbcol-1));
+				dyc= ((LLY-HLY)/(nbline-1));
+				// grid lines calculations. make grid measure tab
+				if (GridStatus ==1) makeGridTab (); // for grid tab
+				for (i=0; i< nbline; i++) {
+					setColor(128,128,128);
+					makeLine ((((HLY+bloty1+i*dyc)-YhorizontalOrd)/Ay) ,((HLX+blotx1)*Ax+XhorizontalOrd+i*dyc),(((HLY+bloty1+i*dyc)-YhorizontalOrd)/Ay+(HRX-HLX)),((HRX+blotx1)*Ax+XhorizontalOrd+i*dyc));
+					setColorComponent (ForGColor,BackGColor,selectionColor);
+					getColorValues(ForGColor); setColor (r,g,b);
+					lineTitles=" L"+ (i+1); // for grid tab
+					for (k=0; k < nbcol; k++) {
+						xx=(((HLY+bloty1+i*dyc)-YhorizontalOrd)/Ay +dxc*k);
+						yy=((HLX+ dxc*k+blotx1)*Ax+XhorizontalOrd +dyc*i);
+						if ((i !=0 || k != 0) && ( i != (nbline-1) || k != (nbcol-1)) && ( i != 0 || k != (nbcol-1)) && ( i != (nbline-1) || k != 0)) {
+							makeCircle(xx,yy,w,h,0,selectionRayon);
+						}
+						if (GridStatus ==1) {
+							measureCircle (); // for grid tab
+							lineTitles=lineTitles+ "\t" + theVolume; // for grid tab
+						}
+					}
+					if (GridStatus ==1) {if (lineTitles != "") print(nameOfGridTab,  lineTitles); }// for grid tab
+				}
+				for (i=0; i< nbcol; i++) {
+					setColor(128,128,128);
+					makeLine((HLX+blotx1+i*dxc),((HLX+ dxc*i+blotx1)*Ax+XhorizontalOrd),(LLX+blotx1+i*dxc),((HLX+ dxc*i+blotx1)*Ax+XhorizontalOrd +(LLY-HLY)));
+				}
+				// yellow guide lines
+				setColor(255,255,0);
+				makeLine ((((HLY+bloty1)-YhorizontalOrd)/Ay) ,((HLX+blotx1)*Ax+XhorizontalOrd),(((HLY+bloty1)-YhorizontalOrd)/Ay+(HRX-HLX)),((HRX+blotx1)*Ax+XhorizontalOrd));
+				makeLine((HLX+blotx1),((HLX+blotx1)*Ax+XhorizontalOrd),(LLX+blotx1),((HLX+blotx1)*Ax+XhorizontalOrd +(LLY-HLY)));
+				setColor(0,255,0);
+				makeCircle((LRX+blotx1),(LRY+bloty1),w,h,0,(selectionRayon));
+			} else {
+				LRX=0; LRY=0;
+				if (HLX >0 && HRX >0 && LLX>0) {
+					HRX=0;HRY=0;LLX=0;LLY=0; //LRX=0;LRY=0;
+					//pb with the 4th grid repair
+					updateThePalette ();
+					waitForUser("Setting mistake","These grid cursors settings give the \"low\-right\" dot partially out of the blot area.\nhight\-right and low\-left cursors have been reinitialized.");
+				} 
+			}
+		} 
+		statutHL =0; statutHR =0; statutLL =0;  
+		testCursButtonColor (0,0,0,1,"none");
+		run("Select None");
+		// draw the model
+		if (gridModelStatus ==1) makeModel ();
+	}
+	setBatchMode("exit and display");
+	setLocation (0,95);
+	run("View 100%");
+}
+
+function makeGridTab () {
+	if (gridcol==0) gridcol=nbcol;
+	if (gridline==0) gridline= nbline;
+	colTitles=""; lineTitles="";
+	for (i=1; i<= nbcol; i++) {
+		colTitles=colTitles+ " C"+i +"\t";
+	}
+	if (isOpen(windowTabName) && ((gridcol != nbcol) || (gridline !=nbline))) {
+		selectWindow (windowTabName); run("Close");
+		gridcol=nbcol;gridline= nbline;
+	}
+	// built the table
+	if (!isOpen(windowTabName)) {
+		run("New... ", "name="+nameOfGridTab+" type=Table");
+		print(nameOfGridTab, "\\Headings:Lin.\/Col.\t" + colTitles);
+		selectWindow (windowTabName);
+		setLocation(Lpalette+11,96);
+	}
+	print(nameOfGridTab, "\\Clear");
+	selectImage (paletteName);
+}
+
+ function makeModel () {
+	setBatchMode(true);
+	wellValue=0;maxValue=0;
+	if (nbcol > 0 && nbline >0 && HLX >0 && HRX >0 && LLX > 0 && LRX >0 && isOpen(windowTabName )) {
+		selectWindow(windowTabName);
+   		gridResults = getInfo();		
+		// get the highest value
+		for (i=1; i<= nbcol; i++) {
+			for (j=1; j<= nbline; j++) {
+				colval=" C" +i; lineval =" L"+j;
+				wellValue=getWellValue (colval,lineval);
+				maxValue=maxOf(maxValue,wellValue);
+			}
+		}
+		// create the model window
+		spacerModel=10; wellModel=20;
+		if (! isOpen(gridModelName)) {
+			makeModelWindow(spacerModel,wellModel);
+		}
+		selectImage (gridModelName);
+		xmodel=((nbcol+1)*wellModel+(nbcol+1)*spacerModel);
+		ymodel=((nbline+2)*wellModel+(nbline+2)*spacerModel);
+		curentModelx=getWidth();
+		curentModely=getHeight();
+		if (curentModely != ymodel || curentModelx != xmodel) {
+			close ();
+			makeModelWindow(spacerModel,wellModel);
+		}
+		selectImage (gridModelName);
+		if (lutChoice==1) {run("Grays");}
+		if (lutChoice==2) {run("Fire");}
+		if (lutChoice==3) {if (File.exists(getDirectory("imagej")+"luts/royal.lut")) {run("royal");} else {run("Spectrum");}}
+		setColor (0);
+		fillRect(0, (wellModel+spacerModel), xmodel, ymodel-(wellModel+spacerModel));
+		for (i=1; i<= nbcol; i++) {
+			setColor(255,255,255);setJustification("center");setFont("SansSerif", 10,"bold");
+			ecriture = "C"+toString(i);
+			drawString(ecriture,((i)*wellModel+i*spacerModel+(wellModel/2+2)), (2*wellModel+spacerModel));run("Select None");
+		}
+		for (i=1; i<= nbline; i++) {
+			setColor(255,255,255);setJustification("center");setFont("SansSerif", 10,"bold");
+			ecriture = "L"+toString(i);
+			drawString(ecriture,(wellModel/2+spacerModel/2), ((i+2)*wellModel+(i+1)*spacerModel)-2);run("Select None");
+		}
+		for (i=1; i<= nbcol; i++) {
+			for (j=1; j<= nbline; j++) {
+				colval=" C" +i; lineval =" L"+j;
+				wellValue=getWellValue (colval,lineval);
+				wellValueRescaled=round(parseFloat(wellValue)*255/maxValue);
+				if (wellValueRescaled <= 255) setColor(wellValueRescaled);
+				fillOval(((i)*wellModel+i*spacerModel), ((j+1)*wellModel+(j+1)*spacerModel), wellModel, wellModel);
+			}
+		}
+		setBatchMode(false);
+		selectImage (paletteName);
+	}
+}
+
+function makeModelWindow (spacerModel,wellModel) {
+	setBatchMode(false);
+	newImage(gridModelName, "8-bit ramp", ((nbcol+1)*wellModel+(nbcol+1)*spacerModel), ((nbline+2)*wellModel+(nbline+2)*spacerModel), 1);
+	setLocation(Lpalette+11,348);
+	setBatchMode(true);
+}
+
+function getMaxValue(gridValues) {
+	max=gridValues[0];
+	for (i=0;i<gridValues.length;i++) {max=maxOf(max,gridValues[i]);}
+	return max;
+}	
+
+function getWellValue (Coltab,Linetab) {
+	val=-1;
+	ansversGridCol=columnLabelList (Coltab);
+	ansversGridLine=lineLabelList (Linetab);
+	if (ansversGridCol  >0 && ansversGridLine >0) {
+   		lines = split(gridResults, "\n");
+		colums =split(lines[ansversGridLine], ",\t");
+		val= colums[ansversGridCol];
+	} else {waitForUser("model can\'t be made from the \"Grid Measurements Table\"");}
+	return val;
+}
+
+// return the number of the column who's title is in kind
+function columnLabelList (kind) {
+	columnNumber=-1;
+   	lines = split(gridResults, "\n");
+  	headings = lines[0];
+	titlesofcolumns = split(headings, ",\t");
+	for (a=0; a<titlesofcolumns.length; a++) {if (titlesofcolumns[a] == kind) columnNumber=a;}
+	return columnNumber;
+}
+
+//return the number of the line who's title is in kind
+function lineLabelList (kind) {
+	lineNumber=-1;
+	if (nbline > 0 && isOpen(windowTabName)) {
+   		lines = split(gridResults, "\n");
+		for (a=0; a<lines.length; a++) {
+			linea=split(lines[a], ",\t");
+			if (linea[0] == kind) lineNumber=a;
+		}
+	}
+	return lineNumber;
+}
+
+function drawPalette () {
+	// draw a palette containing the blot preview and analysis graphical interface
+	setBatchMode(true);
+	if (isOpen(paletteName)) exit ("A \"" +paletteName+ "\" window is already opened.\nFirst, close it before run a new analysis.") ;
+	setBatchMode(true);
+	getBlotSample ();
+	setLineWidth(largeline);
+	Hpalette=ySizeBlot/blotscale+Topmarge+Botommarge+Hinter;Lpalette=Linter;
+	if ((xSizeBlot /blotscale+Leftmarge+Rightmarge) > Linter) Lpalette=(xSizeBlot /blotscale +Leftmarge+Rightmarge);
+	blotx1=floor ((Lpalette-xSizeBlot/blotscale)/2); blotx2= floor (blotx1+xSizeBlot/blotscale);
+	bloty1=floor (Topmarge);bloty2=floor (bloty1+ySizeBlot/blotscale);
+	run("Line Width...", "line="+largeline+"");
+	interx1=(Lpalette-Linter)/2;interx2=(interx1+Linter);
+	intery2=(Hpalette-Botommarge); intery1=(intery2-Hinter);
+	// cancel and analyse buttons coodinates
+	cancelx1=(interx1+distBord); cancelx2=(cancelx1+largbuton);
+	cancely1=(intery2 - disthaut-hautbuton); cancely2=(cancely1+hautbuton);
+	analysex1= (interx2-distBord-largbuton); analysex2=(analysex1+largbuton);
+	analysey1= intery2-(disthaut)-(hautbuton); analysey2=(analysey1+hautbuton);
+	newImage(paletteName,"RGB Black",Lpalette,Hpalette,1);
+	setForegroundColor(32,0,93);
+	run("Select All");run("Fill");run("Select None");
+	setColor(255,0,93);
+	setLineWidth(largeline);
+	drawRect (blotx1-1, bloty1-1, xSizeBlot/blotscale+2, ySizeBlot/blotscale+2); run("Select None");
+	makeRectangle (blotx1, bloty1, xSizeBlot/blotscale, ySizeBlot/blotscale);
+	blotForPalette ();
+	setLocation(5, 105);
+	setColor(255,0,0);// button cancel
+	setLineWidth(largeline);
+	drawRect ( cancelx1, cancely1-5, largbuton, hautbuton+9);run("Select None");
+	setColor(255,255,20);// button analyse
+	setLineWidth(largeline);
+	drawRect (analysex1, analysey1-5, largbuton, hautbuton+9);run("Select None");
+	setColor(80,90,120);
+	fillRect (cancelx1+1, cancely1-4, largbuton-2, hautbuton+7);
+	fillRect (analysex1+1,  analysey1-4, largbuton-2, hautbuton+7);
+	setFont("SansSerif", 12,"bold");setColor(255,20,20);
+	drawString("Cancel",(cancelx1+9),(cancely1+19));run("Select None");
+	setColor(255,255,20);setJustification("center");setFont("SansSerif", 12,"antialiased");
+	drawString("Erase\nDrawings",(analysex1+31),(analysey1+11));run("Select None");
+	xDisplay= cancelx2+4;yDisplay=cancely1-8;
+	larDisplay= analysex1-cancelx2-8;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect ( xDisplay, yDisplay, larDisplay, Hdisplay);run("Select None");
+	display (" ");
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (cancelx1, yDisplay-35, (analysex1+largbuton-cancelx1), 32);run("Select None");
+	setColor(90,90,130);
+	fillRect (cancelx1+1, yDisplay-34, (analysex1+largbuton-cancelx1-2), 30);
+	coloBoxes(1,0,0,0,"crosshair",1);
+	coloBoxes(1,0,0,0,"circle",1);
+	ax=interx1+20;ay=colboxOriY-37;ar=16;
+	sizex1=cancelx1;sizex2=3*ar-1;sizey1=ay-7;sizey2=ar+15;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (sizex1, sizey1, sizex2, ar+15);
+	setColor (90,90,130);
+	fillRect (sizex1+1, sizey1+1, sizex2-2, sizey2-2);
+	box1x=interx1+(3*ar-4);box1y=ay-4;
+	getColorValues("magenta"); setColor (r,g,b);
+	drawOval(ax,ay,ar,ar);
+	getColorValues("yellow"); setColor (r,g,b);
+	drawLine(ax+ar/2+1,ay+(ar/2),ax+ar+1,ay+(ar/2));
+	drawLine((ax+ar/2+1),(ay+ar/2-3),(ax+ar/2+1),(ay+ar/2+3));
+	drawLine((ax+ar+1),(ay+ar/2-3),(ax+ar+1),(ay+ar/2+3));
+	adjustBoxes(box1x,box1y,1,0,0,0);
+	enhX1=ax+45; enhX2=45;
+	enhY1=ay-7;enhY2=ar+15;
+	box2x=enhX1+27;
+	box2y=box1y;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (enhX1, enhY1, enhX2, enhY2);
+	setColor (90,90,130);
+	fillRect (enhX1+1, enhY1+1, enhX2-2, enhY2-2);
+	setColor (0,250,200);
+	drawLine(enhX1+1,enhY1+28,enhX1+3,enhY1+17);
+	drawLine(enhX1+3,enhY1+17,enhX1+6,enhY1+28);
+	drawLine(enhX1+6,enhY1+28,enhX1+9,enhY1+20);
+	drawLine(enhX1+9,enhY1+20,enhX1+12,enhY1+28);
+	drawLine(enhX1+12,enhY1+28,enhX1+23,enhY1+28);
+	setColor (0,250,0);
+	drawLine(enhX1+1,enhY1+15,enhX1+6,enhY1+3);
+	drawLine(enhX1+6,enhY1+3,enhX1+12,enhY1+15);
+	drawLine(enhX1+12,enhY1+15,enhX1+18,enhY1+7);
+	drawLine(enhX1+18,enhY1+7,enhX1+23,enhY1+15);
+	adjustBoxes(box2x,box2y,1,0,0,0);
+	lutX1=enhX1+enhX2+3; lutX2=50;
+	lutY1=enhY1; lutY2=enhY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (lutX1, lutY1, lutX2, lutY2);
+	setColor (90,90,130);
+	fillRect (lutX1+1, lutY1+1, lutX2-2, lutY2-2);
+	makeSampleLut (0,lutX1+2,lutY1+2);
+	makeSampleLut (1,lutX1+14,lutY1+2);
+	makeSampleLut (2,lutX1+26,lutY1+2);
+	makeSampleLut (3,lutX1+38,lutY1+2);
+	resX1=lutX1+lutX2+3; resX2=30;
+	resY1=lutY1; resY2=lutY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (resX1, resY1, resX2, resY2);
+	setColor (90,90,130);
+	fillRect (resX1+1, resY1+1, resX2-2, resY2-2);
+	getColorValues("yellow"); setColor (r,g,b);
+	ax=resX1+resX2/2-9;ay=(resY1+resY2/2-8);
+	drawOval(ax,ay,ar,ar);
+	getColorValues("green"); setColor (r,g,b);
+	setLineWidth(largeline+1);
+	drawLine(ax+1,ay+ar/2+3,ax-3,ay+(ar/2-4));
+	drawLine(ax+1,ay+ar/2+3,ax+4,ay+(ar/2-4));
+	drawLine(ax+ar,ay+ar/2-5,ax+ar-4,ay+(ar/2+3));
+	drawLine(ax+ar,ay+ar/2-5,ax+ar+3,ay+(ar/2+3));
+	setLineWidth(largeline);
+	singX1=resX1+resX2+3; singX2=100;
+	singY1=lutY1; singY2=resY2;
+	mesurx1=singX1; mesury1=singY1; mesurx2=singX2; mesury2=singY2;
+	addMx1= singX1+2;
+	addMy1= singY1+16;
+	addMx2= singX1+30;
+	addMy2= singY1+singY2-1;
+	rmMx1= addMx2;
+	rmMy1= addMy1;
+	rmMx2= singX1+singX2-15;
+	rmMy2= addMy2;
+	erMx1= rmMx2;
+	erMy1= rmMy1;
+	erMx2= singX1+singX2-2;
+	erMy2= rmMy2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (singX1, singY1, singX2, singY2);
+	setColor (90,90,130);
+	fillRect (singX1+1, singY1+1, singX2-2, singY2-2);
+	setColor(140,140,180);
+	drawLine (singX1, addMy1, erMx2+1, addMy1);
+	drawLine (singX1+singX2-15, addMy1, rmMx2, addMy2);
+	drawLine (addMx2, addMy1, addMx2, addMy2);
+	setFont("SansSerif", 12,"antialiased");
+	setColor(220,220,0);
+	setJustification("center");
+	drawString("Measurements:", singX1+1+(singX2)/2,singY1+15);
+	setColor(220,220,0);
+	setJustification("left");
+	drawString("Add   Remove", singX1+2,singY1+31) ;
+	setColor(220,0,0);
+	setLineWidth(2);
+	drawLine (singX1+singX2-2, singY1+18, singX1+singX2-13, singY1+singY2-2);
+	drawLine (singX1+singX2-2, singY1+singY2-2, singX1+singX2-13, singY1+18);
+	setLineWidth(largeline);
+	nbcolX1=singX1+singX2+3;
+	nbcolX2=50;
+	nbcolY1=singY1;
+	nbcolY2=singY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (nbcolX1, nbcolY1, nbcolX2, nbcolY2);
+	setColor (90,90,130);
+	fillRect (nbcolX1+1, nbcolY1+1, nbcolX2-2, nbcolY2-2);
+	setColor(140,140,180);
+	box3x=nbcolX1+nbcolX2-17;box3y=nbcolY1+3;
+	adjustBoxes(box3x,box3y,1,0,0,0);
+	setColor(80,80,120);
+	fillRect (nbcolX1+1, (nbcolY1+15), nbcolX2-19, 15);
+	setFont("SansSerif", 12,"antialiased");setColor(220,220,0);setJustification("center");
+	drawString("nCol.", nbcolX1+1+(nbcolX2-17)/2,nbcolY1+15) ;
+	setColor(255,200,50);setFont("SansSerif", 12,"bold");
+	drawString(toString(nbcol), nbcolX1+1+(nbcolX2-17)/2,nbcolY1+31) ;
+	nblineX1=nbcolX1+nbcolX2+3;
+	nblineX2=50;
+	nblineY1=nbcolY1;
+	nblineY2=nbcolY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (nblineX1, nblineY1, nblineX2, nblineY2);
+	setColor (90,90,130);
+	fillRect (nblineX1+1, nblineY1+1, nblineX2-2, nblineY2-2);
+	setColor(140,140,180);
+	box4x=nblineX1+nblineX2-17;box4y=nblineY1+3;
+	adjustBoxes(box4x,box4y,1,0,0,0);
+	setColor(80,80,120);
+	fillRect (nblineX1+1, (nblineY1+15), nblineX2-19, 15);
+	setFont("SansSerif", 12,"antialiased");setColor(220,220,0);setJustification("center");
+	drawString("nLin.", nblineX1+1+(nblineX2-17)/2,nblineY1+15) ;
+	setColor(255,200,50);setFont("SansSerif", 12,"bold");
+	drawString(toString(nbline), nblineX1+1+(nblineX2-17)/2,nblineY1+31) ;
+	HLboxX1=nblineX1+nblineX2+3;
+	HLboxX2=30;
+	HLboxY1=nblineY1;
+	HLboxY2= nblineY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (HLboxX1, HLboxY1, HLboxX2, HLboxY2);
+	setColor (90,90,130);
+	fillRect (HLboxX1+1, HLboxY1+1, HLboxX2-2, HLboxY2-2);
+	setColor (255,20,20);
+	HLcurs ();
+	HRboxX1=HLboxX1+HLboxX2+3;
+	HRboxX2=30;
+	HRboxY1=HLboxY1;
+	HRboxY2= HLboxY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (HRboxX1, HLboxY1, HRboxX2, HLboxY2);
+	setColor (90,90,130);
+	fillRect (HRboxX1+1, HRboxY1+1, HRboxX2-2, HRboxY2-2);
+	setColor (255,20,20);
+	HRcurs ();
+	LLboxX1=HRboxX1+HRboxX2+3;
+	LLboxX2=30;
+	LLboxY1=HRboxY1;
+	LLboxY2= HRboxY2;
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (LLboxX1, LLboxY1, LLboxX2, LLboxY2);
+	setColor (90,90,130);
+	fillRect (LLboxX1+1, LLboxY1+1, LLboxX2-2, LLboxY2-2);
+	setColor (255,20,20);
+	LLcurs ();
+	gridCx1=LLboxX1+LLboxX2+3;
+	gridCx2=40;
+	gridCy1=LLboxY1;
+	gridCy2=LLboxY2;
+	setColor (90,90,130);
+	fillRect (gridCx1+1, gridCy1+1, gridCx2-2, gridCy2-2);
+	setColor(140,140,180);
+	setLineWidth(largeline);
+	drawRect (gridCx1, gridCy1, gridCx2, gridCy2);
+	drawLine(gridCx1, (gridCy1+gridCy2/2), gridCx1+gridCx2-1, (gridCy1+gridCy2/2));
+	setFont("SansSerif", 12,"antialiased");
+	setColor(220,220,0);
+	setJustification("center");
+	drawString("Grid:", gridCx1+1+(gridCx2)/2,gridCy1+15);
+	drawString("Model", gridCx1+1+(gridCx2)/2,gridCy1+32);
+	setColor(140,140,180);
+	endx1=gridCx1+gridCx2+3; endx2=(Lpalette-distBord-endx1); endy1=gridCy1; endy2=gridCy2;
+	drawRect (endx1,endy1,endx2, endy2);
+	setColor (90,90,130);
+	fillRect (endx1+1, endy1+1, endx2-2, endy2-2);
+	setFont("SansSerif", 12,"bold");
+	setColor(255,150,0);
+	setJustification("center");
+	drawString("END:\nQuit", endx1+(endx2)/2,endy1+15);
+	setColor (255,20,20);
+	setBatchMode("exit and display");
+	setLocation (0,95);
+	run("View 100%");
+}
+
+function makeSampleLut (kindlut,xl,yl) {
+	makeTemps (0);
+	newImage("lut", "8-bit Ramp", 27, 10, 1);
+	run("Rotate 90 Degrees Left");
+	if (kindlut==0) {run("Grays");}
+	if (kindlut==1) {run("Grays");run("Invert");}
+	if (kindlut==2) {run("Fire");}
+	if (kindlut==3) {if (File.exists(getDirectory("imagej")+"luts/royal.lut")) {run("royal");} 
+		else {showMessage ("The \"royal\" LUT isn't available in this ImageJ configuration.\nUpdate LUTs to install it. \"spectrum\" LUT will be used.");run("Spectrum");}
+	}
+	run("Select All");
+	run("Copy");
+	close();
+	selectImage (paletteName);
+	makeRectangle(xl,yl,10,27);
+	run("Paste");
+	run("Select None");
+	makeTemps (1);
+	selectImage (tempclip); close ();
+	selectImage (paletteName);
+}
+
+function applyLut () {
+	run("Undo");
+	setBatchMode(true);
+	makeTemps (0);
+	makeWork ();	
+	run("Grays");
+	if (enhenceChoice ==1)	{run("Enhance Contrast", "saturated=["+sat+"] normalize");}
+	if (lutChoice==1) {run("Grays");run("Invert");}
+	if (lutChoice==2) {run("Fire");}
+	if (lutChoice==3) {if (File.exists(getDirectory("imagej")+"luts/royal.lut")) {run("royal");} else {run("Spectrum");}}
+	run("Size...", "width=["+xSizeBlot/blotscale+"] height=["+ySizeBlot/blotscale+"]  interpolate");
+	run("Select All");run("Copy");
+	run("Grays");
+	selectImage (paletteName);
+	makeRectangle (blotx1, bloty1, xSizeBlot/blotscale, ySizeBlot/blotscale);
+	run("Paste");
+	run("Select None");
+	makeTemps (1);
+	selectImage (paletteName);
+	setBatchMode(false);
+}
+
+function checkLUT (clickx,clicky) {
+	test=0;
+	if (clicky >= (lutY1+2) && clicky < (lutY1 + lutY2-1)) {
+		if (clickx >= (lutX1+2) && clickx < (lutX1+2 +10)) {
+			lutChoice=0; lutDisplay="LUT: Grey";test=1;		}
+		if (clickx >= (lutX1+14) && clickx < (lutX1+14 +10)) {
+			lutChoice=1; lutDisplay="LUT: Invert Grey";test=1;
+		}
+		if (clickx >= (lutX1+26) && clickx < (lutX1+26 +10)) {
+			lutChoice=2; lutDisplay="LUT: Fire";applyLut ();test=1;
+		}
+		if (clickx >= (lutX1+38) && clickx < (lutX1+38 +10)) {
+			lutChoice=3;applyLut ();test=1;
+			if (File.exists(getDirectory("imagej")+"luts/royal.lut")) {lutDisplay="LUT: Royal";} else {lutDisplay="LUT: Spectrum";}
+		}
+	}
+	return test;
+}
+
+function satHisto (variation) {
+	if ((sat+variation) >= 0) {
+		sat = sat+variation; 
+		enhenceChoice=1;
+		if (sat<0.001) sat=0;
+	}
+	applyLut ();
+	test3cursor ();
+	measureCircle ();
+	KindofArea ="Interface";
+	if (enhenceChoice == 1) {histo="Normalized Contrast Sat="+ d2s(sat,2)+"%";} else {histo="Initial Contrast";}
+	display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  histo + radius+ kindofColoBox + " "+ SelectedColor);
+}
+
+function setColNumber (incrValue) {
+	if ((nbcol + incrValue) > 1) {
+		nbcol=nbcol+incrValue;
+		setBatchMode(true);
+		updatGridRef (0,1,0);
+		setColor(80,80,120);
+		fillRect (nbcolX1+1, (nbcolY1+15), nbcolX2-19, 15);
+		setColor(255,200,50);setFont("SansSerif", 12,"bold");setJustification("center");
+		drawString(toString(nbcol), nbcolX1+1+(nbcolX2-17)/2,nbcolY1+31) ;
+		KindofArea="Interface";
+		if (incrValue > 0) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": One added column "+ kindofColoBox + " "+ SelectedColor);
+		if (incrValue < 0) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": One suppressed column "+ kindofColoBox + " "+ SelectedColor);
+	}
+	updateSingleStatusInfo ();
+}
+
+function setLineNumber (incrValue) {
+	if ((nbline + incrValue) > 1) {
+		nbline=nbline+incrValue;
+		setBatchMode(true);
+		updatGridRef (0,1,0);
+		setColor(80,80,120);
+		fillRect (nblineX1+1, (nblineY1+15), nblineX2-19, 15);
+		setColor(255,200,50);setFont("SansSerif", 12,"bold");setJustification("center");
+		drawString(toString(nbline), nblineX1+1+(nblineX2-17)/2,nblineY1+31) ;
+		KindofArea="Interface";
+		if (incrValue > 0) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": One added line "+ kindofColoBox + " "+ SelectedColor);
+		if (incrValue < 0) display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": One suppressed line "+ kindofColoBox + " "+ SelectedColor);
+	}
+	updateSingleStatusInfo ();
+}
+
+function display (ecriture) {
+	setBatchMode(true);
+	setColor(80,80,120);
+	fillRect (xDisplay+1, yDisplay+1, larDisplay-2, Hdisplay-2);
+	setColor(220,220,0);
+	setFont("SansSerif", 12,"antialiased");
+	setJustification("center");
+	drawString(ecriture, xDisplay+1+(larDisplay-2)/2,yDisplay+18) ;
+	setJustification("left");
+}
+
+function checkInitColor () {
+	// get and store initial foreground, background and selection colors
+	if (initselectionColor == "") {
+		initselectionColor=getSelectionColors(call("ij.gui.Roi.getColor")); 
+		if (selectionColor == "") selectionColor=initselectionColor;
+	}
+	if (initForGColor == "") {
+		initForGColor = getColorSetting("foreground"); 
+		if (ForGColor  == "") ForGColor= initForGColor;
+	}
+	if (initBackGColor == "") {
+		initBackGColor =getColorSetting("background");
+		if (BackGColor == "") BackGColor = initBackGColor;
+	}
+}
+
+function setColorComponent (forg,bacg,sel) {
+	// set the foreground, background and selection colors 
+	run("Colors...", "foreground=["+forg+"] background=["+bacg+"] selection=["+sel+"]");
+}
+
+function getColorValues(ColorName) {
+	// specific to foreground color 
+	if (ColorName == "yellow") {r =255 ; g =255 ; b =0;}
+	if (ColorName == "red") {r =255 ; g =0 ; b =0;}
+	if (ColorName == "green") {r =0 ; g =255 ; b =0;}
+	if (ColorName == "blue") {r =0 ; g =0 ; b =255;}
+	if (ColorName == "magenta") {r =255 ; g =0 ; b =255;}
+	if (ColorName == "cyan") {r =0 ; g =255 ; b =255;}
+	if (ColorName == "orange") {r =255 ; g =200 ; b =0;}
+	if (ColorName == "black") {r =0 ; g =0 ; b =0;}
+	if (ColorName == "white") {r =255 ; g =255 ; b =255;}
+}
+
+function getColorSetting(KindColor) {
+	// specific to background and foreground colors
+	// get the current red, green and blue values 
+	setBatchMode(true);
+	newImage("Test Image color", "RGB White", 1, 1, 1);
+	testimage=getImageID();
+	// derived from  Wayne Rasband code
+ 	value = getPixel(0,0);
+	if (KindColor == "background") {makeRectangle(0,0,1,1);run("Clear");run("Select None");}
+	if (KindColor == "foreground") {fillRect(0,0,1,1);}
+ 	color = getPixel(0,0);
+ 	setPixel(0,0, value);
+	red = (color>>16)&0xff; // extract red byte (bits 23-17)
+	green = (color>>8)&0xff; // extract green byte (bits 15-8)
+	blue = color&0xff ; // extract blue byte (bits 7-0)
+	colorName=getColorName(toString(red),toString(green),toString(blue));
+	getColorValues(ForGColor); setColor (r,g,b);
+	if (isActive(testimage) ==1) {close ();setBatchMode(false);}
+	return colorName;
+} 
+
+function getSelectionColors (color) {
+	// specific to color selection
+	// decodes a color in the form "java.awt.Color[r=255,g=255,b=0]"
+	red = substring(color, (indexOf(color, "r=")+2), (indexOf(color, "g=")-1));
+	green=  substring(color, (indexOf(color, "g=")+2), (indexOf(color, "b=")-1));
+	blue=  substring(color, (indexOf(color, "b=")+2), indexOf(color, "]"));
+	colorName=getColorName(red,green,blue);
+	return colorName;
+}
+
+function getColorName(r,g,b) {
+	ColorName="";
+	if (r=="255" && g=="255" && b=="0") ColorName ="yellow";
+	if (r=="255" && g=="0" && b=="0") ColorName ="red";
+	if (r=="0" && g=="255" && b=="0") ColorName ="green";
+	if (r=="0" && g=="0" && b=="255") ColorName ="blue";
+	if (r=="255" && g=="0" && b=="255") ColorName ="magenta";
+	if (r=="0" && g=="255" && b=="255") ColorName ="cyan";
+	if (r=="255" && g=="200" && b=="0") ColorName ="orange";
+	if (r=="0" && g=="0" && b=="0") ColorName ="black";
+	if (r=="255" && g=="255" && b=="255") ColorName ="white";
+	return ColorName;
+}
+
+function HautGauche (clickx,clicky,ansvers) {
+	if (ansvers == 0) {
+		if (clickx > HLboxX1 && clickx < (HLboxX1+HLboxX2) && clicky > HLboxY1 && clicky < (HLboxY1+HLboxY2)) {
+			if (DotStatus == "Single") resetblot (1,1,1,0);
+			DotStatus = "Grid";
+			setBatchMode(true);
+			updateSingleStatusInfo ();
+			updatGridRef (0,1,0);
+			ansvers1=0;ansvers2=0;
+			statutHL=1;statutHR=0;statutLL=0;
+			ereaseCursor ();
+			makeCursor((HLX+blotx1),(HLY+bloty1),w,h,1);
+			testCursButtonColor (0,0,0,1,"HL");
+			testCursButtonColor (1,0,0,0,"HL");
+			if (HLX !=0 && HLY !=0) {ansvers1=1;} else {ansvers1 = 0;}
+			KindofArea ="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": High left dot setting "+ kindofColoBox + " "+ SelectedColor);
+		}
+	}
+	if (ansvers == 1) {
+		if (statutHL == 1) {
+			ereaseCursor ();
+			statutHL = 0;
+			tempHLX=HLX;tempHLY=HLY;
+			HLX= xx-blotx1; HLY=yy-bloty1;
+			testCursButtonColor (0,0,1,0,"HL");
+			KindofArea ="Interface";
+			updatGridRef (0,1,0);
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Grid measure mode "+ kindofColoBox + " "+ SelectedColor);
+			if (gridTest (1) == 0) {HLX=tempHLX;HLY=tempHLY;updatGridRef (0,1,0);HautGauche ((HLboxX1+2),(HLboxY1+2),0);}
+		}
+	}
+}
+
+function HautDroite (clickx,clicky,ansvers) {
+	if (ansvers == 0) {
+		if (clickx > HRboxX1 && clickx < (HRboxX1+HRboxX2) && clicky > HRboxY1 && clicky < (HRboxY1+HRboxY2)) {
+			if (DotStatus == "Single") resetblot (1,1,1,0);
+			DotStatus = "Grid";
+			setBatchMode(true);
+			updateSingleStatusInfo ();
+			updatGridRef (0,1,0);
+			ansvers1=0;ansvers2=0;
+			statutHR=1;statutHL=0;statutLL=0;
+			ereaseCursor ();
+			makeCursor((HRX+blotx1),(HRY+bloty1),w,h,1);
+			testCursButtonColor (0,0,0,1,"HR");
+			testCursButtonColor (1,0,0,0,"HR");
+			if (HRX !=0 && HRY !=0) {ansvers1=1;} else {ansvers1 = 0;}
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": High right dot setting "+ kindofColoBox + " "+ SelectedColor);
+		}
+	}
+	if (ansvers == 1) {
+		if (statutHR == 1) {
+			ereaseCursor ();
+			statutHR = 0;
+			tempHRX=HRX; tempHRY=HRY;
+			HRX= xx-blotx1; HRY=yy-bloty1;
+			testCursButtonColor (0,0,1,0,"HR");
+			KindofArea ="Interface";
+			updatGridRef (0,1,0);
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Grid measure mode "+ kindofColoBox + " "+ SelectedColor);
+			if (gridTest (1) == 0) {HRX=tempHRX;HRY=tempHRY;updatGridRef (0,1,0);HautDroite ((HRboxX1+2),(HRboxY1+2),0);}
+		}
+	}
+}
+
+function BasGauche (clickx,clicky,ansvers) {
+	if (ansvers == 0) {
+		if (clickx > LLboxX1 && clickx < (LLboxX1+LLboxX2) && clicky > LLboxY1 && clicky < (LLboxY1+LLboxY2)) {
+			if (DotStatus == "Single") resetblot (1,1,1,0);
+			DotStatus = "Grid";
+			setBatchMode(true);
+			updatGridRef (0,1,0);
+			updateSingleStatusInfo ();
+			ansvers1=0;ansvers2=0;
+			statutLL=1;statutHR=0;statutHL=0;
+			ereaseCursor ();
+			makeCursor((LLX+blotx1),(LLY+bloty1),w,h,1);
+			testCursButtonColor (0,0,0,1,"LL");
+			testCursButtonColor (1,0,0,0,"LL");
+			if (LLX !=0 && LLY !=0) {ansvers1=1;} else {ansvers1 = 0;}
+			KindofArea="Interface";
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Low left dot setting "+ kindofColoBox + " "+ SelectedColor);
+		}
+	}
+	if (ansvers == 1) {
+		if (statutLL == 1) {
+			ereaseCursor ();
+			statutLL=0;
+			tempLLX=LLX; tempLLY=LLY;
+			LLX= xx-blotx1; LLY=yy-bloty1;
+			testCursButtonColor (0,0,1,0,"LL");
+			KindofArea ="Interface";
+			updatGridRef (0,1,0);
+			display ("Blot Cursor coordinates: x="+ floor(xx-blotx1) + " \("+ floor(xx-blotx1)*blotscale +"\) " +", y="+floor(yy-bloty1) + " \("+ floor(yy-bloty1)*blotscale +"\)" +"\n" +"Integrated Area=" + theVolume+" "+ "\("+KindofArea + "\) " +  ": Grid measure mode "+ kindofColoBox + " "+ SelectedColor);
+			if (gridTest (1) == 0) {LLX=tempLLX;LLY=tempLLY;updatGridRef (0,1,0);BasGauche ((LLboxX1+2),(LLboxY1+2),0);}
+		}	
+	}
+}
+
+function updatGridRef (showM,showR,showG) {
+	showmes=showM;showrep=showR;showgrid=showG;
+	gridAnalyse ();
+	updateThePalette ();
+	showmes=0;showrep=0;showgrid=0;
+}
+
+function updateRefCircle (testxcercle,testycercle) {
+	possible=1;
+	if (testxcercle > 0 && testycercle >0) {
+		if ((testxcercle-selectionRayon) < 0) {possible=0;}
+		if ((testycercle-selectionRayon) < 0) {possible=0;}
+		if ((testxcercle+selectionRayon) >=  (xSizeBlot/blotscale)) {possible=0;}
+		if ((testycercle+selectionRayon) >=  (ySizeBlot/blotscale)) {possible=0;}
+	}
+	return possible;
+}
+
+function testCursButtonColor (oneclick,move,unclick,update,kind) {
+	if (statutHR == 1 && kind !="none") {setColor (255,255,20);HRcurs ();}
+	if (statutHR == 0 && ansvers1==0 &&  ansvers2==1 && kind == "HR") {setColor (20,255,20);HRcurs ();}
+	if (statutHL == 1 && kind !="none") {setColor (255,255,20);HLcurs ();}
+	if (statutHL == 0 && ansvers1==0 &&  ansvers2==1 && kind == "HL") {setColor (20,255,20);HLcurs ();}
+	if (statutLL == 1 && kind !="none") {setColor (255,255,20);LLcurs ();}
+	if (statutLL == 0 && ansvers1==0 &&  ansvers2==1 && kind == "LL") {setColor (20,255,20); LLcurs ();}
+	if (update ==1 && kind !="none") {
+		if (kind =="LL") {
+			if (HRX !=0 && HRY !=0) {setColor (20,255,20);HRcurs ();} else {setColor (255,20,20);HRcurs ();}
+			if (HLX !=0 && HLX !=0) {setColor (20,255,20);HLcurs ();} else {setColor (255,20,20);HLcurs ();}
+		}
+		if (kind =="HL") {
+			if (HRX !=0 && HRY !=0) {setColor (20,255,20);HRcurs ();} else {setColor (255,20,20);HRcurs ();}
+			if (LLX !=0 && LLX !=0) {setColor (20,255,20);LLcurs ();} else {setColor (255,20,20);LLcurs ();}
+		}	
+		if (kind =="HR") {
+			if (HLX !=0 && HLX !=0) {setColor (20,255,20);HLcurs ();} else {setColor (255,20,20);HLcurs ();}
+			if (LLX !=0 && LLX !=0) {setColor (20,255,20);LLcurs ();} else {setColor (255,20,20);LLcurs ();}
+		}
+	}
+	if (kind =="none") {
+		if (HRX !=0 && HRY !=0) {setColor (20,255,20);HRcurs ();} else {setColor (255,20,20);HRcurs ();}
+		if (HLX !=0 && HLX !=0) {setColor (20,255,20);HLcurs ();} else {setColor (255,20,20);HLcurs ();}
+		if (LLX !=0 && LLX !=0) {setColor (20,255,20);LLcurs ();} else {setColor (255,20,20);LLcurs ();} 
+	}
+}
+
+function LLcurs () {
+	drawLine (LLboxX1+1, LLboxY1+LLboxY2-8, LLboxX1+LLboxX2-2, LLboxY1+LLboxY2-8);
+	drawLine (LLboxX1+6, LLboxY1+1, LLboxX1+6, LLboxY1+LLboxY2-2);
+}
+
+function HLcurs () {
+	drawLine (HLboxX1+1, HLboxY1+5, HLboxX1+HLboxX2-2, HLboxY1+5);
+	drawLine (HLboxX1+6, HLboxY1+1, HLboxX1+6, HLboxY1+HLboxY2-2);
+}
+
+function HRcurs () {
+	drawLine (HRboxX1+1, HRboxY1+5, HRboxX1+HRboxX2-2, HRboxY1+5);
+	drawLine (HRboxX1+HRboxX2-6, HRboxY1+1, HRboxX1+HRboxX2-6, HRboxY1+HRboxY2-2);
+}
+
+function test3cursor () {
+	// check for the single measure or grid analysis graphic update
+	if (DotStatus == "Grid") {
+		updatGridRef (0,1,0);
+	}
+	if (DotStatus == "Single") {		
+		statutHL =0; statutHR =0; statutLL =0;  
+		updatGridRef (1,0,0);
+	}
+}
+
+function gridTest (message) {
+	testgrid=1;
+	if (HLX >= HRX && HLX != 0 && HRX != 0 && testgrid != 0) {if (message ==1) {showMessage ("High Left dot must be at the left of the High Right dot");} testgrid=0;}
+	if (HLY >= LLY && HLY != 0 && LLY != 0 && testgrid != 0) {if (message ==1) {showMessage ("High Left dot must above the Low Left dot");} testgrid=0;}
+	if (HRY >= LLY && HRY != 0 && LLY != 0 && testgrid != 0) {if (message ==1) {showMessage ("High Right dot must above the Low Left dot");} testgrid=0;}
+	if (LLX >= HRX && LLX != 0 && HRX != 0 && testgrid != 0) {if (message ==1) {showMessage ("Low Left dot must be at the left of the High Right dot");} testgrid=0;}
+	return testgrid;
+}
+
+function gridAnalyse () {
+	Ax=0;XhorizontalOrd=0;Ay=0;YhorizontalOrd=0;spaceX=0;spaceY=0;deltaspaceY=0;deltaspaceY=0;
+	testgrid = 1;
+	if (gridTest (0) != 0) {
+		alphaX =  atan2 ((HRY - HLY),(HRX - HLX));
+		spaceX =  ((HRX - HLX)/cos(alphaX));
+		deltaspaceX = floor (spaceX / (nbcol-1));
+		deltaspaceX2 = deltaspaceX -2*selectionRayon;
+		alphaY =  atan2 ((LLY - HLY),(LLX - HLX));
+		spaceY =  ((LLX - HLX)/cos(alphaY));
+		if (floor(alphaY*(180/PI)) ==90) {spaceY=LLY - HLY;}
+		deltaspaceY = floor (spaceY / (nbline-1));
+		deltaspaceY2 = deltaspaceY -2*selectionRayon;
+		delX=sin (PI/2 -alphaY) * spaceY;
+		LRX=floor (HRX+delX);
+		delY=sin (alphaX) * spaceX;
+		LRY=floor (LLY+delY);
+		if (deltaspaceX2 <1) {
+			if (HRX>0 && HLX>0 ) {
+				waitForUser("Setting mistake","Horizontal number of dots  \(\"nCol.\"\) incompatible with this circle radius \n\(\"High Left\" and \"High Right\" grid cursor have been reinitialized\)");
+				HRX=0; HRY=0;
+				HLX=0;  HLY=0;
+				LRX=0; LRY=0;
+				testgrid=0;
+			}
+		}
+		if (deltaspaceY2 <1) {
+			if (LLX>0 && HLX>0 ) {
+				waitForUser("Setting mistake","Vertical number of dots \(\"nLin.\"\) incompatible with this circle radius \n\(\"High Left\" and \"Low Left\" grid cursor have been reinitialized\)");
+				HLX=0; HLY=0;
+				LLX=0;  LLY=0;
+				LRX=0; LRY=0;
+				testgrid=0;
+			}
+		}
+		if (testgrid==1) {
+			Ax=tan (alphaX);
+			XhorizontalOrd=(HLY+bloty1)-((HLX+blotx1) * tan (alphaX));
+			Ay=tan (alphaY);
+			YhorizontalOrd=(HLY+bloty1)-((HLX+blotx1) * tan (alphaY));
+		}
+	}
+}
+
+function doBlotAnalyse() {
+	// prepare the dot blot initial image to the analysis
+	DotStatus = "Single";
+	enhenceChoice=0;sat=0;
+	checkInitColor ();
+	if (isOpen(measurementTab)) { 
+			selectWindow(measurementTab);
+			print(measurementTabEXL, "\\Clear");
+			xmes=0;ymes=0;theVolume="";resultListSize=0;lastmesnumber=0;
+	} 
+	if (isOpen(windowTabName)) { 
+			selectWindow(windowTabName);
+			print(nameOfGridTab, "\\Clear");
+	}
+	Ax=0;XhorizontalOrd=0;Ay=0;YhorizontalOrd=0;spaceX=0;spaceY=0;deltaspaceY=0;deltaspaceY=0;
+	xmes=0;ymes=0;theVolume="";resultListSize=0;lastmesnumber=0;
+	blotscale=0;
+	blotName=getTitle; blotinitName=blotName;
+	folderpath =getDirectory("image");
+	HRX=0;HLX=0;LLX=0;HRY=0;HLY=0;LLY=0;
+	LRX=0;LRY=0;
+	if (blotName == winName2 || blotName == paletteName) {
+		if (blotName == winName2) exit ("Analyse doesn't work onto \""+ winName2 + "\" windows.");
+		if (blotName == paletteName) exit ("Analyse doesn't work onto \""+ paletteName + "\" windows.");
+	}
+	if (bitDepth() !=8) {showMessageWithCancel ("Conversion into 8 bit will be performed."); run("8-bit");}
+	xSizeBlot=getWidth(); ySizeBlot=getHeight();
+	subTitleofImage= getInfo("image.subtitle");
+	if (lastIndexOf (blotName, "-DA") > 0) {exit ("Start from the original image (without the \"-DA\" suffix).");}
+	if (lastIndexOf(blotName, ".") > 0) {
+		blotinitName=substring(blotName, 0, lastIndexOf(blotName, "."));
+		blotName= substring(blotName, 0, lastIndexOf(blotName, ".")); 
+	}
+	blotName= blotName + "-DA";
+	run("Duplicate...", "title=["+blotName+"]");
+	if (indexOf(subTitleofImage, "(inverting LUT)") > 0) {;run("Grays");run("Invert");}
+	Dialog.create("Pre-treatment Choices \(2D Rolling Ball\)");
+	Dialog.addChoice("Subtract Background ?", newArray ("None","Linear","Paraboloid"), rmBack);
+	Dialog.addNumber("Radius for 2D Rolling Ball subtract background ?", defaultradius, 0, 3, "");
+	Dialog.show();
+	rmBack=Dialog.getChoice();
+	defaultradius=Dialog.getNumber(); 
+	if (rmBack != "None") {
+		if (rmBack =="Linear") {run("Subtract Background...", "rolling=["+defaultradius+"] light");}
+		if (rmBack =="Paraboloid") {run("Subtract Background...", "rolling=["+defaultradius+"] light sliding");}
+	}
+	if (xSizeBlot+Leftmarge+Rightmarge > screenWidth ||  ySizeBlot > (screenHeight - Hinter-Topmarge-Botommarge-70-100)) {
+		test=(screenHeight - Hinter-Topmarge-Botommarge-70-100);
+		a=ySizeBlot;
+		while (a > test) {
+			blotscale=(blotscale+2);
+			a=floor(a/blotscale);
+		}
+		showMessageWithCancel ("The size of the image \""+ blotName + "\" is too high for the screen resolution.\nIt will be rescaled for visualisation \(divided by a factor "+blotscale+"\).");
+	}
+	if (blotscale == 0) blotscale=1;
+	test=xSizeBlot;
+	while ( (test/blotscale/2 - floor (test/blotscale/2)) !=0 ) {test=test-1;} // x impair showMessage ("x impair:" + test);
+	xSizeBlot=test;
+	test=ySizeBlot;
+	while ((test/blotscale/2 - floor (test/blotscale/2)) !=0 ) {test=test-1;}  // y impair showMessage ("y impair:" + test);
+	ySizeBlot=test;
+	drawPalette ();
+	palette=1;dyn=1;reponse=0;cancel=0;cursok=0;
+	applyLut ();
+	setTool(10);
+}
+
+// saving a tab as excel type file
+function saveTab (path,WinTab) {
+	if (isOpen(WinTab)) {
+		if (path == "") {
+			selectWindow (WinTab);
+			run("Input/Output...", "jpeg=75 gif=-1 file=.xls");
+			saveAs("Text");
+		}
+		if (path != "") {
+			a=0; 
+			selectWindow(WinTab);
+			thepath = path+blotinitName+"-"+WinTab+".xls";
+			while ( File.exists(thepath) ) {
+				if (a != 0) thepath = path+blotinitName+"-"+WinTab+ "-" + toString (a) +".xls";				a ++;
+			}	
+			saveAs("Text", thepath);
+		}
+	}
+}
+
+function SaveDocRes(path) {
+	if (path != "") {
+		if (dyn ==1) dyn=0;
+		if (isOpen(windowTabName) || isOpen(measurementTab) || isOpen(endPalette) || isOpen(gridModelName) ) {
+			a=0;
+			if (path == "--") path=getDirectory("Choose Master Destination Directory ");
+			thepath = path+blotinitName+"_"+resultFolderName + File.separator;
+			while ( File.exists(thepath) ) {
+				if (a != 0) thepath = path+blotinitName+"_"+resultFolderName+ "-"+ toString (a)+ File.separator; 
+				a ++;
+			}
+			File.makeDirectory(thepath);
+			if (!File.exists(thepath)) exit("Unable to create directory, something wrong in the ImageJ folder");
+			saveTab (thepath,windowTabName);
+			saveTab (thepath,measurementTab);
+			if (isOpen(blotName)) {
+				setBatchMode(true);
+				selectImage(blotName);
+				nom=blotName+".tif";
+				run("Duplicate...", "title=["+nom+"]");
+				save(""+thepath+""+ nom  +"");close();
+			}
+			if (isOpen(gridModelName))  {
+				setBatchMode(true);
+				selectImage(gridModelName);
+				nomSavedModel=blotinitName+"-"+gridModelName+".tif";
+				run("Duplicate...", "title=["+nomSavedModel+"]");
+				save(""+thepath+""+ nomSavedModel  +"");close();
+			}
+			if (isOpen(endPalette))  {
+				setBatchMode(true);
+				selectImage(endPalette);
+				nomSavedPalette=endPalette+".tif";
+				run("Duplicate...", "title=["+nomSavedPalette+"]");
+				save(""+thepath+""+ nomSavedPalette  +"");close();
+			}
+		} else {showMessage ("No document found");}
+	if (isOpen(paletteName)) {selectImage (paletteName);dyn=1;}
+	}
+}
+
+function CloseDocRes () {
+	if (isOpen(endPalette))  {selectImage(endPalette);close ();}
+	if (isOpen(blotName)) {selectImage(blotName);close ();}
+	if (isOpen(gridModelName)) {selectImage(gridModelName);close ();}
+	if (isOpen(measurementTab)) {selectWindow(measurementTab);print(measurementTabEXL, "\\Close");}
+	if (isOpen(windowTabName)) {selectWindow(windowTabName);print(nameOfGridTab, "\\Close");}
+}
+
+function netTest () {
+	if (indexOf (File.openUrlAsString(urllist), errorNetMessage) >0) exit("You need an internet access to run this function.");
+}
+
+function abortProcess () {setKeyDown("Esc");}
+
+function about1() {
+	about="";
+	about=about+"\n			                                        -- Dot Blot Analyzer --";
+	about=about +"\n\nAuthor: Gilles Carpentier"+"\nFaculte des Sciences et Technologies, Universite Paris 12 Val de Marne, France.";
+	about=about+"\n----------------------------------------------------------------------------------------------------";
+	about=about+"\n* Description:";
+	about=about+"\n";
+	about=about+"\n   This toolset allows easy analyse of dot blot images, using a graphical interface helper.";
+	about=about+"\n----------------------------------------------------------------------------------------------------";
+	about=about+"\n\n* Notice - ImageJ Menu Tool Bar:
+	about=about+"\n";
+	about=about+"\n   - The \"Dot Blot Analysis Menu\" regroups analyse and training functions:";
+	about=about+"\n         - \"Analyse a Dot Blot\" displays the graphical interface required to analyse an opened dot blot image.";
+	about=about+"\n         - \"Download\/Open The ImageJ Demo Dot Blot Image \(28 wells\)\" opens the ImageJ Dot Blot image sample";
+	about=about+"\n            \(28 dots\).
+	about=about+"\n         - \"Download\/Open Demo Dot Blot Image \(96 wells\)\") opens a demo image \(96 wells\) useful to test the";
+	about=about+"\n            program with other settings than the defaults ones.";
+	about=about+"\n   - The \"Measurement Documents Menu\" regroups tabs and analysed images management functions:";
+	about=about+"\n         - \"Save Results Documents\" saves every document concerning one analysis \(model, tabs, images\) into";
+	about=about+"\n            a folder at the user choiced master repertory."
+	about=about+"\n         - \"Save Results Documents at the Dot Blot Image Location\" saves every documents concerning one analysis";
+	about=about+"\n            \(model, tabs, images\) into a folder placed at the dot blot image repertory."
+	about=about+"\n         - \"Close Results Documents\" closes every document concerning one analysis \(models, tabs, images\)";
+	about=about+"\n         - \"Save Grid Results Table as Excel Type File\" saves the current grid analysis table at the user's choice";
+ 	about=about+"\n            location.";
+	about=about+"\n         - \"Save Single Measurements Table as Excel Type File\" saves the current manual analysis table at the ";
+	about=about+"\n            user's choice location."
+	about=about+"\n         - \"Save Grid Results Table as Excel Type File at the Dot Blot Image Location\" saves the current grid analysis ";
+	about=about+"\n            table in the dot blot image repertory.";
+	about=about+"\n         - \"Save Single Measurements Table as Excel Type File at the Dot Blot Image Location\" saves the current";
+	about=about+"\n            manual analysis table.";
+	about=about+"\n   - Click on the \"Abort Process\" ImageJ tool bar icon to cancel demo downloading or erease the palette's cursor.";
+	about=about+"\n   - Click on the \"On Line Documentation\" ImageJ tool bar icon for on line documentation and tutorial.";	about=about+"\n   - Click on the \"Version and Update Infos\" ImageJ tool bar icon to look for new beta versions.";
+	about=about+"\n";
+	about=about+"\n* Notice - Graphical Interface:";
+	about=about+"\n";
+	about=about+"\n     Once activated, the \"Dot Blot Analysis Menu\" builds a graphical interface \"Palette\"containing a dot blot ";
+	about=about+"\n     preview. Here are the \"clickable\" available actions:";
+	about=about+"\n     - Volume measurement using the composite cursor:";
+	about=about+"\n         - Activate the measurement cursor by staying clicked and moving into the dot blot preview area. Cursor";
+	about=about+"\n          ploted and real coordinates are dynamically showed into the display area, the measured volume, is available";
+	about=about+"\n          when unclicked.";
+	about=about+"\n     - Customize the composite cursor aspect:";
+	about=about+"\n         - Optimize the visual aspect by choosing appropriate colors for the circle and the the cross hair of the cursor 
+	about=about+"\n         componants,  using the colored rectangles.
+	about=about+"\n         - Find a pertinant circle radius by clicking onto the circle containing radius icone. Adjust the cursor circle
+	about=about+"\n         size using the \"+\" and \"-\Ó subbuttons.
+	about=about+"\n     - Optimize the dot blot preview visualization:";
+	about=about+"\n         - Normalize the histogram from the \"stretch curve\" icon. Adjust the saturation level using the \"+\" and \"-\Ó 
+	about=about+"\n         subbuttons. 
+	about=about+"\n         - Choose the appropriate Look Up Table \(LUT\) by clicking into the LUT ramps icone. Restore the initial preview 
+	about=about+"\n         properties with the Counterclockwise symbol.";
+	about=about+"\n     - Single measurement recoding in a tab:";
+	about=about+"\n         - Click \"Add\" to generate a tab with the current value given by the cursor, \"Remove\" to delete it. \(CTRL click";
+	about=about+"\n         undo the delete action\)";
+	about=about+"\n         - Erase all the measurements of the tab by the red \"X\". This action in undo by \"CTRL click\".";
+	about=about+"\n     - Grid measurements mode:";
+	about=about+"\n         - Adjust the column \(\"nCol.\"\) and the line \(\"nLin.\"\) numbers, corresponding to the total or sub-area dot ";
+	about=about+"\n         blot to analyse.";
+	about=about+"\n         - Set the three required dots forming angle \(hight-left, hight-right and low-left\) using the three green cross";
+	about=about+"\n          hair icones. Marks can be adjusted, by re-selecting the appropriate cross hair ";
+	about=about+"\n         - Get a modelled image of the grid analysis by clicking on \"Model\".";
+	about=about+"\n";
+	about=about+"\n     - Shift between the grid measurements mode and the single measurements mode can be performed by clicking";
+	about=about+"\n     onto \"Measurements:\" and \"Grid:\"." 
+	about=about+"\n     - \"Cancel\" box closes every thing concerning one analysis, including the Palette.";
+	about=about+"\n     - \"Erase\" box removes every drawed dot contours. They can be redrawed by clicking onto \"Measurements:\" or \"Grid:\"." ;
+	about=about+"\n";
+	about=about+"\n     - Activate \"End: Quit\" to finish an analyse \(deactivate the Palette, keeping an image or the current drawings\). " ;
+	about=about+"\n";
+	about=about+"\n";
+	about=about+"\n----------------------------------------------------------------------------------------------------";
+
+	// from PrintToTextWindow macro available at the http://rsbweb.nih.gov/ij/macros/PrintToTextWindow.txt
+	// author: Wayne Rasband
+	title1 = "Info for the Dot Blot Analyzer";
+	title2 = "["+title1+"]";
+	f = title2;
+	if (isOpen(title1)) {
+		print(f, "\\Update:"); // clears the window
+  		print(f, about);
+		selectWindow (title1);
+	} else {
+		run("New... ", "name="+title2+" type=[Text File] width=80 height=16");
+  		print(f, about);
+	}
+}
+
+function doc () {
+	netTest ();
+	showMessageWithCancel  ("A notice is avaible on line. Open it with your default web browser?");
+	run("URL...", "url=["+onlinedoclink +"]");
+}
+
+
+// --- End of code of the macro project ---//
+// ----------------------------------//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// -------------------*** Additionnal code for on line update resources ***-----------------------------
+
+//Developer info
+//Kind:Toolset
+//Title:"Dot Blot Analyzer" 
+//Version:1.0
+//Date: 24/07/2008
+//Origin:NIH
+//End info
+
+function VersionInfos () {
+	// variables for on line update resources
+	beginsign="//Developer info";endsign="//End info"; 
+	kind="toolsets/"; 
+	urlrep="http://image.bio.methods.free.fr/ij/ijmacro/dotblot/";
+	name="Dot Blot Analyzer.txt"; 
+	namedev="Dot Blot Analyzer-dev.txt"; 
+	favoritefoldername= "Image.Bio.Methods";
+	version=versionMessage();
+	if (indexOf(version, "install it?" ) > 0 ) {
+		macrotext=getdistantmacro (namedev,urlrep);macrolocal="";
+		macropath=getDirectory("macros")+kind+namedev;
+		if (File.exists(macropath)) {macrolocal=File.openAsString(macropath);}
+		if (macrotext != macrolocal) {
+			//perfom the installation
+			Dialog.create("New version installation option");
+			Dialog.addMessage(version);
+			Dialog.addCheckbox("Install a Plugin Shortcut?", 0);
+			Dialog.addMessage("(This option provides a shortcut in the plugins menu of ImageJ, making easier\nthe next use of the new installed version).");
+			Dialog.show();
+			plugin= Dialog.getCheckbox();
+			f= File.open(macropath);
+			print (f,macrotext);
+			File.close(f);
+			if (plugin ==1) {InstallPluginsStarter(namedev);}
+			message="The installation of the "+giveDevInfo (macrotext,1)+ " "+ giveDevInfo (macrotext,2)+ "is completed.";
+			message=message+ " Do you want to run it?";
+			showMessageWithCancel(message);
+			run("Install...", "install=["+macropath+"]");
+		}
+	} else {showMessage (version); // comment without installation available}
+}
+
+function versionMessage() {
+	version="";
+	if (getDirectory("startup") == 0) exit ("Unable to find the startup directory, something wrong in the ImageJ folder");
+	if (getDirectory("macros") == 0) exit ("Unable to find the macros directory, something wrong in the ImageJ folder");
+	MacroPath=getDirectory("macros");thismacropath=MacroPath+kind+name;
+	if (! File.exists(thismacropath)) exit ("This macro has to be recorded under the name of \"" +name+"\"\ninto the \"macros/"+kind+"\" folder of ImageJ.");
+	macrotext=File.openAsString(thismacropath);
+	macrotextdistant=getdistantmacro (namedev,urlrep);
+	version="";macrolocal="";
+	version=version + "\n \nThis version of the " + giveDevInfo (macrotext,1) + " " + giveDevInfo (macrotext,2);
+	version=version + "is provided by the " + giveDevInfo (macrotext,5)+ " web site.";
+	version=version + "\nVersion number: " + giveDevInfo (macrotext,3)+ " - " + giveDevInfo (macrotext,4) +".";
+	if (macrotextdistant !="" ) {
+		new=giveDevInfo (macrotextdistant,3);old=giveDevInfo (macrotext,3);
+		if (new > old) {
+			macropath=getDirectory("macros")+kind+namedev;
+			if (File.exists(macropath)) {macrolocal=File.openAsString(macropath);}
+			if (macrotextdistant != macrolocal) {
+				update="\n \nA new beta version "+new+ " is available on the "  +giveDevInfo (macrotextdistant,5)+ " web site: ";
+				update=update+ "\n \nDo you want to install it?";
+			} else {
+				update ="\n \nThe new "+new+" beta version called \"" +namedev+ "\" provided by \nthe "+giveDevInfo (macrotextdistant,5) +" web site has already be installed";
+				update = update+ " in the \"" +kind+ "\" repertory \nof ImageJ.";
+			}
+		} else {
+			update="No new Beta version available.";
+		}
+		version=version +"\n" + update ;
+	} 
+	return version; 
+}
+
+function giveDevInfo (text,n) {
+	lines=split(text,"\n");
+	if ( (indexOf(text, beginsign)<0) || (indexOf(text, endsign)<0) ) exit ("Not upgradable macro code.");
+	for (i=0; lines[i] != endsign; i ++) {}
+	for (j=i; lines[j] != beginsign; j --) {}
+	infotext=newArray(i-j-1);
+	for (i=0; i < infotext.length; i ++) {infotext[i]=lines[i+j+1];}
+	info=infotext[n-1]; signature=":";
+	cut = indexOf(info, signature);
+	info = substring(info,(cut+lengthOf(signature)),lengthOf(info));
+	return info;
+}
+
+// Function giving the content of a distant macro (name) located at the distant repertory (urlrep).
+function getdistantmacro (name,urlrep) {
+	macrotextnih="";
+	erNetMessage ="Error: ";
+	testlink = "http://rsb.info.nih.gov/ij/macros/Arrays.txt";
+	if (indexOf (File.openUrlAsString(testlink), erNetMessage) < 0) {
+		distantmacrolink = urlrep + name;
+		if (indexOf(distantmacrolink, " ") > -1) {
+			while (indexOf(distantmacrolink, " ") > -1) {
+				distantmacrolink=substring(distantmacrolink, 0, (indexOf(distantmacrolink, " ")))+"%20"+substring(distantmacrolink, (indexOf(distantmacrolink, " ")+1),lengthOf(distantmacrolink) );
+			}
+		}
+		showStatus("Internet link...");
+		macrotextnih =File.openUrlAsString(distantmacrolink);
+		showStatus("");
+	} else { showMessage ("No internet connection to looks for beta version.");}
+	return macrotextnih;
+}
+
+function InstallPluginsStarter(macroname) {
+	// from MacroPluginShortcutsTool.txt
+	codestarter = "run\(\"Install...\", \"install=[\"+getDirectory(\"macros\")+\""+kind+ macroname + "\]\"\);";
+	if (getDirectory("plugins") == "") exit ("Unable to find the Plugins directory; something wrong in the ImageJ folder.");
+	if (endsWith(macroname, ".txt") || endsWith(macroname, ".ijm")) pluginname = substring(macroname, 0, (lengthOf(macroname)-4));
+	StarterDir = getDirectory("plugins")+favoritefoldername+File.separator;
+	File.makeDirectory(StarterDir);
+	if (!File.exists(StarterDir)) exit ("Unable to create "+favoritefoldername+" Macros directory, something wrong in the ImageJ folder.");
+	starterplugin = StarterDir + pluginname +"_ .ijm";
+	f= File.open(StarterDir + pluginname +"_ .ijm");
+	print (f,codestarter);
+	File.close(f);
+	showMessage ("The plugin shortcut \"" +pluginname+ "\" will be available after\nImageJ restarting, in the \"Plugins->" + favoritefoldername + "\" menu.");
+}
+
+// *** End of additionnal code for on line update ressources ***
+
+
+
