@@ -1,4 +1,5 @@
-This folder contains example Javascript scripts that ImageJ 1.41 or later can run.
+This folder contains example Javascript scripts that
+ImageJ 1.41 or later can run.
 
 Use the ImageJ text editor's Macros>Evaluate Javascript
 or its Macros>Run Macro command (requires ".js" extension)
@@ -11,8 +12,8 @@ download JavaScript.jar into the plugins folder.
 
   http://rsb.info.nih.gov/ij/download/tools/JavaScript.jar
 
-To run a script in this folder, download it, drag and drop
-it on the "ImageJ" window, then press ctrl-r (Macros>Run Macro).
+To run a script download it, drag and drop it on the 
+"ImageJ" window, then press ctrl-r (Macros>Run Macro).
 Or copy it the clipboard, press shift+v (File>New>System Clipboard),
 then press ctrl+j (Macros>Evaluate JavaScript).
 
@@ -32,7 +33,7 @@ By default, the following ImageJ and Java classes are imported:
 Additional classes can be imported using importClass()
 and importPackage(), for example:
 
-   importPackage(Package.java.io); // import all java.io classes
-   importClass(Package.java.io.File) // import java.io.File
+   importPackage(java.io); // import all java.io classes
+   importClass(java.io.File) // import java.io.File
 
 
