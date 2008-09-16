@@ -1,0 +1,11 @@
+// This macro demonstrates how to add particles found by the
+// Process>Binary>Find Maxima command to the ROI Manager.
+
+run("Blobs (25K)");
+run("Find Maxima...", "noise=100 output=[Segmented Particles] light");
+setThreshold(255, 255);
+run("Analyze Particles...", "size=0 circularity=0.00 add");
+resetThreshold;
+run("In"); // Image>Zoom>In
+run("In");
+run("In");
