@@ -1,0 +1,52 @@
+<html> <head>
+<title>Installing QuickTime for Java on Windows</title>
+</head> <body bgcolor = "#ffffff">
+
+<blockquote>
+
+<font color="#224488" face="Helvetica, Arial"><h2>Installing QuickTime for Java on Windows</h2></font>
+
+<blockquote>
+To use plugins that require QuickTime you must install QuickTime
+and copy the file QTJava.zip to a location where ImageJ and 
+<A HREF="http://developer.apple.com/quicktime/qtjava/">QuickTime for Java</A>
+ can find it.
+<ol>
+<li> Install <A HREF="http://www.apple.com/quicktime/">QuickTime 7</A>
+<li> Copy QTJava.zip to the Java extensions folder (<i>...ImageJ\jre\lib\ext</i>)
+</ol>
+Look for QTJava.zip in places like <i>C:\Program Files\QuickTime\QTSystem</i> or <i>C:\Program Files\Java\jre1.5.0\lib\ext</i>, 
+or use the Windows Search function to find it.
+<p>
+To compile a plugin that uses QuickTime for Java using <i>Plugins&gt;Compile and Run</i>, put a copy of QTJava.zip in the
+plugins folder and rename it QTJava.jar.
+
+</blockquote>
+
+<font color="#224488" face="Helvetica, Arial"><h3>Installing QuickTime for Java (QuickTime 6 and earlier)</h3></font>
+
+<blockquote>
+<ol>
+<li>If you haven't already done so, download and install one of the Java Runtime Environments or Java
+Software Development Kits from <a href="http://java.sun.com/j2se/1.4/download.html">Sun</a>. This step is necessary because the QuickTime installer will not install QuickTime for Java if a Sun JRE or SDK is not installed. A JRE or SDK does not need to be installed to run ImageJ or to run QuickTime plugins. ImageJ normally uses the JRE 1.3.1 included in the ImageJ folder.
+<p>
+<li>Download QuickTime from <a href="http://www.apple.com/quicktime/download/">Apple</a> and do a custom installation, selecting "QuickTime for Java" from the list of optional components.
+<p>
+<li> Use the Find program to find the file "QTJava.zip".
+<p>
+<li>Open "ImageJ.cfg" (it's in the ImageJ folder) in a text editor such as notepad 
+and add the path to QTJava.zip to third line. For example, if QTjava.zip is in the 
+C:\Windows\System\ directory then the third line would look something like:
+<blockquote><b>
+-Xmx400m -cp ij.jar;C:\Windows\System\QTJava.zip ij.ImageJ
+</b></blockquote>
+The -Xmx400 option specifies how much memory is available to ImageJ, in this case 400MB.
+</ol>
+Restart ImageJ and you should be able run or "Compile and Run" plugins that use QuickTime.
+</blockquote>
+
+</blockquote>
+
+
+</body>
+</html>
