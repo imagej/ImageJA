@@ -1,0 +1,65 @@
+<html> <head> <title>Command Line Example</title> </head> <body bgcolor =
+"#ffffff">
+<font color="#224488" face="Helvetica, Arial" size=+1> <b>Command Line Example</b> </font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/12/16: First version<br>
+2004/05/26: Calculates mean area<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.33l or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/analyze.java">analyze.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td>
+Download <A HREF="download/analyze.java">analyze.java</A> to the plugins folder and compile it
+using the <i>Plugin/Compile and Run</i> command.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This example program/plugin shows how to use ImageJ from the command line. It opens an image, 
+converts it to binary, runs the particle analyzer, calculates mean area, and writes the results
+to a file named "results.txt". Use the <i>Plugins/Compile and Run</i> 
+command to compile and test it.
+To run it from the command line, use:
+
+<p><font size=-1>
+&nbsp;&nbsp;&nbsp;&nbsp;java -cp ij.jar:. analyze blobs.tif > results.txt (Unix)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;java -cp ij.jar;. analyze blobs.tif > results.txt (Windows)
+</font><p>
+
+The files ij.jar, analyze.class and blobs.tif are assumed to be in the current directory. 
+The plugins directory must also be in the current directory if any plugins are called. Alternatively, 
+define the "plugins.dir" property so it points to the directory that contains 
+the plugins directory, as in these examples:
+
+<p><font size=-1>
+&nbsp;&nbsp;&nbsp;&nbsp;java -Dplugins.dir=/usr/local/ImageJ -cp /usr/local/ij.jar:. analyze blobs.tif > results.txt (Unix)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;java -Dplugins.dir=C:\ImageJ -cp C:\ImageJ\ij.jar;. analyze blobs.tif > results.txt (Windows)  
+</font><p>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td>
+The <A HREF="command-line-macros.html">RunMacro</A> program, which runs macros from the command line.
+</td></tr>
+
+</table>
+
+</blockquote> <p><b>|<a href="index.html">Plugins</a> | <a
+href="../index.html">Home</a> |</b>
+
+</body> </html>
