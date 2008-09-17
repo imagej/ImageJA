@@ -1,0 +1,109 @@
+<html>
+<head>
+<title>Handle Extra File Types</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Handle Extra File Types</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Gregory Jefferis (jefferis at stanford.edu)<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/HandleExtraFileTypes.java">HandleExtraFileTypes.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/HandleExtraFileTypes.class">HandleExtraFileTypes.class</A>
+to the plugins folder, or a subfolder of the plugins folder.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td>
+
+This plugin handles file types that are not implemented 
+directly in ImageJ. ImageJ calls this 
+plugin when it does not recognize the type of a file being 
+opened and the it calls the 
+appropriate reader plugin to open the image.
+It can be easily modified so that specialised file types
+can be opened through <i>File/Open</i>, by
+drag and drop onto the ImageJ main window,
+by drag and drop on the ImageJ icon,
+or by double clicking on the file icon.
+<p>
+File formats currently supported:
+<A HREF="http://rsb.info.nih.gov/ij/plugins/biorad.html">Biorad PIC</A>,
+<A HREF="http://rsbweb.nih.gov/ij/plugins/DM3_Reader.html">Gatan DM3</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/analyze.html">Analyze</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/iplab-reader.html">IPLab</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/spe.html">SPE</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/lsm-reader.html">LSM</A>,
+<A HREF="http://valelab.ucsf.edu/~nico/IJplugins/Ics_Opener.html">ICS</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/bruker.html">Bruker</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/avi-reader.html">AVI</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-opener.html">QuickTime</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/zvi-reader.html">ZVI</A>, 
+<A HREF="http://rsb.info.nih.gov/ij/plugins/iireader.html">Packard InstantImager</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/unc.html">UNC</A>,
+<A HREF="http://rsb.info.nih.gov/ij/plugins/leica-tiff.html">Leica multi-TIFF series</A>,
+<A HREF="http://wbgn013.biozentrum.uni-wuerzburg.de/ImageJ/amira-io.html">Amira Mesh</A> and
+<A HREF="http://rsb.info.nih.gov/ij/plugins/track/delta.html">Deltavision</A>.
+Many other formats are supported by the
+<A HREF="http://www.loci.wisc.edu/ome/formats.html">LOCI Bio-formats library</A>.
+A <A HREF="http://imagejdocu.tudor.lu/imagej-documentation-wiki/faq/which-file-types-are-supported-by-imagej">list</A>
+of file formats known to ImageJ is in the
+<A HREF="http://imagejdocu.tudor.lu/imagej-documentation-wiki/faq">FAQs</A>
+section of the
+<A HREF="http://imagejdocu.tudor.lu/imagej-documentation-wiki/">ImageJ Documentation Wiki</A>.
+<p>
+Note that the <i>File/Import/Image Sequence</i> command and 
+IJ.openImage() method will not work as expected unless the 
+reader plugin extends the ImagePlus class.
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/07/02: First version<br>
+2003/12/03: Added support for SPE image files<br>
+2003/12/09: Added support for Zeiss LSM image files<br>
+2004/04/29: Fixed FileInfo (e.g., path) initialization bug<br>
+2004/07/29: Added support for Bruker image files<br>
+2005/01/22: Added support for AVI and QuickTime files<br>
+2005/02/15: Works with files opened from command line<br>
+2005/03/03: Works with Zeiss ZVI files<br>
+2005/08/29: Works with Packard InstantImager files<br>
+2005/09/30: Works with UNC files<br>
+2006/03/02: Works with .LEI files (Leica SP2 multi-TIFF series)<br>
+2006/04/12: No longer assumes Thumbs.db files are in ZVI format<br>
+2006/04/30: Works with Amira Mesh files<br>
+2006/10/06: Supports Deltavision files (.dv and .r3d)<br>
+2006/10/06: Supports the <A HREF="http://www.loci.wisc.edu/ome/formats.html">LOCI Bio-formats library</A><br>
+2006/10/13: Supports the <A HREF="http://imagejdocu.tudor.lu/Members/ppirrotte/lsmtoolbox">LSM Toolbox</A><br>
+2007/02/13: <A HREF="http://www.loci.wisc.edu/ome/formats.html">Bio-formats</A> plugin not called by <i>File/Import/Image Sequence</i><br>
+2008/01/23: Supports the .mrc (Leginon) and .dat (EMMENU) files<br>
+2008/01/23: Supports URLs (<i>File&gt;Import&gt;URL</i>)<br>
+2008/01/23: Supports .mrc (Leginon) and .dat (EMMENU) files<br>
+2008/02/05: Supports <A HREF="http://rsb.info.nih.gov/ij/plugins/nifti.html">NIFTI</A> (.nii) files<br>
+2008/02/05: Opens Analyze format files (.img/.hdr) using the <A HREF="http://rsb.info.nih.gov/ij/plugins/nifti.html">Nifty_Reader</A><br>
+2008/03/28: <A HREF="http://www.loci.wisc.edu/ome/formats.html">Bio-formats</A> plugin not called if file does not exist<br>
+2008/04/14: Always uses <a href="http://rsb.info.nih.gov/ij/plugins/lsm-reader.html">LSM_Reader</a> to open LSM files if it is available<br>
+2008/06/30: Fixed invalid error message bug opening .lei files<br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
