@@ -69,5 +69,5 @@ rsync -vau signed-ij.jar shell.sf.net:imageja/htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
 rsync -e ssh -avP ij-$VERSION.jar ij-src-$VERSION.jar frs.sf.net:uploads/
-echo w3m http://sourceforge.net/project/admin/editpackages.php?group_id=150609
+echo http://sourceforge.net/project/admin/editpackages.php?group_id=150609
 
