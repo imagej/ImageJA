@@ -8,6 +8,7 @@ NEED_TO_PUSH=
 download_plugin () {
 	FILE="$1"
 	OPT=
+	case "$FILE" in */*) mkdir -p "$(dirname "$FILE")";; esac
 	test -f "$FILE" && OPT="--time-cond $FILE"
 	CONTENTS="$(eval curl --silent $OPT $BASE_URL/$FILE)"
 	test -z "$CONTENTS" && return
@@ -32,6 +33,7 @@ download_plugin () {
 	git read-tree $BRANCH 2> /dev/null
 	for f in $FILES
 	do
+		f="${f##http://rsb.info.nih.gov/ij/plugins/}"
 		test -z "$VERBOSE" || echo "Getting $f" >&2
 		sha1=$(curl --silent $BASE_URL/$f |
 			git hash-object -w --stdin) || break
@@ -52,7 +54,7 @@ export GIT_DIR &&
 mkdir -p ijplugins &&
 cd ijplugins &&
 for plugin in $(curl --silent $BASE_URL/ |
-	sed -n 's/.*a href="\([^\/]*.html\)".*/\1/pi')
+	sed -n 's/.*a href="\([^:]*.html\)".*/\1/pi')
 do
 	download_plugin $plugin || break
 done &&
