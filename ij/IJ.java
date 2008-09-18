@@ -495,7 +495,6 @@ public class IJ {
 		if the ImageJ window is not present.*/
 	public static void error(String msg) {
 		showMessage("ImageJA", msg);
-		showMessage("ImageJ", msg);
 		if (Thread.currentThread().getName().endsWith("JavaScript"))
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 		else
