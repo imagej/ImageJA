@@ -1,11 +1,9 @@
 This folder contains example Javascript scripts that
-require ImageJ 1.41 or later to run.
-
-The required JavaScript interpreter
-(Mozilla Rhino) is built into Java 1.6 for Linux and Windows.
-Mac users, and users of earlier versions of Java, must
-download JavaScript.jar into the plugins folder. This
-JAR file is available at:
+ImageJ 1.41 and later can run. To run JavaScript, ImageJ
+uses the Mozilla Rhino interpreter built into Java 1.6
+for Linux and Windows. Mac users, and users of earlier
+versions of Java, must download JavaScript.jar into the
+plugins folder. This JAR file is available at:
 
   http://rsb.info.nih.gov/ij/download/tools/JavaScript.jar
 
@@ -41,12 +39,26 @@ Albert Cardona's Javascript Scripting tutorial has more examples:
 
   http://pacific.mpi-cbg.de/wiki/index.php/Javascript_Scripting
   
-JavaScript support in ImageJ:
+
+Advantages and Disadvantages of JavaScript
+
+Advantages:
+   - Full access to ImageJ and Java APIs
+   - Richer language (objects, "?" operator, break, continue, etc.)
+   
+Disadvatages:
+   - Slower, especally starting up
+   - No equivalent of macro sets
+   - No access to built in macro functions
+   - Cannot create tools and toolbar menus
+
+
+ImageJ commands and macro functions that support JavaScript:
 
   1. Plugins>New>javaScript: opens a new text window with the title
-     "Script.js". As a shortcut, type shift+n, which opens a
-     "Unitled.txt" window, and type ctrl+j (Macros>Evaluate>javaScript),
-    which changes the name to "Unitled.js".
+     "Script.js". As a shortcut, type shift+n (Edit>New>Text Window)
+     and ctrl+j (Macros>Evaluate>javaScript), which changes the title
+     to "Unitled.js".
     
   2. Macros>Evaluate JavaScript (in the editor): runs JavaScript
      code in the editor window. As a shortcut, type ctrl+j. 
@@ -58,8 +70,15 @@ JavaScript support in ImageJ:
      program contained in a ".js" file.
      
   5. Help>Update Menus (runs when ImageJ starts): installs a
-     JavaScript program with at least one "_" in the name 
-     and ".js" extension in the Plugins menu.
+     JavaScript program, with at least one "_" in the name 
+     and a ".js" extension, in the Plugins menu.
 
-     
+  6. eval("script", string) macro function: runs the javaScript
+     contained in 'string' in the current thread.
+
+  7. run("Run...", "run=<path>/name.js") macro function: runs
+     "name.js" in a separate thread.
+
+  8. eval('script', File.openAsString("<path>/name.js")) macro 
+     function: runs "name.js" in the current thread.
      
