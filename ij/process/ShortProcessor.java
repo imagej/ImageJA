@@ -292,6 +292,10 @@ public class ShortProcessor extends ImageProcessor {
 		if (y>=height-1.0) y = height-1.001;
 		return getInterpolatedPixel(x, y, pixels);
 	}
+	
+	final public int getPixelInterpolated(double x, double y) {
+		return ( int )Math.round( getInterpolatedPixel(x, y) );
+	}
 
 	/** Stores the specified value at (x,y). Does
 		nothing if (x,y) is outside the image boundary.

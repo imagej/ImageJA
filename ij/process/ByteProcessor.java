@@ -231,6 +231,10 @@ public class ByteProcessor extends ImageProcessor {
 		if (y>=height-1.0) y = height-1.001;
 		return getInterpolatedPixel(x, y, pixels);
 	}
+	
+	final public int getPixelInterpolated(double x, double y) {
+		return ( int )Math.round( getInterpolatedPixel(x, y) );
+	}
 
 	public float getPixelValue(int x, int y) {
 		if (x>=0 && x<width && y>=0 && y<height) {

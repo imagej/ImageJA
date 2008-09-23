@@ -319,6 +319,10 @@ public class ColorProcessor extends ImageProcessor {
 		if (iy>=height) iy = height-1;
 		return getPixelValue(ix, iy);
 	}
+	
+	final public int getPixelInterpolated(double x, double y) {
+		return getInterpolatedRGBPixel(x, y);
+	}
 
 	/** Stores the specified value at (x,y). */
 	public void putPixel(int x, int y, int value) {
