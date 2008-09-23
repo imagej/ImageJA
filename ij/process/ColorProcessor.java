@@ -321,7 +321,8 @@ public class ColorProcessor extends ImageProcessor {
 	}
 	
 	final public int getPixelInterpolated(double x, double y) {
-		return getInterpolatedRGBPixel(x, y);
+		if ( x < 0.0 || y < 0.0 || x >= width-1 || y >= height-1 ) return 0;
+		return getInterpolatedPixel(x, y, pixels);
 	}
 
 	/** Stores the specified value at (x,y). */
@@ -741,7 +742,7 @@ public class ColorProcessor extends ImageProcessor {
 		int rlr = (lowerRight&0xff0000)>>16;
 		int glr = (lowerRight&0xff00)>>8;
 		int blr = lowerRight&0xff;
-
+		
 		int upperRight = pixels[offset + width + 1];
 		int rur = (upperRight&0xff0000)>>16;
 		int gur = (upperRight&0xff00)>>8;

@@ -294,7 +294,8 @@ public class ShortProcessor extends ImageProcessor {
 	}
 	
 	final public int getPixelInterpolated(double x, double y) {
-		return ( int )Math.round( getInterpolatedPixel(x, y) );
+		if ( x < 0.0 || y < 0.0 || x >= width-1 || y >= height-1 ) return 0;
+		return ( int )Math.round( getInterpolatedPixel(x, y, pixels) );
 	}
 
 	/** Stores the specified value at (x,y). Does
