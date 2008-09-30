@@ -520,8 +520,6 @@ public class Menus {
 
 	/** Inserts 'item' into 'menu' in alphanumeric order. */
 	static void addOrdered(Menu menu, MenuItem item) {
-		if (menu==pluginsMenu)
-			{menu.add(item); return;}
 		String label = item.getLabel();
 		int start = addPluginSeparatorIfNeeded(menu);
 		for (int i=start; i<menu.getItemCount(); i++) {
@@ -954,7 +952,7 @@ public class Menus {
 		if(force)
 			addItemSorted(menu,item,0);
 		else
-			menu.add(item);
+			addOrdered(menu, item);
 		item.addActionListener(ij);
 		pluginsTable.put(command, className.replace('/', '.'));
 		nPlugins++;
