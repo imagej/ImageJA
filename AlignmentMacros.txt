@@ -1,0 +1,38 @@
+// Alignment Macros
+//
+// Use these macros to align the frames in a time-lapse
+// stack using simple xy translation. First use the "Add
+// and  Advance" and/or "Add and Go Back" macros to add a 
+// point selection for each frame to the ROI Manager. Then run the 
+// "Align" macro, which uses the Image>Translate command 
+// to align each frame  based on the change in the
+// coordinates of that frame.
+
+
+  macro "Add and Advance [a]" {
+      roiManager("add");
+      run("Next Slice [>]");
+  }
+
+  macro "Add and Go Back [b]" {
+      roiManager("add");
+      run("Previous Slice [<]");
+  }
+
+  macro "Align" {
+     roiManager("select", 0);
+     run("Measure");
+     xref = getResult("X");
+     yref = getResult("Y");
+     n = roiManager("count");
+     for (i=0; i<n; i++) {
+        roiManager("select", i);
+     run("Measure");
+     x = getResult("X");
+     y = getResult("Y");
+     dx = xref - x;
+     dy = yref - y;
+     run("Select None");
+     run("Translate...", "x="+dx+" y="+dy+" slice");
+     }
+  }

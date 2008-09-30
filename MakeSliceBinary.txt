@@ -1,0 +1,21 @@
+// Make Slice Binary
+//
+// This macro converts the current stack slice to binary 
+// and advances to the next when you press F1.
+
+ macro "Make Slice Binary [F1]" {
+     if (bitDepth!=8)
+         exit("8-bit grayscale image required");
+     run("Select None");
+     setBatchMode(true);
+     id = getImageID;
+     run("Create Mask");
+     run("Copy");
+     close;
+     selectImage(id);
+     run("Paste");
+     setBatchMode(false);
+     n = getSliceNumber;
+     if (n<nSlices)
+        setSlice(n+1);
+  }

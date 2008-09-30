@@ -1,0 +1,67 @@
+// Use these macro to set the window and level of medical images to preset 
+// values for lungs and bone. Press 1 to use the lung values and 2 to use
+// the bone values. Use the "Set .. " macros to change the preset window and 
+// level values using a dialog box and the "Update ..."  macros to change them
+// to values defined interactively by using the W&L or B&C tools.
+
+  var lungWidth=1070, lungLevel=-340;
+  var boneWidth=500, boneLevel=200;
+
+  macro "Use Lung [1]" {
+      update(lungWidth, lungLevel);
+  }
+
+  macro "Use Bone [2]" {
+      update(boneWidth, boneLevel);
+  }
+
+  macro "Set Lung..." {
+      Dialog.create("Lung");
+      Dialog.addNumber("Window Width:", lungWidth);
+      Dialog.addNumber("Window Level:", lungLevel);
+      Dialog.show();
+      lungWidth = Dialog.getNumber();;
+      lungLevel = Dialog.getNumber();
+      update(lungWidth, lungLevel);
+  }
+
+  macro "Set Bone..." {
+      Dialog.create("Bone");
+      Dialog.addNumber("Window Level:", boneLevel);
+      Dialog.addNumber("Window Width:", boneWidth);
+      Dialog.show();
+      boneLevel = Dialog.getNumber();
+      boneWidth = Dialog.getNumber();;
+      update(boneWidth, boneLevel);
+  }
+
+  macro "Update Lung" {
+      getMinAndMax(min, max);
+      width = max - min;
+      level = min + (width)/2;
+      if (width==lungWidth && level==lungLevel)
+          showMessage("Lung W&L unchanged");
+      else
+           showMessage("Lung W&L changed to "+width+"&"+level);
+      lungWidth = width;
+      lungLevel = level;
+  }
+
+  macro "Update Bone" {
+      getMinAndMax(min, max);
+      width = max - min;
+      level = min + (width)/2;
+      if (width==boneWidth && level==boneLevel)
+          showMessage("Bone W&L unchanged");
+      else
+           showMessage("Bone W&L changed to "+width+" & "+level);
+      boneWidth = width;
+      boneLevel = level;
+  }
+
+  function update(width, level) {
+      min = level - width/2;
+      max = level + width/2;
+      setMinAndMax(min, max);
+      showStatus("Window="+width+", Level="+level);
+  }

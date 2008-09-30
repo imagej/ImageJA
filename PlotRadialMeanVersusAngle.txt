@@ -1,0 +1,31 @@
+// Plot Radial Mean Versus Angle
+
+// This macro generates a plot of mean radial pixel value 
+// wersus angle. Before running it, use the straight line 
+// tool to create a radial line at the starting angle. 
+
+  requires("1.37u");
+  getLine(x1, y1, x2, y2, width);
+  if (x1<0) exit("Straight line selection (a radial line) required");
+  increment = getNumber("Angle Increment (degrees): ", 1)*PI/180;
+  radii = 2*PI/increment;
+  means = newArray(radii);
+  angles = newArray(radii);
+  dx = x2 - x1;
+  dy = y2 - y1;
+  r = sqrt(dx*dx + dy*dy);
+  startingAngle = atan2(dy, dx);
+  for (i=0; i<radii; i++) {
+     angle = startingAngle + increment*i;
+     x2=x1+r*cos(angle);
+     y2=y1+r*sin(angle);
+     makeLine(x1, y1, x2, y2);
+     profile=getProfile();
+     n = profile.length;
+     sum = 0;
+     for (j=0; j<n; j++)
+         sum += profile[j];
+     means[i] = sum/n;
+     angles[i] = angle*180/PI;
+  }
+  Plot.create("Radial Means", "Angle", "Mean Pixel Value", angles, means);

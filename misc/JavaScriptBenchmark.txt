@@ -1,0 +1,11 @@
+  n = 10;
+  t = getTime();
+  for (i=0; i<n; i++)
+     eval("s=2+2");
+  t1 = getTime-t;
+  t = getTime;
+  for (i=0; i<n; i++)
+     eval("js", "var s=2+2");
+  t2 = getTime-t;
+  print("macro="+t1/n+"ms, script="+t2/n+"ms, ratio="+t2/t1);
+ 

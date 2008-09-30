@@ -1,0 +1,10 @@
+// Convolution Demo
+// This macro demonstrates how to use the
+// Process>Filters>Convolve command in macro.
+
+  // inline kernel
+  run("Convolve...", "text1=[0 -1 0\n-1 4 -1\n0 -1 0] normalize");
+
+  // load kernel from file
+  kernel = File.openAsString(getDirectory("home")+"kernels/kernel.txt");
+  run("Convolve...", "text1=["+kernel+"] normalize");

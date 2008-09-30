@@ -1,0 +1,97 @@
+/*
+ * If you often look heavenward, this macro is for you.
+ * It loads an image containing the TypeTheSky alphabet, created by
+ * Lisa Rienermann, Uni Duisburg-Essen, and types your messages
+ * using that alphabet.
+ */
+
+alphabetURL = "http://imageja.sf.net/lisa01.jpg";
+alphabetRows = 6;
+alphabetColumns = 5;
+alphabetCharacters = "  ABCDEFGHIJKLMNOPQRSTUVWXYZ?!";
+
+
+// width and height are in characters
+function typeTheSky(text, width, height, batch) {
+    if (batch) setBatchMode(true);
+    run("URL...", "url=" + alphabetURL);
+    alphabetID = getImageID();
+    alphabetWidth = getWidth();
+    alphabetHeight = getHeight();
+    alphabetCharacterWidth = alphabetWidth / alphabetColumns;
+    alphabetCharacterHeight = alphabetHeight / alphabetRows;
+
+    newImage("TypeTheSky", "RGB",
+    width * floor(alphabetCharacterWidth),
+    height * floor(alphabetCharacterHeight), 1);
+    resultID = getImageID();
+    text = toUpperCase(text);
+    textLength = lengthOf(text);
+    offset = 0;
+    n = 0;
+    for (row = 0; row < height; row++) {
+        // try to break line at a space
+        maxLineLength = textLength - offset;
+        if (maxLineLength > width + 1)
+            maxLineLength = width + 1;
+        line = substring(text, offset, offset + maxLineLength);
+        if (maxLineLength < width)
+            lineLength = maxLineLength;
+        else {
+            lineLength = lastIndexOf(line, " ");
+            if (lineLength < 0)
+                lineLength = maxLineLength;
+        }
+        offset = offset + lineLength;
+        // suppress the space at line break
+        if (offset < textLength)
+            if (charCodeAt(text, offset) == 32)
+                offset++;
+        // print characters
+        for (column = 0; column < width; column++) {
+            showProgress(n++, width*height);
+            if (column < lineLength)
+                character = substring(line, column, column + 1);
+            else
+                character = " ";
+            index = indexOf(alphabetCharacters, character);
+            if (index < 0)
+                index = 0;
+            alphabetRow = floor(index / alphabetColumns);
+            alphabetColumn = index - alphabetRow * alphabetColumns;
+            // get the character
+            selectImage(alphabetID);
+            makeRectangle(
+            floor(alphabetCharacterWidth * alphabetColumn),
+            floor(alphabetCharacterHeight * alphabetRow),
+            floor(alphabetCharacterWidth),
+            floor(alphabetCharacterHeight));
+            run("Copy");
+            // print the character
+            selectImage(resultID);
+            makeRectangle(
+            floor(alphabetCharacterWidth) * column,
+            floor(alphabetCharacterHeight) * row,
+            floor(alphabetCharacterWidth),
+            floor(alphabetCharacterHeight));
+            run("Paste");
+        }
+    }
+    run("Select None");
+    selectImage(alphabetID);
+    close();
+    selectImage(resultID);
+    setBatchMode(false);
+}
+
+Dialog.create("Type The Sky!");
+Dialog.addString("Message:", "Dear Wayne! Is that cool or what?", 24);
+Dialog.addNumber("Columns:", 11);
+Dialog.addNumber("Rows:", 4);
+Dialog.addCheckbox("Run in batch mode", true);
+Dialog.show();
+message = Dialog.getString();
+columns = Dialog.getNumber();
+rows = Dialog.getNumber();
+batchMode = Dialog.getCheckbox();
+typeTheSky(message, columns, rows, batchMode);

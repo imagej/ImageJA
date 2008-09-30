@@ -1,0 +1,27 @@
+// This macro generates radial profiles and saves them in the Results 
+// table. The line selections used are added to the ROI Manager and 
+// displayed using the "Show All" option added in ImageJ 1.37.
+
+  requires("1.37u");
+  getLine(x1, y1, x2, y2, width);
+  if (x1<0) exit("Straight line selection required");
+  angle = getNumber("Angle: ", 45)*PI/180;
+  turn = 2*PI/angle;
+  dx = x2 - x1;
+  dy = y2 - y1;
+  r = sqrt(dx * dx + dy * dy);
+  a = atan2(dy, dx);
+  roiManager("reset");
+  for (i=0; i<turn; i++) {
+     b = angle*i;
+     x2=x1+r*cos(a+b);
+     y2=y1+r*sin(a+b);
+     makeLine(x1, y1, x2, y2);
+     profile=getProfile();
+     roiManager("add");
+     for (j=0; j<profile.length; j++)
+        setResult(round(b*180/PI), j, profile[j]);
+  }
+  run("Select None");
+  updateResults;
+  setOption("Show All", true);

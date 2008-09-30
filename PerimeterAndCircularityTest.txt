@@ -1,0 +1,41 @@
+// Displays measured and theoretical area, perimeter and   
+// circularity of circles with radii between 0.5 and 100.
+//
+// 1. "Area": area measured by counting pixels
+// 2. "Perim.": measured perimeter
+// 3. "Circ.": circularity (ImageJ sets values>1 to 1.0)
+// 4. "C-Circ.": circularity (values>1 not set to 1.0)
+// 5. "Radius": radius in pixels
+// 6: "T-Area": theoretical area
+// 7: "T-Perim": theoretical perimeter
+// 8: "P. Error (%)": perimeter error
+// 9: "T-Circ": theoretical circularity (always 1)
+
+  maxr = 100;
+  newImage("Temp", "8-bit white", maxr*2, maxr*2, 1);
+  run("Clear Results");
+  run("Set Measurements...", "area perimeter circularity limit redirect=None");
+  i = 0;
+  for (r=0.5; r<= maxr; r+=0.5) {
+      setColor(0);
+      fillOval(0, 0, r*2, r*2);
+      doWand(r, r);
+      run("Measure");
+      area = PI*r*r;
+      perimeter = PI*(r+r);
+      theoretical = 4*PI*(area/(perimeter* perimeter));
+      cArea = getResult("Area", i);
+      cPerim = getResult("Perim.", i);
+      cCirc = 4*PI*(cArea/(cPerim* cPerim));
+      setResult("C-Circ", i, cCirc);
+      setResult("Radius", i, r);
+      setResult("T-Area", i, area);
+      setResult("T-Perim", i, perimeter);
+      setResult("P. Error (%)", i, ((cPerim-perimeter)/perimeter)*100);
+      setResult("T-Circ", i, theoretical);
+      i++;
+      setColor(255);
+      fillRect(0, 0, r*2, r*2);
+  }
+  close;
+  updateResults;

@@ -1,0 +1,38 @@
+// "HDR explorer Tool"
+// To explore High Dynamic Range Images,
+// this tool macro adjusts the display range
+// to local min and max in the search box,
+// a little like what the eye does very nicely 
+// when scanning a scene. The display range 
+// is displayed in the status bar as the search 
+// box is moved over the image.
+//
+// Try it out with the "M51 Galaxy (16-bits)" and 
+// "CT" (ImageJ 1.37j or later) sample images.
+//
+// Modified from the DrawingTools.txt.
+
+var size=50;
+
+macro "HDR explorer Tool - C037T0508hT5508dTa508rO16aaL686eL4b8b" {
+	if (bitDepth==24)
+		exit("This macro only works with grayscale images");
+	setupUndo();
+	x2=-1;y2=-1;
+	while (true) {
+		getCursorLoc(x, y, z, flags);
+		if (flags&16==0) exit();
+		if (x!=x2 || y!=y2) {
+			makeRectangle(x-size/2,y-size/2,size,size);
+			getStatistics(area, mean, min, max);
+			setMinAndMax(min, max);
+			showStatus("Display Range: "+min+" - "+max);
+		}
+		x2=x; y2 =y;
+		wait(10);
+	}
+}
+
+macro "HDR explorer Tool Options" {
+	size= getNumber("Search Box Size: ", size);
+}

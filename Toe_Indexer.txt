@@ -1,0 +1,256 @@
+//  				"Toe Indexer"
+
+//  This macro allows easy measurement of footprints and calculation of toe index,
+//  as defined by Webb et al. (2006) "Evaluating and improving footprint
+//  measurement for clinical and scientific testing," Anthropologie, 44:269-279.
+
+//  To use it, install this macro, open a JPEG file of a footprint, then begin
+//  by pressing "1" for the first step (making a copy of the image, to avoid
+//  damaging the original).  Brief instructions for each subsequent step are
+//  printed in the "Log" window, as are intermediate results of the various
+//  measurements and calculations.  This output can be customized by adding and
+//  deleting various calculations and their associated "print" commands.
+
+//  For more detailed instructions, visit my Webbpage at:
+//  "http//faculty.kutztown.edu/webb/".
+
+
+var yAntToePt = ""
+var yPostHeelPt = ""
+
+macro "Copy Footprint [1]"{
+	doCommand("Select All");
+	doCommand("Copy");
+	doCommand("Select None");
+	run("Image...");
+	doCommand("Paste"); 
+	doCommand("In");
+	doCommand("Select None");
+
+print("");
+selectWindow("Log");
+run("Close");
+print("Place medial and lateral ball and heel points.");
+print("Then, press 2.");
+setTool(7);
+}
+
+
+macro "Draw 4 Points [2]"{
+//  Get the four points and draw the ball and heel lines
+getSelectionCoordinates(x,y);
+for (i=0; i<x.length; i++)
+	print(i+" "+x[i]+" "+y[i]);
+//doCommand("Select None");
+setLineWidth(2);
+drawLine(x[0],y[0],x[1],y[1]);
+moveTo(x[2],y[2]);
+lineTo(x[3],y[3]);
+Ax = x[0];
+Bx = x[1];
+Cx = x[2];
+Dx = x[3];
+Ay = y[0];
+By = y[1];
+Cy = y[2];
+Dy = y[3];
+setLineWidth(2);
+drawLine(Ax,Ay,Bx,By);
+drawLine(Cx,Cy,Dx,Dy);
+
+//  Debugging stuff
+type = selectionType();
+//print(type);
+
+//  Define the longitudinal axis and draw the short form
+midptABx = (Ax+Bx)/2;
+midptABy = (Ay+By)/2;
+midptCDx = (Cx+Dx)/2;
+midptCDy = (Cy+Dy)/2;
+print("Midpoint of AB (ball):",midptABx+", "+midptABy);
+print("Midpoint of CD (heel):",midptCDx+", "+midptCDy);
+//run("Draw");
+//drawLine(midptABx, midptABy, midptCDx, midptCDy);
+
+//  Extend the longitudinal axis
+//slope = (midptCDy-midptABy)/(midptABx-midptCDx);//the "visual" slope
+//print("Slope=",slope);
+//bintercept = midptABy-(-1*slope*midptABx);
+//print ("Intercept=",bintercept);
+length = sqrt((midptABx-midptCDx)*(midptABx-midptCDx)+(midptCDy-midptABy)*(midptCDy-midptABy));
+print("Ball-Heel Length=",length);
+xLAtoe = midptABx-((midptCDx-midptABx)/1.5);
+yLAtoe = midptABy-((midptCDy-midptABy)/1.5);
+//  drawLine(xLAtoe, yLAtoe, midptCDx, midptCDy);
+xLAheel = midptCDx+((midptCDx-midptABx)/4);
+yLAheel = midptCDy+((midptCDy-midptABy)/4);
+drawLine(xLAtoe, yLAtoe, xLAheel, yLAheel);
+makeLine(xLAtoe, yLAtoe, xLAheel, yLAheel);
+LAlength = getLength(xLAtoe, yLAtoe, xLAheel, yLAheel);
+print("Axis Length = "+LAlength);
+
+
+//  Draw the guidelines at the heel, toe and medial ball
+LAslope = (yLAtoe-yLAheel)/(xLAtoe-xLAheel);
+LAintercept = yLAtoe-(LAslope*xLAtoe);
+print("Equation of line:");
+print("y = "+LAslope+"x + "+LAintercept);
+perpLAslope = -1/LAslope;
+//halfballLen = getLength(Ax,Ay,midptABx,midptABy);
+//  Ball Line is parallel to LA and passes through Ax, Ay
+//  Ay = LAslope*Ax + b
+BallLineIntcpt = Ay - LAslope*Ax;
+yBallH = Ay - 200;
+xBallH = (yBallH-BallLineIntcpt)/LAslope;
+yBallJ = Ay + 200;
+xBallJ = (yBallJ-BallLineIntcpt)/LAslope;
+drawLine(xBallH,yBallH,xBallJ,yBallJ);
+
+//  "Rotate Image02" (below) is the (slightly altered) image rotation macro
+//  that rotates the image so that the longitudinal axis is vertical. This piece 
+//  of code requires the "makeLine . . ." command immediately above, because
+//  it requires a line selection.
+      getLine(x1, y1, x2, y2, width);
+      if (x1==-1)
+           exit("This macro requires a straight line selection");
+      angle = (180.0/PI)*atan2(y1-y2, x2-x1)+90;
+	print(angle);
+      run("Arbitrarily...", "angle="+angle+" interpolate");
+	doCommand("Select None");
+
+//  Toe Line is perpendicular to LA and passes through xLAtoe, yLAtoe (approx.)
+//ToeLineIntcpt = yLAtoe - perpLAslope*xLAtoe;
+//xToeMed = xLAtoe - 600;
+//yToeMed = perpLAslope*xToeMed + ToeLineIntcpt;
+//drawLine(xLAtoe, yLAtoe, xToeMed, yToeMed);
+//makeLine(xLAtoe, yLAtoe, xToeMed, yToeMed);
+
+//  Get the angle of the longitudinal axis
+angle = getAngle(midptABx, midptABy, midptCDx, midptCDy);
+print("Axis angle=",angle);
+
+//  Set up the toe line.
+selectWindow("Log");
+print("");
+print("Drag the line up or down");
+print("to mark the anteriormost point");
+print("of the longest toe.");
+print("");
+print("Then press 3.");
+makeLine(300, 350, 2250, 350);
+}
+
+macro "Toe Line" {
+
+}
+
+macro "Heel Line [3]"{
+
+//  First, draw the toe line.
+      getLine(x1, y1, x2, y2, width);
+            if (x1==-1)
+            exit("Anterior toe line was not selected");
+	setColor("magenta");
+	setLineWidth(3);
+	drawLine(x1, y1, x2, y2);
+
+//  Remember the longitudinal position of the anterior toe line.
+	yAntToePt = y1;
+
+
+selectWindow("Log");
+print("");
+print("Drag the line up or down");
+print("to mark the posterior heel point");
+print("");
+print("Then press 4.");
+makeLine(300, 3150, 2250, 3150);
+
+}
+
+macro "Ball Points [4]" {
+
+//  Draw the heel line.
+      getLine(x1, y1, x2, y2, width);
+            if (x1==-1)
+            exit("Posterior heel line was not selected");
+	setColor("magenta");
+	setLineWidth(2);
+	drawLine(x1, y1, x2, y2);
+
+//  Remember the longitudinal position of the posterior heel line.
+	yPostHeelPt = y1;
+
+//  Prepare to receive the toe length limiting points.
+	doCommand("Select None");
+	doCommand("In");
+setTool(11);
+
+selectWindow("Log");
+print("");
+print("Click on the medial ball area");
+print("to zoom in.");
+print("Then choose the 'Point selections' tool");
+print("and mark the two ball measurement points.");
+print("");
+print("Then, press 5.");
+}
+
+macro "Measure and Display [5]" {
+
+//  Draw the skeletal toe line.
+	getSelectionCoordinates(x,y);
+	xBallK = (x[0]+ x[1])/2;
+	yBallK = (y[0] + y[1])/2;
+	moveTo(xBallK, yBallK);
+	setLineWidth(2);
+	lineTo(xBallK+800,yBallK);
+
+//  Calculate and display toe index.
+	ftlen = yPostHeelPt - yAntToePt;
+	toelen = yBallK - yAntToePt;
+	toeindex = 100*(toelen/ftlen);
+	selectWindow("Log");
+	print("===================");
+	print("");
+	print("Foot Length = "+ftlen+" pixels");
+	print("Toe Length = "+toelen+" pixels");
+	print("Toe Index = "+toeindex);
+	print("===================");
+}
+
+// Subroutine returns the angle in degrees between the specified line
+//  and the horizontal axis, moving counter-clockwise, 
+//  with the ray pointing towards the heel.
+  function getAngle(x1, y1, x2, y2) {
+      q1=0; q2orq3=2; q4=3; //quadrant
+      dx = x2-x1;
+      dy = y1-y2;
+      if (dx!=0)
+          angle = atan(dy/dx);
+      else {
+          if (dy>=0)
+              angle = PI/2;
+          else
+              angle = -PI/2;
+      }
+      angle = (180/PI)*angle;
+      if (dx>=0 && dy>=0)
+           quadrant = q1;
+      else if (dx<0)
+          quadrant = q2orq3;
+      else
+          quadrant = q4;
+      if (quadrant==q2orq3)
+          angle = angle+180.0;
+      else if (quadrant==q4)
+          angle = angle+360.0;
+      return angle;
+  }
+
+//  Subroutine that calculates the length of the line segment between two
+//  points.
+function getLength(x1, y1, x2, y2) {
+length = sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+return length;
+}

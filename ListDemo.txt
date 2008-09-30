@@ -1,0 +1,32 @@
+//  List Demo
+//
+// This macro demonstrates how to use the List.*
+// functions added in ImageJ 1.41f.
+
+  requires("1.41f");
+  print("Adding key/value pairs to list");
+  List.set("key1", "value1");
+  List.set("key2", "value2");
+  List.set("key3", "value3");
+  print("Size of list: "+ List.size);
+  print("Retrieving values");
+  List.get("key1");
+  List.get("key2");
+  List.get("key3");
+  print("Opening 'blobs' sample image");
+  run("Blobs (25K)");
+  print("Saving list as 'Info' image propery");
+  list = List.getList();
+  setMetadata("info", list);
+  path = getDirectory("temp")+"test.tif"
+  print("Saving image as TIFF");
+  save(path);
+  close();
+  print("Reseting list");
+  List.clear;
+  print("Reopening image and recovering list");
+  open(path);
+  info = getMetadata("info");
+  List.setList(info);
+  List.getList;
+  close();

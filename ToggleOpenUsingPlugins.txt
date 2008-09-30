@@ -1,0 +1,18 @@
+// Toggle 'OpenUsingPlugins'
+//
+// This macro toggles the 'OpenUsingPlugins' option. Standard
+// file types (TIFF, JPEG, GIF, etc.) are opened by external
+// plugins (e.g., Bio-Formats) when this option is set. They 
+// are opened by ImageJ when it is not set.
+
+macro "Toggle 'OpenUsingPlugins' [f1]" {
+    requires("1.38f");
+    state = call("ij.io.Opener.getOpenUsingPlugins");
+    if (state=="false") {
+        setOption("OpenUsingPlugins", true);
+        showStatus("TRUE (images opened by HandleExtraFileTypes)");
+    } else {
+        setOption("OpenUsingPlugins", false);
+        showStatus("FALSE (images opened by ImageJ)");
+    }
+}

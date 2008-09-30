@@ -1,0 +1,15 @@
+// Get Text From Clipboard
+//
+// Displays the text on the system clipboard in a text window.
+// Does not work if there is an image on the system clipboard.
+
+   run("Reset...", "reset=Clipboard"); // internal clipboard must be empty
+   run("Paste");
+   selectWindow("Clipboard");
+   text = getInfo();
+   if (indexOf(text, "Title: Clipboard")!=-1)
+       print("There is an image on the system clipboard");
+   else {
+       run("Close");
+       print(text);
+   }

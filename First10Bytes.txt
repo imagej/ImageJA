@@ -1,0 +1,12 @@
+// First 10 Bytes
+//
+// This macro demonstrates how to use the File.openAsRawString()
+// function to examine the first few bytes in a file, which is 
+// useful for decoding image file headers.
+
+    requires("1.39f");
+    s = File.openAsRawString("");
+    print("The first 10 bytes of this file are:");
+    for (i=0; i<10; i++)
+      print("    "+charCodeAt(s, i));
+

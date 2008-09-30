@@ -1,0 +1,93 @@
+// "Radial Scattergraph"
+// Takes a CSV (comma-separated values) list of angles and values
+// and draws a radial scattergraph. A sample list is available at
+//     http://rsb.info.nih.gov/ij/macros/data/angles.csv
+
+requires("1.37v");
+
+progress("Open file, which must be a csv list in (angle, value) format", 1, 10);
+string = File.openAsString("");
+start = getTime;
+
+progress("Split the CSV file into an array of lines", 2, 10);
+lines = split(string, "\n");
+
+//initialise some variables
+theta = newArray(lengthOf(lines));
+r = newArray(lengthOf(lines));
+rmax = 0;
+
+progress("Find the maximum radius (to determine the outer boundary)", 3, 10);
+n = lengthOf(lines);
+for (i=0; i<n; i++){
+   thetar= split(lines[i], "\,");
+   theta[i] = parseFloat(thetar[0]);
+   r[i] = parseFloat(thetar[1]);
+   if (r[i] > rmax) rmax = r[i];
+}
+
+radius = 500;
+margin = 5;
+image = 2*(radius+margin);
+
+//Draw the new image
+setBatchMode(true);
+newImage("Untitled", "8-bit Black", image, image, 1);
+if (File.exists(getDirectory("imagej")+"luts/Orange Hot.lut"))
+    run("Orange Hot");
+else
+    run("Fire");
+
+progress("Save point coordinates in arrays", 4, 10);
+xp = newArray(n);
+yp = newArray(n);
+zp = newArray(n);
+for (i=0; i<n; i++) {
+   radtheta = theta[i]*2*PI / 360;
+   unitr = r[i]/rmax;
+   xp[i] = radius + margin + unitr*cos(radtheta)*radius;
+   yp[i] = radius + margin - unitr*sin(radtheta)*radius;
+}
+
+progress("Draw the points", 5, 10);
+for (i=0; i<n; i++) {
+   x=xp[i]; y=yp[i];
+   setPixel(x, y, getPixel(x,y)+1);
+}
+
+progress("Find neighborhood densities", 6, 10);
+r=12;
+min = 999999;
+max = 0;
+for (i=0; i<n; i++) {
+   makeOval(xp[i]-r, yp[i]-r, r*2, r*2);
+   getStatistics(count, mean);
+   zp[i] = mean;
+   if (mean<min) min = mean;
+   if (mean>max) max = mean;
+}
+run("Select None");
+
+progress("Draw each point in a color proportional to neighborhood density", 8, 10);
+scale = 200/(max-min);
+for (i=0; i<n; i++) {
+   setColor(55+(zp[i]-min)*scale);
+   fillRect(xp[i], yp[i], 2,2);
+}
+
+progress("Draw unit circle and axis", 9, 10);
+setColor(200);
+drawOval(margin,margin,2*radius,2*radius);
+drawLine(0,radius+margin, image, radius+margin);
+drawLine(radius+margin,0, radius+margin, image);
+setBatchMode(false);
+//print(getTime-start);
+progress(""+n+" lines processed", 10, 10);
+wait(2000);
+exit;
+
+function progress(msg, current, end) {
+    showStatus(msg);
+    showProgress(current, end);
+}
+

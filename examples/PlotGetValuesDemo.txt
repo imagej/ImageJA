@@ -1,0 +1,17 @@
+// This macro demonstrates how to use the Plot.getValues() function.
+
+  run("Blobs (25K)");
+  blobs = getImageID;
+  makeLine(77, 102, 199, 145);
+  run("Plot Profile");
+  Plot.getValues(x, y);
+  Plot.create("Plot Values", "X", "Y", x, y);
+  selectImage(blobs);
+  setAutoThreshold();
+  run("Analyze Particles...", "size=0 circularity=0.00 clear");
+  run("Distribution...", "parameter=Area automatic");
+  Plot.getValues(x, y);
+  for (i=0; i<x.length; i++)
+      print(x[i], y[i]);
+
+

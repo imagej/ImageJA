@@ -1,0 +1,27 @@
+// Clock
+//
+// This macro demonstrates how to display a
+// digital clock in a text window. It uses the
+// Plugins>New>Text Window command to
+// open the text window.
+
+  requires("1.38m");
+  title = "[Clock]";
+  if (getVersion>="1.41g")
+     run("Text Window...", "name="+ title +" width=10 height=1");
+  else
+     run("New... ", "name="+ title +" type=[Text File] width=10 height=1");
+  getDateAndTime(year, month, week, day, hour, min, sec, msec);
+  start = getTime;
+  while (true) {
+      getDateAndTime(year, month, week, day, hour, min, sec, msec);
+      print(title, "\\Update:"+pad(hour)+":"+pad(min)+":"+pad(sec));
+      wait(1000);
+  }
+
+  function pad(n) {
+      n = toString(n);
+      if (lengthOf(n)==1) n = "0"+n;
+      return n;
+  }
+
