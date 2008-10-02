@@ -2,16 +2,27 @@
  *
  * Makes tool sets of 'Menu Tools' listing commands of plugins/macros subfolders
  * 
- * The Menus will list <<executable>> ".class",".jar",".txt" and ".ijm" files
+ * plugins subfolders:
+ * The Menus will list <<executable>> ".class",".jar",".txt",".ijm" and ".js" files
  * (<<executable>> meaning files with at least one underscore in the filename);
  *
+ * macros subfolders:
+ * The Menus will list all the ".txt", ".ijm" and ".js" files. Use the modifiers "shift" and
+ * "alt" while selecting an item from the list it s possible to open or install a macro.
  *
- * v .02 - Fixed: subfolders containing hyphens;
- *       - Added: possibility for macros subfolders listing;
- *       - Added: aknowledge when no executable is found on subfolder;
+ *
+ * To Do: 
+ * Allow listing of both macros/plugins subfolders on the same toolset
+ *
+ * v .04 - Fixed: macros subfolders not working properly (at all, actually);
+ *       - Added: (only for macros): 
+ *                'List All', Open/Install wih 'shift' and 'alt';
  * v .03 - Added: AutoRun;
  *       - Added: more icons choice;
  *       - Fixed: cleaned code;
+ * v .02 - Fixed: subfolders containing hyphens;
+ *       - Added: possibility for macros subfolders listing;
+ *       - Added: aknowledge when no executable is found on subfolder;
  *
  * Icons based on other tools listed at http://rsb.info.nih.gov/ij/macros/tools/
  * or created with Jerome Mutterer's 'Image To Tool Icon' macro:
@@ -23,13 +34,14 @@
 
 var prmptfolders= newArray("plugins","macros");
 var alphaindex=   newArray("a","b","c","d","e","f","g","h");
-var items=        newArray(" -- None -- ","Bricks","Depht","Dump","Gear","Hourglass","Image","List (I)","List (II)","Measure","Movie","Reduce","Shuffle","Tag","Tiles (filled)","Tiles (frame)","Tool","Write");
+var items=        newArray(" -- None -- ","Bricks","Depht","Dump","Gear","Histogram","Hourglass","Image","List (I)","List (II)","Measure","Movie","Reduce","Shuffle","Stacks","Tag","Tiles (filled)","Tiles (frame)","Tool","Write");
 var colors=       newArray("Default","Black","Gray","Red","Green","Blue");
 var icons=        newArray("",
                   "D00D03D06D09D0cD0fD10D13D16D19D1cD1fD20D21D22D23D26D27D28D29D2cD2dD2eD2fD30D33D36D39D3cD3fD40D43D46D49D4cD4fD50D53D54D55D56D59D5aD5bD5cD5fD60D63D66D69D6cD6fD70D73D76D79D7cD7fD80D83D86D89D8cD8fD90D91D92D93D96D97D98D99D9cD9dD9eD9fDa0Da3Da6Da9Db0Db3Db6Db9Dc0Dc3Dc4Dc5Dc6Dc9DcaDcbDd0Dd3Dd6Dd9De0De3De6De9Df0Df3Df6Df9", // Bricks
                   "D20D21D2bD2cD2dD30D3aD3dD40D49D4dD50D58D5dD60D67D6dD70D76D7dD80D85D8dD90D94D9dDa0Da3DadDb0Db1Db2DbcDbd", // Depht
                   "D2aD2bD2cD2dD2eD3eD4eD58D5eD68D69D6eD71D72D73D74D75D76D77D78D79D7aD7eD81D82D83D84D85D86D87D88D89D8aD8bD8eD91D92D93D94D95D96D97D98D99D9aD9bD9eDa1Da2Da3Da4Da5Da6Da7Da8Da9DaaDaeDb8Db9DbeDc8DceDdeDeeDfaDfbDfcDfdDfe", // Dump
                   "D49D33D34D35D36D37D38D39D3aD43D44D45D46D47D48D4aD53D54D55D58D59D5aD63D64D69D6aD73D74D79D7aD83D84D85D89D8aD93D94D95D96D97D98D99D9aDa3Da5Da6Da7Da8Da9DaaD88Da4D26D62D6bDb6D27D72D7bDb7D16D61D6cDc6D23D2aD32D3bDa2DabDb3DbaD17D71D7cDc7CaaaD57D75D78D87CaaaD56D65D68D86CaaaCbbbCcccD24D29D42D4bD92D9bDb4Db9CcccD22D2bDb2CcccDbbCcccCdddCeeeD5bCeeeD25D28D52D82D8bDb5Db8CeeeCfffD0bD4cD77Db0Dc2DccDd7", // Gear 
+                  "D1eD2dD1fD2eD3cD3dD4bD4cD5aD5bD6aD14D15D16D17D18D19D1aD1bD1cD1dD20D21D22D23D24D25D26D27D28D29D2aD2bD2cD2fD33D34D35D36D37D38D39D3aD3bD3eD3fD47D48D49D4aD4dD4eD4fD5cD5dD5eD5fD6bD6cD6dD6eD6fD7dD7eD7fD8dD8eD8fD9dD9eD9fDaeDafDbeDbfDcfDdf", // Histogram
                   "D10D1fD20D21D22D2dD2eD2fD30D33D3cD3fD40D44D4bD4fD50D55D5aD5fD60D66D67D68D69D6fD70D75D7aD7fD80D84D8bD8fD90D93D9cD9fDa0Da1Da2DadDaeDafDb0Dbf", // Hourglass
                   "R01fbR2397", // Image
                   "L00f0L03f3L06f6L09f9L0cfcL0fbf", // Continuous list
@@ -38,6 +50,7 @@ var icons=        newArray("",
                   "D00D01D02D03D04D05D06D07D08D09D0aD0bD0cD0dD0eD0fD12D17D1cD22D27D2cD30D31D32D33D34D35D36D37D38D39D3aD3bD3cD3dD3eD3fD40D4bD50D5bD60D6bD70D7bD80D8bD90D9bDa0DabDb0Db1Db2Db3Db4Db5Db6Db7Db8Db9DbaDbbDbcDbdDbeDbfDc2Dc7DccDd2Dd7DdcDe0De1De2De3De4De5De6De7De8De9DeaDebDecDedDeeDef", // Movie
                   "D17D23D27D2bD33D34D37D3aD3bD40D41D42D43D44D45D47D49D4aD4bD4cD4dD4eD53D54D57D5aD5bD63D67D6bD77D83D87D8bD93D94D97D9aD9bDa0Da1Da2Da3Da4Da5Da7Da9DaaDabDacDadDaeDb3Db4Db7DbaDbbDc3Dc7DcbDd7", // Reduce
                   "D05D06D07D16D17D25D27D2aD34D3bD43D4cD52D5dD5fD6eD6fD7dD7eD7fD80D81D82D90D91Da0Da2DadDb3DbcDc4DcbDd5Dd8DdaDe8De9Df8Df9Dfa", // Shuffle
+                  "L00f0L01f1L04f4L05f5L08f8L09f9L0cbcL0dbd", // Stacks
                   "D22D23D24D25D26D27D32D33D34D35D36D37D38D42D43D46D47D48D49D52D53D56D57D58D59D5aD62D63D64D65D66D67D68D69D6aD6bD72D73D74D75D76D77D78D79D7aD7bD7cD83D84D85D86D87D88D89D8aD8bD8cD8dD94D95D96D97D98D99D9aD9bD9cD9dD9eDa5Da6Da7Da8Da9DaaDabDacDadDaeDb6Db7Db8Db9DbaDbbDbcDbdDc7Dc8Dc9DcaDcbDccDd8Dd9DdaDdbDe9Dea", // Tag
                   "F0077F9977F9077F0977", // Tiles (filled)
                   "R0077R9077R9977R0977", // Tiles (frame)
@@ -70,9 +83,18 @@ macro "Toolset Creator" {
         path=getDirectory("macros")+"toolsets"+File.separator+name+".txt";
     if(File.exists(path)) showMessageWithCancel("Toolset Creator","A file named "+name+".txt already exists.\nOverwride?");
         f= File.open(path);
-    printHeader();
-    for (i=1; i<n+1; i++) promptForSettings();
-    printFoot();
+    if(parent=="plugins") {
+        printHeaderPlugins();
+        for (i=1; i<n+1; i++) promptForSettings();
+        printFootPlugins();
+    } else {
+        printHeaderMacros();
+        for (i=1; i<n+1; i++) promptForSettings();
+        printFootMacros();
+    }
+    print("Toolset '"+name+"' created");
+    print("You can now install it by using the '>>' drop down menu");
+    print("To edit list filters hold down 'shift' while selecting the tool set");    
 }
 
 macro "AutoRun"{
@@ -97,13 +119,14 @@ function listDirs(dir) {
     }
     return list;
  }     
-function printHeader() {
+function printHeaderPlugins() {
     getDateAndTime(year, month, week, day, hour, min, sec, msec);
     print(f,"/* File generated with the 'Toolset Creator' macro");
     print(f," * ");
-    print(f," * Filename:     "+name+".txt");
-    print(f," * Created:      "+year+"."+month+"."+day+" "+hour+":"+min+":"+sec);
-    print(f," * # Menu Tools: "+n);
+    print(f," * Filename:  '"+name+".txt'");
+    print(f," * Created:    "+year+"."+month+"."+day+" "+hour+":"+min+":"+sec);
+    print(f," * Menu Tools: "+n);
+    print(f," * List type: '"+parent+"' subfolders");
     print(f," * ");
     print(f," * Edit the two lines below '// Settings:' to change which files");
     print(f," * should be listed (e.g. you can exclude .jar files implementing");
@@ -111,14 +134,36 @@ function printHeader() {
     print(f," */");
     print(f,"");
     print(f,"// Settings:");
-    print(f,"var AllowedFileExtensions= newArray('class','txt','ijm','jar');");
+    print(f,"var AllowedFileExtensions= newArray('class','txt','ijm','jar','js');");
     print(f,"var IgnoreFilenamesContaining= newArray('$','//','//','//');");
     print(f,"");
     print(f,"");
     print(f,"// Macros:");
     print(f," macro 'Unused Tool -' {}");
     print(f,"");
- } 
+ }
+function printHeaderMacros() {
+    getDateAndTime(year, month, week, day, hour, min, sec, msec);
+    print(f,"/* File generated with the 'Toolset Creator' macro");
+    print(f," * ");
+    print(f," * Filename:  '"+name+".txt'");
+    print(f," * Created:    "+year+"."+month+"."+day+" "+hour+":"+min+":"+sec);
+    print(f," * Menu Tools: "+n);
+    print(f," * List type: '"+parent+"' subfolders");
+    print(f," * ");
+    print(f," * The Menus will list all the '.txt', '.ijm' and '.js' files found on the");
+    print(f," * chosen folder but will not list files recursively from there");
+    print(f," * ");
+    print(f," * Use key modifiers while selecting an item from the list:");
+    print(f," * 'shift': opens the macro file;");
+    print(f," * 'alt':   installs the macro;");
+    print(f," * ");
+    print(f," */");
+    print(f,"");
+    print(f,"// Macros:");
+    print(f," macro 'Unused Tool -' {}");
+    print(f,"");    
+}  
 function promptForSettings() {
     Dialog.create("Toolset Creator...  Slot "+i+" of "+n);
     Dialog.addChoice("Folder to list",folders);
@@ -137,16 +182,33 @@ function promptForSettings() {
        itextC=   colorConverter(itextC);
        icon=     makeIcon(idraw, idrawC, itext,itextC);
        mcrname=  replace(folder, "-", "");
-    print(f,"       var "+j+"List= getPluginList('"+parent+"',"+"'"+folder+"'"+");");
-    print(f,"       var "+j+"Cmds= newMenu('"+mcrname+" Menu Tool',"+j+"List);");
-    print(f," macro '"+mcrname+" Menu Tool - "+icon+"' {");
-    print(f,"       cmd = getArgument();");
-    print(f,"       if (cmd!='-') run(cmd);");
-    print(f," }");
-    print(f,"");
+  if(parent=="plugins") {
+      print(f,"       var "+j+"List= getPluginList('"+parent+"',"+"'"+folder+"'"+");");
+      print(f,"       var "+j+"Cmds= newMenu('"+mcrname+" Menu Tool',"+j+"List);");
+      print(f," macro '"+mcrname+" Menu Tool - "+icon+"' {");
+      print(f,"       cmd = getArgument();");
+      print(f,"       if (cmd!='-') run(cmd);");
+      print(f," }");
+      print(f,"");
+  } else {
+      print(f,"       var "+j+"List= listFiles('"+folder+"'"+");");
+      print(f,"       var "+j+"Cmds= newMenu('"+mcrname+" Menu Tool',"+j+"List);");
+      print(f," macro '"+mcrname+" Menu Tool - "+icon+"' {");
+      print(f,"       cmd=     getArgument();");
+      print(f,"       count=   1;");
+      print(f,"       mfolder= getDirectory('macros')+'"+folder+"'"+"+File.separator"+";");
+      print(f,"   if(cmd=='List All')          printListFiles(mfolder);");
+      print(f,"   else if(cmd=='Search...')    run(cmd);");
+      print(f,"   else if (isKeyDown('shift')) open(mfolder+cmd);");
+      print(f,"   else if (isKeyDown('alt'))   run('Install...', 'install='+'['+mfolder+cmd+']');");
+      print(f,"   else");
+      print(f,"   run('Run...','run='+'['+mfolder+cmd+']');");
+      print(f," }");
+      print(f,"");
+  }    	  
 }
-function printFoot() {
-    print(f,"");   
+function printFootPlugins() {
+    print(f,"");
     print(f,"// Functions:");
     print(f,"function getPluginList(folder,subfolder) {");   
     print(f,"       dir= getDirectory(folder)+subfolder+File.separator;");
@@ -176,11 +238,43 @@ function printFoot() {
     print(f,"    }");
     print(f,"   return list;");
     print(f,"}");
-
-    print("Toolset '"+name+"' created");
-    print("You can now install it by using the '>>' drop down menu");
-    print("To edit list filters hold down 'shift' while selecting the tool set");
- }
+}
+function printFootMacros() {
+    print(f,"");
+    print(f,"// Functions:");
+    print(f,"function listFiles(folder) {"); 
+    print(f,"       dir=  getDirectory('macros')+folder+File.separator;");
+    print(f,"       list= newArray(''+folder+' not found','in the macros directory...');");
+    print(f,"     if (!File.exists(dir)) return list;");
+    print(f,"       list = newArray('No macros found','in the '+folder+' directory...');");
+    print(f,"       rawlist= getFileList(dir);");
+    print(f,"     if (rawlist.length==0) return list;");
+    print(f,"       count= 3;");
+    print(f,"     for (i=0; i< rawlist.length; i++)");
+    print(f,"        if (endsWith(rawlist[i], '.txt') || endsWith(rawlist[i], '.ijm') || endsWith(rawlist[i], '.js')) count++;");
+    print(f,"     if (count==3) return list;");
+    print(f,"       list=   newArray(count);");    
+    print(f,"       list[0]='List All'; list[1]='Search...'; list[2]='-';");
+    print(f,"       index= 3;");
+    print(f,"     for (i=0; i< rawlist.length; i++) {");
+    print(f,"       if (endsWith(rawlist[i], '.txt') || endsWith(rawlist[i], '.ijm') || endsWith(rawlist[i], '.js'))");
+    print(f,"       list[index++] = substring(rawlist[i], 0, lengthOf(rawlist[i])-0);");
+    print(f,"     }");
+    print(f,"     return list;");
+    print(f,"}");
+    print(f,"");
+    print(f,"function printListFiles(dir) {");
+    print(f,"       list= getFileList(dir);");
+    print(f,"       count= 0;");
+    print(f,"     print('');");
+    print(f,"     print('*** Macros on '+dir+':');");
+    print(f,"     print('');");
+    print(f,"     for (i=0; i<list.length; i++)");
+    print(f,"       if (endsWith(list[i], '.txt')||endsWith(list[i], '.ijm')||endsWith(list[i], '.js')) {");
+    print(f,"           count++; print(count + ': ' + dir + list[i]);");
+    print(f,"       }");
+    print(f,"}");
+}
 function colorConverter(color) {
     if(color=="Default")    color ="C037";
     else if(color=="Black") color ="C000";
