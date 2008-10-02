@@ -70,9 +70,9 @@ ImageJ commands and macro functions that support JavaScript:
   4. Plugins>Macros>Run: runs a Javascript 
      program contained in a ".js" file.
      
-  5. Help>Update Menus (runs when ImageJ starts): installs a
-     JavaScript program, with at least one "_" in the name 
-     and a ".js" extension, in the Plugins menu.
+  5. Help>Update Menus (runs when ImageJ starts): installs
+     JavaScript (".js") programs located in the plugins folder
+     or subfolders into the Plugins menu or submenus.
 
   6. eval("script", string) macro function: runs the javaScript
      contained in 'string' in the current thread.
