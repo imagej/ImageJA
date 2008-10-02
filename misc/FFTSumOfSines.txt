@@ -1,0 +1,21 @@
+// This is a macro for testing that the power spectrum of 
+// ImageJ is correct for a sum of two sine functions.
+
+newImage("test", "32-bit Black", 256, 256, 1);
+pi = 3.1415926536;
+f1 = 2*2*pi/256;
+f2 = 4*2*pi/256;
+
+for (x=0; x<255; x++) {
+  v = sin(f1*x)+0.5*cos(f2*x);
+  setPixel(x, 0, v);
+}
+makeRectangle(0, 0, 256, 1);
+run("Copy");
+for (y=1; y<256; y++) {
+  makeRectangle(0, y, 256, 1);
+ run("Paste");
+}
+run("Select None");
+
+run("FFT Options...", "fft raw do");
