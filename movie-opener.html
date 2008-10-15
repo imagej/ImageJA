@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>QuickTime Opener</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>QuickTime Opener</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Wayne Rasband (wsr at nih.gov)<br>
+Robert Dougherty (www.optinav.com)<br>
+Jeff Hardin (jdhardin at facstaff.wisc.edu) 
+</td></tr>
+
+
+<tr valign=top><td ><b>Requires:</b></td><td >Requires QuickTime for Java</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td > Requires a <b>lot</b> of RAM.
+Does not work with 64-bit versions of Java.
+
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/QT_Movie_Opener.java">QT_Movie_Opener.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/jars/QuickTime_Plugins.jar">QuickTime_Plugins.jar</A>
+to the plugins folder, or subfolder,  restart ImageJ and there will be a new
+<i>File/Import/Using QuickTime</i> command. 
+This JAR file also installs three other QuickTime plugins:
+<ul>
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/qt-capture.html">QuickTime Capture</A> (<i>File/Import/Video</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QT Player</A> (<i>File/Import/QuickTime Player</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-writer.html">QT Movie Writer</A> (<i>File/Save As/QuickTime Movie</i>)
+</ul>
+Note that this JAR file is included with the Mac OS X version of ImageJ, version 1.34 and later.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Opens a QuickTime movie as an RGB or 8-bit grayscale stack. Also opens images
+in any of the formats supported by QuickTime: PICT, MacPaint, Photoshop, SGI, GIF,
+JPEG, BMP, PNG, TGA, and TIFF (uncompressed, PackBits, LZW, Group 3 and 4 fax). 
+Requires QuickTime for Java,
+which is preinstalled on Macs. 
+Windows users must install
+<A HREF="http://www.apple.com/quicktime/">QuickTime 7</A> and
+<A HREF="qt-install.html">copy QTJava.zip</A> to the Java extensions folder (ImageJ\jre\lib\ext).
+<p>
+Jeff Hardin updated this plugin
+to work with Java 1.4.x on OS X. The updated plugin has only been 
+tested under OS X 10.3 with QuickTime for Java 6.1.
+An O'Reilly article at
+<A HREF="http://www.onjava.com/lpt/a/4318">www.onjava.com/lpt/a/4318</A>
+explains why an updated version is necessary.
+<p>
+	Install the <A HREF="http://rsb.info.nih.gov/ij/plugins/file-handler.html">
+	HandleExtraFileTypes</A> plugin and you will be able to open QuickTime movies with a ".mov" extension using <i>File/Open</i>
+	or by using drag and drop.
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/06/26: First version<br>
+2001/05/10: Adds option to open as 8-bit grayscale<br>
+2001/05/15: Fixed bug that could result in duplicate or missing frames<br>
+2001/05/23: Faster and uses less memory; opens single images<br>
+2002/07/19: Opens DV movies with higher quality<br>
+2003/11/25: Works with OS X/Java 1.4.x<br>
+2004/08/30: Renamed QT_Movie_Opener; recordable<br>
+2006/10/23: Fixed bug that could cause an exception when opening a QT movie<br>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://rsb.info.nih.gov/ij/plugins/qt-capture.html">QuickTime Capture plugin</A>
+- Capture video to a stack<br>
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-writer.html">QuickTime Movie Writer plugin</A>
+- Save stack as QuickTime movie<br>
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QuickTime Movie Player plugin</A>
+- Play a QuickTime movie<br>
+<A HREF="http://rsb.info.nih.gov/ij/plugins/qt-extractor.html">Quicktime Still Extractor</A>
+- A plugin that extracts stills from a Quicktime movie file<br>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>

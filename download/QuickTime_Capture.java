@@ -4,6 +4,7 @@ import ij.gui.*;
 import ij.plugin.*;
 import ij.util.*;
 import ij.text.*;
+import ij.macro.Interpreter;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -40,13 +41,19 @@ public class QuickTime_Capture implements PlugIn {
 	boolean grabbing = true;
 	int frame;
 	boolean grabMode;
+	boolean showDialog;
 	
 
 	public void run(String arg) {
+		if (IJ.is64Bit() && IJ.isMacintosh()) {
+			IJ.error("This plugin requires a 32-bit version of Java");
+			return;
+		}
 		String options = Macro.getOptions();
 		if (options!=null && options.indexOf("grab")!=-1)
 			arg = "grab";
 		grabMode = arg.equals("grab");
+		showDialog = options!=null && options.indexOf("dialog")!=-1;
 		try {
 			QTSession.open();
 			initSequenceGrabber();
@@ -78,6 +85,7 @@ public class QuickTime_Capture implements PlugIn {
 	private void initSequenceGrabber() throws Exception{
 		grabber = new SequenceGrabber();
 		SGVideoChannel channel = new SGVideoChannel(grabber);
+		if (showDialog) channel.settingsDialog();
 		cameraSize = channel.getSrcVideoBounds();
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		if (cameraSize.getHeight()>screen.height-40) // iSight camera claims to 1600x1200!
@@ -135,7 +143,7 @@ public class QuickTime_Capture implements PlugIn {
 		ImageProcessor ip = imp.getProcessor();
 		int[] pixels = ip!=null?(int[])ip.getPixels():null;
 		ImageWindow win = imp.getWindow();
-		if (pixels==null || win==null || IJ.spaceBarDown()) {
+		if (pixels==null || (win==null&&!Interpreter.isBatchMode())|| IJ.spaceBarDown()) {
 			grabbing = false; 
 			imp.setTitle("Untitled"); 
 			return;
@@ -158,7 +166,10 @@ public class QuickTime_Capture implements PlugIn {
 
 	void printStackTrace(Exception e) {
 		String msg = e.getMessage();
-		if (msg!=null && msg.indexOf("-9405")>=0)			IJ.error("QT Capture", "QuickTime compatible camera not found");
+		if (msg!=null && msg.indexOf("-9405")>=0)
+			IJ.error("QT Capture", "QuickTime compatible camera not found");
+		else if (e.toString().indexOf("userCanceledErr")>=0)
+			; // ignore
 		else {
 			CharArrayWriter caw = new CharArrayWriter();
 			PrintWriter pw = new PrintWriter(caw);

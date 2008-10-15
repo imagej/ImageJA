@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>QuickTime Movie Writer</title>
+<link rel="stylesheet" type="text/css" href="../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../index.html">home</a> | <a href="../notes.html">news</a> | <a href="../docs/index.html">docs</a>
+ | <a href="../download.html">download</a> | <a href="index.html">plugins</a> | <a href="../developer/index.html">macros/dev</a>
+ | <a href="../list.html">list</a> | <a href="../links.html">links</a></p>
+
+<h1>QuickTime Movie Writer</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+<A HREF="http://www.apple.com/quicktime/">QuickTime</A> and
+<A HREF="http://developer.apple.com/quicktime/qtjava/">QuickTime for Java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Limitation:</b></td><td >
+Does not work with 64-bit versions of Java.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/QuickTime_Writer.java">QuickTime_Writer.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+File names longer than 32 characters can cause a QuickTime -47 (fBsyErr) error.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/jars/QuickTime_Plugins.jar">QuickTime_Plugins.jar</A>
+to the plugins folder, or subfolder,  restart ImageJ and there will be a new
+<i>File/Save As/QuickTime Movie</i> command. 
+This JAR file also installs three other QuickTime plugins:
+<ul>
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/qt-capture.html">QuickTime Capture</A> (<i>File/Import/Video</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-opener.html">QT Movie Opener</A> (<i>File/Import/Using QuickTime</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QT Player</A> (<i>File/Import/QuickTime Player</i>)
+</ul>
+Note that this JAR file is included with the Mac OS X version of ImageJ, version 1.34 and later.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	Saves a stack as a QuickTime movie. Requires both QuickTime and QuickTime for Java.
+Both are preinstalled on Macs.
+Windows users must install
+<A HREF="http://www.apple.com/quicktime/">QuickTime 7</A> and
+<A HREF="qt-install.html">copy QTJava.zip</A>  to the Java extensions folder (ImageJ\jre\lib\ext).
+<p>
+A dialog box allows the user to specify the type of compression used, the quality, and the frame rate. The following 
+compression methods (codecs) are supported:
+<ul>
+<li><b>Cinepak</b> - a favorite in the early 90's and supported
+by many other players, but quite obsolete today
+<li><b>Animation</b> - meant for synthetic
+images (i.e., graphics), inappropriate for digitized images
+<li><b>H.263</b> - pretty good videoconferencing codec, enjoys
+wide support (it's the only useful video codec in JMF)
+<li><b>Sorenson</b> - long a QT favorite because of
+high compression and attractive playback
+<li><b>Sorenson 3</b> - an improved version of the Sorenson codec; requires QuickTime 5
+<li><b>MPEG-4</b> - massive compression; requires QuickTime 7
+</ul>
+
+This plugin is based on the VideoSampleBuilder example in Chapter 8 of 
+<A HREF="http://www.oreilly.com/catalog/quicktimejvaadn/">QuickTime for Java: A Developer's Notebook</A>
+by Chris Adamson. The codec descriptions are from the MakeCSequence example in the
+<A HREF="http://www.onjava.com/pub/a/onjava/2003/08/13/qtj_reintro.html">Making Media from Scratch</A>
+article, also by Chris Adamson.
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/10/20: First version<br>
+2005/10/11: Works with Java 1.4 on Mac OS X<br>
+2005/10/13: Fixed byte ordering bug on Windows<br>
+2005/11/09: Up to 8 times faster<br>
+2005/11/22: Compression ratio calculated correctly; options dialog displayed before save as dialog<br>
+2007/05/22: Displays error if file name longer than 32 characters<br>
+2008/05/14: Minimum frame rate no longer limited to 0.1 fps<br>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<li> The <i>File&gt;Save As&gt;AVI</i> command, which creates QuickTime compatible files,
+using either no compression or M-JPEG compression<br>
+<li> The <i>File&gt;Save As&gt;Gif</i> command,
+which saves an 8-bit stack as an animated GIF
+<li> The <A HREF="http://rsb.info.nih.gov/ij/plugins/qt-stack-writer.html">QT Stack Writer</A> plugin,
+which is faster and uses the standard QuickTime compression dialog
+
+</td></tr>
+
+
+</table>
+
+</body>
+</html>
