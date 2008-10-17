@@ -10,7 +10,7 @@ import ij.measure.*;
 public class Grid_ implements PlugIn, DialogListener {
 	private static String[] colors = {"Red","Green","Blue","Magenta","Cyan","Yellow","Orange","Black","White"};
 	private static String color = "Cyan";
-	private static String[] types = {"Lines", "Crosses", "Points", "None"};
+	private static String[] types = {"Lines","Horizontal Lines", "Crosses", "Points", "None"};
 	private static String type = types[0];
 	private static double areaPerPoint;
 	private static boolean randomOffset;
@@ -87,6 +87,18 @@ public class Grid_ implements PlugIn, DialogListener {
 		showGrid(path);
 	}
 
+	void drawHorizontalLines() {
+		GeneralPath path = new GeneralPath();
+		int width = imp.getWidth();
+		int height = imp.getHeight();
+		for(int i=0; i<linesH; i++) {
+			float yoff = (float)(ystart+i*tileHeight);
+			path.moveTo(0f, yoff);
+			path.lineTo(width, yoff);
+		}
+		showGrid(path);
+	}
+
 	void showDialog() {
 		int width = imp.getWidth();
 		int height = imp.getHeight();
@@ -126,7 +138,7 @@ public class Grid_ implements PlugIn, DialogListener {
 		randomOffset = gd.getNextBoolean();
 		
 		double minArea= (width*height)/50000.0;
-		if (type.equals(types[1])&&minArea<144.0)
+		if (type.equals(types[2])&&minArea<144.0)
 			minArea = 144.0;
 		else if (minArea<16)
 			minArea = 16.0;
@@ -155,8 +167,10 @@ public class Grid_ implements PlugIn, DialogListener {
 		if (type.equals(types[0]))
 			drawLines();
 		else if (type.equals(types[1]))
+			drawHorizontalLines();
+		else if (type.equals(types[2]))
 			drawCrosses();
-		else  if (type.equals(types[2]))
+		else  if (type.equals(types[3]))
 			drawPoints();
 		else
 			showGrid(null);
