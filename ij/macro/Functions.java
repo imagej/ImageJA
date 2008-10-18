@@ -41,6 +41,7 @@ public class Functions implements MacroConstants, Measurements {
     StringBuffer buffer;
     RoiManager roiManager;
     Properties props;
+    CurveFitter fitter;
     
     boolean saveSettingsCalled;
 	boolean usePointerCursor, hideProcessStackDialog;
@@ -155,6 +156,7 @@ public class Functions implements MacroConstants, Measurements {
 			case SET_SELECTION_LOC: setSelectionLocation(); break;
 			case GET_DIMENSIONS: getDimensions(); break;
 			case WAIT_FOR_USER: waitForUser(); break;
+			case MAKE_POINT: makePoint(); break;
 		}
 	}
 	
@@ -202,6 +204,7 @@ public class Functions implements MacroConstants, Measurements {
 			case STACK: value = doStack(); break;
 			case MATCHES: value = matches(); break;
 			case GET_STRING_WIDTH: value = getStringWidth(); break;
+			case FIT: value = fit(); break;
 			default:
 				interp.error("Numeric function expected");
 		}
@@ -271,7 +274,7 @@ public class Functions implements MacroConstants, Measurements {
 			case EXP: return Math.exp(arg);
 			case FLOOR: return Math.floor(arg);
 			case LOG: return Math.log(arg);
-			case ROUND: return Math.round(arg);
+			case ROUND: return Math.floor(arg + 0.5);
 			case SIN: return Math.sin(arg);
 			case SQRT: return Math.sqrt(arg);
 			case TAN: return Math.tan(arg);
@@ -549,8 +552,10 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	void setForegroundColor() {
+		int lineWidth = getProcessor().getLineWidth();
 		IJ.setForegroundColor((int)getFirstArg(), (int)getNextArg(), (int)getLastArg());
-		resetImage(); 
+		resetImage();
+		getProcessor().setLineWidth(lineWidth);
 		defaultColor = null;
 		defaultValue = Double.NaN;
 	}
@@ -1113,13 +1118,21 @@ public class Functions implements MacroConstants, Measurements {
 		if (roi==null)
 			interp.error("Selection required");
 		Polygon p = roi.getPolygon();
-    	Variable[] xa = new Variable[p.npoints];
-    	for (int i=0; i<p.npoints; i++)
-    		xa[i] = new Variable(p.xpoints[i]);
+		FloatPolygon fp = roi.getFloatPolygon();
+		Variable[] xa = new Variable[p.npoints];
+		Variable[] ya = new Variable[p.npoints];
+		if (fp!=null) { //spline fit polygon
+			for (int i=0; i<p.npoints; i++)
+			xa[i] = new Variable(fp.xpoints[i]);
+			for (int i=0; i<p.npoints; i++)
+			ya[i] = new Variable(fp.ypoints[i]);
+		} else {
+			for (int i=0; i<p.npoints; i++)
+			xa[i] = new Variable(p.xpoints[i]);
+			for (int i=0; i<p.npoints; i++)
+			ya[i] = new Variable(p.ypoints[i]);
+		}
 		xCoordinates.setArray(xa);
-    	Variable[] ya = new Variable[p.npoints];
-    	for (int i=0; i<p.npoints; i++)
-    		ya[i] = new Variable(p.ypoints[i]);
 		yCoordinates.setArray(ya);
 	}
 	
@@ -1544,12 +1557,11 @@ public class Functions implements MacroConstants, Measurements {
 		if (t1==ImageProcessor.NO_THRESHOLD) {
 			t1 = -1;
 			t2 = -1;
-		} else if (imp.getBitDepth()==16) {
+		} else {
 			Calibration cal = imp.getCalibration();
 			t1 = cal.getCValue(t1); 
 			t2 = cal.getCValue(t2); 
 		}
-
 		lower.setValue(t1);
 		upper.setValue(t2);
 	}
@@ -1643,7 +1655,10 @@ public class Functions implements MacroConstants, Measurements {
 		if (name.equals("create")) {
 			newPlot();
 			return;
-		}
+		} else if (name.equals("getValues")) {
+			getPlotValues();
+			return;
+		} 
 		if (plot==null)
 			interp.error("No plot defined");
 		if (name.equals("show")) {
@@ -1689,6 +1704,39 @@ public class Functions implements MacroConstants, Measurements {
 		    return;
 		} else
 			interp.error("Unrecognized plot function");
+	}
+
+	void getPlotValues() {
+		Variable xvar = getFirstArrayVariable();
+		Variable yvar = getLastArrayVariable();
+		float[] xvalues = new float[0];
+		float[] yvalues = new float[0];
+		ImagePlus imp = getImage();
+		ImageWindow win = imp.getWindow();
+		if (win!=null && win instanceof PlotWindow) {
+			PlotWindow pw = (PlotWindow)win;
+			xvalues = pw.getXValues();
+			yvalues = pw.getYValues();
+		} else if (win!=null && win instanceof HistogramWindow) {
+			HistogramWindow hw = (HistogramWindow)win;
+			double[] x = hw.getXValues();
+			xvalues = new float[x.length];
+			for (int i=0; i<x.length; i++)
+				xvalues[i] = (float)x[i];
+			int[] y = hw.getHistogram();
+			yvalues = new float[y.length];
+			for (int i=0; i<y.length; i++)
+				yvalues[i] = y[i];
+		} else
+			interp.error("No plot or histogram window");
+		Variable[] xa = new Variable[xvalues.length];
+		Variable[] ya = new Variable[yvalues.length];
+		for (int i=0; i<xvalues.length; i++)
+			xa[i] = new Variable(xvalues[i]);
+		for (int i=0; i<yvalues.length; i++)
+			ya[i] = new Variable(yvalues[i]);
+		xvar.setArray(xa);
+		yvar.setArray(ya);
 	}
 
 	void newPlot() {
@@ -1795,7 +1843,11 @@ public class Functions implements MacroConstants, Measurements {
 	String substring() {
 		String s = getFirstString();
 		int index1 = (int)getNextArg();
-		int index2 = (int)getLastArg();
+		int index2 = s.length();
+		if (interp.nextToken()==',')
+			index2 = (int)getLastArg();
+		else
+			interp.getRightParen();			
 		if (index1>index2)
 			interp.error("beginIndex>endIndex");
 		checkIndex(index1, 0, s.length());
@@ -1908,7 +1960,7 @@ public class Functions implements MacroConstants, Measurements {
 		usePointerCursor = Prefs.usePointerCursor;
 		hideProcessStackDialog = IJ.hideProcessStackDialog;
 		divideByZeroValue = FloatBlitter.divideByZeroValue;
-		jpegQuality = JpegWriter.getQuality();
+		jpegQuality = FileSaver.getJpegQuality();
 		lineWidth = Line.getWidth();
 		doScaling = ImageConverter.getDoScaling();
 		weightedColor = Prefs.weightedColor;
@@ -1938,7 +1990,7 @@ public class Functions implements MacroConstants, Measurements {
 		Prefs.usePointerCursor = usePointerCursor;
 		IJ.hideProcessStackDialog = hideProcessStackDialog;
 		FloatBlitter.divideByZeroValue = divideByZeroValue;
-		JpegWriter.setQuality(jpegQuality);
+		FileSaver.setJpegQuality(jpegQuality);
 		Line.setWidth(lineWidth);
 		ImageConverter.setDoScaling(doScaling);
 		if (weightedColor!=Prefs.weightedColor) {
@@ -2077,11 +2129,9 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		double v1 = imp.getDisplayRangeMin();
 		double v2 = imp.getDisplayRangeMax();
-		if (imp.getBitDepth()==16) {
-			Calibration cal = imp.getCalibration();
-			v1 = cal.getCValue(v1); 
-			v2 = cal.getCValue(v2); 
-		}
+		Calibration cal = imp.getCalibration();
+		v1 = cal.getCValue(v1); 
+		v2 = cal.getCValue(v2); 
 		min.setValue(v1);
 		max.setValue(v2);
 	}
@@ -2317,7 +2367,7 @@ public class Functions implements MacroConstants, Measurements {
 			} else
 				n = Integer.parseInt(s, radix);
 		} catch (NumberFormatException e) {
-			n = NaN;
+			n = Double.NaN;
 		}
 		return n;			
 	}
@@ -2447,12 +2497,39 @@ public class Functions implements MacroConstants, Measurements {
 			arg = getString();
 		}
 		interp.getRightParen();
-		if (eval)
-			return IJ.runMacro(name, arg);
-		else
+		if (eval) {
+			if (arg!=null && (name.equals("script")||name.equals("js")))
+				return evalScript(arg);
+			else
+				return IJ.runMacro(name, arg);
+		} else
 			return IJ.runMacroFile(name, arg);
 	}
 
+	String evalScript(String script) {
+		Object js = null;
+		if (IJ.isJava16() && !IJ.isMacOSX())
+			js = IJ.runPlugIn("JavaScriptEvaluator", "");
+		else {
+			js = IJ.runPlugIn("JavaScript", "");
+			script = Editor.JavaScriptIncludes+script;
+		}
+		if (js==null) interp.error(Editor.JS_NOT_FOUND);
+		String arg = "";
+		try {
+			Class c = js.getClass();
+			Method m = c.getMethod("run", new Class[] {script.getClass(), arg.getClass()});
+			String s = (String)m.invoke(js, new Object[] {script, arg});			
+		} catch(Exception e) {
+			String msg = ""+e;
+			if (msg.indexOf("NoSuchMethod")!=0)
+				msg = "\"JavaScript.jar\" ("+IJ.URL+"/download/tools/JavaScript.jar)\nis outdated";
+			interp.error(msg);
+			return null;
+		}
+		return null;
+	}
+ 	
 	void setThreshold() {
 		double lower = getFirstArg();
 		double upper = getNextArg();
@@ -2516,7 +2593,20 @@ public class Functions implements MacroConstants, Measurements {
 		ImageProcessor ip = getProcessor();
 		ImageStatistics stats = null;
 		Roi roi = imp.getRoi();
-		if (roi!=null && roi.isLine()) {
+		int lineWidth = Line.getWidth();
+		if (roi!=null && roi.isLine() && lineWidth>1) {
+			ImageProcessor ip2;
+			if (roi.getType()==Roi.LINE) {
+				ip2 = ip;
+				Rectangle saveR = ip2.getRoi();
+				ip2.setRoi(roi.getPolygon());
+				stats = ImageStatistics.getStatistics(ip2, params, cal);
+				ip2.setRoi(saveR);
+			} else {
+				ip2 = (new Straightener()).straighten(imp, lineWidth);
+				stats = ImageStatistics.getStatistics(ip2, params, cal);
+			}
+		} else if (roi!=null && roi.isLine()) {
 			ProfilePlot profile = new ProfilePlot(imp);
 			double[] values = profile.getProfile();
 			ImageProcessor ip2 = new FloatProcessor(values.length, 1, values);
@@ -2906,6 +2996,14 @@ public class Functions implements MacroConstants, Measurements {
 				return f1.renameTo(f2)?"1":"0";
 			else
 				return "0";
+		} else if (name.equals("append")) {
+			String err = IJ.append(getFirstString(), getLastString());
+			if (err!=null) interp.error(err);
+			return null;
+		} else if (name.equals("saveString")) {
+			String err = IJ.saveString(getFirstString(), getLastString());
+			if (err!=null) interp.error(err);
+			return null;
 		}
 		File f = new File(getStringArg());
 		if (name.equals("getLength")||name.equals("length"))
@@ -2927,27 +3025,27 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("dateLastModified"))
 			return (new Date(f.lastModified())).toString();
 		else if (name.equals("delete")) {
-			String ok = null;
-			if (isValid(f)) ok=f.delete()?"1":"0";
-			return ok;
+			return f.delete()?"1":"0";
 		} else
 			interp.error("Unrecognized File function "+name);
 		return null;
 	}
 	
+	/*
 	boolean isValid(File f) {
 		String path = f.getPath();
 		if (path.equals("0") || path.equals("NaN") )
 				interp.error("Invalid path");
 		path = f.getAbsolutePath();
-		if (!(path.indexOf("ImageJ")!=-1
+		if (!(path.indexOf("ImageJ")!=-1||path.indexOf("temp")!=-1
 		||path.startsWith(System.getProperty("java.io.tmpdir"))
 		||path.startsWith(System.getProperty("user.home")))) {
-			interp.error("File must be in ImageJ, home or tmp directory");
+			interp.error("File must be in ImageJ, home or temp directory");
 			return false;
 		} else
 			return true;
 	}
+	*/
 	
 	boolean checkPath(File f) {
 		String path = f.getPath();
@@ -3085,8 +3183,10 @@ public class Functions implements MacroConstants, Measurements {
 		// get class and method name
 		String fullName = getFirstString();
 		int dot = fullName.lastIndexOf('.');
-		if(dot<0)
-			interp.error("Expected 'classname.methodname'");
+		if(dot<0) {
+			interp.error("'classname.methodname' expected");
+			return null;
+		}
 		String className = fullName.substring(0,dot);
 		String methodName = fullName.substring(dot+1);
 
@@ -3171,13 +3271,8 @@ public class Functions implements MacroConstants, Measurements {
 			while ((line=br.readLine()) != null)
 				sb.append (line + "\n");
 			in.close ();
-		} catch (IOException e) {
-			String msg = ""+e;
-			if (msg.indexOf("UnknownHost")!=-1 || msg.indexOf("FileNotFound")!=-1)
-				return "";
-			else
-				interp.error(msg);
-			sb = null;
+		} catch (Exception e) {
+			return("<Error: "+e+">");
 		}
 		if (sb!=null)
 			return new String(sb);
@@ -3187,11 +3282,14 @@ public class Functions implements MacroConstants, Measurements {
 	
 	void setOption() {
 		String arg1 = getFirstString();
-		interp.getComma();
-		double arg2 = interp.getBooleanExpression();
-		interp.checkBoolean(arg2);
+		boolean state = true;
+		if (interp.nextToken()==',') {
+			interp.getComma();
+			double arg2 = interp.getBooleanExpression();
+			interp.checkBoolean(arg2);
+			state = arg2==0?false:true;
+		}
 		interp.getRightParen();
-		boolean state = arg2==0?false:true;
 		arg1 = arg1.toLowerCase(Locale.US);
 		if (arg1.equals("disablepopupmenu")) {
 			ImageCanvas ic = getImage().getCanvas();
@@ -3746,5 +3844,86 @@ public class Functions implements MacroConstants, Measurements {
 		return list;
 	}
 
+	void makePoint() {
+		int x = (int)getFirstArg();
+		int y = (int)getLastArg();
+		IJ.makePoint(x, y);
+		resetImage(); 
+	}
+
+	double fit() {
+		interp.getToken();
+		if (interp.token!='.')
+			interp.error("'.' expected");
+		interp.getToken();
+		if (!(interp.token==WORD||interp.token==ARRAY_FUNCTION))
+			interp.error("Function name expected: ");
+		if (props==null)
+			props = new Properties();
+		String name = interp.tokenString;
+		if (name.equals("doFit"))
+			return fitCurve();
+		else if (name.equals("getEquation"))
+			return getEquation();
+		else if (name.equals("nEquations")) {
+			interp.getParens();
+			return CurveFitter.fitList.length;
+		}
+		if (fitter==null)
+			interp.error("No fit");
+		if (name.equals("f"))
+			return CurveFitter.f(fitter.getFit(), fitter.getParams(), getArg());
+		else if (name.equals("plot")) {
+			interp.getParens();
+			Fitter.plot(fitter);
+			return Double.NaN;
+		} else if (name.equals("nParams")) {
+			interp.getParens();
+			return fitter.getNumParams();
+		} else if (name.equals("p")) {
+			int index = (int)getArg();
+			checkIndex(index, 0, fitter.getNumParams()-1);
+			double[] p = fitter.getParams();
+			return p[index];
+		} else if (name.equals("rSquared")) {
+			interp.getParens();
+			return fitter.getRSquared();
+		}
+		return Double.NaN;
+	}
+	
+	double fitCurve() {
+		interp.getLeftParen();
+		int fit = -1;
+		if (isStringArg()) {
+			String name = getString().toLowerCase(Locale.US);
+			String[] list = CurveFitter.fitList;
+			for (int i=0; i<list.length; i++) {
+				if (name.equals(list[i].toLowerCase(Locale.US))) {
+					fit = i;
+					break;
+				}
+			}
+			if (fit==-1)
+				interp.error("Unrecognized fit");
+		} else
+			fit = (int)interp.getExpression();
+		double[] x = getNextArray();
+		double[] y = getLastArray();
+		fitter = new CurveFitter(x, y);
+		fitter.doFit(fit, false);
+		return Double.NaN;
+	}
+
+	double getEquation() {
+		int index = (int)getFirstArg();
+		Variable name = getNextVariable();
+		Variable formula = getLastVariable();
+		checkIndex(index, 0, CurveFitter.fitList.length-1);
+		name.setString(CurveFitter.fitList[index]);
+		formula.setString(CurveFitter.fList[index]);
+		return Double.NaN;
+	}
+	
 } // class Functions
 

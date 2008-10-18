@@ -4,7 +4,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.awt.datatransfer.*;																																																																																													
-import java.lang.reflect.*;
 import ij.*;
 import ij.gui.*;
 import ij.util.Tools;
@@ -28,7 +27,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		"importPackage(java.awt);"+
 		"function print(s) {IJ.log(s);};";
 	public static String JS_NOT_FOUND = 
-		"JavaScript.jar was not found in the plugins\nfolder. It can be downloaded from:\n \nrsb.info.nih.gov/ij/download/tools/JavaScript.jar";
+		"JavaScript.jar was not found in the plugins\nfolder. It can be downloaded from:\n \n"+IJ.URL+"/download/tools/JavaScript.jar";
 	public static final int MAX_SIZE=28000, XINC=10, YINC=18;
 	public static final int MONOSPACED=1, MENU_BAR=2;
 	public static final int MACROS_MENU_ITEMS = 6;
@@ -534,7 +533,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		else if ("Save Settings".equals(what))
 			saveSettings();
 		else if ("New...".equals(what))
-			IJ.run("New... ");
+			IJ.run("Text Window");
 		else if ("Open...".equals(what))
 			IJ.open();
 		else

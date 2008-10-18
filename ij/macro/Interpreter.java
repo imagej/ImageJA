@@ -61,8 +61,8 @@ public class Interpreter implements MacroConstants {
 		}
 		Tokenizer tok = new Tokenizer();
 		Program pgm = tok.tokenize(macro);
-		if (pgm.hasVars)
-			saveGlobals2(pgm);
+		//if (pgm.hasVars)  // why is this needed???????
+		//	saveGlobals2(pgm);
 		run(pgm);
 	}
 
@@ -122,7 +122,7 @@ public class Interpreter implements MacroConstants {
 		Recorder.recordInMacros = false;
 	}
 	
-	/** Saves global variablesk. */
+	/** Saves global variables. */
 	public void saveGlobals(Program pgm) {
 		saveGlobals2(pgm);
 	}
@@ -1526,19 +1526,20 @@ public class Interpreter implements MacroConstants {
 	
 	/** Aborts currently running macro. */
 	public static void abort() {
-		abort2(instance);
+		abort(instance);
 	}
 	
 	/** Aborts the macro that was running when this one started. */
 	static void abortPrevious() {
 		if (previousInstance!=null) {
-			abort2(previousInstance);
+			abort(previousInstance);
 			IJ.beep();
 			previousInstance = null;
 		}
 	}
 
-	private static void abort2(Interpreter interpreter) {
+	/** Aborts the specified macro. */
+	public static void abort(Interpreter interpreter) {
 		if (interpreter!=null) {
 			if (!interpreter.calledMacro) {
 				batchMode = false;

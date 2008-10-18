@@ -7,11 +7,15 @@ import ij.process.*;
 import ij.measure.Calibration;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
-import ij.plugin.JpegWriter;
-
+import javax.imageio.*;
 
 /** Saves images in tiff, gif, jpeg, raw, zip and text format. */
 public class FileSaver {
+
+	public static final int DEFAULT_JPEG_QUALITY = 75;
+	private static int jpegQuality;
+	
+    static {setJpegQuality(ij.Prefs.getInt(ij.Prefs.JPEG, DEFAULT_JPEG_QUALITY));}
 
 	private static String defaultDirectory = null;
 	private ImagePlus imp;
@@ -25,24 +29,30 @@ public class FileSaver {
 		fi = imp.getFileInfo();
 	}
 
-	/** Resaves the image. Calls saveAsTiff() if this is a new image, not a TIFF, a 
-		stack or if the image was loaded using a URL. Returns false if saveAsTiff() is
+	/** Resaves the image. Calls saveAsTiff() if this is a new image, not a TIFF,
+		or if the image was loaded using a URL. Returns false if saveAsTiff() is
 		called and the user selects cancel in the file save dialog box. */
 	public boolean save() {
 		FileInfo ofi = null;
 		if (imp!=null) ofi = imp.getOriginalFileInfo();
 		boolean validName = ofi!=null && imp.getTitle().equals(ofi.fileName);
-		if (validName && ofi.fileFormat==FileInfo.TIFF && imp.getStackSize()==1 && ofi.nImages==1 && (ofi.url==null||ofi.url.equals(""))) {
+		if (validName && ofi.fileFormat==FileInfo.TIFF && ofi.directory!=null && !ofi.directory.equals("") && (ofi.url==null||ofi.url.equals(""))) {
             name = imp.getTitle();
             directory = ofi.directory;
 			String path = directory+name;
 			File f = new File(path);
-			if (!IJ.isMacro() && f!=null && f.exists()) {
+			if (f==null || !f.exists())
+				return saveAsTiff();
+			if (!IJ.isMacro()) {
 				if (!IJ.showMessageWithCancel("Save as TIFF", "The file "+ofi.fileName+" already exists.\nDo you want to replace it?"))
 					return false;
 			}
 			IJ.showStatus("Saving "+path);
-		    return saveAsTiff(path);
+			if (imp.getStackSize()>1) {
+				IJ.saveAs("tif", path);
+				return true;
+			} else
+		    	return saveAsTiff(path);
 		} else
 			return saveAsTiff();
 	}
@@ -226,11 +236,11 @@ public class FileSaver {
 
 	/** Save the image in JPEG format using a save file
 		dialog. Returns false if the user selects cancel.
-		@see ij.plugin.JpegWriter#setQuality
-		@see ij.plugin.JpegWriter#getQuality
+		@see setJpegQuality
+		@see getJpegQuality
 	*/
 	public boolean saveAsJpeg() {
-		String type = "JPEG ("+JpegWriter.getQuality()+")";
+		String type = "JPEG ("+getJpegQuality()+")";
 		String path = getPath(type, ".jpg");
 		if (path==null)
 			return false;
@@ -239,12 +249,19 @@ public class FileSaver {
 	}
 
 	/** Save the image in JPEG format using the specified path.
-		@see ij.plugin.JpegWriter#setQuality
-		@see ij.plugin.JpegWriter#getQuality
+		@see setJpegQuality
+		@see getJpegQuality
 	*/
 	public boolean saveAsJpeg(String path) {
 		Object jpegWriter = null;
-		IJ.runPlugIn(imp, "ij.plugin.JpegWriter", path); //ts
+		Object jpw = IJ.runPlugIn(imp, "ij.plugin.JpegWriter", path);
+		if (jpw==null) { // use ImageIO if JpegWriter is missing
+			try {
+				ImageIO.write(imp.getBufferedImage(), "jpg", new File(path));
+			} catch (Exception e) {
+				IJ.error(""+e);
+			}
+		}
 		if (!(imp.getType()==ImagePlus.GRAY16 || imp.getType()==ImagePlus.GRAY32))
 			updateImp(fi, fi.GIF_OR_JPG);
 		return true;
@@ -596,5 +613,19 @@ public class FileSaver {
 		sb.append((char)0);
 		return new String(sb);
 	}
+	
+	/** Specifies the image quality (0-100). 0 is poorest image quality,
+		highest compression, and 100 is best image quality, lowest compression. */
+    public static void setJpegQuality(int quality) {
+        jpegQuality = quality;
+    	if (jpegQuality<0) jpegQuality = 0;
+    	if (jpegQuality>100) jpegQuality = 100;
+    }
+
+    /** Returns the current JPEG quality setting (0-100). */
+    public static int getJpegQuality() {
+        return jpegQuality;
+    }
+
 
 }

@@ -12,16 +12,18 @@ import ij.util.Tools;
 
 /** Adjusts the width of line selections.  */
 public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
-	Runnable, AdjustmentListener, TextListener {
+	Runnable, AdjustmentListener, TextListener, ItemListener {
 
-	int sliderRange = 100;
+	public static final String LOC_KEY = "line.loc";
+	int sliderRange = 300;
 	Scrollbar slider;
 	int value;
 	boolean setText;
-	static Frame instance; 
+	static LineWidthAdjuster instance; 
 	Thread thread;
 	boolean done;
 	TextField tf;
+	Checkbox checkbox;
 
 	public LineWidthAdjuster() {
 		super("Line Width");
@@ -32,37 +34,50 @@ public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
 		WindowManager.addWindow(this);
 		instance = this;
 		slider = new Scrollbar(Scrollbar.HORIZONTAL, 1, 1, 1, sliderRange+1);
-		
+		slider.setFocusable(false); // prevents blinking on Windows
+				
 		Panel panel = new Panel();
+		int margin = IJ.isMacOSX()?5:0;
 		GridBagLayout grid = new GridBagLayout();
 		GridBagConstraints c  = new GridBagConstraints();
 		panel.setLayout(grid);
 		c.gridx = 0; c.gridy = 0;
 		c.gridwidth = 1;
-		c.ipadx = 75;
-		c.insets = new Insets(5, 15, 5, 5);
-		c.anchor = GridBagConstraints.WEST;
+		c.ipadx = 100;
+		c.insets = new Insets(margin, 15, margin, 5);
+		c.anchor = GridBagConstraints.CENTER;
 		grid.setConstraints(slider, c);
 		panel.add(slider);
 		c.ipadx = 0;  // reset
 		c.gridx = 1;
-		c.insets = new Insets(5, 5, 5, 15);
-		c.anchor = GridBagConstraints.EAST;
-		tf = new TextField(""+Line.getWidth(), 3);
+		c.insets = new Insets(margin, 5, margin, 15);
+		tf = new TextField(""+Line.getWidth(), 4);
 		tf.addTextListener(this);
 		grid.setConstraints(tf, c);
     	panel.add(tf);
 		
+		c.gridx = 2;
+		c.insets = new Insets(margin, 25, margin, 5);
+		checkbox = new Checkbox("Spline Fit", isSplineFit());
+		checkbox.addItemListener(this);
+		panel.add(checkbox);
+		
 		add(panel, BorderLayout.CENTER);
 		slider.addAdjustmentListener(this);
 		slider.setUnitIncrement(1);
+		
 		pack();
+		Point loc = Prefs.getLocation(LOC_KEY);
+		if (loc!=null)
+			setLocation(loc);
+		else
+			GUI.center(this);
 		setResizable(false);
-		GUI.center(this);
 		show();
 		thread = new Thread(this, "LineWidthAdjuster");
 		thread.start();
 		setup();
+		addKeyListener(IJ.getInstance());
 	}
 	
 	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
@@ -97,17 +112,36 @@ public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
 				Line.setWidth(value);
 				if (setText) tf.setText(""+value);
 				setText = false;
-				ImagePlus imp = WindowManager.getCurrentImage();
-				if (imp!=null) {
-					Roi roi = imp.getRoi();
-					if (roi!=null) imp.draw();
-				}
+				updateWindows();
+			}
+		}
+	}
+	
+    void updateWindows() {
+		int[] list = WindowManager.getIDList();
+		if (list==null) return;
+		for (int i=0; i<list.length; i++) {
+			ImagePlus imp = WindowManager.getImage(list[i]);
+			if (imp!=null) {
+				Roi roi = imp.getRoi();
+				if (roi!=null && roi.isLine())
+					imp.draw();
 			}
 		}
 	}
 
+	boolean isSplineFit() {
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp==null) return false;
+		Roi roi = imp.getRoi();
+		if (roi==null) return false;
+		if (!(roi instanceof PolygonRoi)) return false;
+		return ((PolygonRoi)roi).isSplineFit();
+	}
+
     public void windowClosing(WindowEvent e) {
-    	close();
+	 	close();
+		Prefs.saveLocation(LOC_KEY, getLocation());
 	}
 
     /** Overrides close() in PlugInFrame. */
@@ -120,6 +154,37 @@ public class LineWidthAdjuster extends PlugInFrame implements PlugIn,
 
     public void windowActivated(WindowEvent e) {
     	super.windowActivated(e);
+    	checkbox.setState(isSplineFit());
+	}
+
+	public void itemStateChanged(ItemEvent e) {
+		boolean selected = e.getStateChange()==ItemEvent.SELECTED;
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp==null)
+			{checkbox.setState(false); return;};
+		Roi roi = imp.getRoi();
+		if (roi==null || !(roi instanceof PolygonRoi))
+			{checkbox.setState(false); return;};
+		int type = roi.getType();
+		if (type==Roi.FREEROI || type==Roi.FREELINE)
+			{checkbox.setState(false); return;};;
+		PolygonRoi poly = (PolygonRoi)roi;
+		boolean splineFit = poly.isSplineFit();
+		if (selected && !splineFit)
+			{poly.fitSpline(); imp.draw();}
+		else if (!selected && splineFit)
+			{poly.removeSplineFit(); imp.draw();}
+	}
+	
+	public static void update() {
+		if (instance==null) return;
+		instance.checkbox.setState(instance.isSplineFit());
+		int sliderWidth = instance.slider.getValue();
+		int lineWidth = Line.getWidth();
+		if (lineWidth!=sliderWidth && lineWidth<=200) {
+			instance.slider.setValue(lineWidth);
+			instance.tf.setText(""+lineWidth);
+		}
 	}
 
 } 

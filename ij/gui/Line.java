@@ -1,10 +1,13 @@
 package ij.gui;
-import java.awt.*;
-import java.awt.image.*;
 import ij.*;
 import ij.process.*;
 import ij.measure.*;
+import ij.plugin.Straightener;
+import java.awt.*;
+import java.awt.image.*;
 import java.awt.event.KeyEvent;
+import java.awt.geom.*;
+
 
 /** This class represents a straight line selection. */
 public class Line extends Roi {
@@ -12,22 +15,8 @@ public class Line extends Roi {
 	public int x1, y1, x2, y2;	// the line
 	public double x1d, y1d, x2d, y2d;	// the line using sub-pixel coordinates
 	private double x1R, y1R, x2R, y2R;  // the line, relative to base of bounding rect
-	private static int lineWidth = 1;
 	private double xHandleOffset, yHandleOffset;
 	private double startxd, startyd;
-
-	/*
-	public Line(int ox1, int oy1, int ox2, int oy2) {
-		//this(ox1, oy1, null);
-		super(ox1, oy1, null);
-		type = LINE;
-		startxd = startX; startyd = startY;
-		grow(ox2, oy2);
-		x1d=x+x1R; y1d=y+y1R; x2d=x+x2R; y2d=y+y2R;
-		x1=(int)x1d; y1=(int)y1d; x2=(int)x2d; y2=(int)y2d;
-		state = NORMAL;
-	}
-	*/
 
 	/** Creates a new straight line selection using the specified
 		starting and ending offscreen integer coordinates. */
@@ -170,10 +159,9 @@ public class Line extends Roi {
 			ic.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 	}
 
-	/** Draws this line in the image. */
+	/** Draws this line on the image. */
 	public void draw(Graphics g) {
 		if (ic==null) return;
-		g.setColor(instanceColor!=null?instanceColor:ROIColor);
 		x1d=x+x1R; y1d=y+y1R; x2d=x+x2R; y2d=y+y2R;
 		x1=(int)x1d; y1=(int)y1d; x2=(int)x2d; y2=(int)y2d;
 		int sx1 = ic.screenXD(x1d);
@@ -182,22 +170,29 @@ public class Line extends Roi {
 		int sy2 = ic.screenYD(y2d);
 		int sx3 = sx1 + (sx2-sx1)/2;
 		int sy3 = sy1 + (sy2-sy1)/2;
-		if (lineWidth==1)
-			g.drawLine(sx1, sy1, sx2, sy2);
-		else {
-			Polygon p = getPolygon();
-			g.drawLine(ic.screenX(p.xpoints[0]), ic.screenY(p.ypoints[0]), ic.screenX(p.xpoints[1]), ic.screenY(p.ypoints[1]));
-			g.drawLine(ic.screenX(p.xpoints[1]), ic.screenY(p.ypoints[1]), ic.screenX(p.xpoints[2]), ic.screenY(p.ypoints[2]));
-			g.drawLine(ic.screenX(p.xpoints[2]), ic.screenY(p.ypoints[2]), ic.screenX(p.xpoints[3]), ic.screenY(p.ypoints[3]));
-			g.drawLine(ic.screenX(p.xpoints[3]), ic.screenY(p.ypoints[3]), ic.screenX(p.xpoints[0]), ic.screenY(p.ypoints[0]));
-			//updateFullWindow = true;
+		g.setColor(instanceColor!=null?instanceColor:ROIColor);
+		if (lineWidth>1) {
+			Graphics2D g2d = (Graphics2D)g;
+			GeneralPath path = new GeneralPath();
+			path.moveTo(sx1, sy1);
+			path.lineTo(sx2, sy2);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.3f);
+			g2d.setComposite(ac);
+			g2d.setStroke(new BasicStroke((float)(lineWidth*ic.getMagnification()),BasicStroke.CAP_BUTT,BasicStroke.JOIN_BEVEL));
+			g2d.draw(path);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f);
+			g2d.setStroke(new BasicStroke(1));
+			g2d.setComposite(ac);
 		}
+		g.drawLine(sx1, sy1, sx2, sy2);
 		if (state!=CONSTRUCTING) {
 			int size2 = HANDLE_SIZE/2;
 			handleColor=instanceColor!=null?instanceColor:ROIColor; drawHandle(g, sx1-size2, sy1-size2); handleColor=Color.white;
 			drawHandle(g, sx2-size2, sy2-size2);
 			drawHandle(g, sx3-size2, sy3-size2);
-	   }
+		}
 		if (state!=NORMAL)
 			IJ.showStatus(imp.getLocationAsString(x2,y2)+", angle=" + IJ.d2s(getAngle(x1,y1,x2,y2)) + ", length=" + IJ.d2s(getLength()));
 		if (updateFullWindow)
@@ -223,11 +218,12 @@ public class Line extends Roi {
 	/** Returns the pixel values along this line. */
 	public double[] getPixels() {
 			double[] profile;
-			ImageProcessor ip = imp.getProcessor();
-			if (lineWidth==1)
+			if (lineWidth==1) {
+				ImageProcessor ip = imp.getProcessor();
 				profile = ip.getLine(x1d, y1d, x2d, y2d);
-			else {
-				ImageProcessor ip2 = rotateWideLine(ip);
+			} else {
+				ImageProcessor ip2 = (new Straightener()).rotateLine(imp,lineWidth);
+				if (ip2==null) return null;
 				int width = ip2.getWidth();
 				int height = ip2.getHeight();
 				profile = new double[width];
@@ -244,38 +240,6 @@ public class Line extends Roi {
 			return profile;
 	}
 	
-	ImageProcessor rotateWideLine(ImageProcessor ip) {
-		int width = (int)Math.round(getRawLength());
-		int height = lineWidth;
-		ImageProcessor ip2 = new FloatProcessor(width, height);
-		double angle = Math.atan2(y1d-y2d, x2d-x1d);
-		double srcWidth = (double)ip.getWidth();
-		double srcHeight = (double)ip.getHeight();
-		Polygon p = getPolygon();
-		int sxbase = p.xpoints[1];
-		int sybase = p.ypoints[1];
-		double r, theta, sx, sy;
-		for (int dy=0; dy<height; dy++) {
-			for (int dx=0; dx<width; dx++) {
-				r = Math.sqrt(dx*dx+dy*dy);
-				theta = Math.atan2(dy, dx);
-				theta += angle;
-				sx = sxbase + r*Math.cos(theta);
-				sy = sybase - r*Math.sin(theta);
-				//if (dy==height/2 && dx==width/2) IJ.log(""+angle+"  "+dx+"  "+dy+"  "+sx+"  "+sy+"  "+r +"  "+"  "+theta+"  "+sy);
-				if (sx>srcWidth || sy>srcHeight || sy<0.0 || sx<0.0 )
-					ip2.putPixelValue(dx, dy, 0.0);
-				else
-					ip2.putPixelValue(dx, dy, ip.getInterpolatedValue(sx, sy));
-			}
-		}
-		if (IJ.altKeyDown()) {
-			ip2.resetMinAndMax();
-			new ImagePlus("Rotated Line", ip2).show();
-		}
-		return ip2;
-	}
-
 	public Polygon getPolygon() {
 		Polygon p = new Polygon();
 		if (lineWidth==1) {
@@ -342,7 +306,15 @@ public class Line extends Roi {
 
 	public static void setWidth(int w) {
 		if (w<1) w = 1;
-		if (w>200) w = 200;
+		int max = 500;
+		if (w>max) {
+			ImagePlus imp2 = WindowManager.getCurrentImage();
+			if (imp2!=null) {
+				max = Math.max(max, imp2.getWidth());
+				max = Math.max(max, imp2.getHeight());
+			}
+			if (w>max) w = max;
+		}
 		lineWidth = w;
 	}
 	

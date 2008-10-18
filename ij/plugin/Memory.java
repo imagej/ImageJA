@@ -3,7 +3,6 @@ import ij.*;
 import ij.gui.*;
 import java.io.*;
 import ij.util.Tools;
-import java.lang.reflect.*;
 
 
 /** This plugin implements the Edit/Options/Memory command. */
@@ -94,7 +93,7 @@ public class Memory implements PlugIn {
 		String msg =
 			   "ImageJ is unable to change the memory limit. For \n"
 			+ "more information, refer to the installation notes at\n \n"
-			+ "    http://rsb.info.nih.gov/ij/docs/install/\n"
+			+ "    "+IJ.URL+"/docs/install/\n"
 			+ " \n";
 		if (fileMissing) {
 			if (IJ.isMacOSX())

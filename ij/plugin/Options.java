@@ -4,6 +4,7 @@ import ij.gui.*;
 import ij.process.*;
 import ij.io.*;
 import ij.plugin.filter.*;
+import ij.plugin.frame.LineWidthAdjuster;
 import java.awt.*;
 
 /** This plugin implements most of the commands
@@ -71,6 +72,7 @@ public class Options implements PlugIn {
 		int width = (int)IJ.getNumber("Line Width:", Line.getWidth());
 		if (width==IJ.CANCELED) return;
 		Line.setWidth(width);
+		LineWidthAdjuster.update();
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null && imp.isProcessor()) {
 			ImageProcessor ip = imp.getProcessor();
@@ -83,7 +85,7 @@ public class Options implements PlugIn {
 	// Input/Output options
 	void io() {
 		GenericDialog gd = new GenericDialog("I/O Options");
-		gd.addNumericField("JPEG Quality (0-100):", JpegWriter.getQuality(), 0, 3, "");
+		gd.addNumericField("JPEG Quality (0-100):", FileSaver.getJpegQuality(), 0, 3, "");
 		gd.addNumericField("GIF and PNG Transparent Index:", Prefs.getTransparentIndex(), 0, 3, "");
 		gd.addStringField("File Extension for Tables:", Prefs.get("options.ext", ".xls"), 4);
 		gd.addCheckbox("Use JFileChooser to Open/Save", Prefs.useJFileChooser);
@@ -96,7 +98,7 @@ public class Options implements PlugIn {
 		int quality = (int)gd.getNextNumber();
 		if (quality<0) quality = 0;
 		if (quality>100) quality = 100;
-		JpegWriter.setQuality(quality);
+		FileSaver.setJpegQuality(quality);
 		int transparentIndex = (int)gd.getNextNumber();
 		Prefs.setTransparentIndex(transparentIndex);
 		String extension = gd.getNextString();

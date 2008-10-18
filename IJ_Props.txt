@@ -78,7 +78,8 @@ selection11="Rotate...",ij.plugin.Selection("rotate")
 selection12="Enlarge...",ij.plugin.Selection("enlarge")
 selection13="Make Band...",ij.plugin.Selection("band")
 selection14="Specify...",ij.plugin.SpecifyROI
-selection15="Add to Manager [t]",ij.plugin.Selection("add")
+selection15="Straighten...",ij.plugin.Straightener
+selection16="Add to Manager [t]",ij.plugin.Selection("add")
 
 # Plugins installed in the Edit/Options submenu
 options01="Line Width...",ij.plugin.Options("line")
@@ -91,7 +92,8 @@ options07="Appearance...",ij.plugin.Options("display")
 options08="Conversions...",ij.plugin.Options("conv")
 options09="Memory & Threads...",ij.plugin.Memory
 options10="Proxy Settings...",ij.plugin.ProxySettings
-options11="Misc...",ij.plugin.Options("misc")
+options11="Compiler...",ij.plugin.Compiler("options")
+options12="Misc...",ij.plugin.Options("misc")
 
 # Plugins installed in the Image/Adjust submenu
 adjust01="Brightness/Contrast...[C]",ij.plugin.frame.ContrastAdjuster
@@ -100,6 +102,7 @@ adjust03="Color Balance...",ij.plugin.frame.ContrastAdjuster("balance")
 adjust04="Threshold...[T]",ij.plugin.frame.ThresholdAdjuster
 adjust05="Size...",ij.plugin.filter.Resizer
 adjust06="Canvas Size...",ij.plugin.CanvasResizer
+adjust07="Line Width... ",ij.plugin.frame.LineWidthAdjuster
 
 # Plugins installed in the Image/Color submenu
 color01="Split Channels",ij.plugin.filter.RGBStackSplitter
@@ -287,12 +290,13 @@ plug-in06="Install PlugIn...",ij.plugin.PlugInInstaller
 
 
 # Plugins installed in the Plugins/Macros submenu
-# 'baseCount' in MacroInstaller must be updated if more items are added
+# 'MACROS_MENU_COMMANDS' in MacroInstaller must be updated when items are added
 macros01="Install...[M]",ij.plugin.MacroInstaller
 macros02="Run...",ij.plugin.Macro_Runner
-macros03="Startup Macros...",ij.plugin.Commands("startup")
-macros04="Record...",ij.plugin.frame.Recorder
-macros05=-
+macros03="Edit...",ij.plugin.Compiler("edit")
+macros04="Startup Macros...",ij.plugin.Commands("startup")
+macros05="Record...",ij.plugin.frame.Recorder
+macros06=-
 
 # Plugins installed in the Plugins/Shortcuts submenu
 shortcuts01="Create Shortcut... ",ij.plugin.Hotkeys("install")
@@ -318,8 +322,8 @@ new_01="Macro",ij.plugin.NewPlugin("macro")
 new_02="JavaScript",ij.plugin.NewPlugin("javascript")
 new_03=-
 new_04="Plugin",ij.plugin.NewPlugin("plugin")
-new_05="Plugin Frame",ij.plugin.NewPlugin("frame")
-new_06="Plugin Filter",ij.plugin.NewPlugin("filter")
+new_05="Plugin Filter",ij.plugin.NewPlugin("filter")
+new_06="Plugin Frame",ij.plugin.NewPlugin("frame")
 new_07=-
 new_08="Text Window...",ij.plugin.NewPlugin("text+dialog")
 new_09="Table...",ij.plugin.NewPlugin("table")

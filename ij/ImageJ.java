@@ -6,7 +6,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.awt.image.*;
-import java.lang.reflect.*;
 import ij.gui.*;
 import ij.process.*;
 import ij.io.*;
@@ -69,7 +68,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.41g";
+	public static final String VERSION = "1.41n";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -95,6 +94,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private long keyPressedTime, actionPerformedTime;
 	private String lastKeyCommand;
 	private boolean embedded;
+	private boolean windowClosed;
 	
 	boolean hotkey;
 	
@@ -427,7 +427,7 @@ public class ImageJ extends Frame implements ActionListener,
 			if (cmd.equals("Fill"))
 				hotkey = true;
 			if (cmd.charAt(0)==MacroInstaller.commandPrefix)
-				MacroInstaller.runMacroCommand(cmd);
+				MacroInstaller.runMacroShortcut(cmd);
 			else {
 				doCommand(cmd);
 				keyPressedTime = System.currentTimeMillis();
@@ -468,6 +468,7 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public void windowClosing(WindowEvent e) {
 		doCommand("Quit");
+		windowClosed = true;
 	}
 
 	public void windowActivated(WindowEvent e) {
@@ -663,12 +664,13 @@ public class ImageJ extends Frame implements ActionListener,
 				}
 			}
 		}
-		if (!changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
+		if (windowClosed && !changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
 			GenericDialog gd = new GenericDialog(getTitle(), this);
 			gd.addMessage("Are you sure you want to quit "
 				+ getTitle() + "?");
 			gd.showDialog();
 			quitting = !gd.wasCanceled();
+			windowClosed = false;
 		}
 		if (!quitting)
 			return;
@@ -703,5 +705,5 @@ public class ImageJ extends Frame implements ActionListener,
 			Prefs.set(TextWindow.HEIGHT_KEY, d.height);
 		}
 	}
-
+	
 }

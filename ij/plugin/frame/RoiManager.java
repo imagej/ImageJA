@@ -17,6 +17,7 @@ import ij.measure.*;
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
 public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener {
 
+	public static final String LOC_KEY = "manager.loc";
 	static final int BUTTONS = 10;
 	static final int DRAW=0, FILL=1, LABEL=2;
 	static final int MENU=0, COMMAND=1, MULTI=2;
@@ -86,7 +87,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		addPopupMenu();
 		pack();
 		list.remove(0);
-		GUI.center(this);
+		Point loc = Prefs.getLocation(LOC_KEY);
+		if (loc!=null)
+			setLocation(loc);
+		else
+			GUI.center(this);
 		show();
 	}
 
@@ -225,7 +230,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			return false;
 		}
 		int n = list.getItemCount();
-		if (n>0) {
+		if (n>0 && !IJ.isMacro()) {
 			// check for duplicate
 			String label = list.getItem(n-1);
 			Roi roi2 = (Roi)rois.get(label);
@@ -376,7 +381,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (index>=0) {
 			String name = list.getItem(index);
 			rois.remove(name);
-			rois.put(name, roi);
+			rois.put(name, (Roi)roi.clone());
 		}
 		if (Recorder.record) Recorder.record("roiManager", "Update");
 		if (showingAll) imp.draw();
@@ -617,17 +622,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (indexes.length==0)
 			indexes = getAllIndexes();
         if (indexes.length==0) return false;
-		int nLines = 0;
 		boolean allSliceOne = true;
 		for (int i=0; i<indexes.length; i++) {
 			String label = list.getItem(indexes[i]);
 			if (getSliceNumber(label)>1) allSliceOne = false;
 			Roi roi = (Roi)rois.get(label);
-			if (roi.isLine()) nLines++;
-		}
-		if (nLines>0 && nLines!=indexes.length) {
-			error("All items must be areas or all must be lines.");
-			return false;
 		}
 		int nSlices = 1;
 		if (mode==MULTI)
@@ -817,6 +816,22 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 		if (indexes.length==0)
 			indexes = getAllIndexes();
+		int nPointRois = 0;
+		for (int i=0; i<indexes.length; i++) {
+			Roi roi = (Roi)rois.get(list.getItem(indexes[i]));
+			if (roi.getType()==Roi.POINT)
+				nPointRois++;
+			else
+				break;
+		}
+		if (nPointRois==indexes.length)
+			combinePoints(imp, indexes);
+		else
+			combineRois(imp, indexes);
+		if (Recorder.record) Recorder.record("roiManager", "Combine");
+	}
+	
+	void combineRois(ImagePlus imp, int[] indexes) {
 		ShapeRoi s1=null, s2=null;
 		for (int i=0; i<indexes.length; i++) {
 			Roi roi = (Roi)rois.get(list.getItem(indexes[i]));
@@ -846,7 +861,29 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 		if (s1!=null)
 			imp.setRoi(s1);
-		if (Recorder.record) Recorder.record("roiManager", "Combine");
+	}
+
+	void combinePoints(ImagePlus imp, int[] indexes) {
+		int n = indexes.length;
+		Polygon[] p = new Polygon[n];
+		int points = 0;
+		for (int i=0; i<n; i++) {
+			Roi roi = (Roi)rois.get(list.getItem(indexes[i]));
+			p[i] = roi.getPolygon();
+			points += p[i].npoints;
+		}
+		if (points==0) return;
+		int[] xpoints = new int[points];
+		int[] ypoints = new int[points];
+		int index = 0;
+		for (int i=0; i<p.length; i++) {
+			for (int j=0; j<p[i].npoints; j++) {
+				xpoints[index] = p[i].xpoints[j];
+				ypoints[index] = p[i].ypoints[j];
+				index++;
+			}	
+		}
+		imp.setRoi(new PointRoi(xpoints, ypoints, xpoints.length));
 	}
 
 	void addParticles() {
@@ -895,7 +932,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	}
 
 	void help() {
-		String macro = "run('URL...', 'url=http://rsb.info.nih.gov/ij/docs/menus/analyze.html#manager');";
+		String macro = "run('URL...', 'url="+IJ.URL+"/docs/menus/analyze.html#manager');";
 		new MacroRunner(macro);
 	}
 
@@ -1158,6 +1195,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (index<0) {
 			for (int i=0; i<n; i++)
 				if (list.isSelected(i)) list.deselect(i);
+			if (Recorder.record) Recorder.record("roiManager", "Deselect");
 			return;
 		}
 		if (index>=n) return;
@@ -1217,6 +1255,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
     public void close() {
     	super.close();
     	instance = null;
+		Prefs.saveLocation(LOC_KEY, getLocation());
     }
     
     public void mousePressed (MouseEvent e) {

@@ -71,7 +71,7 @@ public class SaveDialog {
 	}
 	
 	public static String setExtension(String name, String extension) {
-		if (name==null || extension==null)
+		if (name==null || extension==null || extension.length()==0)
 			return name;
 		int dotIndex = name.lastIndexOf(".");
 		if (dotIndex>=0 && (name.length()-dotIndex)<=5) {
@@ -83,7 +83,7 @@ public class SaveDialog {
 			name += extension;
 		return name;
 	}
-	
+	    
 	// Save using JFileChooser.
 	void jSave(String title, String defaultDir, String defaultName) {
 		Java2.setSystemLookAndFeel();
@@ -121,6 +121,8 @@ public class SaveDialog {
 		else {
 			dir = fc.getCurrentDirectory().getPath()+File.separator;
 			name = fc.getName(f);
+			if (name!=null && name.indexOf(".")==-1)
+				name = setExtension(name, ext);
 		}
 	}
 
@@ -155,6 +157,8 @@ public class SaveDialog {
 					else {
 						dir = fc.getCurrentDirectory().getPath()+File.separator;
 						name = fc.getName(f);
+						if (name!=null && name.indexOf(".")==-1)
+							name = setExtension(name, ext);
 					}
 				}
 			});
@@ -172,6 +176,8 @@ public class SaveDialog {
 			fd.setDirectory(defaultDir);
 		fd.show();
 		name = fd.getFile();
+		if (name!=null && name.indexOf(".")==-1)
+			name = setExtension(name, ext);
 		dir = fd.getDirectory();
 		if (name==null)
 			Macro.abort();
@@ -188,14 +194,8 @@ public class SaveDialog {
 	
 	/** Returns the selected file name. */
 	public String getFileName() {
-		if (Recorder.record) {
+		if (Recorder.record)
 			Recorder.recordPath(title, dir+name);
-			//String cmd = Recorder.getCommandName();
-			//if (cmd.endsWith("..."))
-			//	cmd = cmd.substring(0, cmd.length()-3);
-			//Recorder.record("saveAs", cmd, dir+name);
-			//Recorder.setCommand(null);
-		}
 		OpenDialog.lastName = name;
 		return name;
 	}

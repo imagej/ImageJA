@@ -20,6 +20,7 @@ import java.lang.reflect.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
+	public static final String URL = "http://imageja.sf.net";
 	public static final int ALL_KEYS = 0x32;
 	
 	public static boolean debugMode;
@@ -34,7 +35,7 @@ public class IJ {
 	private static ProgressBar progressBar;
 	private static TextPanel textPanel;
 	private static String osname, osarch;
-	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isLinux, isVista, is64Bit;
+	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isJava17, isLinux, isVista, is64Bit;
 	private static boolean altDown, spaceDown, shiftDown;
 	private static boolean macroRunning;
 	private static Thread previousThread;
@@ -62,6 +63,7 @@ public class IJ {
 			isJava14 = version.compareTo("1.3")>0;
 			isJava15 = version.compareTo("1.4")>0;
 			isJava16 = version.compareTo("1.5")>0;
+			isJava17 = version.compareTo("1.6")>0;
 		}
 	}
 			
@@ -117,10 +119,14 @@ public class IJ {
 
 	/** Runs the specified plugin using the specified image. */
 	public static Object runPlugIn(ImagePlus imp, String className, String arg) {
-		WindowManager.setTempCurrentImage(imp);
-		Object o = runPlugIn("", className, arg);
-		WindowManager.setTempCurrentImage(null);
-		return o;
+		if (imp!=null) {
+			ImagePlus temp = WindowManager.getTempCurrentImage();
+			WindowManager.setTempCurrentImage(imp);
+			Object o = runPlugIn("", className, arg);
+			WindowManager.setTempCurrentImage(temp);
+			return o;
+		} else
+			return runPlugIn(className, arg);
 	}
 
 	/** Runs the specified plugin and returns a reference to it. */
@@ -132,6 +138,7 @@ public class IJ {
 	static Object runPlugIn(String commandName, String className, String arg) {
 		if (IJ.debugMode)
 			IJ.log("runPlugin: "+className+" "+arg);
+		if (arg==null) arg = "";
 		// Use custom classloader if this is a user plugin
 		// and we are not running as an applet
 		if (!className.startsWith("ij") && applet==null) {
@@ -148,7 +155,7 @@ public class IJ {
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
 		}
 		catch (ClassNotFoundException e) {
-			if (IJ.getApplet()==null)
+			if (IJ.getApplet()==null && className.indexOf("JpegWriter")==-1)
 				log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
@@ -280,11 +287,15 @@ public class IJ {
 			return command;
 	}
 
-    /** Runs an ImageJ command using the specified image and options. */
+	/** Runs an ImageJ command using the specified image and options. */
 	public static void run(ImagePlus imp, String command, String options) {
-		if (imp!=null) WindowManager.setTempCurrentImage(imp);
-		run(command, options);
-		if (imp!=null) WindowManager.setTempCurrentImage(null);
+		if (imp!=null) {
+			ImagePlus temp = WindowManager.getTempCurrentImage();
+			WindowManager.setTempCurrentImage(imp);
+			run(command, options);
+			WindowManager.setTempCurrentImage(temp);
+		} else
+			run(command, options);
 	}
 
 	static void init() {
@@ -437,7 +448,7 @@ public class IJ {
 			log("<used. Instructions for making more>");
 			log("<available can be found in the \"Memory\" >");
 			log("<sections of the installation notes at>");
-			log("<http://rsb.info.nih.gov/ij/docs/install/>");
+			log("<"+IJ.URL+"/docs/install/>");
 			log(">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 			memMessageDisplayed = true;
 		}
@@ -615,6 +626,8 @@ public class IJ {
 	}
 	
 	private static DecimalFormat[] df;
+	private static DecimalFormat[] sf;
+	private static DecimalFormatSymbols dfs;
 
 	/** Converts a number to a rounded formatted string.
 		The 'decimalPlaces' argument specifies the number of
@@ -626,10 +639,8 @@ public class IJ {
 			return "3.4e38";
 		double np = n;
 		if (n<0.0) np = -n;
-		if ((np<0.001 && np!=0.0 && np<1.0/Math.pow(10,decimalPlaces)) || np>999999999999d)
-			return Float.toString((float)n); // use scientific notation
 		if (df==null) {
-			DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
+			dfs = new DecimalFormatSymbols(Locale.US);
 			df = new DecimalFormat[10];
 			df[0] = new DecimalFormat("0", dfs);
 			df[1] = new DecimalFormat("0.0", dfs);
@@ -641,6 +652,29 @@ public class IJ {
 			df[7] = new DecimalFormat("0.0000000", dfs);
 			df[8] = new DecimalFormat("0.00000000", dfs);
 			df[9] = new DecimalFormat("0.000000000", dfs);
+		}
+		if ((np<0.001 && np!=0.0 && np<1.0/Math.pow(10,decimalPlaces)) || np>999999999999d || decimalPlaces<0) {
+			if (decimalPlaces<0) {
+				decimalPlaces = -decimalPlaces;
+				if (decimalPlaces>9) decimalPlaces=9;
+			} else
+				decimalPlaces = 3;
+			if (sf==null) {
+				sf = new DecimalFormat[10];
+				sf[1] = new DecimalFormat("0.0E0",dfs);
+				sf[2] = new DecimalFormat("0.00E0",dfs);
+				sf[3] = new DecimalFormat("0.000E0",dfs);
+				sf[4] = new DecimalFormat("0.0000E0",dfs);
+				sf[5] = new DecimalFormat("0.00000E0",dfs);
+				sf[6] = new DecimalFormat("0.000000E0",dfs);
+				sf[7] = new DecimalFormat("0.0000000E0",dfs);
+				sf[8] = new DecimalFormat("0.00000000E0",dfs);
+				sf[9] = new DecimalFormat("0.000000000E0",dfs);
+			}
+			if (Double.isInfinite(n))
+				return ""+n;
+			else
+				return sf[decimalPlaces].format(n); // use scientific notation
 		}
 		if (decimalPlaces<0) decimalPlaces = 0;
 		if (decimalPlaces>9) decimalPlaces = 9;
@@ -747,6 +781,11 @@ public class IJ {
 		return isJava16;
 	}
 
+	/** Returns true if ImageJ is running on a Java 1.7 or greater JVM. */
+	public static boolean isJava17() {
+		return isJava17;
+	}
+
 	/** Returns true if ImageJ is running on Linux. */
 	public static boolean isLinux() {
 		return isLinux;
@@ -779,7 +818,7 @@ public class IJ {
 		if the user selects "Cancel".
 	*/
 	public static int setupDialog(ImagePlus imp, int flags) {
-		if (imp==null || (ij!=null&&ij.hotkey) || hideProcessStackDialog)
+		if (imp==null || (ij!=null&&ij.hotkey))
 			return flags;
 		int stackSize = imp.getStackSize();
 		if (stackSize>1) {
@@ -792,14 +831,22 @@ public class IJ {
 				else
 					return flags;
 			}
-			YesNoCancelDialog d = new YesNoCancelDialog(getInstance(),
+			if (hideProcessStackDialog)
+				return flags;
+ 			YesNoCancelDialog d = new YesNoCancelDialog(getInstance(),
 				"Process Stack?", "Process all "+stackSize+" images?  There is\n"
 				+"no Undo if you select \"Yes\".");
 			if (d.cancelPressed())
 				return PlugInFilter.DONE;
 			else if (d.yesPressed()) {
 		    	if (imp.getStack().isVirtual()) {
-		    		error("Custom code is required to process virtual stacks.");
+		    		int size = (stackSize*imp.getWidth()*imp.getHeight()*imp.getBytesPerPixel()+524288)/1048576;
+		    		String msg =
+						"Custom code is required to process this virtual stack\n"+
+						"(e.g., \"Process Virtual Stack\" macro) or it must be\n"+
+						"converted to a normal stack using Image>Duplicate,\n"+
+						"which will require "+size+"MB of additional memory.";
+		    		error(msg);
 					return PlugInFilter.DONE;
 		    	}
 				if (Recorder.record)
@@ -811,7 +858,7 @@ public class IJ {
 		}
 		return flags;
 	}
-	
+		
 	/** Creates a rectangular selection. Removes any existing 
 		selection if width or height are less than 1. */
 	public static void makeRectangle(int x, int y, int width, int height) {
@@ -839,6 +886,18 @@ public class IJ {
 		getImage().setRoi(new Line(x1, y1, x2, y2));
 	}
 	
+	/** Creates a point selection. */
+	public static void makePoint(int x, int y) {
+		ImagePlus img = getImage();
+		Roi roi = img.getRoi();
+		if (shiftKeyDown() && roi!=null && roi.getType()==Roi.POINT) {
+			Polygon p = roi.getPolygon();
+			p.addPoint(x, y);
+			img.setRoi(new PointRoi(p.xpoints, p.ypoints, p.npoints));
+		} else
+			img.setRoi(new PointRoi(x, y));
+	}
+
 	/** Creates a straight line selection using double coordinates. */
 	public static void makeLine(double x1, double y1, double x2, double y2) {
 		getImage().setRoi(new Line(x1, y1, x2, y2));
@@ -847,11 +906,9 @@ public class IJ {
 	/** Sets the minimum and maximum displayed pixel values. */
 	public static void setMinAndMax(double min, double max) {
 		ImagePlus img = getImage();
-		if (img.getBitDepth()==16) {
-			Calibration cal = img.getCalibration();
-			min = cal.getRawValue(min); 
-			max = cal.getRawValue(max); 
-		}
+		Calibration cal = img.getCalibration();
+		min = cal.getRawValue(min); 
+		max = cal.getRawValue(max); 
 		img.setDisplayRange(min, max);
 		img.updateAndDraw();
 	}
@@ -886,11 +943,9 @@ public class IJ {
 				mode = ImageProcessor.NO_LUT_UPDATE;
 		}
 		ImagePlus img = getImage();
-		if (img.getBitDepth()==16) {
-			Calibration cal = img.getCalibration();
-			lowerThreshold = cal.getRawValue(lowerThreshold); 
-			upperThreshold = cal.getRawValue(upperThreshold); 
-		}
+		Calibration cal = img.getCalibration();
+		lowerThreshold = cal.getRawValue(lowerThreshold); 
+		upperThreshold = cal.getRawValue(upperThreshold); 
 		img.getProcessor().setThreshold(lowerThreshold, upperThreshold, mode);
 		if (mode != ImageProcessor.NO_LUT_UPDATE) {
 			img.getProcessor().setLutAnimation(true);
@@ -1147,7 +1202,9 @@ public class IJ {
 
 	/** Opens and displays a tiff, dicom, fits, pgm, jpeg, bmp, gif, lut, 
 		roi, or text file. Displays an error message if the specified file
-		is not in one of the supported formats, or if it is not found. */
+		is not in one of the supported formats, or if it is not found.
+		With 1.41k or later, opens images specified by a URL.
+		*/
 	public static void open(String path) {
 		if (ij==null && Menus.getCommands()==null) init();
 		Opener o = new Opener();
@@ -1263,6 +1320,30 @@ public class IJ {
 		else
 			path += extension;
 		return path;
+	}
+
+	/** Saves a string as a file. Returns an error message 
+		if there is  an exception, otherwise returns null. */
+	public static String saveString(String string, String path) {
+		return write(string, path, false);
+	}
+
+	/** Appends a string to the end of a file. A newline character ("\n") 
+		is added to the end of the string before it is written. Returns an  
+		error message if there is an exception, otherwise returns null. */
+	public static String append(String string, String path) {
+		return write(string+"\n", path, true);
+	}
+
+	private static String write(String string, String path, boolean append) {
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(path, append));
+			out.write(string);
+			out.close();
+		} catch (IOException e) {
+			return ""+e;
+		}
+		return null;
 	}
 
 	 /** Creates a new imagePlus. <code>Type</code> should contain "8-bit", "16-bit", "32-bit" or "RGB". 
@@ -1382,6 +1463,9 @@ public class IJ {
 		if (ij!=null || Interpreter.isBatchMode())
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
-    
-	
+
+	static void setClassLoader(ClassLoader loader) {
+		classLoader = loader;
+	}
+
 }

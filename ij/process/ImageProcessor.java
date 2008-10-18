@@ -3,7 +3,6 @@ package ij.process;
 import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
-import java.lang.reflect.*; 
 import ij.gui.*;
 import ij.util.*;
 import ij.plugin.filter.GaussianBlur;
@@ -833,8 +832,12 @@ public abstract class ImageProcessor extends Object {
 		lineWidth = width;
 		if (lineWidth<1) lineWidth = 1;
 	}
-		
-		
+				
+	/** Returns the current line width. */
+	public int getLineWidth() {
+		return lineWidth;
+	}
+
 	/** Draws a line from the current drawing location to (x2,y2). */
 	public void lineTo(int x2, int y2) {
 		int dx = x2-cx;
@@ -1321,11 +1324,21 @@ public abstract class ImageProcessor extends Object {
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). */
 	public abstract double getInterpolatedPixel(double x, double y);
 
+	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y).
+		For RGB images, the argb values are packed in an int. For float images,
+		the value must be converted using Float.intBitsToFloat().  Returns zero
+		if the (x, y) is not inside the image. */
+	public abstract int getPixelInterpolated(double x, double y);
+	
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). 
 		Returns zero if the (x, y) is not inside the image. */
 	public final double getInterpolatedValue(double x, double y) {
-		if (x<0.0 || x>=width-1.0 || y<0.0 || y>=height-1.0)
-			return getInterpolatedEdgeValue(x, y);
+		if (x<0.0 || x>=width-1.0 || y<0.0 || y>=height-1.0) {
+			if (x<-1.0 || x>=width || y<=1.0 || y>=height)
+				return 0.0;
+			else
+				return getInterpolatedEdgeValue(x, y);
+		}
 		int xbase = (int)x;
 		int ybase = (int)y;
 		double xFraction = x - xbase;

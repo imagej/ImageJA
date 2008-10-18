@@ -5,6 +5,7 @@ import ij.*;
 import ij.process.*;
 import ij.util.*;
 import ij.measure.*;
+import ij.plugin.Straightener;
 
 /** Creates a density profile plot of a rectangular selection or line selection. */
 public class ProfilePlot {
@@ -52,9 +53,13 @@ public class ProfilePlot {
 		//ip.setCalibrationTable(cal.getCTable());
 		if (roiType==Roi.LINE)
 			profile = getStraightLineProfile(roi, cal, ip);
-		else if (roiType==Roi.POLYLINE || roiType==Roi.FREELINE)
-			profile = getIrregularProfile(roi, ip, cal);
-		else if (averageHorizontally)
+		else if (roiType==Roi.POLYLINE || roiType==Roi.FREELINE) {
+			int lineWidth = Line.getWidth();
+			if (lineWidth==1)
+				profile = getIrregularProfile(roi, ip, cal);
+			else
+				profile = getWideLineProfile(imp, lineWidth);
+		} else if (averageHorizontally)
 			profile = getRowAverageProfile(roi.getBounds(), cal, ip);
 		else
 			profile = getColumnAverageProfile(roi.getBounds(), ip);
@@ -108,7 +113,7 @@ public class ProfilePlot {
         for (int i=0; i<n; i++)
         	yValues[i] = (float)profile[i];
 		boolean fixedYScale = fixedMin!=0.0 || fixedMax!=0.0;
-		Plot plot = new Plot("Plot of "+imp.getShortTitle(), xLabel, yLabel, xValues, yValues);
+		Plot plot = new Plot("Plot of "+getShortTitle(imp), xLabel, yLabel, xValues, yValues);
 		if (fixedYScale) {
 			double[] a = Tools.getMinMax(xValues);
 			plot.setLimits(a[0],a[1],fixedMin,fixedMax);
@@ -116,6 +121,14 @@ public class ProfilePlot {
 		plot.show();
 	}
 	
+	String getShortTitle(ImagePlus imp) {
+		String title = imp.getTitle();
+		int index = title.lastIndexOf('.');
+		if (index>0 && (title.length()-index)<=5)
+			title = title.substring(0, index);
+		return title;
+    }
+
 	/** Returns the profile plot data. */
 	public double[] getProfile() {
 		return profile;
@@ -156,6 +169,7 @@ public class ProfilePlot {
 			ip.setInterpolate(PlotWindow.interpolate);
 			Line line = (Line)roi;
 			double[] values = line.getPixels();
+			if (values==null) return null;
 			if (cal!=null && cal.pixelWidth!=cal.pixelHeight) {
 				double dx = cal.pixelWidth*(line.x2 - line.x1);
 				double dy = cal.pixelHeight*(line.y2 - line.y1);
@@ -261,11 +275,32 @@ public class ProfilePlot {
 			distance += len;
 			leftOver = len2 - n2;
 		}
-
 		return values;
-
 	}
 
+	double[] getWideLineProfile(ImagePlus imp, int lineWidth) {
+		Roi roi = (Roi)imp.getRoi().clone();
+		ImageProcessor ip2 = (new Straightener()).straighten(imp, lineWidth);
+		int width = ip2.getWidth();
+		int height = ip2.getHeight();
+		profile = new double[width];
+		double[] aLine;
+		ip2.setInterpolate(false);
+		for (int y=0; y<height; y++) {
+			aLine = ip2.getLine(0, y, width-1, y);
+			for (int i=0; i<width; i++)
+				profile[i] += aLine[i];
+		}
+		for (int i=0; i<width; i++)
+			profile[i] /= height;
+		imp.setRoi(roi);
+		if (roi.getType()==Roi.POLYLINE&& !((PolygonRoi)roi).isSplineFit()) {
+			((PolygonRoi)roi).fitSpline();
+			imp.draw();
+		}
+		return profile;
+	}
+	
 	void findMinAndMax() {
 		if (profile==null) return;
 		double min = Double.MAX_VALUE;

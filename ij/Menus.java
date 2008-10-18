@@ -203,17 +203,17 @@ public class Menus {
 
 		Menu help = getMenu("Help");
 		addPlugInItem(help, "ImageJ Website...", "ij.plugin.BrowserLauncher", 0, false);
-		addPlugInItem(help, "ImageJ News...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/notes.html\")", 0, false);
-		addPlugInItem(help, "Documentation...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/docs\")", 0, false);
+		addPlugInItem(help, "ImageJ News...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/notes.html\")", 0, false);
+		addPlugInItem(help, "Documentation...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/docs\")", 0, false);
 		addPlugInItem(help, "Installation...", "ij.plugin.SimpleCommands(\"install\")", 0, false);
-		addPlugInItem(help, "Search Website...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/search.html\")", 0, false);
+		addPlugInItem(help, "Search Website...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/search.html\")", 0, false);
 		addPlugInItem(help, "List Archives...", "ij.plugin.BrowserLauncher(\"https://list.nih.gov/archives/imagej.html\")", 0, false);
 		help.addSeparator();
-		addPlugInItem(help, "Plugins...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/plugins\")", 0, false);
-		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/macros/\")", 0, false);
-		addPlugInItem(help, "Source Code...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/developer/source/\")", 0, false);
-		addPlugInItem(help, "Macro Language...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/developer/macro/macros.html\")", 0, false);
-		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\"http://rsb.info.nih.gov/ij/developer/macro/functions.html\")", 0, false);
+		addPlugInItem(help, "Resources...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/index.html\")", 0, false);
+		addPlugInItem(help, "Plugins...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/plugins\")", 0, false);
+		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
+		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
+		addPlugInItem(help, "Update Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
 		help.addSeparator();
 		Menu aboutMenu = getMenu("Help>About Plugins", true);
 		help.addSeparator();
@@ -493,7 +493,10 @@ public class Menus {
 			menu = getPluginsSubmenu(dir);
 		}
 		String command = name.replace('_',' ');
-		command = command.substring(0, command.length()-4); //remove ".txt" or ".ijm"
+		if (command.endsWith(".js"))
+			command = command.substring(0, command.length()-3); //remove ".js"
+		else
+			command = command.substring(0, command.length()-4); //remove ".txt" or ".ijm"
 		command.trim();
 		if (pluginsTable.get(command)!=null) // duplicate command?
 			command = command + " Macro";
@@ -869,7 +872,7 @@ public class Menus {
 			} else if (hasUnderscore && (name.endsWith(".jar") || name.endsWith(".zip"))) {
 				if (jarFiles==null) jarFiles = new Vector();
 				jarFiles.addElement(pluginsPath + name);
-			} else if (hasUnderscore && (name.endsWith(".txt")||name.endsWith(".ijm"))) {
+			} else if ((hasUnderscore&&name.endsWith(".txt")) || name.endsWith(".ijm") || name.endsWith(".js")) {
 				if (macroFiles==null) macroFiles = new Vector();
 				macroFiles.addElement(name);
 			} else {
@@ -909,7 +912,7 @@ public class Menus {
 				if (jarFiles==null) jarFiles = new Vector();
 				jarFiles.addElement(f.getPath() + File.separator + name);
 				otherCount++;
-			} else if (hasUnderscore && (name.endsWith(".txt")||name.endsWith(".ijm"))) {
+			} else if ((hasUnderscore&&name.endsWith(".txt")) || name.endsWith(".ijm") || name.endsWith(".js")) {
 				if (macroFiles==null) macroFiles = new Vector();
 				macroFiles.addElement(dir + name);
 				otherCount++;
@@ -993,7 +996,6 @@ public class Menus {
 	
 	/** Updates the Image/Type and Window menus. */
 	public static void updateMenus() {
-	
 		if (ij==null) return;
 		gray8Item.setState(false);
 		gray16Item.setState(false);
@@ -1454,4 +1456,20 @@ public class Menus {
 		}
 		prefs.put(Prefs.MENU_SIZE, Integer.toString(fontSize));
 	}
+	
+	public static void updateImageJMenus() {
+		shortcuts = new Hashtable();
+		pluginsPrefs = new Vector();
+		jarFiles = macroFiles = null;
+		menus.remove("Plugins");
+		Menus m = new Menus(IJ.getInstance(),
+				(ImageJApplet)IJ.getApplet());
+		String err = m.addMenuBar();
+		//m.installPopupMenu(IJ.getInstance());
+		//m.installStartupMacroSet();
+		if (err!=null) IJ.error(err);
+		IJ.setClassLoader(null);
+		IJ.showStatus(m.nPlugins + " commands, " + m.nMacros + " macros");
+	}
+
 }
