@@ -1331,12 +1331,6 @@ public abstract class ImageProcessor extends Object {
 	public abstract int getPixelInterpolated(double x, double y);
 
 
-	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y).
-		For RGB images, the argb values are packed in an int. For float images,
-		the value must be converted using Float.intBitsToFloat().  Returns zero
-		if the (x, y) is not inside the image. */
-	public abstract int getPixelInterpolated(double x, double y);
-	
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). 
 		Returns zero if the (x, y) is not inside the image. */
 	public final double getInterpolatedValue(double x, double y) {

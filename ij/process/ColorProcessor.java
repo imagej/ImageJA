@@ -325,13 +325,6 @@ public class ColorProcessor extends ImageProcessor {
 		return getInterpolatedPixel(x, y, pixels);
 	}
 
-	final public int getPixelInterpolated(double x,double y) {
-		if (x<0.0 || y<0.0 || x>=width-1 || y>=height-1)
-			return 0;
-		else
-			return getInterpolatedPixel(x, y, pixels);
-	}
-
 	/** Stores the specified value at (x,y). */
 	public void putPixel(int x, int y, int value) {
 		if (x>=0 && x<width && y>=0 && y<height)
