@@ -62,10 +62,8 @@ public class BrowserLauncher implements PlugIn {
 	public void run(String theURL) {
 		if (error) return;
 		if (theURL==null || theURL.equals(""))
-			theURL = "http://imageja.sf.net";
-		else if (theURL.equals("online"))
-			theURL = "http://imageja.sf.net";
-		Applet applet = ij.IJ.getApplet();
+			theURL = IJ.URL;
+		Applet applet = IJ.getApplet();
 		if (applet!=null) {
 			try {
 				applet.getAppletContext().showDocument(new URL(theURL), "_blank" );

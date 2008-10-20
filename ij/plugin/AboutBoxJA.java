@@ -17,7 +17,7 @@ import java.awt.image.*;
 		String[] text = new String[lines];
 		text[0] = "ImageJA "+ImageJ.VERSION;
 		text[1] = "Based on ImageJ";
-		text[2] = "http://imageja.sf.net";
+		text[2] = IJ.URL;
 		text[3] = "Java "+System.getProperty("java.version");
 		text[4] = IJ.freeMemory();
 		text[5] = "ImageJA is in the public domain";
