@@ -36,6 +36,7 @@ public class WindowManager {
 		if (win==currentWindow || imageList.size()==0)
 			return;
 		if (currentWindow!=null) {
+			currentWindow.highlight( false );
 			// free up pixel buffers used by current window
 			ImagePlus imp = currentWindow.getImagePlus();
 			if (imp!=null ) {
@@ -45,6 +46,7 @@ public class WindowManager {
 		}
 		Undo.reset();
 		currentWindow = win;
+		win.highlight( true );
 		if (!suppressRecording && Recorder.record)
 			Recorder.record("selectWindow", win.getTitle());
 		Menus.updateMenus();

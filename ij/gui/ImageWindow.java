@@ -612,6 +612,33 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	//	super.setBounds(x, y, width, height);
 	//	ic.resizeSourceRect(width, height);
 	//}
-	
+    
+    public void highlight( boolean focusGained )
+    {
+    	final Color fg, bg;
+    	if (Prefs.blackCanvas && getClass().getName().equals("ij.gui.ImageWindow"))
+    	{
+			fg = Color.white;
+			bg = Color.black;
+    	}
+    	else
+    	{
+        	fg = Color.black;
+        	if (IJ.isLinux())
+        		bg = ImageJ.backgroundColor;
+        	else
+        		bg = Color.white;
+        }
+    	if ( focusGained )
+    	{
+    		setForeground( fg );
+			setBackground( bg );
+    	}
+    	else
+    	{
+    		setForeground( bg );
+			setBackground( fg );
+    	}
+    }
 } //class ImageWindow
 
