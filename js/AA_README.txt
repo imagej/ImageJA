@@ -49,7 +49,8 @@ Advantages and Disadvantages of JavaScript
    Disadvatages:
       - Slower, especally starting up
       - No equivalent of macro sets
-      - No access to most built in macro functions
+      - Cannot access most built in macro functions
+      - No support for "batch mode"
       - Cannot create tools and toolbar menus
       - Requires JavaScript.jar on Macs
       
