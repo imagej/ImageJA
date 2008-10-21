@@ -32,12 +32,15 @@ public class Shading_Corrector implements PlugInFilter, Measurements {
 	}
 
 	public void run(ImageProcessor ip) {
-		if (canceled)
+            if (canceled) {
+                alert("canceled!");
 			return;
+            }
  		ImagePlus blankImage = getBlankField("blank-field");
- 		if (blankImage!=null)
+ 		if (blankImage!=null) {
 			try {correctShading(ip, blankImage.getProcessor());}
-			catch (Exception e) {error(e.getMessage());}
+			catch (Exception e) {error(e.getMessage()); e.printStackTrace();}
+                }
 		else
 			error("Unable to find an image named 'blank-field'.");
 	}
@@ -91,10 +94,33 @@ public class Shading_Corrector implements PlugInFilter, Measurements {
 			correctByteShading(ip, blankImage, width, height);
 		else if (ip instanceof ShortProcessor)
 			correctShortShading(ip, blankImage, width, height);
+		else if (ip instanceof ColorProcessor)
+                        correctColorShading(ip, blankImage, width, height);
 		else
-  			error("Unsupported data type");
+                     error("Unsupported data type: " + ip.getClass().getName());
  	}
 	
+    public void correctColorShading(ImageProcessor ip, ImageProcessor blankImage, int width, int height) {
+        if (!(blankImage instanceof ColorProcessor))
+            {error("Image and blank-field are not the same type"); return;}
+        ImageStatistics stats = ImageStatistics.getStatistics(blankImage, MEAN, null);
+        double mean = stats.mean;
+        byte[] bgR = new byte[width*height];
+        byte[] bgB = new byte[width*height];
+        byte[] bgG = new byte[width*height];
+        byte[] imgR = new byte[width*height];
+        byte[] imgG = new byte[width*height];
+        byte[] imgB = new byte[width*height];
+        ((ColorProcessor)blankImage).getRGB(bgR, bgG, bgB);
+        ((ColorProcessor)ip).getRGB(imgR, imgG, imgB);
+        for (int i=0; i < width * height; i++) {
+            imgR[i] = (byte)(((imgR[i]&255)*(mean/(bgR[i]&255)))+0.5);
+            imgG[i] = (byte)(((imgG[i]&255)*(mean/(bgG[i]&255)))+0.5);
+            imgB[i] = (byte)(((imgB[i]&255)*(mean/(bgB[i]&255)))+0.5);
+        }
+        ((ColorProcessor)ip).setRGB(imgR, imgG, imgB);
+    }
+
 	public void correctByteShading(ImageProcessor ip, ImageProcessor blankImage, int width, int height) {
  		if (!(blankImage instanceof ByteProcessor))
   			{error("Image and blank-field are not the same type"); return;}
@@ -118,12 +144,16 @@ public class Shading_Corrector implements PlugInFilter, Measurements {
   	}
 
 	void error(String msg) {
- 		IJ.showMessage("Shading_Corrector",msg);
+ 		IJ.showMessage("Shading_Corrector_RGB",msg);
  		canceled = true;
 	}
 	
 	public void showAbout() {
-		IJ.showMessage("Shading-Corrector...", ABOUT);
+		IJ.showMessage("Shading-Corrector RGB...",ABOUT);
+	}
+    
+	public void alert(String msg) {
+		IJ.showMessage("Shading-Corrector RGB...", msg);
 	}
     
 }
