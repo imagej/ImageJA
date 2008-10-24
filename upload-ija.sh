@@ -65,7 +65,7 @@ git tag v"$VERSION" imageja
 git push dumbo
 git push orcz imageja:master imageja imagej v"$VERSION"
 make signed-ij.jar
-rsync -vau signed-ij.jar shell.sf.net:imageja/htdocs/ij.jar
+scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
 rsync -e ssh -avP ij-$VERSION.jar ij-src-$VERSION.jar frs.sf.net:uploads/
