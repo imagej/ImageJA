@@ -27,10 +27,6 @@ public final class Analyze_Writer implements PlugIn {
 		}
 		if (imp.getCalibration().isSigned16Bit() && IJ.versionLessThan("1.34e"))
 			return;
-		if (imp.getBitDepth()==24) {
-			IJ.showMessage("Analyze Writer", "Cannot save RGB images");
-			return;
-		}
 		String directory = "", name = ""; 
 		if ((arg==null) || (arg=="")) {
 			SaveDialog sd = new SaveDialog("Save as Analyze", imp.getTitle(), ".img");
