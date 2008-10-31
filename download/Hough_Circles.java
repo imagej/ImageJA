@@ -11,7 +11,7 @@
  GNU General Public License for more details.
  
  @author Hemerson Pistori (pistori@ec.ucdb.br) and Eduardo Rocha Costa
- @created 18 de Março de 2004
+ @created 18 de Marï¿½o de 2004
  
  The Hough Transform implementation was based on 
  Mark A. Schulze applet (http://www.markschulze.net/)
@@ -117,9 +117,9 @@ public class Hough_Circles implements PlugInFilter {
     boolean readParameters() {
 
         GenericDialog gd = new GenericDialog("Hough Parameters", IJ.getInstance());
-        gd.addNumericField("Radius (in pixels) - Minimum:", 10, 0);
-        gd.addNumericField("Radius (in pixels) - Maximum:", 20, 0);
-        gd.addNumericField("Radius (in pixels) - Increment:", 2, 0);
+        gd.addNumericField("Minimum radius (in pixels) :", 10, 0);
+        gd.addNumericField("Maximum radius (in pixels)", 20, 0);
+        gd.addNumericField("Increment radius (in pixels) :", 2, 0);
         gd.addNumericField("Number of Circles (NC): (enter 0 if using threshold)", 10, 0);
         gd.addNumericField("Threshold: (not used if NC > 0)", 60, 0);
 
