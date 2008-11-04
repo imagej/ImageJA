@@ -1,0 +1,17 @@
+// Calculates the mean pixel value pixel
+// by pixel and by calling the getStatistics().
+
+  start = getTime;		
+  w=getWidth();
+  h=getHeight();
+  sum = 0;
+  for (y=0; y<h; y++)
+     for (x=0; x<w;x++)
+        sum += getPixel(x,y);
+  t1 = getTime-start;
+  print(sum/(w*h), t1)
+
+  start = getTime;
+  getStatistics(area, mean2);		
+  t2 = getTime-start;
+  print(mean2, t2+" ("+t1/t2+" times faster)");
