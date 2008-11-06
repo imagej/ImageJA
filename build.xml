@@ -10,6 +10,9 @@
       <!-- The plugins directory only needs to be 
              present at runtime, not at build time. -->
       <exclude name="plugins/**"/>
+      <exclude name="CVS/**"/>
+      <exclude name=".svn/**"/>
+      <exclude name=".git/**"/>
     </javac>
   </target>
   
