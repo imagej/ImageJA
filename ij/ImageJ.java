@@ -160,15 +160,14 @@ public class ImageJ extends Frame implements ActionListener,
 		setLocation(loc.x, loc.y);
 		pack();
 		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-		if (applet == null)
-			show();
 		//if (IJ.isJava15()) {
 		//	try {
 		//		Method method = Frame.class.getMethod("setAlwaysOnTop", new Class[] {boolean.class});
 		//		method.invoke(this, new Object[]{Boolean.TRUE});
 		//	} catch(Exception e) {}
 		//}
-		show();
+		if (applet == null)
+			show();
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null)
