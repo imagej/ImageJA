@@ -48,6 +48,8 @@ public class WindowManager {
 		if (!suppressRecording && Recorder.record)
 			Recorder.record("selectWindow", win.getTitle());
 		Menus.updateMenus();
+		if (Recorder.record)
+			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
 	
 	/** Returns the active ImageWindow. */
