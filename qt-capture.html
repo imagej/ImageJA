@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>QuickTime Capture</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>QuickTime Capture</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >QuickTime, QuickTime for Java and a QuickTime 
+compatible video source.</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Requires a VDIG wrapper on Windows.
+Does not work with 64-bit versions of Java.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/QuickTime_Capture.java">QuickTime_Capture.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/jars/QuickTime_Plugins.jar">QuickTime_Plugins.jar</A>
+to the plugins folder, or subfolder,  restart ImageJ and there will be a new
+<i>File/Import/Video</i> command. 
+This JAR file also installs three other QuickTime plugins:
+<ul>
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-opener.html">QT Movie Opener</A> (<i>File/Import/Using QuickTime</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QT Player</A> (<i>File/Import/QuickTime Player</i>)
+<li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-writer.html">QT Movie Writer</A> (<i>File/Save As/QuickTime Movie</i>)
+</ul>
+Note that this JAR file is included with the Mac OS X version of ImageJ, version 1.34 and later.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Previews and captures video frames from a QuickTime compatable camera.
+Press the space bar to stop previewing. Press the option (alt) key to capture a frame 
+and continue previewing. While previewing, type "+" to zoom
+in, "-" to zoom out, and "h" to display a histogram.
+<p>
+On the Macintosh, most USB and Firewire cameras are QuickTime compatible. 
+Analog cameras can be used with an analog video to Firewire/DV converter. 
+<p>
+You can use an external USB or Firewire camera on a Macintosh with a built in iSight camera by running
+<A HREF="http://mac.softpedia.com/get/Security/iSight-Disabler-AppleScript.shtml">iSight Disabler</A>,
+an AppleScript that automates the process of disabling 
+and enabling the iSight driver.
+<p>
+This plugin requires both QuickTime and QuickTime for Java, which are preinstalled on Macs. 
+Windows users can use it by installing 
+<A HREF="http://rsb.info.nih.gov/ij/plugins/qt-install.html">QuickTime 7</A>
+and using the <A HREF="http://www.eden.net.nz/7/20071008/">WinVDIG</A> video digitizer wrapper.
+<p>
+This plugin has been tested with the following Firewire cameras: Apple iSight, Canon Optura DV camcorder,  
+Canon XL-1 DV camcorder and Orange Micro iBot.
+It has been tested with the following USB cameras: Philips ToUCam Pro (PCVC740K) with drivers from 
+<A HREF="http://webcam-osx.sourceforge.net/">Macam</A> and
+<A HREF="http://www.multi-cam.net/camera_downloads.html">Multi-Cam</A>.
+It also works with analog cameras using video to Firewire adapters such as the Canopus ADVC 55.
+<p>
+This plugin is based on the LiveCam example by Jochen Broz, posted to the QuickTime for 
+Java mailing list with the title "Live camera picture from SequenceGrabber using awt or OpenGL", and archived at
+<A HREF="http://lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html">lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html</A>.
+<p>
+Note: NTSB Digital Video (DV) images have 720x480 rectangular pixels with a pixel aspect
+ratio of 0.9.
+This causes, for example, circles to appear as ovals on a computer
+screen.  To create square
+pixels, use Image->Adjust->Size... and choose New width = 720 pixels,
+New height = 533 pixels,
+uncheck "Constrain Aspect Ratio", and check "Interpolate".
+PAL DV images are 720x576 pixels, with pixel aspect ratios of 1.067 for "standard" and 1.422
+for "wide screen."
+<p>
+Additional note: The Pixel Aspect Ratio for NTSB DV is under
+investigation.  Various authorities say it should be about 0.91081, 0.91139,
+0.91158, or 0.9091, instead of 0.9.  It may be that the 720x480 image should
+be rescaled to 720x527, instead of 720x533.   For critical applications,
+direct calibration of a particular DV camera may be in order.
+<p> This plugin can be called from a macro to capture and display a single frame or
+a sequence of frames. Refer to the
+<a href="http://rsb.info.nih.gov/ij/macros/Time-lapse_Capture.txt">Time-lapse_Capture</a> macro and
+the <a href="http://rsb.info.nih.gov/ij/macros/TimeLapseVideoMacros.txt">Time-Lapse Video Macros</a>
+for examples. It will display a dialog that allows the user to choose the camera when called 
+from a macro using run("Video","dialog").
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2000/10/25:</u> First version<br>
+<u>2001/06/07:</u> Press any key to capture<br>
+<u>2001/11/21:</u> Fixed bug that could cause ImageJ to crash<br>
+<u>2002/02/13:</u> Fixed bug that prevented operation on Mac OS X<br>
+<u>2002/07/22:</u> Dimensions no longer fixed at 640x480<br>
+<u>2003/09/19:</u> Updated to work with iSight camera<br>
+<u>2003/10/09:</u> Captures and quits when called using run("Video","grab")<br>
+<u>2005/03/06:</u> Rewritten to work with Java 1.4.2 on Mac OS X;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;capture multiple frames by pressing <i>alt/option</i><br>
+<u>2006/09/20:</u> Works correctly on Intel Macs thanks to fix by Jeff Hardin<br>
+<u>2007/05/22:</u> Works with batch mode macros
+(<a href="http://rsb.info.nih.gov/ij/macros/Time-lapse_Capture.txt">example1</a>,
+<a href="http://rsb.info.nih.gov/ij/macros/TimeLapseVideoMacros.txt">example2</a>)<br>
+<u>2008/10/15: Displays a dialog when called using run("Video","dialog")<br>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://webcam-osx.sourceforge.net/">Macam</A> - USB webcam support for Mac OS X<br>
+<A HREF="http://www.multi-cam.net/camera_downloads.html">Multi-Cam</A> - OS X 10.3 patch for Macam driver<br>
+<A HREF="http://mac.softpedia.com/get/Security/iSight-Disabler-AppleScript.shtml">iSight Disabler</A> - Disable/enable internal iSight camera<br>
+<A HREF="http://www.eden.net.nz/7/20071008/">WinVDIG</A> - Capture video using QuickTime on Windows<br>
+<A HREF="http://lists.apple.com/mailman/listinfo/quicktime-java">Apple</A> - QuickTime for Java mailing list<br>
+<A HREF="http://www.oreilly.com/catalog/quicktimejvaadn/">O'REILLY</A> - "QuickTime for Java: A Developer's Notebook"<br>
+
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-opener.html">QuickTime Movie Opener</A><br>
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-writer.html">QuickTime Movie Writer</A><br>
+<A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QuickTime Movie Player</A><br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
