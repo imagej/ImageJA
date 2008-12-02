@@ -38,54 +38,65 @@ import java.awt.Rectangle;
  * device, is small enough to give rise to detectable statistical fluctuations
  * in a measurement. It is important in electronics, telecommunications, and
  * fundamental physics.
+ * <p>
+ * Changes: <br>
+ * 30/nov/2008<br>
+ * - subtracted the mean value before adding the noise to the signal. This in
+ * order to distribute the noise around the signal.<br>
+ * - Added the MEAN_FACTOR constant to obtain a significant noise working with
+ * float images and with a small Lambda (mean) value.
  * 
- * @author Ignazio Gallo(ignazio.gallo@gmail.com, http://www.dicom.uninsubria.it/~ignazio.gallo/)
+ * @author Ignazio Gallo(ignazio.gallo@gmail.com,
+ *         http://www.dicom.uninsubria.it/~ignazio.gallo/)
  * @since 18/nov/2008
  * 
- * @version 1.0
+ * @version 1.1
  */
 public class Poisson_Noise implements PlugInFilter {
+	final static double MEAN_FACTOR = 2.0;
 	static double noiseMean = 2;
 	ImagePlus imp;
 	Random random = new Random();
 
 	public int setup(String arg, ImagePlus imp) {
-		if (imp==null) {
+		if (imp == null) {
 			IJ.noImage();
 			return DONE;
 		}
 		this.imp = imp;
 		if (!showDialog())
 			return DONE;
-		return IJ.setupDialog(imp, DOES_ALL|SUPPORTS_MASKING);
+		return IJ.setupDialog(imp, DOES_ALL | SUPPORTS_MASKING);
 	}
 
 	public void run(ImageProcessor ip) {
 		FloatProcessor fp = null;
-		for (int i=0; i<ip.getNChannels(); i++) { //grayscale: once. RBG: once per color, i.e., 3 times
+		for (int i = 0; i < ip.getNChannels(); i++) { // grayscale: once. RBG:
+			// once per color, i.e., 3 times
 			fp = ip.toFloat(i, fp); // convert image or color channel to float
-			fp = ip.toFloat(i, fp);
 			addNoise(fp);
 			ip.setPixels(i, fp); // convert back from float
 		}
 	}
 
 	public void addNoise(ImageProcessor ip) {
- 		int width = ip.getWidth(); // width of the image
+		int width = ip.getWidth(); // width of the image
 		int height = ip.getHeight(); // height of the image
-		//double max = ip.getMax();
+		// double max = ip.getMax();
 		float[] pixels = (float[]) ip.getPixels();
 		int progress = Math.max(height / 25, 1);
 		Rectangle r = ip.getRoi();
 
-		for (int y=r.y; y<(r.y+r.height); y++) {
-			if (y % progress==0) IJ.showProgress(y, height);
-			for (int x=r.x; x<(r.x+r.width); x++) {
+		for (int y = r.y; y < (r.y + r.height); y++) {
+			if (y % progress == 0)
+				IJ.showProgress(y, height);
+			for (int x = r.x; x < (r.x + r.width); x++) {
 				// Creates additive poisson noise
-				double newVal = (pixels[y * width + x]) + poissonValue();
+				double newVal = (pixels[y * width + x]) + poissonValue()
+						/ MEAN_FACTOR - noiseMean;
 				newVal = Math.max(newVal, 0);
-				//if (newVal <= max)
-				pixels[x + y * width] = (float)newVal;
+				// if (newVal <= max)
+				pixels[x + y * width] = (float) newVal;
 			}
 		}
 		IJ.showProgress(1.0);
@@ -100,7 +111,7 @@ public class Poisson_Noise implements PlugInFilter {
 	 */
 	private int poissonValue() {
 		// init:
-		double L = Math.exp(-noiseMean);
+		double L = Math.exp(-noiseMean * MEAN_FACTOR);
 		int k = 0;
 		double p = 1;
 		do {
