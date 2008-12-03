@@ -86,7 +86,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		setResizable(true);
 		WindowManager.addWindow(this);
 		imp.setWindow(this);
-		ImageJApplet applet = ij.getApplet();
+		ImageJApplet applet = getApplet();
 		if (applet != null) {
 			if (Interpreter.isBatchMode()) {
 				WindowManager.setTempCurrentImage(imp);
@@ -131,8 +131,14 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		}
      }
 
+	private ImageJApplet getApplet() {
+		if (null == IJ.getInstance())
+			return null;
+		return IJ.getInstance().getApplet();
+	}
+
 	public void pack() {
-		ImageJApplet applet = IJ.getInstance().getApplet();
+		ImageJApplet applet = getApplet();
 		if (applet != null)
 			applet.pack();
 		else
@@ -141,13 +147,13 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 
 	public void toFront() {
 		super.toFront();
-		ImageJApplet applet = IJ.getInstance().getApplet();
+		ImageJApplet applet = getApplet();
 		if (applet != null)
 			applet.setImageCanvas(ic);
 	}
 
 	public void show() {
-		ImageJApplet applet = IJ.getInstance().getApplet();
+		ImageJApplet applet = getApplet();
 		if (applet != null)
 			applet.setImageCanvas(ic);
 		else
