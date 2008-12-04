@@ -1,0 +1,24 @@
+   if (bitDepth!=24)
+     exit("This macro requires an RGB image");
+  setRGBWeights(1, 0, 0);
+  getStatistics(area, mean, min, max, std, hist);
+  print("R: ", mean, getMode(hist));
+  setRGBWeights(0, 1, 0);
+  getStatistics(area, mean, min, max, std, hist);
+  print("G: ", mean, getMode(hist));
+  setRGBWeights(0, 0, 1);
+  getStatistics(area, mean, min, max, std, hist);
+  print("B: ", mean, getMode(hist));
+ 
+  function getMode(hist) {
+      n = hist.length;
+      maxCount = 0;
+      for (i=0; i<n; i++) {
+          count = hist[i];
+          if (count>maxCount) {
+              maxCount = count;
+              mode = i;
+          }
+      }
+      return mode;
+  }
