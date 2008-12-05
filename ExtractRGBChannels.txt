@@ -4,9 +4,9 @@
 
   requires("1.35b");
   if (nImages==0)
-      run("Fluorescent Cells (58K)");
+      run("Clown (14K)");
   if (bitDepth!=24)
-      run("Fluorescent Cells (58K)");
+      run("Clown (14K)");
   title = getTitle;
   setRGBWeights(1, 0, 0);
   run("8-bit"); // Image>Type>8-bit command

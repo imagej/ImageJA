@@ -3,7 +3,7 @@
 // setColor, snapshot, reset and drawString functions.
 // See Also: BouncingBar, Pong and RotatingPolygon macros
 
-  if (nImages==0) run("Fluorescent Cells (58K)");
+  if (nImages==0) run("Lena (68K)");
   setFont("Serif", 100, "antialiased");
   setColor(255,255,0);
   snapshot();
