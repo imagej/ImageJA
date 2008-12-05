@@ -23,7 +23,7 @@ function mean(values) {
             exit("'" + a[i] + "' is not a number");
         sum += n;
     }
-    return sum/n;
+    return sum/a.length;
 }
 
 // This example shows how to call this function from another macro.
