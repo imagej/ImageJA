@@ -4,7 +4,6 @@
 // with  Kas Thomas' JavaScript Editor plugin at
 // http://rsb.info.nih.gov/ij/plugins/javascript.html
 
-  requires("1.29m");
   w = 512; h = 512;
   start = getTime();
   xcenter = w/2; ycenter = h/2;
