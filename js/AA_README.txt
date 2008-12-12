@@ -45,14 +45,19 @@ Advantages and Disadvantages of JavaScript
    Advantages:
       - Full access to ImageJ and Java APIs
       - Richer language (objects, "?" operator, break, continue, etc.)
+      - Extensive documentation
+      - Standardized
    
    Disadvatages:
       - Slower, especally starting up
       - No equivalent of macro sets
       - Cannot access most built in macro functions
+      - Requires knowledge of complex ImageJ and Java APIs
       - No support for "batch mode"
       - Cannot create tools and toolbar menus
+      - Not compatible with Function Finder and CodeBar
       - Requires JavaScript.jar on Macs
+      - No debugger
       
 
 ImageJ commands and macro functions that support JavaScript:
