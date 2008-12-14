@@ -1421,8 +1421,17 @@ public class Menus {
 	public static void updateImageJMenus() {
 		shortcuts = new Hashtable();
 		pluginsPrefs = new Vector();
+		installingJars = duplicateCommand = false;
+		nPlugins = nMacros = 0;
+		userPluginsIndex = 0; // TODO: remove!
+		addSorted = false;
+		menus = new Properties();
+		window = openRecentMenu = pluginsMenu = shortcutsMenu =
+			utilitiesMenu = macrosMenu = null;
+		menuSeparators = new Properties();
 		jarFiles = macroFiles = null;
 		Menus m = new Menus(IJ.getInstance(), IJ.getApplet());
+		mbar = null;
 		String err = m.addMenuBar();
 		//m.installPopupMenu(IJ.getInstance());
 		//m.installStartupMacroSet();
