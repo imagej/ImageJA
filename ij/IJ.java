@@ -20,7 +20,7 @@ import java.lang.reflect.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
-	public static final String URL = "http://imageja.sf.net";
+	public static final String URL = "http://rsb.info.nih.gov/ij";
 	public static final int ALL_KEYS = 0x32;
 	
 	public static boolean debugMode;
