@@ -918,10 +918,9 @@ public class Menus {
 				otherCount++;
 			}
 		}
-		if (Prefs.moveToMisc && classCount==1 && otherCount==0 && dir.indexOf("_")==-1) {
-			v.remove(dir+className);
-			v.addElement("Misc:"+dir+className);
-		}
+		if (Prefs.moveToMisc && classCount==1 && otherCount==0 && dir.indexOf("_")==-1)
+			v.setElementAt("Miscellaneous/" + className,
+				v.size() - 1);
 	}
 	
 	static String submenuName;
