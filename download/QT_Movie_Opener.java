@@ -39,8 +39,8 @@ public class QT_Movie_Opener implements PlugIn, QDConstants, StdQTConstants, Mov
 	ImageStack stack;
 	int i, numFrames, totalFrames, nextTime;
 	Image img;
-	boolean grayscale;
-	boolean virtualStack;
+	static boolean grayscale;
+	static boolean virtualStack;
 	
 	public void run(String arg) {
 		if (IJ.is64Bit() && IJ.isMacintosh()) {
@@ -72,7 +72,7 @@ public class QT_Movie_Opener implements PlugIn, QDConstants, StdQTConstants, Mov
 		String path = directory+name;
 
 		if (virtualStack) {
-			openAsVirtualStack(path);
+			openAsVirtualStack(path, grayscale);
 			return;
 		}
 
@@ -214,13 +214,13 @@ public class QT_Movie_Opener implements PlugIn, QDConstants, StdQTConstants, Mov
 		return 0;
 	}
 	
-	void openAsVirtualStack(String path) {
+	void openAsVirtualStack(String path, boolean eightBit) {
 		try {
 			QTFile qtf = new QTFile(path);
 			if (qtf==null) return;
 			if (!QTSession.isInitialized())
 				QTSession.open();
-			ImageStack stack = new QTVirtualStack(qtf);
+			VirtualStack stack = new QTVirtualStack(qtf, eightBit);
 			ImagePlus imp = new ImagePlus(qtf.getName(), stack);
 			imp.show();
 		} catch(QTException qte) {

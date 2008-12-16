@@ -18,15 +18,16 @@ import java.awt.image.PixelGrabber;
 
 
 public class QTVirtualStack extends VirtualStack {
-  final private MoviePlayer player;
-  final QTImageProducer imageProducer;
-  final private int height;
-  final private int width;
-  final private ArrayList frameLocations = new ArrayList();
+  private MoviePlayer player;
+  private QTImageProducer imageProducer;
+  private int height;
+  private int width;
+  private ArrayList frameLocations = new ArrayList();
+  private boolean eightBit;
 
 
-  public QTVirtualStack(QTFile qtf) {
-
+  public QTVirtualStack(QTFile qtf, boolean eightBit) {
+    this.eightBit = eightBit;
     try {
       OpenMovieFile qtMovieFile = OpenMovieFile.asRead(qtf);
       Movie movie = Movie.fromFile(qtMovieFile);
@@ -82,7 +83,6 @@ public class QTVirtualStack extends VirtualStack {
 
   public ImageProcessor getProcessor(int slice) {
     slice--;  // ImageJ slices are 1-based rather than zero based.
-
     try {
       int w = this.getWidth();
       int h = this.getHeight();
@@ -96,7 +96,10 @@ public class QTVirtualStack extends VirtualStack {
 					      0, w);
       grabber.grabPixels();
       
-      return new ColorProcessor(w, h, pixels);
+      ImageProcessor ip = new ColorProcessor(w, h, pixels);
+      if (eightBit)
+            ip=ip.convertToByte(false);
+      return ip;
     }
     catch(Exception e) {
       throw new RuntimeException(e);
