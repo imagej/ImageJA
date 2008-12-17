@@ -1,0 +1,26 @@
+// This is a macro you can  run to evaluate your system's performance.
+// There is a table of reported results at
+//  http://imagejdocu.tudor.lu/doku.php?id=faq:technical:are_there_performance_statistics_to_compare_against_my_system
+
+  print("- - - ");
+  run("Lena (68K)"); // This needs to be "Lena (720K)" on some v1.42 betas
+  id = getImageID;
+  print("ImageJ: "+getVersion());
+  print("OS : "+getInfo("os.name")+" "+getInfo("os.version"));
+  print("Java: "+getInfo("java.version")+", vm: "+getInfo("java.vm.version")+" "+ getInfo("java.vm.vendor"));
+ 
+  best=100000;
+  worst=-1;
+ 
+  for(i=0;i<10;i++){
+     t=getTime();
+     run("Benchmark");
+     thisrun= getTime()-t;
+     if (thisrun<best) best=thisrun;
+     if (thisrun>worst) worst=thisrun;
+  }
+  print("Benchmark best: "+best/1000);
+  print("Benchmark worst: "+worst/1000);
+ 
+  selectImage(id);
+  close();
