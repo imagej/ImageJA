@@ -1,0 +1,35 @@
+// Smallest valued mode of a stack
+if (nSlices<2) exit("This macro requires a stack.");
+makeModalZProject();
+
+function makeModalZProject() {
+   setBatchMode(true);
+   run("Reslice [/]...", "input=1.000 output=1.000 start=Top");
+   depth = nSlices;
+   width=getWidth();
+   height=getHeight();
+   for (z=0; z<depth; z++) { // loop through slices
+        showProgress(z, depth);
+        setSlice(z+1);
+        for (x=0; x<width; x++) { // get the z pixels
+            h=newArray(256);
+            modef=0;
+            zmode=-1;
+            for (y=0;y<height;y++){
+               p= getPixel(x,y);
+               h[p]++;
+               if (h[p]>modef)
+                 modef=h[p];
+            }
+            // the following will get the smallest valued mode
+            i=0;      // change to 255 to get the largest valued mode
+            while(h[i]<modef)  
+               i++;   // change to i--; to get the largest valued mode
+            zmode=i;
+            setPixel(x, 0, zmode);
+        }
+  }
+  run("Reslice [/]...", "input=1.000 output=1.000 start=Top");
+  run("Duplicate...", "title=stack_mode");
+  setBatchMode(false); // display
+}
