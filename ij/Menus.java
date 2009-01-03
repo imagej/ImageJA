@@ -101,8 +101,6 @@ public class Menus {
 		file.addSeparator();
 		addPlugInItem(file, "Page Setup...", "ij.plugin.filter.Printer(\"setup\")", 0, false);
 		addPlugInItem(file, "Print...", "ij.plugin.filter.Printer(\"print\")", KeyEvent.VK_P, false);
-		file.addSeparator();
-		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 		
 		Menu edit = getMenu("Edit");
 		addPlugInItem(edit, "Undo", "ij.plugin.Commands(\"undo\")", KeyEvent.VK_Z, false);
@@ -218,7 +216,11 @@ public class Menus {
 			menuSeparators = new Properties();
 			installPlugins();
 		}
-		
+
+		// make	sure "Quit" is the last item in the File menu
+		file.addSeparator();
+		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
+
 		if (fontSize!=0)
 			mbar.setFont(getFont());
 		if (ij!=null)
