@@ -428,7 +428,7 @@ public class Menus {
 				case IMPORT_MENU: menu = getMenu("File>Import"); break;
 				case SAVE_AS_MENU: menu = getMenu("File>Save As"); break;
 				case SHORTCUTS_MENU: menu = shortcutsMenu; break;
-				case ABOUT_MENU: menu = getMenu("Help>About"); break;
+				case ABOUT_MENU: menu = getMenu("Help>About Plugins"); break;
 				case FILTERS_MENU: menu = getMenu("Process>Filters"); break;
 				case TOOLS_MENU: menu = getMenu("Analyze>Tools"); break;
 				case UTILITIES_MENU: menu = utilitiesMenu; break;
@@ -609,6 +609,10 @@ public class Menus {
 			int comma = name.indexOf(',');
 			if (comma >= 0)
 				name = name.substring(0, comma);
+
+			// for backward compatibility
+			if (name.startsWith("Help>About"))
+				name = "Help>About Plugins";
 
 			menu = getMenu(name);
 		}
@@ -1255,7 +1259,7 @@ public class Menus {
 			case IMPORT_MENU: menu = getMenu("File>Import"); break;
 			case SAVE_AS_MENU: menu = getMenu("File>Save As"); break;
 			case SHORTCUTS_MENU: menu = shortcutsMenu; break;
-			case ABOUT_MENU: menu = getMenu("Help>About"); break;
+			case ABOUT_MENU: menu = getMenu("Help>About Plugins"); break;
 			case FILTERS_MENU: menu = getMenu("Process>Filters"); break;
 			case TOOLS_MENU: menu = getMenu("Analyze>Tools"); break;
 			case UTILITIES_MENU: menu = utilitiesMenu; break;
