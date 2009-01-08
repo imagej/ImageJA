@@ -87,7 +87,8 @@ public class CompositeImage extends ImagePlus {
 				active[i] = true;
 		} else
 			active[0] = true;
-		if (!(channels==3&&stackSize==3))
+		//if (!(channels==3&&stackSize==3))
+		if (channels!=stackSize)
 			setOpenAsHyperStack(true);
 	}
 
@@ -128,6 +129,7 @@ public class CompositeImage extends ImagePlus {
 				cip[i].setColorModel(lut[i]);
 				cip[i].setMinAndMax(lut[i].min, lut[i].max);
 			}
+			currentSlice = currentFrame = 1;
 		}
 	}
 
@@ -268,8 +270,11 @@ public class CompositeImage extends ImagePlus {
 			if (syncChannels) {
 				ImageProcessor ip2 = getProcessor();
 				double min=ip2.getMin(), max=ip2.getMax();
-				for (int i=0; i<nChannels; i++)
+				for (int i=0; i<nChannels; i++) {
 					cip[i].setMinAndMax(min, max);
+					lut[i].min = min;
+					lut[i].max = max;
+				}
 				syncChannels = false;
 			}
 			if (active[0])
@@ -542,6 +547,16 @@ public class CompositeImage extends ImagePlus {
 		customLuts = true;
 	}
 	
+	/* Sets the LUT of the specified channel using a clone of 'table'. */
+	public void setChannelLut(LUT table, int channel) {
+		int channels = getNChannels();
+		if (lut==null) setupLuts(channels);
+		if (channel<1 || channel>lut.length)
+			throw new IllegalArgumentException("Channel out of range");
+		lut[channel-1] = (LUT)table.clone();
+		cip = null;
+	}
+
 	/* Sets the IndexColorModel of the current channel. */
 	public void setChannelColorModel(IndexColorModel cm) {
 		byte[] reds = new byte[256];

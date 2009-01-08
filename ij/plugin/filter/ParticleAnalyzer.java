@@ -75,6 +75,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	
 	private static double staticMinSize = 0.0;
 	private static double staticMaxSize = DEFAULT_MAX_SIZE;
+	private static boolean pixelUnits;
 	private static int staticOptions = Prefs.getInt(OPTIONS,CLEAR_WORKSHEET);
 	private static String[] showStrings = {"Nothing", "Outlines", "Masks", "Ellipses", "Count Masks"};
 	private static double minCircularity=0.0, maxCircularity=1.0;
@@ -124,6 +125,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private FloodFiller ff;
 	private Polygon polygon;
 	private RoiManager roiManager;
+	private ImagePlus outputImage;
+	private boolean hideOutputImage;
 		
 	
 	/** Constructs a ParticleAnalyzer.
@@ -203,6 +206,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	public boolean showDialog() {
 		Calibration cal = imp!=null?imp.getCalibration():(new Calibration());
 		double unitSquared = cal.pixelWidth*cal.pixelHeight;
+		if (pixelUnits)
+			unitSquared = 1.0;
 		if (Macro.getOptions()!=null) {
 			boolean oldMacro = updateMacroOptions();
 			if (oldMacro) unitSquared = 1.0;
@@ -213,9 +218,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (maxSize==999999) maxSize = DEFAULT_MAX_SIZE;
 		options = staticOptions;
 		String unit = cal.getUnit();
+		boolean scaled = cal.scaled();
 		if (unit.equals("inch")) {
 			unit = "pixel";
 			unitSquared = 1.0;
+			scaled = false;
+			pixelUnits = true;
 		}
 		String units = unit+"^2";
 		int places = 0;
@@ -237,10 +245,15 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				if (maxStr.indexOf("-")==-1) break;
 			}
 		}
+		if (scaled)
+			gd.setInsets(5, 0, 0);
 		gd.addStringField("Size ("+units+"):", minStr+"-"+maxStr, 12);
+		if (scaled) {
+			gd.setInsets(0, 40, 5);
+			gd.addCheckbox("Pixel Units", pixelUnits);
+		}
 		gd.addStringField("Circularity:", IJ.d2s(minCircularity)+"-"+IJ.d2s(maxCircularity), 12);
 		gd.addChoice("Show:", showStrings, showStrings[showChoice]);
-		
 		String[] labels = new String[7];
 		boolean[] states = new boolean[7];
 		labels[0]="Display Results"; states[0] = (options&SHOW_RESULTS)!=0;
@@ -256,11 +269,13 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (gd.wasCanceled())
 			return false;
 			
-		String size = gd.getNextString();
-		if (size.indexOf("p")!=-1) { // unit is "pixel"?
-			size = size.replaceAll("p", "");
+		String size = gd.getNextString(); // min-max size
+		if (scaled)
+			pixelUnits = gd.getNextBoolean();
+		if (pixelUnits)
 			unitSquared = 1.0;
-		}
+		else
+			unitSquared = cal.pixelWidth*cal.pixelHeight;
 		String[] minAndMax = Tools.split(size, " -");
 		double mins = Tools.parseDouble(minAndMax[0]);
 		double maxs = minAndMax.length==2?Tools.parseDouble(minAndMax[1]):Double.NaN;
@@ -268,8 +283,10 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		maxSize = Double.isNaN(maxs)?DEFAULT_MAX_SIZE:maxs/unitSquared;
 		if (minSize<DEFAULT_MIN_SIZE) minSize = DEFAULT_MIN_SIZE;
 		if (maxSize<minSize) maxSize = DEFAULT_MAX_SIZE;
+		staticMinSize = minSize;
+		staticMaxSize = maxSize;
 		
-		minAndMax = Tools.split(gd.getNextString(), " -");
+		minAndMax = Tools.split(gd.getNextString(), " -"); // min-max circularity
 		double minc = Tools.parseDouble(minAndMax[0]);
 		double maxc = minAndMax.length==2?Tools.parseDouble(minAndMax[1]):Double.NaN;
 		minCircularity = Double.isNaN(minc)?0.0:minc;
@@ -283,8 +300,6 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			canceled = true;
 			return false;
 		}
-		staticMinSize = minSize;
-		staticMaxSize = maxSize;
 		showChoice = gd.getNextChoiceIndex();
 		if (gd.getNextBoolean())
 			options |= SHOW_RESULTS; else options &= ~SHOW_RESULTS;
@@ -341,6 +356,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		recordStarts = (options&RECORD_STARTS)!=0;
 		addToManager = (options&ADD_TO_MANAGER)!=0;
 		displaySummary = (options&DISPLAY_SUMMARY)!=0;
+		outputImage = null;
 		ip.snapshot();
 		ip.setProgressBar(null);
 		if (Analyzer.isRedirectImage()) {
@@ -838,7 +854,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			else
 				prefix = "Drawing of ";
 			outlines.update(drawIP);
-			new ImagePlus(prefix+title, outlines).show();
+			outputImage = new ImagePlus(prefix+title, outlines);
+			if (!hideOutputImage) outputImage.show();
 		}
 		if (showResults && !processStack) {
 			Analyzer.firstParticle = beginningCount;
@@ -847,6 +864,17 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			Analyzer.firstParticle = Analyzer.lastParticle = 0;
 	}
 	
+	/** Returns the "Outlines", "Masks", "Elipses" or "Count Masks" image,
+		or null if "Nothing" is selected in the "Show:" menu. */
+	public ImagePlus getOutputImage() {
+		return outputImage;
+	}
+
+	/** Set 'hideOutputImage' true to not display the "Show:" image. */
+	public void setHideOutputImage(boolean hideOutputImage) {
+		this.hideOutputImage = hideOutputImage;
+	}
+
 	int getColumnID(String name) {
 		int id = rt.getFreeColumn(name);
 		if (id==ResultsTable.COLUMN_IN_USE)

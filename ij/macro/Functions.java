@@ -77,7 +77,7 @@ public class Functions implements MacroConstants, Measurements {
 			case PRINT: print(); break;
 			case WRITE: IJ.write(getStringArg()); break;
 			case DO_WAND: IJ.doWand((int)getFirstArg(), (int)getLastArg()); resetImage(); break;
-			case SET_MIN_MAX: IJ.setMinAndMax(getFirstArg(), getLastArg()); resetImage(); break;
+			case SET_MIN_MAX: setMinAndMax(); break;
 			case SET_THRESHOLD: setThreshold(); break;
 			case SET_TOOL: setTool(); break;
 			case SET_FOREGROUND: setForegroundColor(); break;
@@ -242,6 +242,7 @@ public class Functions implements MacroConstants, Measurements {
 			case EXT: str = doExt(); break;
 			case EXEC: str = exec(); break;
 			case LIST: str = doList(); break;
+			case DEBUG: str = debug(); break;
 			default:
 				str="";
 				interp.error("String function expected");
@@ -552,10 +553,14 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	void setForegroundColor() {
-		int lineWidth = getProcessor().getLineWidth();
+		boolean isImage = WindowManager.getCurrentImage()!=null;
+		int lineWidth = 0;
+		if (isImage)
+			lineWidth = getProcessor().getLineWidth();
 		IJ.setForegroundColor((int)getFirstArg(), (int)getNextArg(), (int)getLastArg());
 		resetImage();
-		getProcessor().setLineWidth(lineWidth);
+		if (isImage)
+			getProcessor().setLineWidth(lineWidth);
 		defaultColor = null;
 		defaultValue = Double.NaN;
 	}
@@ -1550,6 +1555,7 @@ public class Functions implements MacroConstants, Measurements {
 	void getThreshold() {
 		Variable lower = getFirstVariable();
 		Variable upper = getLastVariable();
+		resetImage();
 		ImagePlus imp = getImage();
 		ImageProcessor ip = getProcessor();
 		double t1 = ip.getMinThreshold();
@@ -2126,6 +2132,7 @@ public class Functions implements MacroConstants, Measurements {
 	void getMinAndMax() {
 		Variable min = getFirstVariable();
 		Variable max = getLastVariable();
+		resetImage();
 		ImagePlus imp = getImage();
 		double v1 = imp.getDisplayRangeMin();
 		double v2 = imp.getDisplayRangeMax();
@@ -2487,7 +2494,7 @@ public class Functions implements MacroConstants, Measurements {
 		else interp.error("Invalid key");
 		return value;
 	}
-
+	
 	String runMacro(boolean eval) {
 		interp.getLeftParen();
 		String name = getString();
@@ -2603,7 +2610,7 @@ public class Functions implements MacroConstants, Measurements {
 				stats = ImageStatistics.getStatistics(ip2, params, cal);
 				ip2.setRoi(saveR);
 			} else {
-				ip2 = (new Straightener()).straighten(imp, lineWidth);
+				ip2 = (new Straightener()).straightenLine(imp, lineWidth);
 				stats = ImageStatistics.getStatistics(ip2, params, cal);
 			}
 		} else if (roi!=null && roi.isLine()) {
@@ -2768,6 +2775,8 @@ public class Functions implements MacroConstants, Measurements {
 					defaultChoice = choices[0];
 				interp.getRightParen();
 				gd.addChoice(prompt, choices, defaultChoice);
+			} else if (name.equals("setInsets")) {
+				gd.setInsets((int)getFirstArg(), (int)getNextArg(), (int)getLastArg());
 			} else if (name.equals("show")) {
 				interp.getParens();
 				gd.showDialog();
@@ -3222,10 +3231,27 @@ public class Functions implements MacroConstants, Measurements {
 			}
 			m = c.getMethod(methodName,argClasses);
 		} catch(Exception ex) {
+			m = null;
+		}
+		if (m==null && args.length>0) {
+			try {
+				Class[] argClasses = new Class[args.length];
+				for(int i=0;i<args.length;i++) {
+					double value = Tools.parseDouble((String)args[i]);
+					if (!Double.isNaN(value)) {
+						args[i] = new Integer((int)value);
+						argClasses[i] = int.class;
+					} else
+						argClasses[i] = args[i].getClass();
+				}
+				m = c.getMethod(methodName,argClasses);
+			} catch(Exception ex) {
+				m = null;
+			}
+		}
+		if (m==null)
 			interp.error("Could not find the method "+methodName+" with "+
 				     args.length+" parameter(s) in class "+className);
-			return null;
-		}
 
 		try {
 			Object obj = m.invoke(null, args);
@@ -3383,9 +3409,19 @@ public class Functions implements MacroConstants, Measurements {
 			state = getImage().getStack().isVirtual();
 		else if (arg.indexOf("composite")!=-1)
 			state = getImage().isComposite();
+		else if (arg.indexOf("caps")!=-1)
+			state = getCapsLockState();
 		else
-			interp.error("Argument must be 'locked', 'Inverted LUT' or 'Hyperstack'");
+			interp.error("Invalid argument");
 		return state?1.0:0.0;
+	}
+
+	final boolean getCapsLockState() {
+		boolean capsDown = false;
+		try {
+			capsDown = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
+		} catch(Exception e) {}
+		return capsDown;
 	}
 
 	Variable[] getList() {
@@ -3925,5 +3961,46 @@ public class Functions implements MacroConstants, Measurements {
 		return Double.NaN;
 	}
 	
+	void setMinAndMax() {
+		double min = getFirstArg();
+		double max = getNextArg();
+		int channels = 7;
+		if (interp.nextToken()==',') {
+			channels = (int)getLastArg();
+			if (getImage().getBitDepth()!=24)
+				interp.error("RGB image required");
+		} else
+			interp.getRightParen();
+		IJ.setMinAndMax(min, max, channels);
+		resetImage();
+	}
+	
+	String debug() {
+		String arg = "break";
+		if (interp.nextToken()=='(')
+			arg = getStringArg().toLowerCase(Locale.US);
+		else
+			interp.getParens();
+		if (interp.editor==null) {
+			Editor ed = Editor.getInstance();
+			if (ed==null)
+				interp.error("Macro editor not available");
+			else
+				interp.setEditor(ed);
+		}
+		if (arg.equals("run"))
+			interp.setDebugMode(Interpreter.RUN);
+		else if (arg.equals("break"))
+			interp.setDebugMode(Interpreter.STEP);
+		else if (arg.equals("trace"))
+			interp.setDebugMode(Interpreter.TRACE);
+		else if (arg.indexOf("fast")!=-1)
+			interp.setDebugMode(Interpreter.FAST_TRACE);
+		else
+			interp.error("Argument must be 'run', 'break', 'trace' or 'fast-trace'");
+		IJ.setKeyUp(IJ.ALL_KEYS);
+		return null;
+	}
+
 } // class Functions
 

@@ -193,6 +193,7 @@ public class Opener {
 		the file type is unrecognised. */
 	public ImagePlus openImage(String directory, String name) {
 		ImagePlus imp;
+		FileOpener.setSilentMode(silentMode);
 		if (directory.length()>0 && !directory.endsWith(Prefs.separator))
 			directory += Prefs.separator;
 		String path = directory+name;
@@ -250,9 +251,16 @@ public class Opener {
 	}
 	
 	/** Attempts to open the specified file as a tiff, bmp, dicom, fits,
-	pgm, gif or jpeg. Returns an ImagePlus object if successful. */
+		pgm, gif or jpeg. Displays a file open dialog if 'path' is null or
+		an empty string. Returns an ImagePlus object if successful. */
 	public ImagePlus openImage(String path) {
-		if (path==null || path.equals("")) return null;
+		if (path==null || path.equals("")) {
+			OpenDialog od = new OpenDialog("Open", "");
+			String dir = od.getDirectory();
+			String name = od.getFileName();
+			if (name==null) return null;
+			path = dir+name;
+		}
 		ImagePlus img = null;
 		if (path.indexOf("://")>0)
 			img = openURL(path);
@@ -314,6 +322,15 @@ public class Opener {
 		}
 		imp = (ImagePlus)IJ.runPlugIn("HandleExtraFileTypes", path);
 		if (imp==null) return null;
+		FileInfo fi = imp.getOriginalFileInfo();
+		if (fi==null) {
+			fi = new FileInfo();
+			fi.width = imp.getWidth();
+			fi.height = imp.getHeight();
+			fi.directory = getDir(path);
+			fi.fileName = getName(path);
+			imp.setFileInfo(fi);
+		}
 		if (imp.getWidth()>0 && imp.getHeight()>0) {
 			fileType[0] = CUSTOM;
 			return imp;
@@ -488,7 +505,8 @@ public class Opener {
 				for (int i=0; i<info.length; i++) {
 					nChannels = 1;
 					Object[] channels = null;
-					IJ.showStatus("Reading: " + (i+1) + "/" + info.length);
+					if (!silentMode)
+						IJ.showStatus("Reading: " + (i+1) + "/" + info.length);
 					if (IJ.escapePressed()) {
 						IJ.beep();
 						IJ.showProgress(1.0);

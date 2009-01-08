@@ -1,4 +1,4 @@
-package ij;
+ package ij;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -89,6 +89,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	private static Vector listeners = new Vector();
 	private boolean openAsHyperStack;
 	private int[] position = {1,1,1};
+	private boolean noUpdateMode;
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -1067,6 +1068,12 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 	}
 	
+	public void setPositionWithoutUpdate(int channel, int slice, int frame) {
+		noUpdateMode = true;
+		setPosition(channel, slice, frame);
+		noUpdateMode = false;
+	}
+	
 	public int getStackIndex(int channel, int slice, int frame) {	
    		if (channel<1) channel = 1;
     	if (channel>nChannels) channel = nChannels;
@@ -1129,8 +1136,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 			}
 			if (imageType==COLOR_RGB)
 				ContrastAdjuster.update();
-			if (!Interpreter.isBatchMode())
+			if (!Interpreter.isBatchMode() && !noUpdateMode)
 				updateAndRepaintWindow();
+			else
+				img = null;
 		}
 	}
 
@@ -1211,7 +1220,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 				break;
 			case Toolbar.POINT:
 				roi = new PointRoi(sx, sy, this);
-				if (Prefs.pointAutoMeasure || Prefs.pointAutoNextSlice) IJ.run("Measure");
+				if (Prefs.pointAutoMeasure || (Prefs.pointAutoNextSlice&&!Prefs.pointAddToManager)) IJ.run("Measure");
+				if (Prefs.pointAddToManager) {
+					IJ.run("Add to Manager ");
+					ImageCanvas ic = getCanvas();
+					if (ic!=null && !ic.getShowAllROIs())
+						ic.setShowAllROIs(true);
+				}
 				if (Prefs.pointAutoNextSlice && getStackSize()>1) {
 					IJ.run("Next Slice [>]");
 					killRoi();
@@ -1775,6 +1790,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return compositeImage && getNChannels()>1 && (this instanceof CompositeImage);
 	}
 
+	/** Sets the display range of the current channel. With non-composite
+	    images it is identical to ip.setMinAndMax(min, max). */
 	public void setDisplayRange(double min, double max) {
 		ip.setMinAndMax(min, max);
 	}
@@ -1787,6 +1804,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return ip.getMax();
 	}
 
+	/**	Sets the display range of specified channels in an RGB image, where 4=red,
+		2=green, 1=blue, 6=red+green, etc. With non-RGB images, this method is
+		identical to setDisplayRange(min, max).  This method is used by the 
+		Image/Adjust/Color Balance tool . */
 	public void setDisplayRange(double min, double max, int channels) {
 		if (ip instanceof ColorProcessor)
 			((ColorProcessor)ip).setMinAndMax(min, max, channels);

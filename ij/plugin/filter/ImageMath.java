@@ -132,6 +132,22 @@ public class ImageMath implements PlugInFilter {
 			return;
 		}
 
+	 	if (arg.equals("set")) {
+	 		boolean rgb = ip instanceof ColorProcessor;
+	 		String prompt = rgb?"Value (0-255): ":"Value: ";
+	 		if (first) addValue = getValue("Set", prompt, addValue, 0);
+	 		if (canceled) return;
+			if (rgb) {
+				if (addValue>255.0) addValue=255.0;
+				if (addValue<0.0) addValue=0.0;
+				int ival = (int)addValue;
+	 			ip.setValue(ival + (ival<<8) + (ival<<16));
+			} else
+	 			ip.setValue(addValue);
+			ip.fill();
+			return;
+		}
+
 	 	if (arg.equals("log")) {
 			ip.log();
 			return;

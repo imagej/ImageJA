@@ -5,11 +5,12 @@ import java.awt.image.ColorModel;
 
 /** This class represents an array of disk-resident images. */
 public class VirtualStack extends ImageStack {
-	static final int INITIAL_SIZE = 100;
-	String path;
-	int nSlices;
-	String[] names;
-	String[] labels;
+	private static final int INITIAL_SIZE = 100;
+	private String path;
+	private int nSlices;
+	private String[] names;
+	private String[] labels;
+	private int bitDepth;
 	
 	/** Default constructor. */
 	public VirtualStack() { }
@@ -88,7 +89,7 @@ public class VirtualStack extends ImageStack {
 		were 1<=n<=nslices. Returns null if the stack is empty.
 	*/
 	public ImageProcessor getProcessor(int n) {
-		//IJ.log("getProcessor: "+n+"  "+names[n-1]);
+		//IJ.log("getProcessor: "+n+"  "+names[n-1]+"  "+bitDepth);
 		ImagePlus imp = new Opener().openImage(path, names[n-1]);
 		if (imp!=null) {
 			int w = imp.getWidth();
@@ -98,7 +99,18 @@ public class VirtualStack extends ImageStack {
 			labels[n-1] = (String)imp.getProperty("Info");
 		} else
 			return null;
-		return imp.getProcessor();
+		ImageProcessor ip = imp.getProcessor();
+		if (imp.getBitDepth()!=bitDepth) {
+			switch (bitDepth) {
+				case 8: ip=ip.convertToByte(true); break;
+				case 16: ip=ip.convertToShort(true); break;
+				case 24:  ip=ip.convertToRGB(); break;
+				case 32: ip=ip.convertToFloat(); break;
+			}
+		}
+		if (ip.getWidth()!=getWidth() || ip.getHeight()!=getHeight())
+			ip = ip.resize(getWidth(), getHeight());
+		return ip;
 	 }
  
 	/** Currently not implemented */
@@ -148,6 +160,11 @@ public class VirtualStack extends ImageStack {
 	/** Returns the file name of the specified slice, were 1<=n<=nslices. */
 	public String getFileName(int n) {
 		return names[n-1];
+	}
+	
+	/** Sets the bit depth (8, 16, 24 or 32). */
+	public void setBitDepth(int bitDepth) {
+		this.bitDepth = bitDepth;
 	}
 
 } 

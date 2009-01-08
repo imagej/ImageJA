@@ -48,17 +48,18 @@ public class Info implements PlugInFilter {
 		String s = new String("\n");
 		s += "Title: " + imp.getTitle() + "\n";
 		Calibration cal = imp.getCalibration();
-    	int nSlices = imp.getStackSize();
+    	int stackSize = imp.getStackSize();
+    	int channels = imp.getNChannels();
+    	int slices = imp.getNSlices();
+    	int frames = imp.getNFrames();
 		int digits = imp.getBitDepth()==32?4:0;
 		if (cal.scaled()) {
 			String unit = cal.getUnit();
 			String units = cal.getUnits();
 	    	s += "Width:  "+IJ.d2s(imp.getWidth()*cal.pixelWidth,2)+" " + units+" ("+imp.getWidth()+")\n";
 	    	s += "Height:  "+IJ.d2s(imp.getHeight()*cal.pixelHeight,2)+" " + units+" ("+imp.getHeight()+")\n";
-	    	if (nSlices>1)
-	    		s += "Depth:  "+IJ.d2s(nSlices*cal.pixelDepth,2)+" " + units+" ("+nSlices+")\n";	    			    	
-	    	if (nSlices>1)
-	    		s += "Voxel size: "+IJ.d2s(cal.pixelWidth,2) + "x" + IJ.d2s(cal.pixelHeight,2)+"x"+IJ.d2s(cal.pixelDepth,2) + "\n";	    		
+	    	if (stackSize>1)
+	    		s += "Depth:  "+IJ.d2s(slices*cal.pixelDepth,2)+" " + units+" ("+slices+")\n";	    			    	
 	    	double xResolution = 1.0/cal.pixelWidth;
 	    	double yResolution = 1.0/cal.pixelHeight;
 	    	int places = Tools.getDecimalPlaces(xResolution, yResolution);
@@ -71,11 +72,12 @@ public class Info implements PlugInFilter {
 	    } else {
 	    	s += "Width:  " + imp.getWidth() + " pixels\n";
 	    	s += "Height:  " + imp.getHeight() + " pixels\n";
-	    	if (nSlices>1)
-	    		s += "Depth:  " + nSlices + " pixels\n";
+	    	if (stackSize>1)
+	    		s += "Depth:  " + slices + " pixels\n";
 	    }
+	    	
 	    s += "ID: "+imp.getID()+"\n";
-	    String zOrigin = nSlices>1||cal.zOrigin!=0.0?","+d2s(cal.zOrigin):"";
+	    String zOrigin = stackSize>1||cal.zOrigin!=0.0?","+d2s(cal.zOrigin):"";
 	    s += "Coordinate origin:  " + d2s(cal.xOrigin)+","+d2s(cal.yOrigin)+zOrigin+"\n";
 	    int type = imp.getType();
     	switch (type) {
@@ -89,6 +91,7 @@ public class Info implements PlugInFilter {
 	    		if (imp.isInvertedLut())
 	    			lut = "inverting " + lut;
 	    		s += "(" + lut + ")\n";
+				s += "Display range: "+(int)ip.getMin()+"-"+(int)ip.getMax()+"\n";
 	    		break;
 	    	case ImagePlus.GRAY16: case ImagePlus.GRAY32:
 	    		if (type==ImagePlus.GRAY16) {
@@ -114,10 +117,10 @@ public class Info implements PlugInFilter {
     	}
 		double interval = cal.frameInterval;	
 		double fps = cal.fps;	
-    	if (nSlices>1) {
+    	if (stackSize>1) {
     		ImageStack stack = imp.getStack();
     		int slice = imp.getCurrentSlice();
-    		String number = slice + "/" + nSlices;
+    		String number = slice + "/" + stackSize;
     		String label = stack.getShortSliceLabel(slice);
     		if (label!=null && label.length()>0)
     			label = " (" + label + ")";
@@ -132,7 +135,15 @@ public class Info implements PlugInFilter {
 				if (interval!=0.0)
 					s += "Frame interval: " + ((int)interval==interval?IJ.d2s(interval,0):IJ.d2s(interval,5)) + " " + cal.getTimeUnit() + "\n";
 			} else
-				s += "Slice: " + number + label + "\n";
+				s += "Image: " + number + label + "\n";
+			if (imp.isHyperStack()) {
+				if (channels>1)
+					s += "  Channel: " + imp.getChannel() + "/" + channels + "\n";
+				if (slices>1)
+					s += "  Slice: " + imp.getSlice() + "/" + slices + "\n";
+				if (frames>1)
+					s += "  Frame: " + imp.getFrame() + "/" + frames + "\n";
+			}
 		}
 
 		if (ip.getMinThreshold()==ImageProcessor.NO_THRESHOLD)

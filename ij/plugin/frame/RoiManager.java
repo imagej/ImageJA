@@ -706,7 +706,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (!onePerSlice)
 			return measure(MULTI);
 
-		Analyzer aSys = new Analyzer(); //System Analyzer
+		Analyzer aSys = new Analyzer(imp); //System Analyzer
 		ResultsTable rtSys = Analyzer.getResultsTable();
 		ResultsTable rtMulti = new ResultsTable();
 		Analyzer aMulti = new Analyzer(imp, measurements, rtMulti); //Private Analyzer
@@ -720,14 +720,19 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			for (int i=0; i<indexes.length; i++) {
 				if (restore(indexes[i], false)) {
 					roiIndex++;
-					Roi roi = imp.getRoi();
-					ImageStatistics stats = imp.getStatistics(measurements);
-					aSys.saveResults(stats, roi); //Save measurements in system results table;
+					aSys.measure();
 					for (int j=0; j<=rtSys.getLastColumn(); j++){
 						float[] col = rtSys.getColumn(j);
 						String head = rtSys.getColumnHeading(j);
+						String suffix = ""+roiIndex;
+						Roi roi = imp.getRoi();
+						if (roi!=null) {
+							String name = roi.getName();
+							if (name!=null && name.length()>0 && (name.length()<9||!Character.isDigit(name.charAt(0))))
+								suffix = "("+name+")";
+						}
 						if (head!=null && col!=null && !head.equals("Slice"))
-							rtMulti.addValue(head+roiIndex,rtSys.getValue(j,rtSys.getCounter()-1));
+							rtMulti.addValue(head+suffix,rtSys.getValue(j,rtSys.getCounter()-1));
 					}
 				} else
 					break;

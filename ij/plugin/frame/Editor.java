@@ -7,12 +7,11 @@ import java.awt.datatransfer.*;
 import ij.*;
 import ij.gui.*;
 import ij.util.Tools;
-import ij.text.TextWindow;
+import ij.text.*;
 import ij.macro.*;
 import ij.plugin.MacroInstaller;
 import ij.plugin.NewPlugin;
 import ij.io.SaveDialog;
-
 
 /** This is a simple TextArea based editor for editing and compiling plugins. */
 public class Editor extends PlugInFrame implements ActionListener, ItemListener,
@@ -30,7 +29,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		"JavaScript.jar was not found in the plugins\nfolder. It can be downloaded from:\n \n"+IJ.URL+"/download/tools/JavaScript.jar";
 	public static final int MAX_SIZE=28000, XINC=10, YINC=18;
 	public static final int MONOSPACED=1, MENU_BAR=2;
-	public static final int MACROS_MENU_ITEMS = 6;
+	public static final int MACROS_MENU_ITEMS = 8;
 	static final String FONT_SIZE = "editor.font.size";
 	static final String FONT_MONO= "editor.font.mono";
 	private TextArea ta;
@@ -60,6 +59,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
     private static boolean caseSensitive = true;
     private static boolean wholeWords;
     private boolean isMacroWindow;
+    private int debugStart, debugEnd;
+    private static TextWindow debugWindow;
+    private boolean step;
+    private int previousLine;
+    private static Editor instance;
+    private int runToLine;
 	
 	public Editor() {
 		this(16, 60, 0, MENU_BAR);
@@ -79,8 +84,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (fontSize>=sizes.length) fontSize = sizes.length-1;
         setFont();
 		positionWindow();
-		//display("Test.java", "");
-		IJ.register(Editor.class);
 	}
 	
 	void addMenuBar(int options) {
@@ -172,7 +175,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
 		ta.setCaretPosition(0);
 		setWindowTitle(name);
-		if (name.endsWith(".txt") || name.endsWith(".ijm") || name.endsWith(".js")|| name.indexOf(".")==-1) {
+		boolean macroExtension = name.endsWith(".txt") || name.endsWith(".ijm");
+		if (macroExtension || name.endsWith(".js")|| name.indexOf(".")==-1) {
 			macrosMenu = new Menu("Macros");			
 			macrosMenu.add(new MenuItem("Run Macro", new MenuShortcut(KeyEvent.VK_R)));
 			macrosMenu.add(new MenuItem("Evaluate Line", new MenuShortcut(KeyEvent.VK_E)));
@@ -185,8 +189,20 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			// MACROS_MENU_ITEMS must be updated if items are added to this menu
 			macrosMenu.addActionListener(this);
 			mb.add(macrosMenu);
-			if (text.indexOf("macro ")!=-1)
-				installMacros(text, false);				
+			if (!name.endsWith(".js")) {
+				Menu debugMenu = new Menu("Debug");			
+				debugMenu.add(new MenuItem("Debug Macro", new MenuShortcut(KeyEvent.VK_1)));
+				debugMenu.add(new MenuItem("Step", new MenuShortcut(KeyEvent.VK_2)));
+				debugMenu.add(new MenuItem("Trace", new MenuShortcut(KeyEvent.VK_3)));
+				debugMenu.add(new MenuItem("Fast Trace", new MenuShortcut(KeyEvent.VK_4)));
+				debugMenu.add(new MenuItem("Run", new MenuShortcut(KeyEvent.VK_5)));
+				debugMenu.add(new MenuItem("Run to Insertion Point", new MenuShortcut(KeyEvent.VK_6)));
+				debugMenu.add(new MenuItem("Abort", new MenuShortcut(KeyEvent.VK_7)));
+				debugMenu.addActionListener(this);
+				mb.add(debugMenu);
+			}
+			if (macroExtension && text.indexOf("macro ")!=-1)
+				installMacros(text, false);	
 		} else {
 			fileMenu.addSeparator();
 			fileMenu.add(new MenuItem("Compile and Run", new MenuShortcut(KeyEvent.VK_R)));
@@ -305,7 +321,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 	}
 	
-	void runMacro() {
+	final void runMacro(boolean debug) {
 		if (getTitle().endsWith(".js"))
 			{evaluateJavaScript(); return;}
 		int start = ta.getSelectionStart();
@@ -315,7 +331,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			text = ta.getText();
 		else
 			text = ta.getSelectedText();
-		new MacroRunner(text);
+		new MacroRunner(text, debug?this:null);
 	}
 	
 	void evaluateJavaScript() {
@@ -342,7 +358,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		int start = ta.getSelectionStart();
 		int end = ta.getSelectionEnd();
 		if (end>start)
-			{runMacro(); return;}
+			{runMacro(false); return;}
 		String text = ta.getText();
 		while (start>0) {
 			start--;
@@ -356,7 +372,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		ta.setSelectionStart(start);
 		ta.setSelectionEnd(end);
-		runMacro();
+		runMacro(false);
 	}
 
 	void print () {
@@ -485,20 +501,40 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			ta.setCaretPosition(start+s.length());
 	}
 
-	public void actionPerformed(ActionEvent evt) {
-		String what = evt.getActionCommand();
+	public void actionPerformed(ActionEvent e) {
+		String what = e.getActionCommand();
+		int flags = e.getModifiers();
+		boolean altKeyDown = (flags & Event.ALT_MASK)!=0;
+
 		if ("Save".equals(what))
 			save();
 		else if ("Compile and Run".equals(what))
 				compileAndRun();
-		else if ("Run Macro".equals(what))
-				runMacro();
-		else if ("Evaluate Line".equals(what))
-				evaluateLine();
-		else if ("Abort Macro".equals(what)) {
+		else if ("Run Macro".equals(what)) {
+			if (altKeyDown) {
+				enableDebugging();
+				runMacro(true);
+			} else
+				runMacro(false);
+		} else if ("Debug Macro".equals(what)) {
+				enableDebugging();
+				runMacro(true);
+		} else if ("Step".equals(what))
+			setDebugMode(Interpreter.STEP);
+		else if ("Trace".equals(what))
+			setDebugMode(Interpreter.TRACE);
+		else if ("Fast Trace".equals(what))
+			setDebugMode(Interpreter.FAST_TRACE);
+		else if ("Run".equals(what))
+			setDebugMode(Interpreter.RUN);
+		else if ("Run to Insertion Point".equals(what))
+			runToInsertionPoint();
+		else if ("Abort".equals(what) || "Abort Macro".equals(what)) {
 				Interpreter.abort();
 				IJ.beep();		
-		} else if ("Install Macros".equals(what))
+		} else if ("Evaluate Line".equals(what))
+				evaluateLine();
+		else if ("Install Macros".equals(what))
 				installMacros(ta.getText(), true);
 		else if ("Function Finder...".equals(what))
 			new FunctionFinder();
@@ -536,8 +572,73 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			IJ.run("Text Window");
 		else if ("Open...".equals(what))
 			IJ.open();
-		else
-			installer.runMacro(what);
+		else {
+			if (altKeyDown) {
+				enableDebugging();
+				installer.runMacro(what, this);
+			} else
+				installer.runMacro(what, null);
+		}
+	}
+	
+	final void runToInsertionPoint() {
+		Interpreter interp = Interpreter.getInstance();
+		if (interp==null)
+			IJ.beep();
+		else {
+			runToLine = getCurrentLine();
+			//IJ.log("runToLine: "+runToLine);
+			setDebugMode(Interpreter.RUN_TO_CARET);
+		}
+	}
+		
+	final int getCurrentLine() {
+		int pos = ta.getCaretPosition();
+		int currentLine = 0;
+		String text = ta.getText();
+		if (IJ.isWindows() && !IJ.isVista())
+			text = text.replaceAll("\r\n", "\n");
+		char[] chars = new char[text.length()];
+		chars = text.toCharArray();
+		int count=0;
+		int start=0, end=0;
+		int len = chars.length;
+		for (int i=0; i<len; i++) {
+			if (chars[i]=='\n') {
+				count++;
+				start = end;
+				end = i;
+				if (pos>=start && pos<end) {
+					currentLine = count;
+					break;
+				}
+			}
+		}
+		if (currentLine==0 && pos>end)
+			currentLine = count;
+		return currentLine;
+	}
+
+	final void enableDebugging() {
+			step = true;
+			Interpreter interp = Interpreter.getInstance();
+			if (interp!=null && interp.getEditor()==this) {
+				interp.abort();
+				IJ.wait(100);
+			}
+			int start = ta.getSelectionStart();
+			int end = ta.getSelectionEnd();
+			if (start==debugStart && end==debugEnd)
+				ta.select(start, start);
+	}
+	
+	final void setDebugMode(int mode) {
+		step = true;
+		Interpreter interp = Interpreter.getInstance();
+		if (interp!=null) {
+			interp.setEditor(this);
+			interp.setDebugMode(mode);
+		}
 	}
 
 	public void textValueChanged(TextEvent evt) {
@@ -558,7 +659,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	/** Override windowActivated in PlugInFrame to
 		prevent Mac menu bar from being installed. */
 	public void windowActivated(WindowEvent e) {
-		WindowManager.setWindow(this);
+			WindowManager.setWindow(this);
+			instance = this;
 	}
 
 	public void windowClosing(WindowEvent e) {
@@ -582,10 +684,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			dispose();
 			WindowManager.removeWindow(this);
 			nWindows--;
+			instance = null;
 		}
 	}
 
-	void saveAs() {
+	public void saveAs() {
 		String name1 = getTitle();
 		if (name1.indexOf(".")==-1) name1 += ".txt";
 		if (defaultDir==null) {
@@ -604,6 +707,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			save();
 			changes = false;
 			setWindowTitle(name2);
+			if (Recorder.record)
+				Recorder.record("saveAs", "Text", path);
 		}
 	}
 	
@@ -818,7 +923,96 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	
 	//public void keyReleased(KeyEvent e) {}
 	//public void keyTyped(KeyEvent e) {}
+	
 	public void lostOwnership (Clipboard clip, Transferable cont) {}
-
+	
+	public int debug(Interpreter interp, int mode) {
+		if (IJ.debugMode)
+			IJ.log("debug: "+interp.getLineNumber()+"  "+mode+"  "+interp);
+		if (mode==Interpreter.RUN)
+			return 0;
+		if (!isVisible()) { // abort macro if user closes window
+			interp.abortMacro();
+			return 0;
+		}
+		if (!isActive())
+			toFront();
+		int n = interp.getLineNumber();
+		if (n==previousLine)
+			{previousLine=0; return 0;}
+		previousLine = n;
+		if (mode==Interpreter.RUN_TO_CARET) {
+			if (n==runToLine) {
+				mode = Interpreter.STEP;
+				interp.setDebugMode(mode);
+			} else
+				return 0;
+		}
+		String text = ta.getText();
+		if (IJ.isWindows() && !IJ.isVista())
+			text = text.replaceAll("\r\n", "\n");
+		char[] chars = new char[text.length()];
+		chars = text.toCharArray();
+		int count=1;
+		debugStart=0;
+		int len = chars.length;
+		debugEnd = len;
+		for (int i=0; i<len; i++) {
+			if (chars[i]=='\n') count++;
+			if (count==n && debugStart==0)
+				debugStart=i+1;
+			else if (count==n+1) {
+				debugEnd=i;
+				break;
+			}
+		}
+		if (debugStart==1) debugStart = 0;
+		if ((debugStart==0||debugStart==len) && debugEnd==len)
+			return 0; // skip code added with Interpreter.setAdditionalFunctions()
+		ta.select(debugStart, debugEnd);
+		updateVariables(interp.getVariables());
+		if (mode==Interpreter.STEP) {
+			step = false;
+			while (!step && !interp.done() && isVisible())
+				IJ.wait(5);
+		} else {
+			if (mode==Interpreter.FAST_TRACE)
+				IJ.wait(5);
+			else
+				IJ.wait(150);
+		}
+		return 0;
+	}
+	
+	void updateVariables(String[] variables) {
+		if (debugWindow!=null && !debugWindow.isShowing()) {
+			Interpreter interp = Interpreter.getInstance();
+			if (interp!=null) interp.setEditor(null);
+			debugWindow = null;
+			return;
+		}
+		if (debugWindow==null)
+			debugWindow = new TextWindow("Debug", "Name\tValue", "", 300, 400);
+		TextPanel panel = debugWindow.getTextPanel();
+		int n = variables.length;
+		if (n==0) {
+			panel.clear();
+			return;
+		}
+		int lines = panel.getLineCount();
+		for (int i=0; i<lines; i++) {
+			if (i<n)
+				panel.setLine(i, variables[i]);
+			else
+				panel.setLine(i, "");
+		}
+		for (int i=lines; i<n; i++)
+			debugWindow.append(variables[i]);
+	}
+	
+	public static Editor getInstance() {
+		return instance;
+	}
+	
 }
 

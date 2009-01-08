@@ -569,7 +569,6 @@ public class IJ {
 		the  available memory is in use. This is the string
 		displayed when the user clicks in the status bar. */
 	public static String freeMemory() {
-		System.gc();
 		long inUse = currentMemory();
 		String inUseStr = inUse<10000*1024?inUse/1024L+"K":inUse/1048576L+"MB";
 		String maxStr="";
@@ -905,11 +904,17 @@ public class IJ {
 
 	/** Sets the minimum and maximum displayed pixel values. */
 	public static void setMinAndMax(double min, double max) {
+		setMinAndMax(min, max, 7);
+	}
+
+	/** Sets the minimum and maximum displayed pixel values on the specified RGB
+	channels, where 4=red, 2=green and 1=blue. */
+	public static void setMinAndMax(double min, double max, int channels) {
 		ImagePlus img = getImage();
 		Calibration cal = img.getCalibration();
 		min = cal.getRawValue(min); 
 		max = cal.getRawValue(max); 
-		img.setDisplayRange(min, max);
+		img.setDisplayRange(min, max, channels);
 		img.updateAndDraw();
 	}
 
@@ -1219,9 +1224,15 @@ public class IJ {
 	/** Open the specified file as a tiff, bmp, dicom, fits, pgm, gif 
 		or jpeg image and returns an ImagePlus object if successful.
 		Calls HandleExtraFileTypes plugin if the file type is not recognised.
+		Displays a file open dialog if 'path' is null or an empty string.
 		Note that 'path' can also be a URL. */
 	public static ImagePlus openImage(String path) {
 		return (new Opener()).openImage(path);
+	}
+
+	/** Opens an image using a file open dialog and returns it as an ImagePlus object. */
+	public static ImagePlus openImage() {
+		return openImage(null);
 	}
 
 	/** Saves the current image, lookup table, selection or text window to the specified file path. 
