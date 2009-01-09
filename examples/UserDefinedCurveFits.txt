@@ -1,0 +1,8 @@
+  x= newArray(0,1,2,3,4,5);
+  y = newArray(0,0.9,4.5,8,18,24);
+  RodbardEquation = "y = d+(a-d)/(1+pow((x/c),b))";
+  initialValues = newArray(0, 1, 2, 5, 24);
+  //Fit.showDialog;
+  Fit.logResults;
+  Fit.doFit(RodbardEquation, x, y, initialValues);
+  Fit.plot;
