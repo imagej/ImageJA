@@ -38,12 +38,16 @@ public class Slice_Remover implements PlugIn {
 	
 	public void removeSlices(ImagePlus imp, int first, int last, int inc) {
 		ImageStack stack = imp.getStack();
+		boolean virtual = stack.isVirtual();
 		if (last>stack.getSize())
 			last = stack.getSize();
 		ImageStack stack2 = new ImageStack(stack.getWidth(), stack.getHeight());
-		for (int i=first; i<=last; i+=inc)
+		for (int i=first; i<=last; i+=inc) {
+			if (virtual) IJ.showProgress(i, last);
 			stack2.addSlice(stack.getSliceLabel(i), stack.getProcessor(i));
+		}
 		imp.setStack(null, stack2);
+		if (virtual) imp.setTitle(imp.getTitle());
 	}
 
 }
