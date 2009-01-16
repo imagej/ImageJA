@@ -1,12 +1,15 @@
-// This macro demonstrates how you can run and debug
+// This macro demonstrates how you can run or debug
 // the first macro in a macro set with global variables 
-// by pressing ctrl-r or ctrl-d in the macro editor.
+// by pressing ctrl-r (Macros>Run Macro) or ctrl-d
+// (Debug>Debug Macro) in the macro editor. On the
+// Mac, you can debug any macro in a macro set by
+// running it from the Macros menu with the alt key down.
 
   var a = 10;
 
   requires ("1.42h");
  
-  macro "macro1" {
+  macro "Macro1" {
       f();
       print("a="+a);
       print("The first macro in a macro set can be debugged");
@@ -15,8 +18,16 @@
       print("set by running it with the alt key down.");
   }
 
-  macro "macro2" {
-      print("Any other macros are skipped");
+  macro "Macro2" {
+      print("The other macros in a macro set are skipped");
+      print("when you run the first macro by pressing ctrl-r.");
+  }
+
+  macro "Macro2" {
+      debug;
+      print("One way to debug any macro in a macro set");
+      print("is to add a debug (breakpoint) statement at");
+      print("the beginning of the macro.");
   }
 
   function f() {
