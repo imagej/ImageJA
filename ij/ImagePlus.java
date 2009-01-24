@@ -90,6 +90,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	private boolean openAsHyperStack;
 	private int[] position = {1,1,1};
 	private boolean noUpdateMode;
+	private ImageOverlay overlay;
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -572,7 +573,16 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (ip!=null)
 			ip.setColor(c);
 	}
-	
+
+	public ImageOverlay getOverlay() {
+		return overlay;
+	}
+
+	public void setOverlay(ImageOverlay overlay) {
+		// TODO: sanity checks for size, etc
+		this.overlay = overlay;
+	}
+
 	void setupProcessor() {
 		if (imageType==COLOR_RGB) {
 			if (ip == null || ip instanceof ByteProcessor) {

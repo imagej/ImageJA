@@ -134,6 +134,15 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if (img!=null)
  				g.drawImage(img, 0, 0, (int)(srcRect.width*magnification), (int)(srcRect.height*magnification),
 				srcRect.x, srcRect.y, srcRect.x+srcRect.width, srcRect.y+srcRect.height, null);
+			ImageOverlay overlay = imp.getOverlay();
+			if (overlay != null) {
+				if (overlay.display)
+					g.drawImage(overlay.getImage(), 0,0,
+							(int)(srcRect.width*magnification),
+							(int)(srcRect.height*magnification),
+							srcRect.x, srcRect.y,srcRect.x+srcRect.width,
+							srcRect.y+srcRect.height, null);
+			}
 			if (showAllROIs) showAllROIs(g);
 			if (displayList!=null) drawDisplayList(g);
 			if (roi != null) roi.draw(g);
