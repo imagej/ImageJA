@@ -16,7 +16,7 @@ import java.awt.font.*;
 MS-SSIM index by Zhou Wang and MS-SSIM* Index by David Rouse and Sheila Hemami
 
 
-	The equivalent of Zhou Wang's MSSIM (SUPRA-THRESHOLD LEVEL PROBLEM) MatLab code as a Java plugin inside ImageJ.
+	The equivalent of Zhou Wang's MS-SSIM (SUPRA-THRESHOLD LEVEL PROBLEM) MatLab code as a Java plugin inside ImageJ.
 	Also, this plugin performs the equivalent of David Rouse and Sheila Hemami's MSSIM* (RECOGNITION THRESHOLD PROBLEM).
 	This plugin works with 8, 16 and 32 bits gray levels.
 
@@ -42,9 +42,9 @@ MS-SSIM index by Zhou Wang and MS-SSIM* Index by David Rouse and Sheila Hemami
 
 	Please, refer to this version as:
 
-	Gabriel Prieto, Margarita Chevalier, Eduardo Guibelalde. "MSSIM Index and MSSIM* Index as a Java plugin for ImageJ"
+	Gabriel Prieto, Margarita Chevalier, Eduardo Guibelalde. "MS_SSIM Index and MS_SSIM* Index as a Java plugin for ImageJ"
 	Department of Radiology, Faculty of Medicine. Universidad Complutense. Madrid. SPAIN.
-	http://www.ucm.es/info/fismed/SSIM_family/SSIM.htm
+	http://www.ucm.es/info/fismed/MSSIM/MSSIM.htm
 
 */
 
