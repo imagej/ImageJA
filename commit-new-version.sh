@@ -56,7 +56,7 @@ git push . FETCH_HEAD:$BRANCHNAME || {
 	echo "Could not update $BRANCHNAME to $UPSTREAM"
 	exit 1
 }
-parent=$(git-rev-parse $BRANCHNAME) || {
+parent=$(git rev-parse $BRANCHNAME) || {
 	echo "Could not get revision for $BRANCHNAME"
 	exit 1
 }
@@ -71,11 +71,11 @@ unzip $zipfile &&
 cd source &&
 export GIT_WORK_TREE="$(pwd)" &&
 find -type f -print0 | xargs -0 perl "$MAC2UNIX" &&
-find -type f -print0 | xargs -0 git-update-index --add &&
-tree=$(git-write-tree) &&
+find -type f -print0 | xargs -0 git update-index --add &&
+tree=$(git write-tree) &&
 export GIT_AUTHOR_NAME="Wayne Rasband" &&
 export GIT_AUTHOR_EMAIL="wsr@nih.gov" &&
-commit=$(git-commit-tree $tree -p $parent) &&
-git-update-ref refs/heads/$BRANCHNAME $commit &&
+commit=$(git commit-tree $tree -p $parent) &&
+git update-ref refs/heads/$BRANCHNAME $commit &&
 cd ../.. &&
 rm -rf tmpCommit tmpIndex

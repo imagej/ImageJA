@@ -23,7 +23,7 @@ test -d $CVS ||
  }
 )
 (cd $CVS &&
- git-cvsimport -a -i -k -p -u,-b,HEAD) || {
+ git cvsimport -a -i -k -p -u,-b,HEAD) || {
 	echo "Could not update CVS"
 	exit 1
 }
@@ -48,7 +48,7 @@ git config alias.cvscione \
 test "$(git log -1 --pretty=format:%s%n%b cvs)" != \
 		"$(git log -1 --pretty=format:%s%n%b imageja^)" || {
 	git cvscione imageja &&
-	(cd $CVS && git-cvsimport -a -i -k -p -u,-b,HEAD) &&
+	(cd $CVS && git cvsimport -a -i -k -p -u,-b,HEAD) &&
 	git fetch cvs || {
 		echo "Could not update CVS"
 		exit 1

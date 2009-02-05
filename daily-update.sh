@@ -42,16 +42,17 @@ test refs/heads/$CURRENT = $(git symbolic-ref HEAD) || {
 	exit
 }
 
-perl "$TOOLS_DIR"/wsync.perl "$BASE_URL"
+perl "$TOOLS_DIR"/wsync.perl "$BASE_URL" || exit
+
 if [ -f .wsync-add ]; then
 	cat .wsync-add | tr "\n" "\0" | xargs -0r perl "$TOOLS_DIR"/mac2unix.pl
-	cat .wsync-add | tr "\n" "\0" | xargs -0r git-update-index --add
+	cat .wsync-add | tr "\n" "\0" | xargs -0r git update-index --add
 fi
 if [ -f .wsync-remove ]; then
-	cat .wsync-remove | tr "\n" "\0" | xargs -0r git-ls-files -z |
+	cat .wsync-remove | tr "\n" "\0" | xargs -0r git ls-files -z |
 		xargs -0r rm
-	cat .wsync-remove | tr "\n" "\0" | xargs -0r git-ls-files -z |
-		xargs -0r git-update-index --remove
+	cat .wsync-remove | tr "\n" "\0" | xargs -0r git ls-files -z |
+		xargs -0r git update-index --remove
 fi
 
 # Nothing to do?
