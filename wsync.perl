@@ -63,6 +63,7 @@ sub handleDir {
 	`curl --silent $baseURL$path2 > .index.html`;
 
 	my %exists = ("." => 1, ".." => 1);
+	$added = 0;
 	open my $f, "<.index.html";
 	while (<$f>) {
 		if (/a href="([^"]*)".*(\d\d)-([^-]*)-(\d\d\d\d) *(\d\d):(\d\d)/) {
@@ -83,9 +84,15 @@ sub handleDir {
 				append('.wsync-all', $path2 . $p);
 			}
 			$exists{$p} = 1;
+			$added++;
 		}
 	}
 	close $f;
+
+	if ($added == 0) {
+		print STDERR "Nothing was found on $baseURL.\n";
+		exit 1;
+	}
 
 	opendir(my $dir, $path1);
 	my $d;
