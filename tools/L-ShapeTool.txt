@@ -1,0 +1,42 @@
+// L-shape Tool
+//
+// This macro tool creates an L-shaped line selection.
+// Click and drag the mouse to set the first segment.
+// After the mouse button is released, drag to set the 
+// second segment and click to finish.
+
+ macro "Tilted Rectangle Tool -C000L1991L91e6" {
+    run("Line Width...", "line=1");
+    getPixelSize(unit, pixelWidth, pixelHeight);
+    getCursorLoc(x, y, z, flags);
+    xstart = x; ystart = y;
+    x2=x; y2=y;
+    while (flags!=0) {
+       getCursorLoc(x, y, z, flags);
+       if (x!=x2 || y!=y2)
+          makeLine(xstart, ystart, x, y);
+          x2=x; y2=y;
+          wait(10);
+       }
+       if (x!=xstart || y!=ystart) {
+          drawLshape(xstart, ystart, x, y);
+    }
+ }
+
+ function drawLshape(x1, y1, x2, y2) {
+    a = atan ((x2-x1)/(y2-y1));
+    x3=0;y3=0;
+    while (flags==0) {
+       getCursorLoc(x, y, z, flags);
+       if (x!=x3 || y!=y3) {
+       sign=1;
+       if (x2>x) sign=-1;
+          w=sqrt ((x2-x)*(x2-x)+(y2-y)*(y2-y));
+          wsa = sign*w*sin((PI/2)+a);
+          wca = sign*w*cos((PI/2)+a);
+          makeLine( x1,y1,x2,y2,x2 + wsa,y2 + wca);
+          x3=x;y3=y;
+          wait(10);
+       }
+    }
+ }

@@ -1,0 +1,44 @@
+// Fixed Angle Line Tool Macro
+//
+// This tool macro allows you to draw lines with constant angle. 
+// To change the angle, open the tool's options dialog by double 
+// clicking on the tool icon, or adjust the angle manually by pressing 
+// the 'alt' key while dragging the mouse. While dragging, the 'shift' 
+// key will measure the current line. You can change the length of
+// an existing line, while keeping it at the same angle, by clicking
+// on the end of the line and dragging. You have to click within five
+// pixels from the lines's end point. 
+
+  var angle = 0;  // degrees
+  var a = angle*PI/180;  // radians
+  var leftClick = 16;
+  var x1,y1,x2,y2;
+
+  macro 'Fixed Angle Line Tool - C000L05f0L0af5' {
+    getCursorLoc(x, y, z, flags);
+    getLine(x1, y1, x2, y2, lineWidth);
+    if ((x2-x)*(x2-x)>25||(y2-y)*(y2-y)>25) { x1=x;y1=y;}
+    while (true) {
+       getCursorLoc(x2, y2, z, flags);
+       if (flags&leftClick==0) exit();
+       if (x2!=x1 || y2!=y1) {
+          dx=(x2-x1); dy=(y2-y1);
+          if (isKeyDown('alt')) {
+             makeLine(x1,y1,x2,y2);
+             a=atan2(dy,dx);
+          } else if (isKeyDown('shift')) {
+             run ('Measure');
+          } else {
+             d=sqrt(dx*dx+dy*dy);
+             makeLine(x1,y1,x1+d*cos(a),y1+d*sin(a));
+          }
+       }
+       wait(10);
+     }
+  }
+
+  macro 'Fixed Angle Line Tool Options' {
+    da=180*a/PI;
+    da=getNumber("Fixed angle",da);
+    a= PI*da/180;
+  }
