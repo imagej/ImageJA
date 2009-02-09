@@ -8,15 +8,18 @@
 
   x=newArray (0.8,0.82,0.84,0.86,0.88,0.90,0.92,0.94,0.96,0.98,1);
   y=newArray (14.8393,14.7143,14.7356,15.4157,16.9371,19.5372,22.9676,24.3529,24.9607,25.7170,25);
-  //Fit.showDialog; // uncomment to display simplex fittings dialog
-  Fit.logResults;
-  Fit.doFit("Rodbard", x, y);
-  Fit.plot();
-  exit;
-
+  
   // User-defined fit
   RodbardEquation = "y = d+(a-d)/(1+pow((x/c),b))";
   initialGuesses = newArray(15, 1, 0.9, 25);
   Fit.doFit(RodbardEquation, x, y, initialGuesses);
   Fit.plot();
+
+  // Built in Rodbard fit
+  //Fit.showDialog; // uncomment to display simplex fittings dialog
+  Fit.logResults;
+  Fit.doFit("Rodbard", x, y);
+  Fit.plot();
+
+
 
