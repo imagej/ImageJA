@@ -1,0 +1,27 @@
+// This macro demonstrates how to use the Results
+// table as if it were a 2D array. It creates a 10x100
+// results table, displays the values from 10 random 
+// locations in the table, and then saves it in the user's 
+// home directory as a spreadsheet-compatible text file.
+
+     // generate a 10x100 results table
+     columns = 10;
+     rows = 100;
+     run("Clear Results");
+     for (n=1; n<=columns; n++) {
+         for (i=0; i<rows; i++) {
+             setResult("a"+n, i, n+i/100);
+         }
+     }
+     updateResults();
+
+     // randomly access values
+     for (i=0; i<10; i++) {
+         n = round(random*columns+1);
+         index = round(random*rows);
+         value = getResult("a"+n, index);
+         print("n="+n+", index="+index+", value="+value);
+     }
+
+     // save in users home directory
+     saveAs("Measurements", getDirectory("home")+"Results.xls");
