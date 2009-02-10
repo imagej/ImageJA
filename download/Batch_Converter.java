@@ -14,8 +14,9 @@ you want to convert to. In the third, select the destination folder.
 */
 public class Batch_Converter implements PlugIn {
 
-	private static String[] choices = {"TIFF", "8-bit TIFF", "JPEG", "GIF", "PNG", "PGM", "BMP", "FITS", "Text Image", "ZIP", "Raw"};
+	private static String[] choices = {"TIFF", "8-bit Color TIFF", "JPEG", "GIF", "PNG", "PGM", "BMP", "FITS", "Text Image", "ZIP", "Raw"};
 	private static String format = "TIFF";
+	private static boolean convertToGrayscale;
 	
 	public void run(String arg) {
 		String dir1 = IJ.getDirectory("Select source folder...");
@@ -29,10 +30,12 @@ public class Batch_Converter implements PlugIn {
 	boolean showDialog() {
 		GenericDialog gd = new GenericDialog("Batch Converter");
 		gd.addChoice("Convert to: ", choices, format);
+		gd.addCheckbox("Make Grayscale", convertToGrayscale);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
 		format = gd.getNextChoice();
+		convertToGrayscale = gd.getNextBoolean();
 		return true;
 	}
 
@@ -45,7 +48,7 @@ public class Batch_Converter implements PlugIn {
 		if (list==null) return;
 		for (int i=0; i<list.length; i++) {
 			IJ.showProgress(i, list.length);
-			IJ.log((i+1)+": "+list[i]);
+			IJ.log((i+1)+": "+list[i]+"  "+WindowManager.getImageCount());
 			IJ.showStatus(i+"/"+list.length);
 			boolean isDir = (new File(dir1+list[i])).isDirectory();
 			if (!isDir && !list[i].startsWith(".")) {
@@ -53,7 +56,13 @@ public class Batch_Converter implements PlugIn {
 				if (img==null) continue;
 				img = process(img);
 				if (img==null) continue;
-				if (format.equals("8-bit TIFF")||format.equals("GIF"))
+				if (img.isComposite())
+					img = convertToRGB(img);
+				if (img.getStackSize()>1)
+					img = getFirstSlice(img);
+				if (convertToGrayscale)
+					img = convertToGrayscale(img);
+				if (format.equals("8-bit Color TIFF")||format.equals("GIF"))
 					img = convertTo8Bits(img);
 				WindowManager.setTempCurrentImage(img);
 				IJ.saveAs(format, dir2+list[i]);
@@ -86,6 +95,25 @@ public class Batch_Converter implements PlugIn {
 			img.setProcessor(null, ip);
 		}
 		return img;
+	}
+
+	ImagePlus convertToRGB(ImagePlus img) {
+		ImagePlus img2 = img.createImagePlus();
+		img.updateImage();
+		img2.setProcessor(img.getTitle(), new ColorProcessor(img.getImage()));
+		return img2;
+	}
+
+	ImagePlus getFirstSlice(ImagePlus img) {
+		ImagePlus img2 = img.createImagePlus();
+		img2.setProcessor(img.getTitle(), img.getProcessor());
+		return img2;
+	}
+
+	ImagePlus convertToGrayscale(ImagePlus img) {
+		ImagePlus img2 = img.createImagePlus();
+		img2.setProcessor(img.getTitle(), img.getProcessor().convertToByte(true));
+		return img2;
 	}
 
 	/**	Run Batch_Converter using a command something like
