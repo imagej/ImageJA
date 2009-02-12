@@ -1,0 +1,47 @@
+// This macro checks the slice positions in a DICOM 
+// stack to verify that they agree with the voxel depth.
+
+  setBatchMode(true);
+  minSliceSpacing = 999999999;
+  maxSliceSpacing = 0;
+  sumSliceSpacing = 0;
+
+  for (n=1; n<nSlices; n++){
+      setSlice(n);
+      pos = getTag("0020,0032");
+      //print(pos);
+      if (pos=="")
+           exit("This is not a DICOM stack or the position tag is missing");
+      pos = split(pos, "\\");
+      setSlice(n+1);
+      posNext = split(getTag("0020,0032"), "\\");
+      sliceSpacing = parseFloat(pos[2]) - parseFloat(posNext[2]);
+      sumSliceSpacing = sumSliceSpacing + sliceSpacing;
+      minSliceSpacing = minOf(minSliceSpacing, sliceSpacing);
+      maxSliceSpacing = maxOf(maxSliceSpacing, sliceSpacing);
+  }
+
+  meanSliceSpacing = sumSliceSpacing / (nSlices - 1);
+
+  getVoxelSize(width, height, depth, unit);
+  if (depth != meanSliceSpacing){
+      Dialog.create("Slice Spacing");
+      Dialog.addMessage("Slice spacing disagrees with voxel depth\n \nCurrent voxel depth = "+depth+"\nMean slice spacing = "+meanSliceSpacing+"\n \nPlease confirm correct voxel depth");
+      Dialog.addNumber("Voxel depth", meanSliceSpacing, 6, 9, unit);
+      Dialog.show;
+      depth = Dialog.getNumber();
+      setVoxelSize(width, height, depth, unit);
+  }
+
+  setBatchMode(false);
+
+  function getTag(tag) {
+       info = getImageInfo();
+       index1 = indexOf(info, tag);
+       if (index1==-1) return "";
+       index1 = indexOf(info, ":", index1);
+       if (index1==-1) return "";
+       index2 = indexOf(info, "\n", index1);
+       value = substring(info, index1+1, index2);
+       return value;
+  }
