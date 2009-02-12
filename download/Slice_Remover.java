@@ -6,8 +6,9 @@ import ij.plugin.*;
 
 /** This plugin removes slices from a stack. */
 public class Slice_Remover implements PlugIn {
-	private static int inc = 2;
-	int first, last;
+	private static int first = 1;
+	private static int last = 9999;
+	private static int inc = 1;
 
 	public void run(String arg) {
 		ImagePlus imp = WindowManager.getCurrentImage();
@@ -18,14 +19,17 @@ public class Slice_Remover implements PlugIn {
 			{IJ.error("Stack Required"); return;}
 		if (!showDialog(stack))
 			return;
-		removeSlices(imp, first, last, inc);
+		removeSlices(stack, first, last, inc);
+		imp.setStack(null, stack);
+		IJ.register(Slice_Remover.class);
 	}
 
 	public boolean showDialog(ImageStack stack) {
-		int n = stack.getSize();
+		if (last>stack.getSize())
+			last = stack.getSize();
 		GenericDialog gd = new GenericDialog("Slice Remover");
-		gd.addNumericField("First Slice:", 1, 0);
-		gd.addNumericField("Last Slice:", n, 0);
+		gd.addNumericField("First Slice:", first, 0);
+		gd.addNumericField("Last Slice:", last, 0);
 		gd.addNumericField("Increment:", inc, 0);
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -36,18 +40,16 @@ public class Slice_Remover implements PlugIn {
 		return true;
 	}
 	
-	public void removeSlices(ImagePlus imp, int first, int last, int inc) {
-		ImageStack stack = imp.getStack();
-		boolean virtual = stack.isVirtual();
+	public void removeSlices(ImageStack stack, int first, int last, int inc) {
 		if (last>stack.getSize())
 			last = stack.getSize();
-		ImageStack stack2 = new ImageStack(stack.getWidth(), stack.getHeight());
+		int count = 0;
 		for (int i=first; i<=last; i+=inc) {
-			if (virtual) IJ.showProgress(i, last);
-			stack2.addSlice(stack.getSliceLabel(i), stack.getProcessor(i));
+			if ((i-count)>stack.getSize())
+				break;
+			stack.deleteSlice(i-count);
+			count++;
 		}
-		imp.setStack(null, stack2);
-		if (virtual) imp.setTitle(imp.getTitle());
 	}
 
 }
