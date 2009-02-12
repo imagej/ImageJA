@@ -54,10 +54,10 @@ public class Concatenator_ implements PlugIn {
 		imp3.show();
 		if (!keep) {
 			imp1.changes = false;
-			imp1.getWindow().close();
+			if (imp1.getWindow()!=null) imp1.getWindow().close();
 			if (imp1!=imp2) {
 				imp2.changes = false;
-				imp2.getWindow().close();
+				if (imp2.getWindow()!=null) imp2.getWindow().close();
 			}
 		}
 	}
