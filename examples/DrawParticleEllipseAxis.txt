@@ -1,0 +1,19 @@
+//Draw axes on particle ellipses
+run("Blobs (25K)");
+run("Make Binary");
+run("Set Measurements...", "  min centroid bounding fit shape area_fraction limit redirect=None decimal=3");
+run("Analyze Particles...", "size=0 circularity=0.00-1.00 show=Ellipses display exclude clear add");
+run("RGB Color");
+for(i=0; i<nResults; i++) {
+    x=getResult('X',i);
+    y=getResult('Y',i);
+    d=getResult('Major',i);
+    a = getResult('Angle',i)*PI/180;
+    setColor("blue");
+    drawLine(x+(d/2)*cos(a),y-(d/2)*sin(a),x-(d/2)*cos(a),y+(d/2)*sin(a));
+    d=getResult('Minor',i);
+    a=a+PI/2;
+    setColor("red");
+    drawLine(x+(d/2)*cos(a),y-(d/2)*sin(a),x-(d/2)*cos(a),y+(d/2)*sin(a));
+}
+// end
