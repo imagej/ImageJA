@@ -1,0 +1,39 @@
+// This macro draws the best fit ellipse of the current selection
+  
+  if (selectionType==-1)
+      exit("Area selection required");
+  if (getVersion>="1.42i") setOption("fit", true);
+  run("Measure");
+  x = getResult("X");
+  y = getResult("Y");
+  a = getResult("Major");
+  b = getResult("Minor");
+  angle = getResult("Angle");
+  if (isNaN(x))
+      exit("'Centroid' must be enabled in Analyze>Set Measurements");
+  if (isNaN(a))
+      exit("'Fit Ellipse' must be enabled in Analyze>Set Measurements");
+  getVoxelSize(w, h, d, unit);
+  drawEllipse(x/w, y/w, (a/w)/2, (b/w)/2, angle);
+  exit;
+
+  function drawEllipse(x, y, a, b, angle) {
+      setLineWidth(2);
+      beta = -angle * (PI/180);
+      sinbeta = sin(beta);
+      cosbeta = cos(beta);
+      for (i=0; i<=360; i++) {
+          alpha = i*(PI/180) ;
+          sinalpha = sin(alpha);
+          cosalpha = cos(alpha);
+          X = x + a*cosalpha*cosbeta - b*sinalpha*sinbeta;
+          Y = y + a*cosalpha*sinbeta + b*sinalpha*cosbeta;
+          if (i==0) moveTo(X, Y); else lineTo(X,Y);
+          if (i==0) {ax1=X; ay1=Y;}
+          if (i==90) {bx1=X; by1=Y;}
+          if (i==180) {ax2=X; ay2=Y;}
+          if (i==270) {bx2=X; by2=Y;}
+      }
+      drawLine(ax1, ay1, ax2, ay2);
+      drawLine(bx1, by1, bx2, by2);
+  }
