@@ -1,8 +1,7 @@
-// This macro draws the best fit ellipse of the current selection
+// This macro draws the best fit ellipse for the current are selection
   
   if (selectionType==-1)
       exit("Area selection required");
-  if (getVersion>="1.42i") setOption("fit", true);
   run("Measure");
   x = getResult("X");
   y = getResult("Y");
@@ -20,14 +19,10 @@
   function drawEllipse(x, y, a, b, angle) {
       setLineWidth(2);
       beta = -angle * (PI/180);
-      sinbeta = sin(beta);
-      cosbeta = cos(beta);
       for (i=0; i<=360; i++) {
           alpha = i*(PI/180) ;
-          sinalpha = sin(alpha);
-          cosalpha = cos(alpha);
-          X = x + a*cosalpha*cosbeta - b*sinalpha*sinbeta;
-          Y = y + a*cosalpha*sinbeta + b*sinalpha*cosbeta;
+          X = x + a*cos(alpha)*cos(beta) - b*sin(alpha)*sin(beta);
+          Y = y + a*cos(alpha)*sin(beta) + b*sin(alpha)*cos(beta);
           if (i==0) moveTo(X, Y); else lineTo(X,Y);
           if (i==0) {ax1=X; ay1=Y;}
           if (i==90) {bx1=X; by1=Y;}
