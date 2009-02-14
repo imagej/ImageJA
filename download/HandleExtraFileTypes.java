@@ -53,6 +53,8 @@ public class HandleExtraFileTypes extends ImagePlus implements PlugIn {
 		// copy dimensions
 		if (IJ.getVersion().compareTo("1.38s")>=0)
 			setDimensions(imp.getNChannels(), imp.getNSlices(), imp.getNFrames());
+		if (IJ.getVersion().compareTo("1.41o")>=0)
+			setOpenAsHyperStack(imp.getOpenAsHyperStack());
 	}
 	
 
