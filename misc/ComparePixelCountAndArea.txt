@@ -1,0 +1,14 @@
+   getRawStatistics(count);
+   getSelectionCoordinates(x, y);
+   area = 0;
+   n = x.length;
+   for (i=0; i<n; i++) {
+      iminus1 = i-1;
+      if (iminus1<0) iminus1=n-1;
+      area += (x[i]+x[iminus1])*(y[i]-y[iminus1]);
+   }
+   area = abs(area/2);
+   print("");
+   print("pixel count: "+count);
+   print("area: "+area);
+   print("differencet: "+(count-area)*100/count+"%");
