@@ -1,18 +1,21 @@
 //  This macro demonstrates how to use the getCursorLoc() function.
 //  To use it, run the macro, open an image and move the cursor over it. 
-//  Also try pressing the left mouse button and/or the shift, control or 
-//  alt keys. Pressing the right mouse button, or click-control on a Mac,
-//  displays a pop-up menu. There needs to be a way to disable 
-//  this feature. Pressing the alt key may not work on windows.
-//  The macro quits running when the "Log" window is closed.
+//  Try pressing the left mouse button and/or the shift, control or 
+//  alt keys. Pressing the alt key may not work on windows.
+//  The macro stops running when the "Log" window is closed.
 //  Information about tool macros is available at:
 //  http://rsb.info.nih.gov/ij/developer/macro/macros.html#tools
+// 
+// With ImageJ 1.42i or later, this macro displays "inside"
+// if the cursor is inside the current area selection.
 
-      leftButton=16;
-      rightButton=4;
       shift=1;
       ctrl=2; 
+      rightButton=4;
       alt=8;
+      leftButton=16;
+      insideROI = 32; // requires 1.42i or later
+
       x2=-1; y2=-1; z2=-1; flags2=-1;
       logOpened = false;
       if (getVersion>="1.37r")
@@ -26,9 +29,7 @@
               if (flags&shift!=0) s = s + "<shift>";
               if (flags&ctrl!=0) s = s + "<ctrl> ";
               if (flags&alt!=0) s = s + "<alt>";
-              // if (isKeyDown("alt")) s = s + "<alt>";
-              // if (isKeyDown("shift")) s = s + "<shift>";
-              // if (isKeyDown("space")) s = s + "<space>";
+              if (flags&insideROI!=0) s = s + "<inside>";
               print(x+" "+y+" "+z+" "+flags + "" + s);
               logOpened = true;
               startTime = getTime();
