@@ -1,0 +1,23 @@
+// This macro demonstrates how to use the Array.* functions.
+
+  a1 = newArray(10, 5, 15, 2);
+  a2 = Array.copy(a1);
+  list("copy", a2);
+  a2 = Array.trim(a1, 2);
+  list("trim", a2);
+  a2 = Array.sort(a1);
+  list("sort", a2);
+
+  a1 = newArray("one", "two", "three", "four");
+  a2 = Array.copy(a1);
+  list("copy", a2);
+  a2 = Array.trim(a1, 2);
+  list("trim", a2);
+  a2 = Array.sort(a1);
+  list("sort", a2);
+
+  function list(name, a) {
+      print(name);
+      for (i=0; i<a.length; i++)
+          print("   "+a[i]);
+  }
