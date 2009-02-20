@@ -1,20 +1,27 @@
 // This macro demonstrates how to use the Array.* functions.
 
-  a1 = newArray(10, 5, 15, 2);
+  a1 = newArray(10, 5, 15, 2, 1.23456);
   a2 = Array.copy(a1);
   list("copy", a2);
   a2 = Array.trim(a1, 2);
   list("trim", a2);
-  a2 = Array.sort(a1);
-  list("sort", a2);
+  Array.sort(a1);
+  list("sort", a1);
+  Array.getStatistics(a1, min, max, mean, std);
+  print("stats");
+  print("   min: "+min);
+  print("   max: "+max);
+  print("   mean: "+mean);
+  print("   std dev: "+std);
 
   a1 = newArray("one", "two", "three", "four");
+  print("");
   a2 = Array.copy(a1);
   list("copy", a2);
   a2 = Array.trim(a1, 2);
   list("trim", a2);
-  a2 = Array.sort(a1);
-  list("sort", a2);
+  Array.sort(a1);
+  list("sort", a1);
 
   function list(name, a) {
       print(name);
