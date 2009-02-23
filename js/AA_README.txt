@@ -26,14 +26,20 @@ By default, the following ImageJ and Java classes are imported:
    ij.measure.*
    java.lang.*
    java.awt.*
+   
+In ImageJ 1.42j and later the following packages are also imported:
+
+   ij.util.*;
+   ij.plugin.*
+   ij.plugin.filter.*
+   ij.plugin.frame.*
 
 Additional classes can be imported using importClass()
 and importPackage(), for example:
 
    importPackage(java.io); // import all java.io classes
    importClass(java.io.File) // import java.io.File
-   importPackage(Packages.ij.plugin.frame); // import frame package
-   importClass(Packages.ij.plugin.frame.Editor); // import Editor class
+   importPackage(Packages.ij.text); // import ImageJ text package
 
 Albert Cardona's Javascript Scripting tutorial has more examples:
 
