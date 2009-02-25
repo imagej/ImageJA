@@ -95,3 +95,35 @@ ImageJ commands and macro functions that support JavaScript:
   8. eval('script', File.openAsString("<path>/name.js")) macro 
      function: runs "name.js" in the current thread.
      
+     
+Running Scripts from the Command Line
+
+In ImageJ 1.42k and later you can run a script from the
+command line and pass it a string argument using the
+-macro or -batch command line options. As an example,
+this script opens an image in the 'images' directory
+in the users home directory:
+
+   name = getArgument();
+   if (name=="") IJ.error("No argument!");
+   path = IJ.getDirectory("home")+"images/"+name;
+   img = IJ.openImage(path);
+   print(img.getTitle()+": "+img.getWidth()+"x"+img.getHeight());
+
+Assume it is named 'OpenImage.js' and it is located 
+in the macros folder. Run the command
+
+   java -jar ij.jar -macro OpenImage.js blobs.tif
+
+and ImageJ will launch and "blobs.tif: 256x254" is displayed
+in the Log window. Note that ImageJ assumed OpenImage.js
+is located in the ImageJ/macros directory. Or run
+
+   java -jar ij.jar -batch OpenImage.js blobs.tif
+
+and ImageJ does not launch and "blobs.tif: 256x254" is
+displayed in the terminal window.
+
+A description of all the ImageJ command line options is available
+at <rsb.info.nih.gov/ij/docs/install/linux.html#options>. 
+     
