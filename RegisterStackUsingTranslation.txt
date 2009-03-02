@@ -1,0 +1,29 @@
+// The macro does simple translational image registration,
+// based on the intensity center of each image in the stack. 
+// Note, however, that this type of registration will be strongly
+// biased by parts of the image that do not belong to your
+// object of interest. One way to circumvent this is to first
+// segment your objects of interest and clear outside these
+// regions. This may also be the reason why stackReg doesn't
+// work well for your images. I found StackReg to outperform
+// most other methods for 2-dimensional purposes.
+// 
+// Author: Winnok de Vos
+
+  macro "Register by Translation"{
+     setBatchMode(true);
+     run("Clear Results");
+     title=getTitle;selectWindow(title);nz=nSlices;
+     run("Set Measurements...", "center redirect=None decimal=4");
+     for(i=1;i<=nz;i++){
+         selectWindow(title);setSlice(i);
+         run("Measure");
+         x=getResult("XM",i-1);y=getResult("YM",i-1);
+         if(i==1){x0=x;y0=y;}
+         sx=x0-x;sy=y0-y;
+         run("Translate...", "x="+sx+" y="+sy+" slice");
+     }
+     selectWindow(title);
+     rename("translated "+title);
+     setBatchMode("exit and display");
+  }
