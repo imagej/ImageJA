@@ -1,0 +1,27 @@
+// This macro demonstrates how to randomize the contents of an array
+// (e.g., a list of file names) using the Fisher Yates shuffle:
+//    http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+
+
+// As a test, randomize a list of prime numbers
+primes = newArray(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 
+  37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97);
+shuffle(primes);
+for (i=0; i<primes.length; i++)
+   print(primes[i]);
+
+function shuffle(array) {
+   n = array.length;  // The number of items left to shuffle (loop invariant).
+   while (n > 1) {
+      k = randomInt(n);     // 0 <= k < n.
+      n--;                  // n is now the last pertinent index;
+      temp = array[n];  // swap array[n] with array[k] (does nothing if k==n).
+      array[n] = array[k];
+      array[k] = temp;
+   }
+}
+
+// returns a random number, 0 <= k < n
+function randomInt(n) {
+   return n * random();
+}
