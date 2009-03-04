@@ -1,10 +1,11 @@
 // This macro uses the Process>Math>Macro command
-// to create a synthetic color image. The formulas are
-// the ones that create the Sine Argyle example
+// to create a synthetic color image. The formulas
+// that generate the red, green and blue channels are
+// the ones used to create the Sine Argyle example
 // supplied with Ulf Dittmer's ExpressionNT plugin
-// (http://www.ulfdittmer.com/imagej/expression.html),
-// which is much faster because the formulas are
-// compiled instead of interpreted.
+// (http://www.ulfdittmer.com/imagej/expression.html).
+// ExpressionNT runs a lot faster than this macro because
+// it compiles the formulas instead of interpreting them.
 
   width=512; height=512;
   min=-1; max=1;
