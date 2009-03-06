@@ -1,0 +1,30 @@
+// This macro uses the Find Maxima command to
+// count and mark cells. There is an test image at
+// http://rsb.info.nih.gov/ij/macros/images/FOS-immunolabel.png
+
+  var threshold = 30;
+
+  macro "Count and Mark Cells [1]" {
+       if (selectionType<0 || selectionType>4)
+          exit("Area selection required");
+       setupUndo;
+       run("Find Maxima...", "output=[Point Selection] light noise="+threshold);
+       getSelectionCoordinates(x, y);
+       n = x.length;
+       setColor("white");
+       setLineWidth(1);
+       for (i=0; i<n; i++)
+           drawLine(x[i], y[i], x[i], y[i]);
+       run("Restore Selection");
+       getSelectionCoordinates(x, y);
+       moveTo(x[0],  y[0]);
+       for (i=0; i<x.length; i++)
+           lineTo(x[i], y[i]);
+       lineTo(x[0], y[0]);
+       setResult("Count", nResults, n);
+       updateResults();
+  }
+
+  macro "Set Noise Threshold [2]" {
+       threshold = getNumber("Noise Threshold: ", threshold);
+  }
