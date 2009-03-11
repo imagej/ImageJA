@@ -1,0 +1,6 @@
+// This macro plots a simple cumulative histogram.
+
+  getRawStatistics(area, mean, min, max, std, h);
+  for (i=1; i< h.length; i++)
+     h[i] = h[i-1]+h[i];
+  Plot.create("Cumulative Histogram of "+getTitle, "Value", "Sum of pixel count", h);
