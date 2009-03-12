@@ -33,7 +33,7 @@ Does not work with 64-bit versions of Java.
 <tr valign=top><td ><b>Installation:</b></td><td >
 Download
 <A HREF="download/jars/QuickTime_Plugins.jar">QuickTime_Plugins.jar</A>
-to the plugins folder, or subfolder,  restart ImageJ and there will be a new
+to the ImageJ/plugins/Input-Output folder,  restart ImageJ and there will be a new
 <i>File/Import/Video</i> command. 
 This JAR file also installs three other QuickTime plugins:
 <ul>
@@ -41,7 +41,8 @@ This JAR file also installs three other QuickTime plugins:
 <li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-player.html">QT Player</A> (<i>File/Import/QuickTime Player</i>)
 <li><A HREF="http://rsb.info.nih.gov/ij/plugins/movie-writer.html">QT Movie Writer</A> (<i>File/Save As/QuickTime Movie</i>)
 </ul>
-Note that this JAR file is included with the Mac OS X version of ImageJ, version 1.34 and later.
+Note that this JAR file is included with the Mac OS X version of ImageJ,
+in the Image/plugins/Input-Output folder.
 </td></tr>
 
 
@@ -51,14 +52,22 @@ Press the space bar to stop previewing. Press the option (alt) key to capture a 
 and continue previewing. While previewing, type "+" to zoom
 in, "-" to zoom out, and "h" to display a histogram.
 <p>
+
 On the Macintosh, most USB and Firewire cameras are QuickTime compatible. 
-Analog cameras can be used with an analog video to Firewire/DV converter. 
+Analog cameras can be used with an analog video to Firewire converter,
+such as the Canopus ADVC&nbsp;55.
 <p>
-You can use an external USB or Firewire camera on a Macintosh with a built in iSight camera by running
+
+You can use an external USB or Firewire camera on a Macintosh with a built in iSight camera by
+holding down the option (alt) key when starting the plugin (requires <i>2009/01/02</i> version, or later). 
+This causes a dialog to be displayed that allows you to select any QuickTime compatible camera
+ installed on your system. You can also
+run
 <A HREF="http://mac.softpedia.com/get/Security/iSight-Disabler-AppleScript.shtml">iSight Disabler</A>,
 an AppleScript that automates the process of disabling 
 and enabling the iSight driver.
 <p>
+
 This plugin requires both QuickTime and QuickTime for Java, which are preinstalled on Macs. 
 Windows users can use it by installing 
 <A HREF="http://rsb.info.nih.gov/ij/plugins/qt-install.html">QuickTime 7</A>
@@ -69,12 +78,14 @@ Canon XL-1 DV camcorder and Orange Micro iBot.
 It has been tested with the following USB cameras: Philips ToUCam Pro (PCVC740K) with drivers from 
 <A HREF="http://webcam-osx.sourceforge.net/">Macam</A> and
 <A HREF="http://www.multi-cam.net/camera_downloads.html">Multi-Cam</A>.
-It also works with analog cameras using video to Firewire adapters such as the Canopus ADVC 55.
+It also works with analog cameras using video to Firewire adapters such as the Canopus ADVC&nbsp;55.
 <p>
+
 This plugin is based on the LiveCam example by Jochen Broz, posted to the QuickTime for 
 Java mailing list with the title "Live camera picture from SequenceGrabber using awt or OpenGL", and archived at
 <A HREF="http://lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html">lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html</A>.
 <p>
+
 Note: NTSB Digital Video (DV) images have 720x480 rectangular pixels with a pixel aspect
 ratio of 0.9.
 This causes, for example, circles to appear as ovals on a computer
@@ -85,6 +96,7 @@ uncheck "Constrain Aspect Ratio", and check "Interpolate".
 PAL DV images are 720x576 pixels, with pixel aspect ratios of 1.067 for "standard" and 1.422
 for "wide screen."
 <p>
+
 Additional note: The Pixel Aspect Ratio for NTSB DV is under
 investigation.  Various authorities say it should be about 0.91081, 0.91139,
 0.91158, or 0.9091, instead of 0.9.  It may be that the 720x480 image should
@@ -106,14 +118,19 @@ from a macro using run("Video","dialog").
 <u>2002/02/13:</u> Fixed bug that prevented operation on Mac OS X<br>
 <u>2002/07/22:</u> Dimensions no longer fixed at 640x480<br>
 <u>2003/09/19:</u> Updated to work with iSight camera<br>
-<u>2003/10/09:</u> Captures and quits when called using run("Video","grab")<br>
+<u>2003/10/09:</u> Captures and quits when called from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a macro using run("Video","grab")<br>
 <u>2005/03/06:</u> Rewritten to work with Java 1.4.2 on Mac OS X;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;capture multiple frames by pressing <i>alt/option</i><br>
-<u>2006/09/20:</u> Works correctly on Intel Macs thanks to fix by Jeff Hardin<br>
-<u>2007/05/22:</u> Works with batch mode macros
-(<a href="http://rsb.info.nih.gov/ij/macros/Time-lapse_Capture.txt">example1</a>,
+<u>2006/09/20:</u> Works correctly on Intel Macs thanks to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;fixes by Jeff Hardin<br>
+<u>2007/05/22:</u> Works with batch mode macros<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a href="http://rsb.info.nih.gov/ij/macros/Time-lapse_Capture.txt">example1</a>,
 <a href="http://rsb.info.nih.gov/ij/macros/TimeLapseVideoMacros.txt">example2</a>)<br>
-<u>2008/10/15: Displays a dialog when called using run("Video","dialog")<br>
+<u>2008/10/15:</u> Displays a dialog the allows camera selection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;when called from a macro using <i>run("Video","dialog")</i><br>
+<u>2009/01/02:</u> Displays a dialog the allows camera <br>
+&nbsp;&nbsp;&nbsp;&nbsp;selection when run with option (alt) key down<br>
 </td></tr>
 
 <tr valign=top><td ><b>See Also:</b></td><td >
