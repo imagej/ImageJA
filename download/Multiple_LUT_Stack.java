@@ -6,23 +6,22 @@ public class Multiple_LUT_Stack implements PlugIn {
 
    public void run(String arg) {
       int w=500, h=500, images=10;
-      ImagePlus imp = IJ.createImage("Multiple LUT Stack", "32-bit", w, h, images);
+      ImagePlus imp = IJ.createImage("Multiple LUT Stack", "32-bit ramp", w, h, images);
       imp.setDimensions(images, 1, 1);
       imp = new CompositeImage(imp, CompositeImage.GRAYSCALE);
-      for (int s=1; s<=images; s++) {
-         imp.setSlice(s);
+      for (int i=1; i<=images; i++) {
+         imp.setSlice(i);
          ImageProcessor ip = imp.getProcessor();
-         assignPixels(ip, s);
+         ip.multiply(100); ip.add(i*100);
          ip.resetMinAndMax();
          imp.setDisplayRange(ip.getMin(), ip.getMax());
       }
       imp.show();
-   }
-   
-   void assignPixels(ImageProcessor ip, int s) {
-       for (int y=0; y<ip.getHeight(); y++)
-         for (int x=0; x<ip.getWidth(); x++)
-            ip.putPixelValue(x, y, x*s);
-   }
-   
+      for (int i=1; i<=images; i++) {
+         imp.setSlice(i);
+         ImageProcessor ip = imp.getProcessor();
+         IJ.log(i+": "+(int)ip.getMin()+"-"+(int)ip.getMax());
+      }
+  }
+      
 }
