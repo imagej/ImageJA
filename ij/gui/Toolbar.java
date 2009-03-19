@@ -681,7 +681,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (name.indexOf("Unused Tool")!=-1)
 					return;
 				if (name.indexOf("Action Tool")!=-1) {
-					if (e.isPopupTrigger()||e.isMetaDown()) {
+					if ((e.isPopupTrigger() && e.getButton() != 0)||e.isMetaDown()) {
 						name = name.endsWith(" ")?name:name+" ";
 						macroInstaller.runMacroTool(name+"Options");
 					} else {
@@ -697,7 +697,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				}
 			}
 			setTool2(newTool);
-			boolean isRightClick = e.isPopupTrigger()||e.isMetaDown();
+			boolean isRightClick = (e.isPopupTrigger() && e.getButton() != 0)||e.isMetaDown();
 			if (current==OVAL && isRightClick) {
 				ovalItem.setState(!brushEnabled);
 				brushItem.setState(brushEnabled);

@@ -242,7 +242,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
     
 	public void mousePressed (MouseEvent e) {
 		int x=e.getX(), y=e.getY();
-		if (e.isPopupTrigger() || e.isMetaDown())
+		if ((e.isPopupTrigger() && e.getButton() != 0)|| e.isMetaDown())
 			pm.show(e.getComponent(),x,y);
  		else if (e.isShiftDown())
 			extendSelection(x, y);
@@ -311,7 +311,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	}
 	
 	public void mouseDragged (MouseEvent e) {
-		if (e.isPopupTrigger() || e.isMetaDown())
+		if ((e.isPopupTrigger() && e.getButton() != 0) || e.isMetaDown())
 			return;
 		int x=e.getX(), y=e.getY();
 		if(bDrag && x<tc.getSize().width) {
