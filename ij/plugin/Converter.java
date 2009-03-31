@@ -42,6 +42,7 @@ public class Converter implements PlugIn {
 	 	ImageWindow win = imp.getWindow();
 		try {
  			if (stack!=null) {
+ 				boolean wasVirtual = stack.isVirtual();
 				// do stack conversions
 		    	if (stack.isRGB() && item.equals("RGB Color")) {
 					new ImageConverter(imp).convertRGBStackToRGB();
@@ -57,12 +58,16 @@ public class Converter implements PlugIn {
 					new StackConverter(imp).convertToGray32();
 				else if (item.equals("RGB Color"))
 					new StackConverter(imp).convertToRGB();
+				else if (item.equals("RGB Stack"))
+					new StackConverter(imp).convertToRGBHyperstack();
+				else if (item.equals("HSB Stack"))
+					new StackConverter(imp).convertToHSBHyperstack();
 		    	else if (item.equals("8-bit Color")) {
 		    		int nColors = getNumber();
 		    		if (nColors!=0)
 						new StackConverter(imp).convertToIndexedColor(nColors);
-				}
-		    	else throw new IllegalArgumentException();
+				} else throw new IllegalArgumentException();
+				if (wasVirtual) imp.setTitle(imp.getTitle());
 			} else {
 				// do single image conversions
 				Undo.setup(Undo.TYPE_CONVERSION, imp);
@@ -127,8 +132,8 @@ public class Converter implements PlugIn {
 			"8-bit Color -> RGB Color\n" +
 			"RGB Color -> 8-bit (grayscale)*\n" +
 			"RGB Color -> 8-bit Color*\n" +
-			"RGB Color -> RGB Stack\n" +
-			"RGB Color -> HSB Stack\n" +
+			"RGB Color -> RGB Stack*\n" +
+			"RGB Color -> HSB Stack*\n" +
 			"RGB Stack -> RGB Color\n" +
 			"HSB Stack -> RGB Color\n" +
 			" \n" +

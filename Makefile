@@ -1,7 +1,7 @@
 JAVAS=$(wildcard ij/*.java ij/*/*.java ij/*/*/*.java)
 CLASSES=$(patsubst %.java,%.class,$(JAVAS))
 ALLCLASSES=ij/*.class ij/*/*.class ij/*/*/*.class
-COPYFILES=icon.gif aboutja.jpg MacAdapter.class
+COPYFILES=icon.gif aboutja.jpg plugins/*.class
 TEXTFILES=IJ_Props.txt $(wildcard macros/*.txt)
 
 uname_O := $(shell sh -c 'uname -o 2>/dev/null || echo not')
@@ -24,9 +24,6 @@ signed-ij.jar: ij.jar
 	jarsigner -signedjar signed-ij.jar $(shell cat .jarsignerrc) ij.jar dscho
 
 icon.gif aboutja.jpg: %: images/%
-	cp $< $@
-
-MacAdapter.class: plugins/MacAdapter.class
 	cp $< $@
 
 %.class: %.java

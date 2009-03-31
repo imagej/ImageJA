@@ -45,12 +45,13 @@ The following command line options are recognized by ImageJ:
      Example 3: -port0 (do not check for another instance)
 
   -macro path [arg]
-     Runs a macro, passing it an optional argument
+     Runs a macro or script, passing it an optional argument,
+     which can be retieved using getArgument()
      Example 1: -macro analyze.ijm
      Example 2: -macro analyze /Users/wayne/images/stack1
 
   -batch path [arg]
-    Runs a macro in batch (no GUI) mode, passing it an optional argument.
+    Runs a macro or script in batch (no GUI) mode, passing it an optional argument.
     ImageJ exits when the macro finishes.
 
   -eval "macro code"
@@ -68,7 +69,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.42e";
+	public static final String VERSION = "1.42l";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -175,12 +176,13 @@ public class ImageJ extends Frame implements ActionListener,
 			show();
 		if (err1!=null)
 			IJ.error(err1);
-		if (err2!=null)
+		if (err2!=null) {
 			IJ.error(err2);
+			IJ.runPlugIn("ij.plugin.ClassChecker", "");
+		}
 		if (IJ.isMacintosh()&&applet==null) { 
 			Object qh = null; 
-			if (IJ.isJava14()) 
-				qh = IJ.runPlugIn("MacAdapter", ""); 
+			qh = IJ.runPlugIn("MacAdapter", ""); 
 			if (qh==null) 
 				IJ.runPlugIn("QuitHandler", ""); 
 		} 
@@ -188,7 +190,7 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		m.installStartupMacroSet();
 		String str = m.getMacroCount()==1?" macro)":" macros)";
-		String java = "Java "+System.getProperty("java.version");
+		String java = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]":" [32-bit]");
 		IJ.showStatus("ImageJ "+VERSION + "/"+java+" ("+ m.getPluginCount() + " commands, " + m.getMacroCount() + str);
 		if (applet==null && !embedded)
 			new SocketListener();
@@ -293,11 +295,18 @@ public class ImageJ extends Frame implements ActionListener,
 				new RecentOpener(cmd); // open image in separate thread
 				return;
 			}
+			int flags = e.getModifiers();
+			//IJ.log(""+KeyEvent.getKeyModifiersText(flags));
 			hotkey = false;
 			actionPerformedTime = System.currentTimeMillis();
 			long ellapsedTime = actionPerformedTime-keyPressedTime;
-			if (cmd!=null && (ellapsedTime>=200L||!cmd.equals(lastKeyCommand)))
+			if (cmd!=null && (ellapsedTime>=200L||!cmd.equals(lastKeyCommand))) {
+				if ((flags & Event.ALT_MASK)!=0)
+					IJ.setKeyDown(KeyEvent.VK_ALT);
+				if ((flags & Event.SHIFT_MASK)!=0)
+					IJ.setKeyDown(KeyEvent.VK_SHIFT);
 				doCommand(cmd);
+			}
 			lastKeyCommand = null;
 			if (IJ.debugMode) IJ.log("actionPerformed: time="+ellapsedTime+", "+e);
 		}

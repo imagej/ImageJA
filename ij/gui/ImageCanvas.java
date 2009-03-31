@@ -101,6 +101,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		setDrawingSize(ic.dstWidth, ic.dstHeight);
 	}
 
+	public void setSourceRect(Rectangle r) {
+		srcRect = r;
+	}
+
 	public void setDrawingSize(int width, int height) {
 	    dstWidth = width;
 	    dstHeight = height;
@@ -458,6 +462,30 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		this.magnification = magnification;
 		imp.setTitle(imp.getTitle());
 	}
+
+	/*
+	public void setMagnification(double mag, int x, int y) {
+		if (mag>32.0) magnification = 32.0;
+		if (mag<0.03125) mag = 0.03125;
+		int newWidth = (int)(imageWidth*mag);
+		int newHeight = (int)(imageHeight*mag);
+		Dimension newSize = canEnlarge(newWidth, newHeight);
+		if (newSize!=null) {
+			setDrawingSize(newSize.width, newSize.height);
+			if (newSize.width!=newWidth || newSize.height!=newHeight)
+				adjustSourceRect(mag, x, y);
+			else
+				setMagnification(mag);
+			imp.getWindow().pack();
+		} else
+			adjustSourceRect(mag, x, y);
+		repaint();
+		if (srcRect.width<imageWidth || srcRect.height<imageHeight)
+			resetMaxBounds();
+		this.magnification = magnification;
+		imp.setTitle(imp.getTitle());
+	}
+	*/
 
 	public Rectangle getSrcRect() {
 		return srcRect;
@@ -1025,15 +1053,15 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		int handle = roi!=null?roi.isHandle(sx, sy):-1;		
 		setRoiModState(e, roi, handle);
 		if (roi!=null) {
+			if (handle>=0) {
+				roi.mouseDownInHandle(handle, sx, sy);
+				return;
+			}
 			Rectangle r = roi.getBounds();
 			int type = roi.getType();
 			if (type==Roi.RECTANGLE && r.width==imp.getWidth() && r.height==imp.getHeight()
 			&& roi.getPasteMode()==Roi.NOT_PASTING) {
 				imp.killRoi();
-				return;
-			}
-			if (handle>=0) {
-				roi.mouseDownInHandle(handle, sx, sy);
 				return;
 			}
 			if (roi.contains(ox, oy)) {
@@ -1159,8 +1187,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			&& roi.getState()==roi.CONSTRUCTING
 			&& type!=roi.POINT)
 				imp.killRoi();
-			else
+			else {
 				roi.handleMouseUp(e.getX(), e.getY());
+				if (roi.getType()==Roi.LINE && roi.getLength()==0.0)
+					imp.killRoi();
+			}
 		}
 	}
 

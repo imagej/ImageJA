@@ -43,7 +43,8 @@ public class PopupMenuBar extends MenuBar {
 	public Menu add(Menu m) {
 		calculated = false;
 		if (!(m instanceof PopupMenu))
-			throw new RuntimeException("IJMenuBar needs PopupMenus");
+			throw new RuntimeException("IJMenuBar needs PopupMenus"
+				+ "(offending menu: " + m.getLabel() + ")");
 		menus.add(m);
 		return m;
 	}

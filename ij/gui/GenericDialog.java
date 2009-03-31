@@ -69,6 +69,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     private boolean recorderOn;         // whether recording is allowed
     private boolean yesNoCancel;
     private char echoChar;
+    private boolean hideCancelButton;
+    private boolean centerDialog = true;
 
     /** Creates a new GenericDialog with the specified title. Uses the current image
     	image window as the parent frame or the ImageJ frame if no image windows
@@ -137,7 +139,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			c.insets = getInsets(0, 0, 3, 0);
 		grid.setConstraints(theLabel, c);
 		add(theLabel);
-
 		if (numberField==null) {
 			numberField = new Vector(5);
 			defaultValues = new Vector(5);
@@ -157,7 +158,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		c.gridx = 1; c.gridy = y;
 		c.anchor = GridBagConstraints.WEST;
 		tf.setEditable(true);
-		if (firstNumericField) tf.selectAll();
+		//if (firstNumericField) tf.selectAll();
 		firstNumericField = false;
 		if (units==null||units.equals("")) {
 			grid.setConstraints(tf, c);
@@ -212,6 +213,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		c.gridx = 0; c.gridy = y;
 		c.anchor = GridBagConstraints.EAST;
 		c.gridwidth = 1;
+		boolean custom = customInsets;
 		if (stringField==null) {
 			stringField = new Vector(4);
 			c.insets = getInsets(5, 0, 5, 0);
@@ -219,7 +221,12 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			c.insets = getInsets(0, 0, 5, 0);
 		grid.setConstraints(theLabel, c);
 		add(theLabel);
-
+		if (custom) {
+			if (stringField.size()==0)
+				c.insets = getInsets(5, 0, 5, 0);
+			else
+				c.insets = getInsets(0, 0, 5, 0);
+		}
 		TextField tf = new TextField(defaultText, columns);
 		if (IJ.isLinux()) tf.setBackground(Color.white);
 		tf.setEchoChar(echoChar);
@@ -314,7 +321,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
      * Note that a GenericDialog can have only one PreviewCheckbox
      */
     public void addPreviewCheckbox(PlugInFilterRunner pfr, String label) {
-        if (previewCheckbox != null)
+        if (previewCheckbox!=null)
         	return;
     	ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null && imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
@@ -486,7 +493,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		defaultValues.addElement(new Double(defaultValue));
 		defaultText.addElement(tf.getText());
 		tf.setEditable(true);
-		if (firstNumericField && firstSlider) tf.selectAll();
+		//if (firstNumericField && firstSlider) tf.selectAll();
 		firstSlider = false;
 		
     	Panel panel = new Panel();
@@ -572,6 +579,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     /** Make this a "Yes No Cancel" dialog. */
     public void enableYesNoCancel() {
     	yesNoCancel = true;
+    }
+    
+    /** No not display "Cancel" button. */
+    public void hideCancelButton() {
+    	hideCancelButton = true;
     }
 
 	Insets getInsets(int top, int left, int bottom, int right) {
@@ -673,9 +685,9 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 	}
 
- 	protected Double getValue(String theText) {
+ 	protected Double getValue(String text) {
  		Double d;
- 		try {d = new Double(theText);}
+ 		try {d = new Double(text);}
 		catch (NumberFormatException e){
 			d = null;
 		}
@@ -837,10 +849,10 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		} else {
 			if (pfr!=null) // prepare preview (not in macro mode): tell the PlugInFilterRunner to listen
 			pfr.setDialog(this);
-			if (stringField!=null&&numberField==null) {
-				TextField tf = (TextField)(stringField.elementAt(0));
-				tf.selectAll();
-			}
+			//if (stringField!=null&&numberField==null) {
+			//	TextField tf = (TextField)(stringField.elementAt(0));
+			//	tf.selectAll();
+			//}
 			Panel buttons = new Panel();
 			buttons.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 			cancel = new Button("Cancel");
@@ -857,12 +869,14 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			okay.addKeyListener(this);
 			if (IJ.isMacintosh()) {
 				if (yesNoCancel) buttons.add(no);
-				buttons.add(cancel);
+				if (! hideCancelButton)
+					buttons.add(cancel);
 				buttons.add(okay);
 			} else {
 				buttons.add(okay);
 				if (yesNoCancel) buttons.add(no);;
-				buttons.add(cancel);
+				if (! hideCancelButton)
+					buttons.add(cancel);
 			}
 			c.gridx = 0; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
@@ -874,7 +888,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			setResizable(false);
 			pack();
 			setup();
-			GUI.center(this);
+			if (centerDialog) GUI.center(this);
 			setVisible(true);
 			recorderOn = Recorder.record;
 			IJ.wait(50); // work around for Sun/WinNT bug
@@ -944,14 +958,19 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
         return previewCheckbox;
     }
     
-    /** optical feedback whether preview is running by switching from
-     * "Preview" to "wait..."
+    /** Used by PlugInFilterRunner to provide visable feedback whether preview
+    	is running or not by switching from "Preview" to "wait..."
      */
     public void previewRunning(boolean isRunning) {
-        if (previewCheckbox != null) {
+        if (previewCheckbox!=null) {
             previewCheckbox.setLabel(isRunning ? previewRunning : previewLabel);
             if (IJ.isMacOSX()) repaint();   //workaround OSX 10.4 refresh bug
         }
+    }
+    
+    /** Display dialog centered on the primary screen? */
+    public void centerDialog(boolean b) {
+    	centerDialog = b;
     }
 
     protected void setup() {
@@ -1078,25 +1097,21 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
                 "\nat "+(err.getStackTrace()[0])+"\nfrom "+(err.getStackTrace()[1]));  //requires Java 1.4
             }
         boolean workaroundOSXbug = IJ.isMacOSX() && !okay.isEnabled() && everythingOk;
-        if (previewCheckbox != null)
+        if (previewCheckbox!=null)
             previewCheckbox.setEnabled(everythingOk);
         okay.setEnabled(everythingOk);
-        if(workaroundOSXbug) repaint(); // OSX 10.4 bug delays update of enabled until the next input
+        if (workaroundOSXbug) repaint(); // OSX 10.4 bug delays update of enabled until the next input
     }
 
 	public void paint(Graphics g) {
 		super.paint(g);
 		if (firstPaint) {
-			if (numberField!=null) {
+			if (numberField!=null && IJ.isMacOSX()) {
+				// work around for bug on Intel Macs that caused 1st field to be un-editable
 				TextField tf = (TextField)(numberField.elementAt(0));
-				tf.requestFocus();
-				if (IJ.isMacOSX()) {
-					// work around for bug on Intel Macs that caused 1st field to be un-editable
-					tf.setEditable(false);
-					tf.setEditable(true);
-				}
-			} else if (stringField==null)
-				okay.requestFocus();
+				tf.setEditable(false);
+				tf.setEditable(true);
+			}
 			firstPaint = false;
 		}
 	}

@@ -21,7 +21,7 @@ import java.awt.image.*;
 		text[k++] = "http://imageja.sourceforge.net/";
 		text[k++] = "Based on ImageJ";
 		text[k++] = IJ.URL;
-		text[k++] = "Java "+System.getProperty("java.version");
+		text[k++] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
 		text[k++] = IJ.freeMemory();
 		text[k++] = "ImageJA is in the public domain";
 		ImageProcessor ip = null;

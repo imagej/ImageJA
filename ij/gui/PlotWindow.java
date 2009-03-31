@@ -13,7 +13,7 @@ import ij.text.TextWindow;
 import ij.plugin.filter.Analyzer;
 
 
-/** This class is an extended ImageWindow that displays line graphs. */
+/** Obsolete; replaced by the Plot class. */
 public class PlotWindow extends ImageWindow implements ActionListener, ClipboardOwner {
 
 	/** Display points using a circle 5 pixels in diameter. */
@@ -189,7 +189,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, Clipboard
 		add(buttons);
 		plot.draw();
 		pack();
-		coordinates.setText(""); 
+		coordinates.setText("                    ");
 		ImageProcessor ip = plot.getProcessor();
 		if ((ip instanceof ColorProcessor) && (imp.getProcessor() instanceof ByteProcessor))
 			imp.setProcessor(null, ip);

@@ -386,9 +386,9 @@ class DicomDecoder {
 		vr = (b0<<8) + b1;
 		
 		switch (vr) {
-			case OB: case OW: case SQ: case UN:
+			case OB: case OW: case SQ: case UN: case UT:
 				// Explicit VR with 32-bit length if other two bytes are zero
-					if ( (b2 == 0) || (b3 == 0) ) return getInt();
+				if ( (b2 == 0) || (b3 == 0) ) return getInt();
 				// Implicit VR with 32-bit length
 				vr = IMPLICIT_VR;
 				if (littleEndian)
@@ -397,7 +397,7 @@ class DicomDecoder {
 					return ((b0<<24) + (b1<<16) + (b2<<8) + b3);		
 			case AE: case AS: case AT: case CS: case DA: case DS: case DT:  case FD:
 			case FL: case IS: case LO: case LT: case PN: case SH: case SL: case SS:
-			case ST: case TM:case UI: case UL: case US: case UT: case QQ:
+			case ST: case TM:case UI: case UL: case US: case QQ:
 				// Explicit vr with 16-bit length
 				if (littleEndian)
 					return ((b3<<8) + b2);
@@ -462,8 +462,9 @@ class DicomDecoder {
 		String photoInterpretation = "";
 				
 		if (inputStream!=null) {
+			// Use large buffer to allow URL stream to be reset after reading header
 			f = inputStream;
-			f.mark(200000);
+			f.mark(400000);
 		} else
 			f = new BufferedInputStream(new FileInputStream(directory + fileName));
 		if (IJ.debugMode) {
@@ -732,8 +733,8 @@ class DicomDecoder {
 				else
 					for (int i=0; i<elementLength; i++) getByte();
 				break;
-			case UT:
-				throw new IOException("ImageJ cannot read UT (unlimited text) DICOMs");
+			//case UT:
+				//throw new IOException("ImageJ cannot read UT (unlimited text) DICOMs");
 			case AE: case AS: case AT: case CS: case DA: case DS: case DT:  case IS: case LO: 
 			case LT: case PN: case SH: case ST: case TM: case UI:
 				value = getString(elementLength);

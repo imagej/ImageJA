@@ -90,7 +90,11 @@ public class Menus {
 	}
 
 	String addMenuBar() {
+		nPlugins = nMacros = userPluginsIndex = 0;
+		addSorted = installingJars = duplicateCommand = false;
 		error = null;
+		mbar = applet == null ? null : applet.menu.getMenuBar();
+		menus = new Properties();
 		pluginsTable = new Hashtable();
 
 		Menu file = getMenu("File");
@@ -209,7 +213,7 @@ public class Menus {
 		addPlugInItem(help, "Search Website...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/search.html\")", 0, false);
 		addPlugInItem(help, "List Archives...", "ij.plugin.BrowserLauncher(\"https://list.nih.gov/archives/imagej.html\")", 0, false);
 		help.addSeparator();
-		addPlugInItem(help, "Resources...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/index.html\")", 0, false);
+		addPlugInItem(help, "Dev. Resources...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/index.html\")", 0, false);
 		addPlugInItem(help, "Plugins...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/plugins\")", 0, false);
 		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
 		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
@@ -228,6 +232,9 @@ public class Menus {
 				mbar.setFont(getFont());
 		}
 
+		// make	sure "Quit" is the last item in the File menu
+		file.addSeparator();
+		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 		if (ij!=null && applet == null)
 			ij.setMenuBar(mbar);
 
@@ -254,7 +261,7 @@ public class Menus {
 		menu.add(openRecentMenu);
 	}
 
-	void addItem(Menu menu, String label, int shortcut, boolean shift) {
+	static void addItem(Menu menu, String label, int shortcut, boolean shift) {
 		if (menu==null)
 			return;
 		MenuItem item;
@@ -297,7 +304,7 @@ public class Menus {
 		return item;
 	}
 
-	Menu addSubMenu(Menu menu, String name) {
+	static Menu addSubMenu(Menu menu, String name) {
 		String value;
 		String key = name.toLowerCase(Locale.US);
 		int index;
@@ -321,7 +328,7 @@ public class Menus {
 		return submenu;
 	}
 	
-	void addLuts(Menu submenu) {
+	static void addLuts(Menu submenu) {
 		String path = Prefs.getHomeDir()+File.separator;
 		File f = new File(path+"luts");
 		String[] list = null;
@@ -342,7 +349,7 @@ public class Menus {
 		}
 	}
 
-	void addPluginItem(Menu submenu, String s) {
+	static void addPluginItem(Menu submenu, String s) {
 		if (s.startsWith("\"-\"")) {
 			// add menu separator if command="-"
 			addSeparator(submenu);
@@ -435,7 +442,7 @@ public class Menus {
 				case IMPORT_MENU: menu = getMenu("File>Import"); break;
 				case SAVE_AS_MENU: menu = getMenu("File>Save As"); break;
 				case SHORTCUTS_MENU: menu = shortcutsMenu; break;
-				case ABOUT_MENU: menu = getMenu("Help>About"); break;
+				case ABOUT_MENU: menu = getMenu("Help>About Plugins"); break;
 				case FILTERS_MENU: menu = getMenu("Process>Filters"); break;
 				case TOOLS_MENU: menu = getMenu("Analyze>Tools"); break;
 				case UTILITIES_MENU: menu = utilitiesMenu; break;
@@ -454,7 +461,7 @@ public class Menus {
 					}
 				}
 			}
-			if (found) {
+			if (found && menu!=pluginsMenu) {
 				addPluginItem(menu, value);
 				pluginsPrefs.addElement(prefsValue);
 				if (className.endsWith("\")")) { // remove any argument
@@ -616,7 +623,8 @@ public class Menus {
 			int comma = name.indexOf(',');
 			if (comma >= 0)
 				name = name.substring(0, comma);
-
+			if (name.startsWith("Help>About")) // for backward compatibility
+				name = "Help>About Plugins";
 			menu = getMenu(name);
 		}
 		int firstQuote = s.indexOf('"');
@@ -683,11 +691,8 @@ public class Menus {
 				if (readFromProps)
 					result = addSubMenu(parentMenu,
 							menuItemName);
-				else if (parentName.startsWith("Plugins") &&
-						menuSeparators != null)
-					addItemSorted(parentMenu, result,
-						parentName.equals("Plugins") ?
-							userPluginsIndex : 0);
+				else if (parentName.startsWith("Plugins") && menuSeparators != null)
+					addItemSorted(parentMenu, result, parentName.equals("Plugins")?userPluginsIndex:0);
 				else
 					parentMenu.add(result);
 				if (menuName.equals("File>Open Recent"))
@@ -735,7 +740,7 @@ public class Menus {
 		if (!inserted) menu.add(item);
 	}
 
-    void addSeparator(Menu menu) {
+    static void addSeparator(Menu menu) {
     	menu.addSeparator();
     }
 
@@ -946,12 +951,11 @@ public class Menus {
 		String menuName = slashIndex < 0 ? "Plugins" : "Plugins>" +
 			className.substring(0, slashIndex).replace('/', '>');
 		Menu menu = getMenu(menuName);
-	String command = className;
-	if (slashIndex>0) {
-		command = className.substring(slashIndex+1);
-	}
+		String command = className;
+		if (slashIndex>0) {
+			command = className.substring(slashIndex+1);
+		}
 		command = command.replace('_',' ');
-
 		command.trim();
 		boolean itemExists = (pluginsTable.get(command)!=null);
 		if(force && itemExists)
@@ -998,6 +1002,14 @@ public class Menus {
 		
 	public static Menu getMacrosMenu() {
 		return instance.macrosMenu;
+	}
+
+	public int getMacroCount() {
+		return nMacros;
+	}
+
+	public int getPluginCount() {
+		return nPlugins;
 	}
 
 	public int getMacroCount() {
@@ -1130,11 +1142,6 @@ public class Menus {
 		return instance.macroShortcuts;
 	}
         
-	/** Returns the hashtable that associates menu names with menus. */
-	//public static Hashtable getMenus() {
-	//	return menusTable;
-	//}
-
 	/** Inserts one item (a non-image window) into the Window menu. */
 	static synchronized void insertWindowMenuItem(Frame win) {
 		if (ij==null || win==null)
@@ -1258,7 +1265,7 @@ public class Menus {
 	public static PopupMenu getPopupMenu() {
 		return instance.popup;
 	}
-	
+
 	public static Menu getSaveAsMenu() {
 		return instance.getMenu("File>Save As");
 	}
@@ -1298,7 +1305,7 @@ public class Menus {
 			case IMPORT_MENU: menu = getMenu("File>Import"); break;
 			case SAVE_AS_MENU: menu = getMenu("File>Save As"); break;
 			case SHORTCUTS_MENU: menu = shortcutsMenu; break;
-			case ABOUT_MENU: menu = getMenu("Help>About"); break;
+			case ABOUT_MENU: menu = getMenu("Help>About Plugins"); break;
 			case FILTERS_MENU: menu = getMenu("Process>Filters"); break;
 			case TOOLS_MENU: menu = getMenu("Analyze>Tools"); break;
 			case UTILITIES_MENU: menu = utilitiesMenu; break;
@@ -1508,6 +1515,7 @@ public class Menus {
 		String err = m.addMenuBar();
 		if (err!=null) IJ.error(err);
 		IJ.setClassLoader(null);
+		IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		IJ.showStatus(m.nPlugins + " commands, " + m.nMacros + " macros");
 	}
 }

@@ -87,7 +87,6 @@ public class FileSaver {
 		Object info = imp.getProperty("Info");
 		if (info!=null && (info instanceof String))
 			fi.info = (String)info;
-		fi.description = getDescriptionString();
 		Object label = imp.getProperty("Label");
 		if (label!=null && (label instanceof String)) {
 			fi.sliceLabels = new String[1];
@@ -309,10 +308,6 @@ public class FileSaver {
 		Returns false if the user selects cancel. Requires
 		java 1.4 or later. */
 	public boolean saveAsPng() {
-		if (!IJ.isJava14()) {
-			IJ.error("Save As PNG", "Java 1.4 or later required");
-			return false;
-		}
 		String path = getPath("PNG", ".png");
 		if (path==null)
 			return false;
@@ -570,6 +565,14 @@ public class FileSaver {
 		}
 		
 		// get stack z-spacing and fps
+		if (cal.frameInterval!=0.0) {
+			if ((int)cal.frameInterval==cal.frameInterval)
+				sb.append("finterval="+(int)cal.frameInterval+"\n");
+			else
+				sb.append("finterval="+cal.frameInterval+"\n");
+		}
+		if (!cal.getTimeUnit().equals("sec"))
+			sb.append("tunit="+cal.getTimeUnit()+"\n");
 		if (fi.nImages>1) {
 			if (fi.pixelDepth!=0.0 && fi.pixelDepth!=1.0)
 				sb.append("spacing="+fi.pixelDepth+"\n");
@@ -580,14 +583,6 @@ public class FileSaver {
 					sb.append("fps="+cal.fps+"\n");
 			}
 			sb.append("loop="+(cal.loop?"true":"false")+"\n");
-			if (cal.frameInterval!=0.0) {
-				if ((int)cal.frameInterval==cal.frameInterval)
-					sb.append("finterval="+(int)cal.frameInterval+"\n");
-				else
-					sb.append("finterval="+cal.frameInterval+"\n");
-			}
-			if (!cal.getTimeUnit().equals("sec"))
-				sb.append("tunit="+cal.getTimeUnit()+"\n");
 		}
 		
 		// get min and max display values

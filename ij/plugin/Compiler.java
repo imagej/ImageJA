@@ -185,8 +185,8 @@ public class Compiler implements PlugIn, FilenameFilter {
 						IJ.error("File name must end with \".java\" or \".class\".");
 						okay = false;
 					}
-				} else if (!(lcName.endsWith(".java")||lcName.endsWith(".txt")||lcName.endsWith(".ijm"))) {
-					IJ.error("File name must end with \".java\" or \".txt\".");
+				} else if (!(lcName.endsWith(".java")||lcName.endsWith(".txt")||lcName.endsWith(".ijm")||lcName.endsWith(".js"))) {
+					IJ.error("File name must end with \".java\", \".txt\" or \".js\".");
 					okay = false;
 				}
 			}
@@ -265,8 +265,9 @@ class PlugInExecuter implements Runnable {
 
 	public void run() {
 		try {
-			ImageJ ij = IJ.getInstance();
 			IJ.resetEscape();
+			IJ.runPlugIn("ij.plugin.ClassChecker", "");
+			ImageJ ij = IJ.getInstance();
 			if (ij!=null) ij.runUserPlugIn(plugin, plugin, "", true);
 		} catch(Throwable e) {
 			IJ.showStatus("");

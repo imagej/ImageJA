@@ -6,7 +6,7 @@
 
 # Note that commands must be unique.
 
-# Version 1.41
+# Version 1.42
 
 # Popup Menu
 popup01=Undo
@@ -122,17 +122,18 @@ stacks03="Next Slice [>]",ij.plugin.Animator("next")
 stacks04="Previous Slice [<]",ij.plugin.Animator("previous")
 stacks05="Set Slice...",ij.plugin.Animator("set")
 stacks06=-
-stacks07="Images to Stack",ij.plugin.StackEditor("tostack")
+stacks07="Images to Stack",ij.plugin.ImagesToStack
 stacks08="Stack to Images",ij.plugin.StackEditor("toimages")
 stacks09="Make Montage...",ij.plugin.MontageMaker
 stacks10="Reslice [/]...",ij.plugin.Slicer
 stacks11="Z Project...",ij.plugin.ZProjector
 stacks12="3D Project...",ij.plugin.filter.Projector
 stacks13="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
-stacks14=-
-stacks15="Start Animation [\\]",ij.plugin.Animator("start")
-stacks16="Stop Animation",ij.plugin.Animator("stop")
-stacks17="Animation Options...",ij.plugin.Animator("options")
+stacks14="Reduce Size...",ij.plugin.StackReducer
+stacks15=-
+stacks16="Start Animation [\\]",ij.plugin.Animator("start")
+stacks17="Stop Animation",ij.plugin.Animator("stop")
+stacks18="Animation Options...",ij.plugin.Animator("options")
 
 # Plugins installed in the Image/Hyperstacks submenu
 hyperstacks01="New Hyperstack...",ij.plugin.HyperStackConverter("new")
@@ -154,7 +155,8 @@ zoom02="Out[-]",ij.plugin.Zoom("out")
 zoom03="Original Scale[4]",ij.plugin.Zoom("orig")
 zoom04="View 100%[5]",ij.plugin.Zoom("100%")
 zoom05="To Selection",ij.plugin.Zoom("to")
-#zoom06="Maximize",ij.plugin.Zoom("max")
+zoom06="Set... ",ij.plugin.Zoom("set")
+#zoom07="Maximize",ij.plugin.Zoom("max")
 
 # Plugins installed in the Image/Lookup Tables submenu
 lookup01="Invert LUT",ij.plugin.LutLoader("invert")
@@ -232,6 +234,7 @@ math15="Square Root",ij.plugin.filter.ImageMath("sqrt")
 math16="Reciprocal",ij.plugin.filter.ImageMath("reciprocal")
 math17="NaN Background",ij.plugin.filter.ImageMath("nan")
 math18="Abs",ij.plugin.filter.ImageMath("abs")
+math19="Macro...",ij.plugin.filter.ImageMath("macro")
 
 # Plugins installed in the Process/FFT submenu
 fft01="FFT",ij.plugin.FFT("fft")
@@ -315,8 +318,9 @@ utilities06="Reset...",ij.plugin.SimpleCommands("reset")
 utilities07="Monitor Memory...",ij.plugin.MemoryMonitor
 utilities08="Search...",ij.plugin.SimpleCommands("search")
 utilities09="Capture Screen [G]",ij.plugin.ScreenGrabber
-utilities10="Find Commands... [l]",ij.plugin.CommandFinder
-# utilities11="Update ImageJ... ",ij.plugin.ImageJ_Updater
+utilities10="Capture Image",ij.plugin.ScreenGrabber("image")
+utilities11="Find Commands... [l]",ij.plugin.CommandFinder
+utilities12="Update ImageJ... ",ij.plugin.ImageJ_Updater
 
 # Plugins installed in the Plugins/New submenu
 new_01="Macro",ij.plugin.NewPlugin("macro")

@@ -23,11 +23,14 @@ public class ResultsTable implements Cloneable {
 	public static final int AREA=0, MEAN=1, STD_DEV=2, MODE=3, MIN=4, MAX=5,
 		X_CENTROID=6, Y_CENTROID=7, X_CENTER_OF_MASS=8, Y_CENTER_OF_MASS=9,
 		PERIMETER=10, ROI_X=11, ROI_Y=12, ROI_WIDTH=13, ROI_HEIGHT=14,
-		MAJOR=15, MINOR=16, ANGLE=17, CIRCULARITY=18, FERET=19, INTEGRATED_DENSITY=20,
-		MEDIAN=21, SKEWNESS=22, KURTOSIS=23, AREA_FRACTION=24, SLICE=25;
+		MAJOR=15, MINOR=16, ANGLE=17, CIRCULARITY=18, FERET=19, 
+		INTEGRATED_DENSITY=20, MEDIAN=21, SKEWNESS=22, KURTOSIS=23, 
+		AREA_FRACTION=24, SLICE=25, FERET_ANGLE=26, MIN_FERET=27, ASPECT_RATIO=28,
+		ROUNDNESS=29, SOLIDITY=30, LAST_HEADING=30;
 	private static final String[] defaultHeadings = {"Area","Mean","StdDev","Mode","Min","Max",
 		"X","Y","XM","YM","Perim.","BX","BY","Width","Height","Major","Minor","Angle",
-		"Circ.", "Feret", "IntDen", "Median","Skew","Kurt", "%Area", "Slice"};
+		"Circ.", "Feret", "IntDen", "Median","Skew","Kurt", "%Area", "Slice", "FeretAngle",
+		 "MinFeret", "AR", "Round", "Solidity"};
 
 	private int maxRows = 100; // will be increased as needed
 	private int maxColumns = MAX_COLUMNS; // will be increased as needed
@@ -119,6 +122,13 @@ public class ResultsTable implements Cloneable {
 	}
 	
 	/** Adds a label to the beginning of the current row. Counter must be >0. */
+	public void addLabel(String label) {
+		if (rowLabelHeading.equals(""))
+			rowLabelHeading = "Label";
+		addLabel(rowLabelHeading, label);
+	}
+
+	/** Adds a label to the beginning of the current row. Counter must be >0. */
 	public void addLabel(String columnHeading, String label) {
 		if (counter==0)
 			throw new IllegalArgumentException("Counter==0");
@@ -148,8 +158,8 @@ public class ResultsTable implements Cloneable {
 		rowLabels = null;
 	}
 	
-	/** Returns a copy of the given column as a float array.
-		Returns null if the column is empty. */
+	/** Returns a copy of the given column as a float array,
+		or null if the column is empty. */
 	public float[] getColumn(int column) {
 		if ((column<0) || (column>=maxColumns))
 			throw new IllegalArgumentException("Index out of range: "+column);
@@ -163,6 +173,21 @@ public class ResultsTable implements Cloneable {
 		}
 	}
 	
+	/** Returns a copy of the given column as a double array,
+		or null if the column is empty. */
+	public double[] getColumnAsDoubles(int column) {
+		if ((column<0) || (column>=maxColumns))
+			throw new IllegalArgumentException("Index out of range: "+column);
+		if (columns[column]==null)
+			return null;
+		else {
+			double[] data = new double[counter];
+			for (int i=0; i<counter; i++)
+				data[i] = columns[column][i];
+			return data;
+		}
+	}
+
 	/** Returns true if the specified column exists and is not empty. */
 	public boolean columnExists(int column) {
 		if ((column<0) || (column>=maxColumns))
@@ -385,6 +410,27 @@ public class ResultsTable implements Cloneable {
 		return lastColumn;
 	}
 
+	/** Adds the last row in this table to the Results window without updating it. */
+	public void addResults() {
+		if (counter==1)
+			IJ.setColumnHeadings(getColumnHeadings());		
+		TextPanel textPanel = IJ.getTextPanel();
+		String s = getRowAsString(counter-1);
+		if (textPanel!=null)
+				textPanel.appendWithoutUpdate(s);
+		else
+			System.out.println(s);
+	}
+
+	/** Updates the Results window. */
+	public void updateResults() {
+		TextPanel textPanel = IJ.getTextPanel();
+		if (textPanel!=null) {
+			textPanel.updateColumnHeadings(getColumnHeadings());		
+			textPanel.updateDisplay();
+		}
+	}
+	
 	/** Displays the contents of this ResultsTable in a window with the specified title. 
 		Opens a new window if there is no open text window with this title. The title must
 		be "Results" if this table was obtained using ResultsTable.getResultsTable
@@ -406,7 +452,7 @@ public class ResultsTable implements Cloneable {
 			if (frame!=null && frame instanceof TextWindow)
 				win = (TextWindow)frame;
 			else
-				win = new TextWindow(windowTitle, "", 300, 200);
+				win = new TextWindow(windowTitle, "", 400, 300);
 			tp = win.getTextPanel();
 			tp.setColumnHeadings(tableHeadings);
 		}

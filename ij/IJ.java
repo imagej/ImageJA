@@ -21,7 +21,7 @@ import java.lang.reflect.*;
 /** This class consists of static utility methods. */
 public class IJ {
 	public static final String URL = "http://rsb.info.nih.gov/ij";
-	public static final int ALL_KEYS = 0x32;
+	public static final int ALL_KEYS = -1;
 	
 	public static boolean debugMode;
 	public static boolean hideProcessStackDialog;
@@ -40,7 +40,7 @@ public class IJ {
 	private static boolean macroRunning;
 	private static Thread previousThread;
 	private static TextPanel logPanel;
-	private static boolean notVerified = true;		
+	private static boolean checkForDuplicatePlugins = true;		
 	private static ClassLoader classLoader;
 	private static boolean memMessageDisplayed;
 	private static long maxMemory;
@@ -98,12 +98,13 @@ public class IJ {
 		return mr.runMacro(macro, arg);
 	}
 
-	/** Runs the specified macro file. The file is assumed to be in the macros 
-		folder unless <code>name</code> is a full path. ".txt"  is
+	/** Runs the specified macro or script file in the current thread.
+		The file is assumed to be in the macros folder
+ 		unless <code>name</code> is a full path. ".txt"  is
     	added if <code>name</code> does not have an extension.
 		The optional string argument (<code>arg</code>) can be retrieved in the called 
-		macro using the getArgument() macro function. 
-		Returns any string value returned by the macro or null. 
+		macro or script (v1.42k or later) using the getArgument() function. 
+		Returns any string value returned by the macro, or null. Scripts always return null.
 		The equivalent macro function is runMacro(). */
 	public static String runMacroFile(String name, String arg) {
 		if (ij==null && Menus.getCommands()==null)
@@ -166,10 +167,10 @@ public class IJ {
         
 	static Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
 		if (applet!=null) return null;
-		if (notVerified) {
-			// check for duplicate classes in the plugins folder
+		if (checkForDuplicatePlugins) {
+			// check for duplicate classes and jars in the plugins folder
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
-			notVerified = false;
+			checkForDuplicatePlugins = false;
 		}
 		if (createNewLoader) classLoader = null;
 		ClassLoader loader = getClassLoader();
@@ -703,7 +704,7 @@ public class IJ {
 	}
 
 	public static void setKeyDown(int key) {
-		//IJ.showStatus("setKeyDown: "+key);
+		if (debugMode) IJ.log("setKeyDown: "+key);
 		switch (key) {
 			case KeyEvent.VK_ALT:
 				altDown=true;
@@ -726,7 +727,7 @@ public class IJ {
 	}
 	
 	public static void setKeyUp(int key) {
-		//IJ.showStatus("setKeyUp: "+key);
+		if (debugMode) IJ.log("setKeyUp: "+key);
 		switch (key) {
 			case KeyEvent.VK_ALT: altDown=false; break;
 			case KeyEvent.VK_SHIFT: shiftDown=false; if (debugMode) beep(); break;
@@ -913,8 +914,11 @@ public class IJ {
 		ImagePlus img = getImage();
 		Calibration cal = img.getCalibration();
 		min = cal.getRawValue(min); 
-		max = cal.getRawValue(max); 
-		img.setDisplayRange(min, max, channels);
+		max = cal.getRawValue(max);
+		if (channels==7)
+			img.setDisplayRange(min, max);
+		else
+			img.setDisplayRange(min, max, channels);
 		img.updateAndDraw();
 	}
 
@@ -1189,10 +1193,7 @@ public class IJ {
 		} else {
 			DirectoryChooser dc = new DirectoryChooser(title);
 			String dir = dc.getDirectory();
-			if (dir==null)
-				Macro.abort();
-			else if (Recorder.record)
-				Recorder.record("getDirectory", dir);
+			if (dir==null) Macro.abort();
 			return dir;
 		}
 	}
@@ -1326,7 +1327,8 @@ public class IJ {
 	static String updateExtension(String path, String extension) {
 		if (path==null) return null;
 		int dotIndex = path.lastIndexOf(".");
-		if (dotIndex>=0)
+		int separatorIndex = path.lastIndexOf(File.separator);
+		if (dotIndex>=0 && dotIndex>separatorIndex && (path.length()-dotIndex)<=5)
 			path = path.substring(0, dotIndex) + extension;
 		else
 			path += extension;

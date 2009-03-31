@@ -1,5 +1,4 @@
- package ij;
-
+package ij;
 import java.awt.*;
 import java.awt.image.*;
 import java.net.URL;
@@ -526,14 +525,25 @@ public class ImagePlus implements ImageObserver, Measurements {
 		else if (stackSize>1 && !(win instanceof StackWindow)) {
 			if (isHyperStack()) setOpenAsHyperStack(true);
 			win = new StackWindow(this, getCanvas());   // replaces this window
+			setPosition(1, 1, 1);
 		} else if (stackSize>1 && (dimensionsChanged||invalidDimensions)) {
 			if (isHyperStack()) setOpenAsHyperStack(true);
 			win = new StackWindow(this);   // replaces this window
+			setPosition(1, 1, 1);
 		} else
 			repaintWindow();
 		if (resetCurrentSlice) setSlice(currentSlice);
     }
     
+	public void setStack(ImageStack stack, int nChannels, int nSlices, int nFrames) {
+		if (nChannels*nSlices*nFrames!=stack.getSize())
+			throw new IllegalArgumentException("channels*slices*frames!=stackSize");
+		this.nChannels = nChannels;
+		this.nSlices = nSlices;
+		this.nFrames = nFrames;
+		setStack(null, stack);
+	}
+
 	/**	Saves this image's FileInfo so it can be later
 		retieved using getOriginalFileInfo(). */
 	public void setFileInfo(FileInfo fi) {
@@ -1007,6 +1017,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 		if (roi!=null)
 			s.setRoi(roi.getBounds());
+		else
+			s.setRoi(null);
 		return s;
 	}
 	
@@ -1054,6 +1066,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 	
 	public void setPosition(int channel, int slice, int frame) {
+		verifyDimensions();
    		if (channel<1) channel = 1;
     	if (channel>nChannels) channel = nChannels;
     	if (slice<1) slice = 1;
@@ -1151,6 +1164,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 	}
 
+	/** Returns the current selection, or null if there is no selection. */
 	public Roi getRoi() {
 		return roi;
 	}
@@ -1680,15 +1694,6 @@ public class ImagePlus implements ImageObserver, Measurements {
 		int cType = clipboard.getType();
 		int iType = getType();
 		
-		boolean sameType = false;
-		if ((cType==ImagePlus.GRAY8||cType==ImagePlus.COLOR_256)&&(iType==ImagePlus.GRAY8||iType==ImagePlus.COLOR_256)) sameType = true;
-		else if ((cType==ImagePlus.COLOR_RGB||cType==ImagePlus.GRAY8||cType==ImagePlus.COLOR_256)&&iType==ImagePlus.COLOR_RGB) sameType = true;
-		else if (cType==ImagePlus.GRAY16&&iType==ImagePlus.GRAY16) sameType = true;
-		else if (cType==ImagePlus.GRAY32&&iType==ImagePlus.GRAY32) sameType = true;
-		if (!sameType) {
-			IJ.error("Images must be the same type to paste.");
-			return;
-		}
         int w = clipboard.getWidth();
         int h = clipboard.getHeight();
 		Roi cRoi = clipboard.getRoi();

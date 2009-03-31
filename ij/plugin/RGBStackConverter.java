@@ -4,7 +4,7 @@ import ij.*;
 import ij.process.*;
 import ij.gui.*;
 
-/** Converts a 2 or 3 slice stack to RGB. */
+/** Converts a 2 or 3 slice stack, or a hyperstack, to RGB. */
 public class RGBStackConverter implements PlugIn {
 	
 	public void run(String arg) {
@@ -47,8 +47,13 @@ public class RGBStackConverter implements PlugIn {
 			compositeImageToRGB(imp, title);
 			return;
 		}
+		String msg = null;
+		if (frames>1)
+			msg = "Convert all "+frames+" frames?";
+		else
+			msg = "Convert all "+slices+" slices?";
 		if (!IJ.isMacro()) {
-			YesNoCancelDialog d = new YesNoCancelDialog(IJ.getInstance(), "Convert to RGB", "Convert entire HyperStack?");
+			YesNoCancelDialog d = new YesNoCancelDialog(IJ.getInstance(), "Convert to RGB", msg);
 			if (d.cancelPressed())
 				return;
 			else if (!d.yesPressed()) {
@@ -71,13 +76,31 @@ public class RGBStackConverter implements PlugIn {
 		imp.setPosition(c, z, t);
 		ImagePlus imp2 = imp.createImagePlus();
 		imp2.setStack(title, stack);
+		Object info = imp.getProperty("Info");
+		if (info!=null) imp2.setProperty("Info", info);
 		imp2.show();
 	}
 
 	void compositeImageToRGB(CompositeImage imp, String title) {
+		if (imp.getMode()==CompositeImage.COMPOSITE) {
+			ImagePlus imp2 = imp.createImagePlus();
+			imp.updateImage();
+			imp2.setProcessor(title, new ColorProcessor(imp.getImage()));
+			imp2.show();
+			return;
+		}
+		ImageStack stack = new ImageStack(imp.getWidth(), imp.getHeight());
+		int c = imp.getChannel();
+		int n = imp.getNChannels();
+		for (int i=1; i<=n; i++) {
+			imp.setPositionWithoutUpdate(i, 1, 1);
+			stack.addSlice(null, new ColorProcessor(imp.getImage()));
+		}
+		imp.setPosition(c, 1, 1);
 		ImagePlus imp2 = imp.createImagePlus();
-		imp.updateImage();
-		imp2.setProcessor(title, new ColorProcessor(imp.getImage()));
+		imp2.setStack(title, stack);
+		Object info = imp.getProperty("Info");
+		if (info!=null) imp2.setProperty("Info", info);
 		imp2.show();
 	}
 
