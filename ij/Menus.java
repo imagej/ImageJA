@@ -90,11 +90,7 @@ public class Menus {
 	}
 
 	String addMenuBar() {
-		nPlugins = nMacros = userPluginsIndex = 0;
-		addSorted = installingJars = duplicateCommand = false;
 		error = null;
-		mbar = applet == null ? null : applet.menu.getMenuBar();
-		menus = new Properties();
 		pluginsTable = new Hashtable();
 
 		Menu file = getMenu("File");
@@ -237,10 +233,6 @@ public class Menus {
 		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 		if (ij!=null && applet == null)
 			ij.setMenuBar(mbar);
-
-		// make	sure "Quit" is the last item in the File menu
-		file.addSeparator();
-		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 		
 		if (pluginError!=null)
 			error = error!=null?error+="\n"+pluginError:pluginError;
@@ -261,7 +253,7 @@ public class Menus {
 		menu.add(openRecentMenu);
 	}
 
-	static void addItem(Menu menu, String label, int shortcut, boolean shift) {
+	void addItem(Menu menu, String label, int shortcut, boolean shift) {
 		if (menu==null)
 			return;
 		MenuItem item;
@@ -304,7 +296,7 @@ public class Menus {
 		return item;
 	}
 
-	static Menu addSubMenu(Menu menu, String name) {
+	Menu addSubMenu(Menu menu, String name) {
 		String value;
 		String key = name.toLowerCase(Locale.US);
 		int index;
@@ -328,7 +320,7 @@ public class Menus {
 		return submenu;
 	}
 	
-	static void addLuts(Menu submenu) {
+	void addLuts(Menu submenu) {
 		String path = Prefs.getHomeDir()+File.separator;
 		File f = new File(path+"luts");
 		String[] list = null;
@@ -349,7 +341,7 @@ public class Menus {
 		}
 	}
 
-	static void addPluginItem(Menu submenu, String s) {
+	void addPluginItem(Menu submenu, String s) {
 		if (s.startsWith("\"-\"")) {
 			// add menu separator if command="-"
 			addSeparator(submenu);
@@ -740,7 +732,7 @@ public class Menus {
 		if (!inserted) menu.add(item);
 	}
 
-    static void addSeparator(Menu menu) {
+    void addSeparator(Menu menu) {
     	menu.addSeparator();
     }
 
@@ -1011,17 +1003,9 @@ public class Menus {
 	public int getPluginCount() {
 		return nPlugins;
 	}
-
-	public int getMacroCount() {
-		return nMacros;
-	}
-
-	public int getPluginCount() {
-		return nPlugins;
-	}
-		
-	static final int RGB_STACK=10, HSB_STACK=11;
 	
+	static final int RGB_STACK=10, HSB_STACK=11;
+
 	/** Updates the Image/Type and Window menus. */
 	public static void updateMenus() {
 		if (ij==null) return;
