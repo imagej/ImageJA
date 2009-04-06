@@ -24,8 +24,9 @@ public class Server implements Hello {
 				UnicastRemoteObject.exportObject(obj, 0);
 
 			// Write serialized object
-			FileOutputStream out =
-				new FileOutputStream("hello.stub");
+			String path = System.getProperty("java.io.tmpdir")
+				+ "/hello.stub";
+			FileOutputStream out = new FileOutputStream(path);
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();
 
