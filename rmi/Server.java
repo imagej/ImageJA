@@ -1,7 +1,10 @@
 package rmi;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+
+import java.lang.reflect.Method;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -21,6 +24,27 @@ public class Server implements Hello {
 			+ System.getProperty("user.name") + ".stub";
 	}
 
+	public static void setPrivate(String path) {
+		try {
+			// File.setReadable() is Java 6
+			Class[] types = { boolean.class, boolean.class };
+			Method m = File.class.getMethod("setReadable", types);
+			Object[] arguments = { Boolean.FALSE, Boolean.FALSE };
+			m.invoke(new File(path), arguments);
+			arguments = new Object[] { Boolean.TRUE, Boolean.TRUE };
+			m.invoke(new File(path), arguments);
+			return;
+		} catch (Exception e) {
+			System.err.println("Java < 6 detected, trying chmod");
+		}
+		try {
+			String[] command = {
+				"chmod", "0600", path
+			};
+			Runtime.getRuntime().exec(command);
+		} catch (Exception e) {}
+	}
+
 	public static void main(String args[]) {
 
 		try {
@@ -31,6 +55,7 @@ public class Server implements Hello {
 			// Write serialized object
 			String path = getStubPath();
 			FileOutputStream out = new FileOutputStream(path);
+			setPrivate(path);
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();
 
