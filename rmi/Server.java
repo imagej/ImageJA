@@ -16,6 +16,11 @@ public class Server implements Hello {
 		return "Hello, world (" + (++counter) + ")!";
 	}
 
+	public static String getStubPath() {
+		return System.getProperty("java.io.tmpdir") + "/ImageJ-"
+			+ System.getProperty("user.name") + ".stub";
+	}
+
 	public static void main(String args[]) {
 
 		try {
@@ -24,8 +29,7 @@ public class Server implements Hello {
 				UnicastRemoteObject.exportObject(obj, 0);
 
 			// Write serialized object
-			String path = System.getProperty("java.io.tmpdir")
-				+ "/hello.stub";
+			String path = getStubPath();
 			FileOutputStream out = new FileOutputStream(path);
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();

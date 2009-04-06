@@ -9,9 +9,7 @@ public class Client {
 
 	public static void main(String[] args) {
 
-		String file = args.length < 1 ?
-			System.getProperty("java.io.tmpdir") + "/hello.stub" :
-			args[0];
+		String file = args.length < 1 ? Server.getStubPath() : args[0];
 		try {
 			FileInputStream in = new FileInputStream(file);
 			Hello hello =
