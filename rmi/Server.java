@@ -1,8 +1,11 @@
 package rmi;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 
 import java.lang.reflect.Method;
 
@@ -45,7 +48,27 @@ public class Server implements Hello {
 		} catch (Exception e) {}
 	}
 
-	public static void main(String args[]) {
+	public static boolean client(String[] args) {
+		String file = args.length < 1 ? Server.getStubPath() : args[0];
+		try {
+			FileInputStream in = new FileInputStream(file);
+			Hello hello =
+				(Hello)new ObjectInputStream(in).readObject();
+			in.close();
+
+			String response = hello.sayHello();
+			System.out.println("response: " + response);
+			return true;
+		} catch (Exception e) {
+			System.err.println("Client exception: " + e.toString());
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static void main(String[] args) {
+		if (client(args))
+			return;
 
 		try {
 			Server obj = new Server();
