@@ -35,6 +35,8 @@ public class Server {
 			+ System.getProperty("user.name") + ".stub";
 	}
 
+	static boolean verbose;
+
 	public static void setPrivate(String path) {
 		try {
 			// File.setReadable() is Java 6
@@ -46,14 +48,19 @@ public class Server {
 			m.invoke(new File(path), arguments);
 			return;
 		} catch (Exception e) {
-			System.err.println("Java < 6 detected, trying chmod");
+			if (verbose)
+				System.err.println("Java < 6 detected,"
+					+ " trying chmod 0600 " + path);
 		}
 		try {
 			String[] command = {
 				"chmod", "0600", path
 			};
 			Runtime.getRuntime().exec(command);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			if (verbose)
+				System.err.println("Even chmod failed.");
+		}
 	}
 
 	public static boolean client(String[] args) {
@@ -68,8 +75,10 @@ public class Server {
 			System.out.println("response: " + response);
 			return true;
 		} catch (Exception e) {
-			System.err.println("Client exception: " + e.toString());
-			e.printStackTrace();
+			if (verbose) {
+				System.err.println("Client exception: " + e);
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -90,10 +99,13 @@ public class Server {
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();
 
-			System.err.println("Server ready");
+			if (verbose)
+				System.err.println("Server ready");
 		} catch (Exception e) {
-			System.err.println("Server exception: " + e.toString());
-			e.printStackTrace();
+			if (verbose) {
+				System.err.println("Server exception: " + e);
+				e.printStackTrace();
+			}
 		}
 	}
 }
