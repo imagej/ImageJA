@@ -37,7 +37,7 @@ public class OtherInstance {
 
 	static boolean verbose;
 
-	public static void setPrivate(String path) {
+	public static void makeFilePrivate(String path) {
 		try {
 			// File.setReadable() is Java 6
 			Class[] types = { boolean.class, boolean.class };
@@ -97,7 +97,7 @@ public class OtherInstance {
 			// Write serialized object
 			String path = getStubPath();
 			FileOutputStream out = new FileOutputStream(path);
-			setPrivate(path);
+			makeFilePrivate(path);
 			new ObjectOutputStream(out).writeObject(stub);
 			out.close();
 
