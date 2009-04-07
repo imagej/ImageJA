@@ -17,16 +17,16 @@ import java.rmi.server.UnicastRemoteObject;
  * a hard-to-guess hash code.
  */
 
-public class Server {
-	interface Hello extends Remote {
-		String sayHello() throws RemoteException;
+public class OtherInstance {
+	interface ImageJInstance extends Remote {
+		void sendArgument(String arg) throws RemoteException;
 	}
 
-	static class Implementation implements Hello {
+	static class Implementation implements ImageJInstance {
 		int counter = 0;
 
-		public String sayHello() {
-			return "Hello, world (" + (++counter) + ")!";
+		public void sendArgument(String arg) {
+			System.err.println("got argument " + arg);
 		}
 	}
 
@@ -64,15 +64,17 @@ public class Server {
 	}
 
 	public static boolean client(String[] args) {
-		String file = args.length < 1 ? Server.getStubPath() : args[0];
+		if (args.length == 0)
+			args = new String[] { "dummy" };
+		String file = getStubPath();
 		try {
 			FileInputStream in = new FileInputStream(file);
-			Hello hello =
-				(Hello)new ObjectInputStream(in).readObject();
+			ImageJInstance instance = (ImageJInstance)
+				new ObjectInputStream(in).readObject();
 			in.close();
 
-			String response = hello.sayHello();
-			System.out.println("response: " + response);
+			for (int i = 0; i < args.length; i++)
+				instance.sendArgument(args[i]);
 			return true;
 		} catch (Exception e) {
 			if (verbose) {
@@ -89,7 +91,7 @@ public class Server {
 
 		try {
 			Implementation obj = new Implementation();
-			Hello stub = (Hello)
+			ImageJInstance stub = (ImageJInstance)
 				UnicastRemoteObject.exportObject(obj, 0);
 
 			// Write serialized object
