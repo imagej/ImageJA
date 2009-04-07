@@ -67,11 +67,14 @@ public class OtherInstance {
 
 	public static void makeFilePrivate(String path) {
 		try {
+			File file = new File(path);
+			file.deleteOnExit();
+
 			// File.setReadable() is Java 6
 			Class[] types = { boolean.class, boolean.class };
 			Method m = File.class.getMethod("setReadable", types);
 			Object[] arguments = { Boolean.FALSE, Boolean.FALSE };
-			m.invoke(new File(path), arguments);
+			m.invoke(file, arguments);
 			arguments = new Object[] { Boolean.TRUE, Boolean.TRUE };
 			m.invoke(new File(path), arguments);
 			return;
