@@ -6,20 +6,28 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-
 import java.lang.reflect.Method;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Server implements Hello {
+/*
+ * No need for extra security, as the stub (and its serialization) contain
+ * a hard-to-guess hash code.
+ */
 
-	public Server() {}
+public class Server {
+	interface Hello extends Remote {
+		String sayHello() throws RemoteException;
+	}
 
-	int counter = 0;
+	static class Implementation implements Hello {
+		int counter = 0;
 
-	public String sayHello() {
-		return "Hello, world (" + (++counter) + ")!";
+		public String sayHello() {
+			return "Hello, world (" + (++counter) + ")!";
+		}
 	}
 
 	public static String getStubPath() {
@@ -71,7 +79,7 @@ public class Server implements Hello {
 			return;
 
 		try {
-			Server obj = new Server();
+			Implementation obj = new Implementation();
 			Hello stub = (Hello)
 				UnicastRemoteObject.exportObject(obj, 0);
 
