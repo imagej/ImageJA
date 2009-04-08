@@ -15,6 +15,7 @@
              present at runtime, not at build time. -->
       <exclude name="plugins/**"/>
     </javac>
+    <rmic classname="ij.OtherInstance.Implementation" base="build" />
   </target>
   
 
