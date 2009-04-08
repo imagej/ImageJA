@@ -1109,7 +1109,7 @@ public class Menus {
         
 	/** Returns the hashtable that associates commands with plugins. */
 	public static Hashtable getCommands() {
-		return instance.pluginsTable;
+		return instance == null ? null : instance.pluginsTable;
 	}
         
 	/** Returns the hashtable that associates shortcuts with commands. The keys
