@@ -96,7 +96,7 @@ public class OtherInstance {
 
 	public static boolean sendArguments(String[] args) {
 		String file = getStubPath();
-		try {
+		if (args.length > 0) try {
 			FileInputStream in = new FileInputStream(file);
 			ImageJInstance instance = (ImageJInstance)
 				new ObjectInputStream(in).readObject();
@@ -139,10 +139,12 @@ public class OtherInstance {
 		return false;
 	}
 
+	static ImageJInstance stub;
+
 	public static void startServer() {
 		try {
 			Implementation obj = new Implementation();
-			ImageJInstance stub = (ImageJInstance)
+			stub = (ImageJInstance)
 				UnicastRemoteObject.exportObject(obj, 0);
 
 			// Write serialized object

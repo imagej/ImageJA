@@ -554,7 +554,7 @@ public class ImageJ extends Frame implements ActionListener,
 		}
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
-		if (nArgs>0 && !noGUI && (mode==STANDALONE) && isRunning(args))
+		if (!noGUI && (mode==STANDALONE) && isRunning(args))
   				return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
