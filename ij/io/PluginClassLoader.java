@@ -71,10 +71,7 @@ public class PluginClassLoader extends ClassLoader {
      * @param name a resource name.
      */
     public URL getResource(String name) {
-        // try system loader first
-        URL res = super.getSystemResource(name);
-        if (res != null) return res;
-
+	URL res;
         File resFile;
 
         //try plugins directory
@@ -125,6 +122,11 @@ public class PluginClassLoader extends ClassLoader {
                 IJ.error(e.toString());
             }
         }
+
+        // try system loader last
+        res = super.getSystemResource(name);
+        if (res != null) return res;
+
         return null;
     }
     
@@ -152,10 +154,7 @@ public class PluginClassLoader extends ClassLoader {
      * @param name a resource name.
      */
     public InputStream getResourceAsStream(String name) {
-        //try the system loader first
-        InputStream is = super.getSystemResourceAsStream(name);
-        if (is != null) return is;
-
+	InputStream is = null;
         File resFile;
 
         //try plugins directory
@@ -198,6 +197,11 @@ public class PluginClassLoader extends ClassLoader {
                 IJ.error(e.toString());
             }
         }
+
+        //try the system loader last
+        is = super.getSystemResourceAsStream(name);
+        if (is != null) return is;
+
         return null;
     }
 
@@ -242,17 +246,17 @@ public class PluginClassLoader extends ClassLoader {
             return result;
         }
 
-        // try the system class loader
-        try {
-            result = super.findSystemClass(className);
-            return result;
-        }
-        catch (Exception e) {}
-
         // Try to load it from plugins directory
         classBytes = loadClassBytes(className);
 		//IJ.log("loadClass: "+ className + "  "+ (classBytes!=null?""+classBytes.length:"null"));
 		if (classBytes==null) {
+			// try the system class loader
+			try {
+			    result = super.findSystemClass(className);
+			    return result;
+			}
+			catch (Exception e) {}
+
 			result = getParent().loadClass(className);
 			if (result != null) return result;
 		}
