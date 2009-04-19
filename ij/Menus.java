@@ -78,7 +78,7 @@ public class Menus {
 	private Vector macroFiles;  // Macro files in plugins folder with "_" in their name
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
-	private int defaultFontSize = IJ.isWindows()?14:0;
+	private static int defaultFontSize = IJ.isWindows()?14:0;
 	private int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
 	private Font menuFont;
 	static boolean jnlp; // true when using Java WebStart
@@ -1465,12 +1465,20 @@ public class Menus {
 	/** Returns the size (in points) used for the fonts in ImageJ menus. Returns
 		0 if the default font size is being used or if this is a Macintosh. */
 	public static int getFontSize() {
-		return IJ.isMacintosh()?0:instance.fontSize;
+		if (IJ.isMacintosh())
+			return 0;
+		if (instance == null)
+			return defaultFontSize;
+		if (instance.fontSize != 0)
+			return instance.fontSize;
+		if (instance.mbar != null && instance.mbar.getFont() != null)
+			return instance.mbar.getFont().getSize();
+		return 0;
 	}
 	
 	public static Font getFont() {
 		if (instance.menuFont==null)
-			instance.menuFont =  new Font("SanSerif", Font.PLAIN, instance.fontSize==0?12:instance.fontSize);
+			instance.menuFont =  new Font("SanSerif", Font.PLAIN, instance.fontSize==0?defaultFontSize:instance.fontSize);
 		return instance.menuFont;
 	}
 
