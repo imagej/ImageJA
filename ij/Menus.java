@@ -568,6 +568,7 @@ public class Menus {
 			}
 			for (int j=0; j<nEntries; j++) {
 				String s = entries[j];
+				//IJ.log(j+"  "+s);
 				if (nEntries2<=3) {
 					if (s.startsWith("Plugins>")) {
 						int firstComma = s.indexOf(',');
@@ -769,7 +770,8 @@ public class Menus {
 						name = className;
 					name = name.replace('_', ' ');
 					className = className.replace('/', '.');
-					sb.append(plugins + ", \""+name+"\", "+className+"\n");
+					if (className.indexOf(".")==-1 || Character.isUpperCase(className.charAt(0)))
+						sb.append(plugins + ", \""+name+"\", "+className+"\n");
 				}
 			}
 		}
@@ -780,7 +782,7 @@ public class Menus {
 		else
     		return new ByteArrayInputStream(sb.toString().getBytes());
 	}
-
+	
 	/** Returns a list of the plugins with directory names removed. */
 	String[] getStrippedPlugins(String[] plugins) {
 		String[] plugins2 = new String[plugins.length];
