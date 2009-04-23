@@ -541,6 +541,7 @@ public class Menus {
 	void installJarPlugins() {
 		if (jarFiles==null)
 			return;
+		Collections.sort(jarFiles);
 		installingJars = true;
 		for (int i=0; i<jarFiles.size(); i++) {
             isJarErrorHeading = false;
