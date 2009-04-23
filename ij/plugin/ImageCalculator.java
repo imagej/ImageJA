@@ -66,8 +66,8 @@ public class ImageCalculator implements PlugIn {
 		calculate(img1, img2, false);
 	}
 	
-	public ImagePlus calculate(String params, ImagePlus img1, ImagePlus img2) {
-		if (img1==null || img2==null || params==null) return null;
+	public void calculate(String params, ImagePlus img1, ImagePlus img2) {
+		if (img1==null || img2==null || params==null) return;
 		params = params.toLowerCase();
 		int op= -1;
 		if  (params.indexOf("xor")!=-1)
@@ -81,15 +81,15 @@ public class ImageCalculator implements PlugIn {
 			}
 		}
 		if (op==-1)
-			{IJ.error("Image Calclulator", "No valid operator"); return null;}
+			{IJ.error("Image Calclulator", "No valid operator"); return;}
 		operator = op;
 		createWindow = params.indexOf("create")!=-1;
 		floatResult= params.indexOf("32")!=-1 || params.indexOf("float")!=-1;
 		processStack = params.indexOf("stack")!=-1;
-		return calculate(img1, img2, true);
+		calculate(img1, img2, true);
 	}
 		
-	ImagePlus calculate(ImagePlus img1, ImagePlus img2, boolean apiCall) {
+	void calculate(ImagePlus img1, ImagePlus img2, boolean apiCall) {
 		if (img1.getCalibration().isSigned16Bit() || img2.getCalibration().isSigned16Bit())
 			floatResult = true;
 		if (floatResult)
@@ -98,24 +98,23 @@ public class ImageCalculator implements PlugIn {
 		int size2 = img2.getStackSize();
 		if (apiCall) {
 			if (processStack && (size1>1||size2>1))
-				return doStackOperation(img1, img2);
+				doStackOperation(img1, img2);
 			else
-				return doOperation(img1, img2);
+				doOperation(img1, img2);
+			return;
 		}
 		boolean stackOp = false;
-		ImagePlus resultImage;
 		if (size1>1) {
-			// Ask whether to process all slices:
 			int result = IJ.setupDialog(img1, 0);
 			if (result==PlugInFilter.DONE)
-				return null;
+				return;
 			if (result==PlugInFilter.DOES_STACKS) {
-				resultImage = doStackOperation(img1, img2);
+				doStackOperation(img1, img2);
 				stackOp = true;
 			} else
-				resultImage = doOperation(img1, img2);
+				doOperation(img1, img2);
 		} else
-			resultImage = doOperation(img1, img2);
+			doOperation(img1, img2);
 		if (Recorder.record) {
 			String params = operators[operator];
 			if (createWindow) params += " create";
@@ -123,22 +122,21 @@ public class ImageCalculator implements PlugIn {
 			if (stackOp) params += " stack";
 			Recorder.record("imageCalculator", params, img1.getTitle(), img2.getTitle());
 		}
-		return resultImage;
 	}
 
 	/** img1 = img2 op img2 (e.g. img1 = img2/img1) */
-	ImagePlus doStackOperation(ImagePlus img1, ImagePlus img2) {
+	void doStackOperation(ImagePlus img1, ImagePlus img2) {
 		int size1 = img1.getStackSize();
 		int size2 = img2.getStackSize();
 		if (size1>1 && size2>1 && size1!=size2) {
 			IJ.error("Image Calculator", "'Image1' and 'image2' must be stacks with the same\nnumber of slices, or 'image2' must be a single image.");
-			return null;
+			return;
 		}
 		if (createWindow) {
 			img1 = duplicateStack(img1);
 			if (img1==null) {
 				IJ.error("Calculator", "Out of memory");
-				return null;
+				return;
 			}
 			img1.show();
 		}
@@ -157,17 +155,16 @@ public class ImageCalculator implements PlugIn {
 		}
 		catch (IllegalArgumentException e) {
 			IJ.error("\""+img1.getTitle()+"\": "+e.getMessage());
-			return null;
+			return;
 		}
 		img1.setStack(null, stack1);
 		if (img1.getType()!=ImagePlus.GRAY8) {
 			img1.getProcessor().resetMinAndMax();
 		}
 		img1.updateAndDraw();
-		return img1;
 	}
 
-	ImagePlus doOperation(ImagePlus img1, ImagePlus img2) {
+	void doOperation(ImagePlus img1, ImagePlus img2) {
 		int mode = getBlitterMode();
 		ImageProcessor ip1 = img1.getProcessor();
 		ImageProcessor ip2 = img2.getProcessor();
@@ -188,7 +185,7 @@ public class ImageCalculator implements PlugIn {
 		}
 		catch (IllegalArgumentException e) {
 			IJ.error("\""+img1.getTitle()+"\": "+e.getMessage());
-			return null;
+			return;
 		}
 		if (!(ip1 instanceof ByteProcessor))
 			ip1.resetMinAndMax();
@@ -196,12 +193,8 @@ public class ImageCalculator implements PlugIn {
 			ImagePlus img3 = new ImagePlus("Result of "+img1.getShortTitle(), ip1);
 			img3.setCalibration(cal1);
 			img3.show();
-			return img3;
-
-		} else {
+		} else
 			img1.updateAndDraw();
-			return img1;
-		}
 	}
 
 	ImageProcessor createNewImage(ImageProcessor ip1, ImageProcessor ip2) {
