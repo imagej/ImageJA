@@ -78,7 +78,7 @@ public class Menus {
 	private Vector macroFiles;  // Macro files in plugins folder with "_" in their name
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
-	private static int defaultFontSize = IJ.isWindows()?14:0;
+	private static int defaultFontSize = IJ.isWindows()?14:12;
 	private int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
 	private Font menuFont;
 	static boolean jnlp; // true when using Java WebStart
