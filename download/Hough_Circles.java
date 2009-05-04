@@ -241,59 +241,71 @@ public class Hough_Circles implements PlugInFilter {
         }
     }
 
-    // Draw the circles found in the original image.
-    public void drawCircles(byte[] circlespixels) {
-
-
-        // Copy original image to the circlespixels image.
-        // Changing pixels values to 100, so that the marked
-        // circles appears more clear. Must be improved in
-        // the future to show the resuls in a colored image.
-
-
-        for(int i = 0; i < width*height ;++i ) {
-            if(imageValues[i] != 0 )
-                circlespixels[i] = 100;
-            else
-                circlespixels[i] = 0;
-        }
-
-        if(centerPoint == null) {
-            if(useThreshold)
-                getCenterPointsByThreshold(threshold);
-            else
-                getCenterPoints(maxCircles);
-        }
-
-        byte cor = -1;
-
-        for(int l = 0; l < maxCircles; l++) {
-
-            int i = centerPoint[l].x;
-            int j = centerPoint[l].y;
-
-
-
-            // Draw a gray cross marking the center of each circle.
-            for( int k = -10 ; k <= 10 ; ++k ) {
-                if(!outOfBounds(j+k+offy,i+offx))
-                    circlespixels[(j+k+offy)*offset + (i+offx)] = cor;
-                if(!outOfBounds(j+offy,i+k+offx))
-                    circlespixels[(j+offy)*offset   + (i+k+offx)] = cor;
-            }
-
-            for( int k = -2 ; k <= 2 ; ++k ) {
-                if(!outOfBounds(j-2+offy,i+k+offx))
-                    circlespixels[(j-2+offy)*offset + (i+k+offx)] = cor;
-                if(!outOfBounds(j+2+offy,i+k+offx))
-                    circlespixels[(j+2+offy)*offset + (i+k+offx)] = cor;
-                if(!outOfBounds(j+k+offy,i-2+offx))
-                    circlespixels[(j+k+offy)*offset + (i-2+offx)] = cor;
-                if(!outOfBounds(j+k+offy,i+2+offx))
-                    circlespixels[(j+k+offy)*offset + (i+2+offx)] = cor;
-            }
-        }
-    }
+	// Draw the circles found in the original image.
+	public void drawCircles(byte[] circlespixels) {
+		
+		// Copy original input pixels into output
+		// circle location display image and
+		// combine with saturation at 100
+		int roiaddr=0;
+		for( int y = offy; y < offy+height; y++) {
+			for(int x = offx; x < offx+width; x++) {
+				// Copy;
+				circlespixels[roiaddr] = imageValues[x+offset*y];
+				// Saturate
+				if(circlespixels[roiaddr] != 0 )
+					circlespixels[roiaddr] = 100;
+				else
+					circlespixels[roiaddr] = 0;
+				roiaddr++;
+			}
+		}
+		// Copy original image to the circlespixels image.
+		// Changing pixels values to 100, so that the marked
+		// circles appears more clear. Must be improved in
+		// the future to show the resuls in a colored image.
+		//for(int i = 0; i < width*height ;++i ) {
+		//if(imageValues[i] != 0 )
+		//if(circlespixels[i] != 0 )
+		//circlespixels[i] = 100;
+		//else
+		//circlespixels[i] = 0;
+		//}
+		if(centerPoint == null) {
+			if(useThreshold)
+				getCenterPointsByThreshold(threshold);
+			else
+			getCenterPoints(maxCircles);
+		}
+		byte cor = -1;
+		// Redefine these so refer to ROI coordinates exclusively
+		int offset = width;
+		int offx=0;
+		int offy=0;
+		
+		for(int l = 0; l < maxCircles; l++) {
+			int i = centerPoint[l].x;
+			int j = centerPoint[l].y;
+			// Draw a gray cross marking the center of each circle.
+			for( int k = -10 ; k <= 10 ; ++k ) {
+				int p = (j+k+offy)*offset + (i+offx);
+				if(!outOfBounds(j+k+offy,i+offx))
+					circlespixels[(j+k+offy)*offset + (i+offx)] = cor;
+				if(!outOfBounds(j+offy,i+k+offx))
+					circlespixels[(j+offy)*offset   + (i+k+offx)] = cor;
+			}
+			for( int k = -2 ; k <= 2 ; ++k ) {
+				if(!outOfBounds(j-2+offy,i+k+offx))
+					circlespixels[(j-2+offy)*offset + (i+k+offx)] = cor;
+				if(!outOfBounds(j+2+offy,i+k+offx))
+					circlespixels[(j+2+offy)*offset + (i+k+offx)] = cor;
+				if(!outOfBounds(j+k+offy,i-2+offx))
+					circlespixels[(j+k+offy)*offset + (i-2+offx)] = cor;
+				if(!outOfBounds(j+k+offy,i+2+offx))
+					circlespixels[(j+k+offy)*offset + (i+2+offx)] = cor;
+			}
+		}
+	}
 
 
     private boolean outOfBounds(int y,int x) {
