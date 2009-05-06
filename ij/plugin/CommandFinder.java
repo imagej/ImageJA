@@ -59,9 +59,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	Dialog d;
 	TextField prompt;
 	List completions;
+	protected static final int linesInList = 20;
 	Button runButton;
 	Button closeButton;
-	Checkbox fullInfoCheckbox, closeCheckbox;
+	Checkbox fullInfoCheckbox, closeCheckbox, allMatches;
 	Hashtable commandsHash;
 	String [] commands;
 	Hashtable listLabelToCommand;
@@ -81,8 +82,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 	protected void populateList(String matchingSubstring) {
 		boolean fullInfo=fullInfoCheckbox.getState();
+		boolean showAllMatches=allMatches.getState();
 		String substring = matchingSubstring.toLowerCase();
 		completions.removeAll();
+		int addedAlready = 0;
 		for(int i=0; i<commands.length; ++i) {
 			String commandName = commands[i];
 			if (commandName.length()==0)
@@ -92,6 +95,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 				CommandAction ca = (CommandAction)commandsHash.get(commandName);
 				String listLabel = makeListLabel(commandName, ca, fullInfo);
 				completions.add(listLabel);
+				++ addedAlready;
+				if( ! showAllMatches && (addedAlready >= linesInList - 1) ) {
+					return;
+				}
 			}
 		}
 	}
@@ -111,7 +118,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
-		populateList(prompt.getText());
+		Object source = ie.getSource();
+		if( source == fullInfoCheckbox || source == allMatches )
+			populateList(prompt.getText());
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -313,6 +322,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		fullInfoCheckbox.addItemListener(this);
 		closeCheckbox = new Checkbox("Close when running", true);
 		closeCheckbox.addItemListener(this);
+		allMatches = new Checkbox("Show all matching commands "+
+					  "(even if there are more than "+
+					  linesInList+")", false);
+		allMatches.addItemListener(this);
 
 		Panel northPanel = new Panel();
 
@@ -326,7 +339,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		d.add(northPanel, BorderLayout.NORTH);
 
-		completions = new List(20);
+		completions = new List(linesInList);
 		completions.addKeyListener(this);
 		populateList("");
 
@@ -345,6 +358,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		Panel southPanel = new Panel();
 		southPanel.setLayout(new BorderLayout());
 
+		Panel allMatchesPanel = new Panel();
+		allMatchesPanel.add(allMatches);
+
 		Panel optionsPanel = new Panel();
 		optionsPanel.add(fullInfoCheckbox);
 		optionsPanel.add(closeCheckbox);
@@ -353,6 +369,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		buttonsPanel.add(runButton);
 		buttonsPanel.add(closeButton);
 
+		southPanel.add(allMatchesPanel, BorderLayout.NORTH);
 		southPanel.add(optionsPanel, BorderLayout.CENTER);
 		southPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
