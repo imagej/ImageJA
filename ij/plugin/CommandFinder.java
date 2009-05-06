@@ -1,5 +1,5 @@
-/** This plugin implements the Plugins/Utilities/Find Commands 
-    command. It provides an easy user interface to finding commands 
+/** This plugin implements the Plugins/Utilities/Find Commands
+    command. It provides an easy user interface to finding commands
     you might know the name of without having to go through
     all the menus.  If you type a part of a command name, the box
     below will only show commands that match that substring (case
@@ -79,10 +79,11 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		}
 	}
 
-	protected void populateList(String matchingSubstring) {
+	protected String [] getLabelsForMatchingCommands(String matchingSubstring) {
+		String [] newLabels = new String[commands.length];
 		boolean fullInfo=fullInfoCheckbox.getState();
 		String substring = matchingSubstring.toLowerCase();
-		completions.removeAll();
+		int commandsAdded = 0;
 		for(int i=0; i<commands.length; ++i) {
 			String commandName = commands[i];
 			if (commandName.length()==0)
@@ -91,9 +92,62 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			if( lowerCommandName.indexOf(substring) >= 0 ) {
 				CommandAction ca = (CommandAction)commandsHash.get(commandName);
 				String listLabel = makeListLabel(commandName, ca, fullInfo);
-				completions.add(listLabel);
+				newLabels[commandsAdded++] = listLabel;
 			}
 		}
+		String [] result = new String[commandsAdded];
+		System.arraycopy( newLabels, 0, result, 0, commandsAdded );
+		return result;
+	}
+
+	protected void populateListFromSubstring(String matchingSubstring) {
+		completions.removeAll();
+		updateListFromSubstring(matchingSubstring);
+	}
+
+	protected void updateListFromSubstring(String matchingSubstring) {
+		String [] idealLabels = getLabelsForMatchingCommands(matchingSubstring);
+		updateList(idealLabels);
+	}
+
+	synchronized protected void updateList(String [] idealList) {
+		String [] originalList = completions.getItems();
+		int itemsInOriginalList = originalList.length;
+		int o = 0; // Next index to consider in original list
+		int i = 0; // Next index to consider in ideal list
+		int c = 0; // Index in current list
+		while( i < idealList.length ) {
+			// Maybe we've gone through the whole original list:
+			if( o >= itemsInOriginalList ) {
+				// Just add whatever's next in the ideal list:
+				completions.add(idealList[i]);
+				++c;
+				++i;
+				continue;
+			}
+			// Now we know there are items left to consider
+			// both in the original list and the ideal list.
+			int comparison = originalList[o].compareTo(idealList[i]);
+			if( comparison < 0 ) {
+				completions.remove(c);
+				++o;
+			} else if( comparison > 0 ) {
+				completions.add(idealList[i],c);
+				++c;
+				++i;
+			} else {
+				// They're the same, move on both:
+				++o;
+				++c;
+				++i;
+			}
+		}
+		// There may be some left over in the original list,
+		// so remove all of them:
+		for( int extraItems = completions.getItemCount() - c;
+		     extraItems > 0;
+		     --extraItems )
+			completions.remove(c);
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -111,7 +165,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
-		populateList(prompt.getText());
+		updateListFromSubstring(prompt.getText());
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -214,7 +268,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	public void keyTyped(KeyEvent ke) { }
 
 	public void textValueChanged(TextEvent te) {
-		populateList(prompt.getText());
+		updateListFromSubstring(prompt.getText());
 	}
 
 	/* This function recurses down through a menu, adding to
@@ -328,7 +382,7 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		completions = new List(20);
 		completions.addKeyListener(this);
-		populateList("");
+		populateListFromSubstring("");
 
 		d.add(completions, BorderLayout.CENTER);
 		// Add a mouse listener so we can detect double-clicks
