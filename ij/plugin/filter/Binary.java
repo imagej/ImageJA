@@ -99,10 +99,12 @@ public class Binary implements PlugInFilter {
 		gd.addNumericField("Iterations (1-25):", iterations, 0, 3, "");
 		gd.addNumericField("Count (1-8):", count, 0, 3, "");
 		gd.addCheckbox("Black Background", Prefs.blackBackground);
+		gd.addCheckbox("Pad edges when eroding", Prefs.padEdges);
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
 		int n = (int)gd.getNextNumber();
 		Prefs.blackBackground = gd.getNextBoolean();
+		Prefs.padEdges = gd.getNextBoolean();
 		if (n>25) n = 25;
 		if (n<1) n = 1;
 		iterations = n;
