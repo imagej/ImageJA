@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
-import com.sun.image.codec.jpeg.*;
 import javax.imageio.ImageIO;
 
 /** <pre>
@@ -728,10 +727,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
             throws Exception, IOException {
         InputStream inputStream = new raInputStream(rFile, size, biCompression==MJPG_COMPRESSION);
         BufferedImage bi = null;
-        if (dataCompression == JPEG_COMPRESSION)
-            bi = JPEGCodec.createJPEGDecoder(inputStream).decodeAsBufferedImage();
-        else
-            bi = ImageIO.read(inputStream);
+        bi = ImageIO.read(inputStream);
         int type = bi.getType();
         ImageProcessor ip = null;
         //IJ.log("BufferedImage Type="+type);
