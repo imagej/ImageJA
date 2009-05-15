@@ -17,7 +17,6 @@ public class Radial_Profile implements PlugInFilter {
 	int nBins=100;
 	//static boolean doNormalize = true;
 	static boolean useCalibration = false;
-	PlotWindow pw;
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
@@ -60,20 +59,21 @@ public class Radial_Profile implements PlugInFilter {
 		}
 		Calibration cal = imp.getCalibration();
 		if (cal.getUnit() == "pixel") useCalibration=false;
+		Plot plot = null;
 		if (useCalibration) {
 			for (int i=0; i<nBins;i++) {
 				Accumulator[1][i] =  Accumulator[1][i] / Accumulator[0][i];
 				Accumulator[0][i] = (float)(cal.pixelWidth*mR*((double)(i+1)/nBins));
 			}
-			pw = new PlotWindow("Radial Profile Plot", "Radius ["+cal.getUnits()+"]", "Normalized Integrated Intensity",  Accumulator[0], Accumulator[1]);
+			plot = new Plot("Radial Profile Plot", "Radius ["+cal.getUnits()+"]", "Normalized Integrated Intensity",  Accumulator[0], Accumulator[1]);
 		} else {
 			for (int i=0; i<nBins;i++) {
 				Accumulator[1][i] = Accumulator[1][i] / Accumulator[0][i];
 				Accumulator[0][i] = (float)(mR*((double)(i+1)/nBins));
 			}
-			pw = new PlotWindow("Radial Profile Plot", "Radius [pixels]", "Normalized Integrated Intensity",  Accumulator[0], Accumulator[1]);
+			plot = new Plot("Radial Profile Plot", "Radius [pixels]", "Normalized Integrated Intensity",  Accumulator[0], Accumulator[1]);
 		}
-		pw.draw();
+		plot.show();
 	}
 
 	private void doDialog() {
