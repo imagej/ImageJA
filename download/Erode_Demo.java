@@ -55,8 +55,10 @@ public class Erode_Demo implements ExtendedPlugInFilter, DialogListener {
         // The dialog
         GenericDialog gd = new GenericDialog(command+"...");
         gd.addNumericField("Radius", radius, 1);
-        gd.addCheckbox("Erode from Edges", fromEdge);
+        gd.addCheckbox("Erode from edges", fromEdge);
         gd.addPreviewCheckbox(pfr);             // passing pfr makes the filter ready for preview
+        if (IJ.getVersion().compareTo("1.42p")>=0)
+        	gd.addHelp("http://rsb.info.nih.gov/ij/plugins/erode-demo.html");
         gd.addDialogListener(this);             // the DialogItemChanged method will be called on user input
         previewing = true;
         gd.showDialog();                        // display the dialog; preview runs in the background now
