@@ -69,8 +69,10 @@ public class JpegWriter implements PlugIn {
 					jfif.setAttribute("Xdensity", "" + (int)Math.round(1.0/cal.pixelWidth));
 					jfif.setAttribute("Ydensity", "" + (int)Math.round(1.0/cal.pixelHeight));
 					jfif.setAttribute("resUnits", "1"); // density is dots per inch*/
+					metaData.mergeTree("javax_imageio_jpeg_image_1.0",tree);
 				}
-				writer.write(metaData, new IIOImage(bi, null, null), param);
+				IIOImage iioImage = new IIOImage(bi, null, metaData);
+				writer.write(metaData, iioImage, param);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.err.println("falling back to plain jpeg writing because of " + e);
