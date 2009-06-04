@@ -76,7 +76,11 @@ public class OtherInstance {
 			Object[] arguments = { Boolean.FALSE, Boolean.FALSE };
 			m.invoke(file, arguments);
 			arguments = new Object[] { Boolean.TRUE, Boolean.TRUE };
-			m.invoke(new File(path), arguments);
+			m.invoke(file, arguments);
+			types = new Class[] { boolean.class };
+			m = File.class.getMethod("setWritable", types);
+			arguments = new Object[] { Boolean.FALSE };
+			m.invoke(file, arguments);
 			return;
 		} catch (Exception e) {
 			if (IJ.debugMode)
@@ -134,8 +138,10 @@ public class OtherInstance {
 				System.err.println("Client exception: " + e);
 				e.printStackTrace();
 			}
+			new File(file).delete();
 		}
-		startServer();
+		if (!new File(file).exists())
+			startServer();
 		return false;
 	}
 
