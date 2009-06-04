@@ -146,12 +146,16 @@ public class OtherInstance {
 	}
 
 	static ImageJInstance stub;
+	static Implementation implementation;
 
 	public static void startServer() {
+		if (IJ.debugMode)
+			System.err.println("Starting server");
 		try {
-			Implementation obj = new Implementation();
+			implementation = new Implementation();
 			stub = (ImageJInstance)
-				UnicastRemoteObject.exportObject(obj, 0);
+				UnicastRemoteObject.exportObject(implementation,
+						0);
 
 			// Write serialized object
 			String path = getStubPath();
