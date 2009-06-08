@@ -49,6 +49,16 @@ case "$1" in
 *) zipfile="$(pwd)/$1";;
 esac
 
+test -t 0 && {
+	unzip -p "$zipfile" source/release-notes.html |
+	sed -e 's/^.*<body>/<ul>/' -e 's/<a href[^>]*>Home<\/a>//' |
+	w3m -cols 72 -dump -T text/html |
+	sed -e '/^Home/d' |
+	git stripspace |
+	sh "$0" "$@"
+	exit
+}
+
 MAC2UNIX="$(cd "$(dirname "$0")" && pwd)"/mac2unix.pl
 
 git fetch $UPSTREAM $BRANCHNAME &&
