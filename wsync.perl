@@ -42,7 +42,7 @@ sub getFile {
 	my $date = $_[1];
 
 	my @list = stat($path);
-	if ($#list > 0 && $list[9] >= $date) {
+	if ($ENV{'FORCE_WSYNC_ALL'} eq'' && $#list > 0 && $list[9] >= $date) {
 		return;
 	}
 	`curl --silent $baseURL$path > $path`;
