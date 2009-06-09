@@ -137,7 +137,7 @@ public class Calculator_Plus implements PlugIn {
 						switch (operation) {
 							case SCALE: r2 = r1; g2 = g1; b2 = b1; break;
 							case ADD: r2 += r1; g2 += g1; b2 += b1; break;
-							case SUBTRACT: r2 -= r1; g2 -= g1; b2 -= b1; break;
+							case SUBTRACT: r2 = r1-r2; g2 = g1-g2; b2 = b1-b2; break;
 							case MULTIPLY: r2 *= r1; g2 *= g1; b2 *= b1; break;
 							case DIVIDE: r2 = r2!=0.0?r1/r2:0.0; g2 = g2!=0.0?g1/g2:0.0; b2 = b2!=0.0?b1/b2:0.0; break;
 						}
@@ -161,7 +161,7 @@ public class Calculator_Plus implements PlugIn {
 						switch (operation) {
 							case SCALE: v2 = v1; break;
 							case ADD: v2 += v1; break;
-							case SUBTRACT: v2 -= v1; break;
+							case SUBTRACT: v2 = v1-v2; break;
 							case MULTIPLY: v2 *= v1; break;
 							case DIVIDE: v2 = v2!=0.0?v1/v2:0.0; break;
 						}
