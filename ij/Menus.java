@@ -75,6 +75,7 @@ public class Menus {
     private boolean isJarErrorHeading;
 	private boolean installingJars, duplicateCommand;
 	private Vector jarFiles;  // JAR files in plugins folder with "_" in their name
+	private Map menuEntry2jarFile = new HashMap();
 	private Vector macroFiles;  // Macro files in plugins folder with "_" in their name
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
@@ -632,8 +633,15 @@ public class Menus {
 		if (duplicateCommand) {
 			if (jarError==null) jarError = "";
             addJarErrorHeading(jar);
-			jarError += "    Duplicate command: " + s + "\n";
+			String jar2 = (String)menuEntry2jarFile.get(s);
+			if (jar2 != null && jar2.startsWith(pluginsPath))
+				jar2 = jar2.substring(pluginsPath.length());
+			jarError += "    Duplicate command: " + s
+				+ (jar2 != null ? " (already in " + jar2 + ")"
+				   : "") + "\n";
 		}
+		else
+			menuEntry2jarFile.put(s, jar);
 		duplicateCommand = false;
     }
     
