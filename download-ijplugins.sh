@@ -31,11 +31,20 @@ download_plugin () {
 	test -z "$PARENT" || PARENT="-p $PARENT"
 
 	git read-tree $BRANCH 2> /dev/null
-	for f in $FILES
+	echo "$FILES" |
+	while read f
 	do
-		f="${f##http://rsb.info.nih.gov/ij/plugins/}"
+		case "$f" in
+		"http://"*)
+			url=$f
+			f="${f##http://rsb.info.nih.gov/ij/plugins/}"
+			;;
+		*)
+			url=$(dirname $BASE_URL/$FILE)/$f
+			;;
+		esac
 		test -z "$VERBOSE" || echo "Getting $f" >&2
-		sha1=$(curl --silent $BASE_URL/$f |
+		sha1=$(curl --silent $(echo "$url" | sed "s/ /%20/g") |
 			git hash-object -w --stdin) || break
 		printf "100644 $sha1 0\t$f\n"
 	done | git update-index --index-info &&
@@ -53,9 +62,18 @@ GIT_DIR="$(pwd)" &&
 export GIT_DIR &&
 mkdir -p ijplugins &&
 cd ijplugins &&
-for plugin in $(curl --silent $BASE_URL/ |
-	sed -n 's/.*a href="\([^:]*.html\)".*/\1/pi')
-do
-	download_plugin $plugin || break
-done &&
-(test -z "$NEED_TO_PUSH" || git push orcz $BRANCH)
+if test $# = 0
+then
+	for plugin in $(curl --silent $BASE_URL/ |
+		sed -n 's/.*a href="\([^:]*.html\)".*/\1/pi')
+	do
+		download_plugin $plugin || break
+	done &&
+	(test -z "$NEED_TO_PUSH" || git push orcz $BRANCH)
+else
+	for plugin in "$@"
+	do
+		download_plugin $plugin || break
+	done ||
+	echo "Failure"
+fi
