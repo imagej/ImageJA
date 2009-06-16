@@ -632,10 +632,21 @@ public class Menus {
             addPluginItem(menu, s);
             addSorted = false;
         }
+
+		String menuEntry = s;
+		if (s.startsWith("\"")) {
+			int quote = s.indexOf('"', 1);
+			menuEntry = quote < 0 ? s.substring(1)
+				: s.substring(1, quote);
+		} else {
+			int comma = s.indexOf(',');
+			if (comma > 0)
+				menuEntry = s.substring(0, comma);
+		}
 		if (duplicateCommand) {
 			if (jarError==null) jarError = "";
             addJarErrorHeading(jar);
-			String jar2 = (String)menuEntry2jarFile.get(s);
+			String jar2 = (String)menuEntry2jarFile.get(menuEntry);
 			if (jar2 != null && jar2.startsWith(pluginsPath))
 				jar2 = jar2.substring(pluginsPath.length());
 			jarError += "    Duplicate command: " + s
@@ -643,7 +654,7 @@ public class Menus {
 				   : "") + "\n";
 		}
 		else
-			menuEntry2jarFile.put(s, jar);
+			menuEntry2jarFile.put(menuEntry, jar);
 		duplicateCommand = false;
     }
     
