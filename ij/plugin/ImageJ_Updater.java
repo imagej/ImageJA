@@ -15,9 +15,17 @@ public class ImageJ_Updater implements PlugIn {
 		if (arg.equals("menus"))
 			{updateMenus(); return;}
 		if (IJ.getApplet()!=null) return;
-		File file = new File(Prefs.getHomeDir() + File.separator + "ij.jar");
-		if (isMac() && !file.exists())
-			file = new File(Prefs.getHomeDir() + File.separator + "ImageJ.app/Contents/Resources/Java/ij.jar");
+
+		URL url = getClass().getResource("/ij/IJ.class");
+		String ij_jar = url == null ? null : url.toString();
+		if (ij_jar == null || !ij_jar.startsWith("jar:file:")) {
+			IJ.error("Could not determine location of ij.jar");
+			return;
+		}
+		int exclamation = ij_jar.indexOf('!');
+		ij_jar = ij_jar.substring(9, exclamation);
+
+		File file = new File(ij_jar);
 		if (!file.exists()) {
 			error("File not found: "+file.getPath());
 			return;
