@@ -539,6 +539,12 @@ public class Menus {
 		menu.add(item);
 	}
 	
+	public static String getJarFileForMenuEntry(String menuEntry) {
+		if (instance == null)
+			return null;
+		return (String)instance.menuEntry2jarFile.get(menuEntry);
+	}
+
 	/** Install plugins located in JAR files. */
 	void installJarPlugins() {
 		if (jarFiles==null)
