@@ -13,8 +13,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	private String arg;
 	private ImagePlus imp;
 	private boolean canceled;	
-	private double lower;
-	private double upper;
+	private double lower=-1.0, upper=-1.0;
 	
 	private static double addValue = 25;
 	private static double mulValue = 1.25;
@@ -221,7 +220,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 
 	/** Set non-thresholded pixels in a float image to NaN. */
 	void setBackgroundToNaN(ImageProcessor ip) {
-		if (true) {
+		if (lower==-1.0 && upper==-1.0) {
 			lower = ip.getMinThreshold();
 			upper = ip.getMaxThreshold();
 			if (lower==ImageProcessor.NO_THRESHOLD || !(ip instanceof FloatProcessor)) {
@@ -260,7 +259,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 	// v=cos(0.2*x) + sin(0.2*y)
 
 	void applyMacro(ImageProcessor ip) {
-		int PCStart = 25;
+		int PCStart = 23;
 		if (macro2==null) return;
 		if (macro2.indexOf("=")==-1) {
 			IJ.error("The variable 'v' must be assigned a value (e.g., \"v=255-v\")");
@@ -280,7 +279,7 @@ public class ImageMath implements ExtendedPlugInFilter, DialogListener {
 		String code =
 			"var v,x,y,z,w,h,d,a;\n"+
 			"function dummy() {}\n"+
-			macro2+";\n"; // code starts at program counter location 25
+			macro2+";\n"; // code starts at program counter location 'PCStart'
 		Interpreter interp = new Interpreter();
 		interp.run(code, null);
 		if (interp.wasError())

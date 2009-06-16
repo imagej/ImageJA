@@ -40,7 +40,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		if (ip.getWidth()>1 && ip.getHeight()>1)
 			ip.setInterpolationMethod(interpolationMethod);
 		else
-			ip.setInterpolationMethod(ImageProcessor.NEAREST_NEIGHBOR);
+			ip.setInterpolationMethod(ImageProcessor.NONE);
 		ip.setBackgroundValue(bgValue);
 		imp.startTiming();
 		try {
@@ -64,7 +64,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
  		ImageProcessor ip1, ip2;
  		int method = interpolationMethod;
  		if (imp.getWidth()==1 || imp.getHeight()==1)
- 			method = ImageProcessor.NEAREST_NEIGHBOR;
+ 			method = ImageProcessor.NONE;
 		for (int i=1; i<=nSlices; i++) {
 			IJ.showStatus("Scale: " + i + "/" + nSlices);
 			ip1 = stack1.getProcessor(i);
@@ -137,7 +137,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			if (macroOptions.indexOf(" interpolate")!=-1)
 				macroOptions.replaceAll(" interpolate", " interpolation=Bilinear");
 			else if (macroOptions.indexOf(" interpolation=")==-1)
-				macroOptions = macroOptions+" interpolation=NONE";
+				macroOptions = macroOptions+" interpolation=None";
 			Macro.setOptions(macroOptions);
 		}
 		int bitDepth = imp.getBitDepth();
@@ -220,12 +220,8 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 				bgValue = ip.getBestIndex(bgc);
 			else if (bitDepth==24)
 				bgValue = bgc.getRGB();
-		} else {
-			if (bitDepth==8)
-				bgValue = ip.isInvertedLut()?0.0:255.0; // white
-			else if (bitDepth==24)
-				bgValue = 0xffffffff; // white
-		}
+		} else
+			bgValue = 0.0;
 		return true;
 	}
 

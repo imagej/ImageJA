@@ -266,6 +266,20 @@ public class ImagePlus implements ImageObserver, Measurements {
 	public ImageProcessor getChannelProcessor() {
 		return getProcessor();
 	}
+	
+	/* The CompositeImage class overrides this method  to
+		return, as an array, copies of this image's channel LUTs. */
+	public LUT[] getLuts() {
+		return null;
+		//ImageProcessor ip = getProcessor();
+		//ColorModel cm = ip.getColorModel();
+		//if (cm instanceof IndexColorModel) {
+		//	LUT[] luts = new LUT[1];
+		//	luts[0] = new LUT((IndexColorModel)cm, ip.getMin(), ip.getMax());
+		//	return luts;
+		//} else
+		//	return null;
+	}
 
 	/** Calls draw to draw the image and also repaints the
 		image window to force the information displayed above
@@ -305,11 +319,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 		changes = false;
 		win.close();
 		win = null;
-		if (unlocked)
-			unlock();
+		if (unlocked) unlock();
 	}
 
-	/** Closes this image and sets the pixel arrays to null. To avoid the
+	/** Closes this image and sets the ImageProcessor to null. To avoid the
 		"Save changes?" dialog, first set the public 'changes' variable to false. */
 	public void close() {
 		ImageWindow win = getWindow();
@@ -457,6 +470,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 	/** Replaces the ImageProcessor, if any, with the one specified.
 		Set 'title' to null to leave the image title unchanged. */
 	public void setProcessor(String title, ImageProcessor ip) {
+        if (ip==null || ip.getPixels()==null)
+            throw new IllegalArgumentException("ip null or ip.getPixels() null");
         int stackSize = getStackSize();
         if (stackSize>1 && (ip.getWidth()!=width || ip.getHeight()!=height))
             throw new IllegalArgumentException("ip wrong size");
@@ -499,15 +514,21 @@ public class ImagePlus implements ImageObserver, Measurements {
                 win.updateImage(this);
 			else if (newStack==null)
 				repaintWindow();
+				draw();
 		}
 	}
 
 	/** Replaces the stack, if any, with the one specified.
 		Set 'title' to null to leave the title unchanged. */
     public void setStack(String title, ImageStack stack) {
-   		int stackSize = stack.getSize();
-   		if (stackSize==0)
-   			throw new IllegalArgumentException("Stack is empty");
+		int stackSize = stack.getSize();
+		if (stackSize==0)
+			throw new IllegalArgumentException("Stack is empty");
+		if (!stack.isVirtual()) {
+			Object[] arrays = stack.getImageArray();
+			if (arrays==null || (arrays.length>0&&arrays[0]==null))
+				throw new IllegalArgumentException("Stack pixel array null");
+		}
     	boolean stackSizeChanged = this.stack!=null && stackSize!=getStackSize();
     	if (currentSlice<1) setCurrentSlice(1);
     	boolean resetCurrentSlice = currentSlice>stackSize;
@@ -517,17 +538,17 @@ public class ImagePlus implements ImageObserver, Measurements {
     	this.stack = stack;
     	setProcessor2(title, ip, stack);
 		if (win==null) return;
-		boolean invalidDimensions = isHyperStack() && !((StackWindow)win).validDimensions();
+		boolean invalidDimensions = isDisplayedHyperStack() && !((StackWindow)win).validDimensions();
 		if (stackSize==1 && win instanceof StackWindow)
 			win = new ImageWindow(this, getCanvas());   // replaces this window
 		else if (dimensionsChanged && !stackSizeChanged)
 			win.updateImage(this);
 		else if (stackSize>1 && !(win instanceof StackWindow)) {
-			if (isHyperStack()) setOpenAsHyperStack(true);
+			if (isDisplayedHyperStack()) setOpenAsHyperStack(true);
 			win = new StackWindow(this, getCanvas());   // replaces this window
 			setPosition(1, 1, 1);
 		} else if (stackSize>1 && (dimensionsChanged||invalidDimensions)) {
-			if (isHyperStack()) setOpenAsHyperStack(true);
+			if (isDisplayedHyperStack()) setOpenAsHyperStack(true);
 			win = new StackWindow(this);   // replaces this window
 			setPosition(1, 1, 1);
 		} else
@@ -781,13 +802,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 			nChannels = 1;
 			nSlices = getImageStackSize();
 			nFrames = 1;
-			if (isHyperStack()) {
+			if (isDisplayedHyperStack()) {
 				setOpenAsHyperStack(false);
 				new StackWindow(this);
 				setSlice(1);
 			}
 		}
-		boolean updateWin = isHyperStack() && (this.nChannels!=nChannels||this.nSlices!=nSlices||this.nFrames!=nFrames);
+		boolean updateWin = isDisplayedHyperStack() && (this.nChannels!=nChannels||this.nSlices!=nSlices||this.nFrames!=nFrames);
 		this.nChannels = nChannels;
 		this.nSlices = nSlices;
 		this.nFrames = nFrames;
@@ -800,7 +821,23 @@ public class ImagePlus implements ImageObserver, Measurements {
 		//IJ.log("setDimensions: "+ nChannels+"  "+nSlices+"  "+nFrames);
 	}
 	
+	/** Returns 'true' if this image is a hyperstack. */
 	public boolean isHyperStack() {
+		return isDisplayedHyperStack() || (openAsHyperStack&&getNDimensions()>3);
+	}
+	
+	/** Returns the number of dimensions (2, 3, 4 or 5). */
+	public int getNDimensions() {
+		int dimensions = 2;
+		int[] dim = getDimensions();
+		if (dim[2]>1) dimensions++;
+		if (dim[3]>1) dimensions++;
+		if (dim[4]>1) dimensions++;
+		return dimensions;
+	}
+
+	/** Returns 'true' if this is a hyperstack currently being displayed in a StackWindow. */
+	public boolean isDisplayedHyperStack() {
 		return win!=null && win instanceof StackWindow && ((StackWindow)win).isHyperStack();
 	}
 
@@ -917,10 +954,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 			return properties;
 	}
 		
-	/** Creates a LookUpTable object corresponding to this image. */
+	/** Creates a LookUpTable object that corresponds to this image. */
     public LookUpTable createLut() {
-    	return new LookUpTable(getProcessor().getColorModel());
-    }
+	ImageProcessor ip2 = getProcessor();
+		if (ip2!=null)
+			return new LookUpTable(ip2.getColorModel());
+		else
+			return new LookUpTable(LookUpTable.createGrayscaleColorModel(false));
+	}
     
 	/** Returns true is this image uses an inverting LUT that 
 		displays zero as white and 255 as black. */
@@ -1007,6 +1048,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (stack==null) {
 			s = createEmptyStack();
 			ImageProcessor ip2 = getProcessor();
+			if (ip2==null)
+				return s;
             String info = (String)getProperty("Info");
             String label = info!=null?getTitle()+"\n"+info:null;
 			s.addSlice(label, ip2);
@@ -1066,6 +1109,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 	
 	public void setPosition(int channel, int slice, int frame) {
+		//IJ.log("setPosition: "+channel+"  "+slice+"  "+frame+"  "+noUpdateMode);
 		verifyDimensions();
    		if (channel<1) channel = 1;
     	if (channel>nChannels) channel = nChannels;
@@ -1073,7 +1117,7 @@ public class ImagePlus implements ImageObserver, Measurements {
     	if (slice>nSlices) slice = nSlices;
     	if (frame<1) frame = 1;
     	if (frame>nFrames) frame = nFrames;
-		if (isHyperStack() && !Interpreter.isBatchMode())
+		if (isDisplayedHyperStack())
 			((StackWindow)win).setPosition(channel, slice, frame);
 		else {
 			setSlice((frame-1)*nChannels*nSlices + (slice-1)*nChannels + channel);
@@ -1117,22 +1161,21 @@ public class ImagePlus implements ImageObserver, Measurements {
 		setPosition(c, z, t);
 	}
 			
-	/** Activates the specified slice. The index must be >= 1
-		and <= N, where N in the number of slices in the stack.
-		Does nothing if this ImagePlus does not use a stack. */
-	public synchronized void setSlice(int index) {
-		if (stack==null || index==currentSlice) {
+	/** Displays the specified stack image, where 1<=n<=stackSize.
+		Does nothing if this image is not a stack. */
+	public synchronized void setSlice(int n) {
+		if (stack==null || n==currentSlice) {
 	    	updateAndRepaintWindow();
 			return;
 		}
-		if (index>=1 && index<=stack.getSize()) {
+		if (n>=1 && n<=stack.getSize()) {
 			Roi roi = getRoi();
 			if (roi!=null)
 				roi.endPaste();
 			if (isProcessor())
 				stack.setPixels(ip.getPixels(),currentSlice);
 			ip = getProcessor();
-			setCurrentSlice(index);
+			setCurrentSlice(n);
 			Object pixels = stack.getPixels(currentSlice);
 			if (pixels!=null) {
 				ip.setSnapshotPixels(null);
@@ -1143,17 +1186,25 @@ public class ImagePlus implements ImageObserver, Measurements {
 			if (IJ.altKeyDown() && !IJ.isMacro()) {
 				if (imageType==GRAY16 || imageType==GRAY32) {
 					ip.resetMinAndMax();
-					IJ.showStatus(index+": min="+ip.getMin()+", max="+ip.getMax());
+					IJ.showStatus(n+": min="+ip.getMin()+", max="+ip.getMax());
 				}
 				ContrastAdjuster.update();
 			}
 			if (imageType==COLOR_RGB)
 				ContrastAdjuster.update();
-			if (!Interpreter.isBatchMode() && !noUpdateMode)
+			if (!(Interpreter.isBatchMode()||noUpdateMode))
 				updateAndRepaintWindow();
 			else
 				img = null;
 		}
+	}
+
+	/** Displays the specified stack image (1<=n<=stackSize)
+		without updating the display. */
+	public void setSliceWithoutUpdate(int n) {
+		noUpdateMode = true;
+		setSlice(n);
+		noUpdateMode = false;
 	}
 
 	/** Obsolete */
@@ -1170,9 +1221,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 	
 	/** Assigns the specified ROI to this image and displays it. Any existing
-		ROI is deleted if <code>roi</code> is null or its width or height is zero.
-		Sets the ImageProcessor mask to null. */
+		ROI is deleted if <code>roi</code> is null or its width or height is zero. */
 	public void setRoi(Roi newRoi) {
+		setRoi(newRoi, true);
+	}
+
+	/** Assigns 'newRoi'  to this image and displays it if 'updateDisplay' is true. */
+	public void setRoi(Roi newRoi, boolean updateDisplay) {
 		if (newRoi==null)
 			{killRoi(); return;}
 		if (newRoi.isVisible()) {
@@ -1192,7 +1247,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 				ip.resetRoi();
 		}
 		roi.setImage(this);
-		draw();
+		if (updateDisplay) draw();
 	}
 	
 	/** Creates a rectangular selection. */
@@ -1437,19 +1492,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 		return !imageLoaded;
     }
 
-	/** Sets the image arrays to null to help the garbage collector
-		do its job. Does nothing if the image is locked or a
-		setIgnoreFlush(true) call has been made. */
+	/** Sets the ImageProcessor, Roi, AWT Image and stack image
+		arrays to null. Does nothing if the image is locked. */
 	public synchronized void flush() {
-		if (locked || ignoreFlush)
-			return;
+		if (locked || ignoreFlush) return;
 		notifyListeners(CLOSED);
-		if (ip!=null) {
-			ip.setPixels(null);
-			ip = null;
-		}
-		if (roi!=null)
-			roi.setImage(null);
+		ip = null;
+		if (roi!=null) roi.setImage(null);
+		roi = null;
 		if (stack!=null) {
 			Object[] arrays = stack.getImageArray();
 			if (arrays!=null) {
@@ -1457,20 +1507,16 @@ public class ImagePlus implements ImageObserver, Measurements {
 					arrays[i] = null;
 			}
 		}
+		stack = null;
 		img = null;
-		if (stack!=null||WindowManager.getWindowCount()==0) {
-			if (IJ.debugMode) IJ.log("System.gc()");
-			System.gc();
-		}
 	}
 	
-	/** Set <code>ignoreFlush true</code> to not have the pixel 
-		data set to null when the window is closed. */
+	/** Obsolete */
 	public void setIgnoreFlush(boolean ignoreFlush) {
 		this.ignoreFlush = ignoreFlush;
 	}
 	
-	/** Returns a new ImagePlus with this ImagePlus' attributes
+	/** Returns a new ImagePlus with this image's attributes
 		(e.g. spatial scale), but no image. */
 	public ImagePlus createImagePlus() {
 		ImagePlus imp2 = new ImagePlus();
@@ -1478,7 +1524,30 @@ public class ImagePlus implements ImageObserver, Measurements {
 		imp2.setCalibration(getCalibration());
 		return imp2;
 	}
-
+	
+			
+ 	/** Returns a new hyperstack with this image's attributes
+		(e.g., width, height, spatial scale), but no image data. */
+	public ImagePlus createHyperStack(String title, int channels, int slices, int frames, int bitDepth) {
+		int size = channels*slices*frames;
+		ImageStack stack2 = new ImageStack(width, height, size); // create empty stack
+		ImageProcessor ip2 = null;
+		switch (bitDepth) {
+			case 8: ip2 = new ByteProcessor(width, height); break;
+			case 16: ip2 = new ShortProcessor(width, height); break;
+			case 24: ip2 = new ColorProcessor(width, height); break;
+			case 32: ip2 = new FloatProcessor(width, height); break;
+			default: throw new IllegalArgumentException("Invalid bit depth");
+		}
+		stack2.setPixels(ip2.getPixels(), 1); // can't create ImagePlus will null 1st image
+		ImagePlus imp2 = new ImagePlus(title, stack2);
+		stack2.setPixels(null, 1);
+		imp2.setDimensions(channels, slices, frames);
+		imp2.setCalibration(getCalibration());
+		imp2.setOpenAsHyperStack(true);
+		return imp2;
+	}
+		
 	/** Copies the calibration of the specified image to this image. */
 	public void copyScale(ImagePlus imp) {
 		if (imp!=null && globalCalibration==null)
@@ -1590,14 +1659,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (!IJ.altKeyDown()) {
 			String s = " x="+d2s(cal.getX(x)) + ", y=" + d2s(cal.getY(y,height));
 			if (getStackSize()>1) {
-				int z = isHyperStack()?getSlice()-1:getCurrentSlice()-1;
+				int z = isDisplayedHyperStack()?getSlice()-1:getCurrentSlice()-1;
 				s += ", z="+d2s(cal.getZ(z));
 			}
 			return s;
 		} else {
 			String s =  " x="+x+", y=" + y;
 			if (getStackSize()>1) {
-				int z = isHyperStack()?getSlice()-1:getCurrentSlice()-1;
+				int z = isDisplayedHyperStack()?getSlice()-1:getCurrentSlice()-1;
 				s += ", z=" + z;
 			}
 			return s;
@@ -1798,7 +1867,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 	/** Sets the display range of the current channel. With non-composite
 	    images it is identical to ip.setMinAndMax(min, max). */
 	public void setDisplayRange(double min, double max) {
-		ip.setMinAndMax(min, max);
+		if (ip!=null)
+			ip.setMinAndMax(min, max);
 	}
 
 	public double getDisplayRangeMin() {
@@ -1830,7 +1900,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		position[1] = z;
 		position[2] = t;
 	}
-
+	
 	public Object clone() {
 		try {return super.clone();}
 		catch (CloneNotSupportedException e) {return null;}

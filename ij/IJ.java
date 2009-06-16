@@ -36,7 +36,7 @@ public class IJ {
 	private static TextPanel textPanel;
 	private static String osname, osarch;
 	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isJava17, isLinux, isVista, is64Bit;
-	private static boolean altDown, spaceDown, shiftDown;
+	private static boolean controlDown, altDown, spaceDown, shiftDown;
 	private static boolean macroRunning;
 	private static Thread previousThread;
 	private static TextPanel logPanel;
@@ -140,12 +140,10 @@ public class IJ {
 		if (IJ.debugMode)
 			IJ.log("runPlugin: "+className+" "+arg);
 		if (arg==null) arg = "";
-		// Use custom classloader if this is a user plugin
-		// and we are not running as an applet
-		if (!className.startsWith("ij") && applet==null) {
- 			boolean createNewClassLoader = altKeyDown();
-			return runUserPlugIn(commandName, className, arg, createNewClassLoader);
-		}
+		// Load using custom classloader if this is a user 
+		// plugin and we are not running as an applet
+		if (!className.startsWith("ij") && applet==null)
+			return runUserPlugIn(commandName, className, arg, false);
 		Object thePlugIn=null;
 		try {
 			Class c = Class.forName(className);
@@ -693,6 +691,11 @@ public class IJ {
 		return spaceDown;
 	}
 
+	/** Returns true if the control key is down. */
+	public static boolean controlKeyDown() {
+		return controlDown;
+	}
+
 	/** Returns true if the alt key is down. */
 	public static boolean altKeyDown() {
 		return altDown;
@@ -702,10 +705,16 @@ public class IJ {
 	public static boolean shiftKeyDown() {
 		return shiftDown;
 	}
-
+	
 	public static void setKeyDown(int key) {
 		if (debugMode) IJ.log("setKeyDown: "+key);
 		switch (key) {
+			case KeyEvent.VK_CONTROL:
+				controlDown=true;
+				break;
+			case KeyEvent.VK_META:
+				if (isMacintosh()) controlDown=true;
+				break;
 			case KeyEvent.VK_ALT:
 				altDown=true;
 				break;
@@ -725,19 +734,22 @@ public class IJ {
 			}
 		}
 	}
-	
+
 	public static void setKeyUp(int key) {
 		if (debugMode) IJ.log("setKeyUp: "+key);
 		switch (key) {
+			case KeyEvent.VK_CONTROL: controlDown=false; break;
+			case KeyEvent.VK_META: if (isMacintosh()) controlDown=false; break;
 			case KeyEvent.VK_ALT: altDown=false; break;
 			case KeyEvent.VK_SHIFT: shiftDown=false; if (debugMode) beep(); break;
-			case KeyEvent.VK_SPACE: {
+			case KeyEvent.VK_SPACE:
 				spaceDown=false;
 				ImageWindow win = WindowManager.getCurrentWindow();
 				if (win!=null) win.getCanvas().setCursor(-1,-1,-1,-1);
 				break;
-			}
-			case ALL_KEYS: altDown=shiftDown=spaceDown=false; break;
+			case ALL_KEYS:
+				shiftDown=controlDown=altDown=spaceDown=false;
+				break;
 		}
 	}
 	
@@ -1094,7 +1106,8 @@ public class IJ {
 			w.autoOutline(x, y, t1, ip.getMaxThreshold());
 		if (w.npoints>0) {
 			Roi previousRoi = img.getRoi();
-			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, Roi.TRACED_ROI);
+			int type = Wand.allPoints()?Roi.FREEROI:Roi.TRACED_ROI;
+			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, type);
 			img.killRoi();
 			img.setRoi(roi);
 			// add/subtract this ROI to the previous one if the shift/alt key is down
@@ -1328,9 +1341,12 @@ public class IJ {
 		if (path==null) return null;
 		int dotIndex = path.lastIndexOf(".");
 		int separatorIndex = path.lastIndexOf(File.separator);
-		if (dotIndex>=0 && dotIndex>separatorIndex && (path.length()-dotIndex)<=5)
-			path = path.substring(0, dotIndex) + extension;
-		else
+		if (dotIndex>=0 && dotIndex>separatorIndex && (path.length()-dotIndex)<=5) {
+			if (dotIndex+1<path.length() && Character.isDigit(path.charAt(dotIndex+1)))
+				path += extension;
+			else
+				path = path.substring(0, dotIndex) + extension;
+		} else
 			path += extension;
 		return path;
 	}

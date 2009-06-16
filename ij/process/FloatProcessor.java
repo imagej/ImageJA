@@ -167,7 +167,7 @@ public class FloatProcessor extends ImageProcessor {
 		for (int i=0; i<size; i++) {
 			value = pixels[i]-min;
 			if (value<0f) value = 0f;
-			ivalue = (int)(value*scale);
+			ivalue = (int)((value*scale)+0.5f);
 			if (ivalue>255) ivalue = 255;
 			pixels8[i] = (byte)ivalue;
 		}
@@ -284,23 +284,22 @@ public class FloatProcessor extends ImageProcessor {
 	}
 
 	/** Sets a pixel in the image using a one element int array. */
-	public void putPixel(int x, int y, int[] iArray) {
+	public final void putPixel(int x, int y, int[] iArray) {
 		putPixelValue(x, y, iArray[0]);
 	}
 
-	/** Uses the current interpolation method to calculate
-		the pixel value at real coordinates (x,y). */
+	/** Uses the current interpolation method (BILINEAR or BICUBIC) 
+		to calculate the pixel value at real coordinates (x,y). */
 	public double getInterpolatedPixel(double x, double y) {
-		if (interpolationMethod==BILINEAR) {
+		if (interpolationMethod==BICUBIC)
+			return getBicubicInterpolatedPixel(x, y, this);
+		else {
 			if (x<0.0) x = 0.0;
 			if (x>=width-1.0) x = width-1.001;
 			if (y<0.0) y = 0.0;
 			if (y>=height-1.0) y = height-1.001;
 			return getInterpolatedPixel(x, y, pixels);
-		} else if (interpolationMethod==BICUBIC)
-			return getBicubicInterpolatedPixel(x, y, this);
-		else
-			return getPixel((int)(x+0.5), (int)(y+0.5));
+		}
 	}
 		
 	final public int getPixelInterpolated(double x, double y) {
@@ -317,7 +316,7 @@ public class FloatProcessor extends ImageProcessor {
 
 	/** Stores the specified value at (x,y). The value is expected to be a
 		float that has been converted to an int using Float.floatToIntBits(). */
-	public void putPixel(int x, int y, int value) {
+	public final void putPixel(int x, int y, int value) {
 		if (x>=0 && x<width && y>=0 && y<height)
 			pixels[y*width + x] = Float.intBitsToFloat(value);
 	}
@@ -634,7 +633,7 @@ public class FloatProcessor extends ImageProcessor {
 					xs = x*ca + tmp3;
 					ys = x*sa + tmp4;
 					if ((xs>=-0.01) && (xs<dwidth) && (ys>=-0.01) && (ys<dheight)) {
-						if (interpolate) {
+						if (interpolationMethod==BILINEAR) {
 							if (xs<0.0) xs = 0.0;
 							if (xs>=xlimit) xs = xlimit2;
 							if (ys<0.0) ys = 0.0;			
@@ -799,7 +798,7 @@ public class FloatProcessor extends ImageProcessor {
 		double dstCenterY = dstHeight/2.0;
 		double xScale = (double)dstWidth/roiWidth;
 		double yScale = (double)dstHeight/roiHeight;
-		if (interpolationMethod!=NEAREST_NEIGHBOR) {
+		if (interpolationMethod!=NONE) {
 			dstCenterX += xScale/2.0;
 			dstCenterY += yScale/2.0;
 		}
@@ -850,13 +849,15 @@ public class FloatProcessor extends ImageProcessor {
 	public double getBicubicInterpolatedPixel(double x0, double y0, ImageProcessor ip2) {
 		int u0 = (int) Math.floor(x0);	//use floor to handle negative coordinates too
 		int v0 = (int) Math.floor(y0);
+		if (u0<=0 || u0>=width-2 || v0<=0 || v0>=height-2)
+			return ip2.getBilinearInterpolatedPixel(x0, y0);
 		double q = 0;
 		for (int j = 0; j <= 3; j++) {
 			int v = v0 - 1 + j;
 			double p = 0;
 			for (int i = 0; i <= 3; i++) {
 				int u = u0 - 1 + i;
-				p = p + ip2.getPixelValue(u,v) * cubic(x0 - u);
+				p = p + ip2.getf(u,v) * cubic(x0 - u);
 			}
 			q = q + p * cubic(y0 - v);
 		}
@@ -882,6 +883,11 @@ public class FloatProcessor extends ImageProcessor {
 
 	/** Does nothing. The rotate() and scale() methods always zero fill. */
 	public void setBackgroundValue(double value) {
+	}
+
+	/** Always returns 0. */
+	public double getBackgroundValue() {
+		return 0.0;
 	}
 
 	public void setThreshold(double minThreshold, double maxThreshold, int lutUpdate) {

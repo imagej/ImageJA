@@ -14,7 +14,7 @@ PLUGINSHOME=$(shell pwd)
 CPSEP=:
 TOOLSCP=$(JAVA_HOME)/lib/tools.jar
 endif
-CLASSPATH=$(TOOLSCP)$(CPSEP)$(PLUGINSHOME)/../ImageJ/ij.jar$(CPSEP)$(PLUGINSHOME)/jzlib-1.0.7.jar$(CPSEP).
+CLASSPATH=../jars/javac.jar$(CPSEP)$(TOOLSCP)$(CPSEP)$(PLUGINSHOME)/../ImageJ/ij.jar$(CPSEP)$(PLUGINSHOME)/jzlib-1.0.7.jar$(CPSEP).
 JAVACOPTS=-O -classpath "$(CLASSPATH)" -source 1.3 -target 1.3
 
 ij.jar: $(COPYFILES) $(CLASSES) $(TEXTFILES)

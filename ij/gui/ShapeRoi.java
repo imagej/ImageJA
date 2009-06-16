@@ -1038,7 +1038,7 @@ public class ShapeRoi extends Roi {
 
 	/** Non-destructively draws the shape of this object on the associated ImagePlus. */
 	public void draw(Graphics g) {
-		if(ic==null) return;
+		if (ic==null) return;
 		AffineTransform aTx = (((Graphics2D)g).getDeviceConfiguration()).getDefaultTransform();
 		g.setColor(instanceColor!=null?instanceColor:ROIColor);
 		if (stroke!=null) ((Graphics2D)g).setStroke(stroke);
@@ -1048,7 +1048,7 @@ public class ShapeRoi extends Roi {
         aTx.translate(x, y);
 		((Graphics2D)g).draw(aTx.createTransformedShape(shape));
 		if (Toolbar.getToolId()==Toolbar.OVAL) drawRoiBrush(g);
-		showStatus();
+		if (imp!=null&&imp.getRoi()!=null) showStatus();
 		if (updateFullWindow) 
 			{updateFullWindow = false; imp.draw();}
 	}
@@ -1211,6 +1211,16 @@ public class ShapeRoi extends Roi {
 
 	static ShapeRoi getCircularRoi(int x, int y, int width) {
 		return new ShapeRoi(new OvalRoi(x - width / 2, y - width / 2, width, width));
+	}
+
+	/** Always returns -1 since ShapeRois do not have handles. */
+	public int isHandle(int sx, int sy) {
+		   return -1;
+	}
+	
+	/** Always returns null. */
+	public Polygon getConvexHull() {
+		return null;
 	}
 
     /*

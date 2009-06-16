@@ -15,6 +15,7 @@ import ij.plugin.Animator;
 import ij.process.FloatBlitter;
 import ij.plugin.GelAnalyzer;
 import ij.process.ColorProcessor;
+import ij.text.TextWindow;
 
 /**
 This class contains the ImageJ preferences, which are 
@@ -38,13 +39,15 @@ public class Prefs {
     public static final String THREADS = "threads";
 	public static final String KEY_PREFIX = ".";
  
-	private static final int USE_POINTER=1, ANTIALIASING=2, INTERPOLATE=4, ONE_HUNDRED_PERCENT=8,
-		BLACK_BACKGROUND=16, JFILE_CHOOSER=32, UNUSED=64, BLACK_CANVAS=128, WEIGHTED=256, 
-		AUTO_MEASURE=512, REQUIRE_CONTROL=1024, USE_INVERTING_LUT=2048, ANTIALIASED_TOOLS=4096,
-		INTEL_BYTE_ORDER=8192, DOUBLE_BUFFER=16384, NO_POINT_LABELS=32768, NO_BORDER=65536,
-		SHOW_ALL_SLICE_ONLY=131072, COPY_HEADERS=262144, NO_ROW_NUMBERS=524288,
-		MOVE_TO_MISC=1048576, ADD_TO_MANAGER=2097152; 
+	private static final int USE_POINTER=1<<0, ANTIALIASING=1<<1, INTERPOLATE=1<<2, ONE_HUNDRED_PERCENT=1<<3,
+		BLACK_BACKGROUND=1<<4, JFILE_CHOOSER=1<<5, UNUSED=1<<6, BLACK_CANVAS=1<<7, WEIGHTED=1<<8, 
+		AUTO_MEASURE=1<<9, REQUIRE_CONTROL=1<<10, USE_INVERTING_LUT=1<<11, ANTIALIASED_TOOLS=1<<12,
+		INTEL_BYTE_ORDER=1<<13, DOUBLE_BUFFER=1<<14, NO_POINT_LABELS=1<<15, NO_BORDER=1<<16,
+		SHOW_ALL_SLICE_ONLY=1<<17, COPY_HEADERS=1<<18, NO_ROW_NUMBERS=1<<19,
+		MOVE_TO_MISC=1<<20, ADD_TO_MANAGER=1<<21, RUN_SOCKET_LISTENER=1<<22; 
     public static final String OPTIONS = "prefs.options";
+    
+	public static final String vistaHint = "\n \nOn Windows Vista, ImageJ must be installed in a directory that\nthe user can write to, such as \"Desktop\" or \"Documents\"";
 
 	/** file.separator system property */
 	public static String separator = System.getProperty("file.separator");
@@ -96,7 +99,8 @@ public class Prefs {
 	public static boolean pointAddToManager;
 	/** Extend the borders to foreground for binary erosions and closings. */
 	public static boolean padEdges;
-
+	/** Run the SocketListener. */
+	public static boolean runSocketListener;
 
 	static Properties ijPrefs = new Properties();
 	static Properties props = new Properties(ijPrefs);
@@ -310,12 +314,15 @@ public class Prefs {
 			}
 			savePrefs(prefs, path);
 		} catch (Throwable t) {
-			CharArrayWriter caw = new CharArrayWriter();
-			PrintWriter pw = new PrintWriter(caw);
-			t.printStackTrace(pw);
-			IJ.log(caw.toString());
-			IJ.log("<Unable to save preferences>");
-			IJ.wait(3000);
+			String msg = t.getMessage();
+			if (msg==null) msg = ""+t;
+			int delay = 4000;
+			if (IJ.isVista()) {
+				msg += vistaHint;
+				delay = 8000;
+			}
+			new TextWindow("Error Saving Preferences", msg, 500, 200);
+			IJ.wait(delay);
 		}
 	}
 
@@ -346,6 +353,7 @@ public class Prefs {
 		noRowNumbers = (options&NO_ROW_NUMBERS)!=0;
 		moveToMisc = (options&MOVE_TO_MISC)!=0;
 		pointAddToManager = (options&ADD_TO_MANAGER)!=0;
+		runSocketListener = (options&RUN_SOCKET_LISTENER)!=0;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -359,7 +367,7 @@ public class Prefs {
 			+ (noPointLabels?NO_POINT_LABELS:0) + (noBorder?NO_BORDER:0)
 			+ (showAllSliceOnly?SHOW_ALL_SLICE_ONLY:0) + (copyColumnHeaders?COPY_HEADERS:0)
 			+ (noRowNumbers?NO_ROW_NUMBERS:0) + (moveToMisc?MOVE_TO_MISC:0)
-			+ (pointAddToManager?ADD_TO_MANAGER:0);
+			+ (pointAddToManager?ADD_TO_MANAGER:0) + (runSocketListener?RUN_SOCKET_LISTENER:0);
 		prefs.put(OPTIONS, Integer.toString(options));
 	}
 

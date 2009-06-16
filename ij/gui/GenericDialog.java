@@ -8,6 +8,8 @@ import ij.plugin.ScreenGrabber;
 import ij.plugin.filter.PlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.util.Tools;
+import ij.macro.MacroRunner;
+
 
 /**
  * This class is a customizable modal dialog box. Here is an example
@@ -43,7 +45,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	protected TextArea textArea1, textArea2;
 	protected Vector defaultValues,defaultText;
 	protected Component theLabel;
-	private Button cancel, okay, no;
+	private Button cancel, okay, no, help;
 	private String okLabel = "  OK  ";
     private boolean wasCanceled, wasOKed;
     private int y;
@@ -71,6 +73,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     private char echoChar;
     private boolean hideCancelButton;
     private boolean centerDialog = true;
+    private String helpURL;
 
     /** Creates a new GenericDialog with the specified title. Uses the current image
     	image window as the parent frame or the ImageJ frame if no image windows
@@ -317,15 +320,17 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     }
 
     /** Add the preview checkbox with user-defined label; for details see the
-     *  addPreviewCheckbox method with standard "Preview" label
-     * Note that a GenericDialog can have only one PreviewCheckbox
+     *  addPreviewCheckbox method with standard "Preview" label.
+     * Adds the checkbox when the current image is a CompositeImage
+     * in "Composite" mode, unlike the one argument version.
+     * Note that a GenericDialog can have only one PreviewCheckbox.
      */
     public void addPreviewCheckbox(PlugInFilterRunner pfr, String label) {
         if (previewCheckbox!=null)
         	return;
-    	ImagePlus imp = WindowManager.getCurrentImage();
-		if (imp!=null && imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
-			return;
+    	//ImagePlus imp = WindowManager.getCurrentImage();
+		//if (imp!=null && imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
+		//	return;
         previewLabel = label;
         this.pfr = pfr;
         addCheckbox(previewLabel, false, true);
@@ -823,7 +828,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				String cmd = Recorder.getCommand();
 				if (cmd!=null && cmd.equals("Convolve...")) {
 					text2 = text.replaceAll("\n","\\\\n");
-					if (!text.endsWith("\n")) text2 = text2 + "\\\\n";
+					if (!text.endsWith("\n")) text2 = text2 + "\\n";
 				} else
 					text2 = text.replace('\n',' ');
 				Recorder.recordOption("text1", text2);
@@ -867,16 +872,23 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			okay = new Button(okLabel);
 			okay.addActionListener(this);
 			okay.addKeyListener(this);
+			boolean addHelp = helpURL!=null;
+			if (addHelp) {
+				help = new Button("Help");
+				help.addActionListener(this);
+				help.addKeyListener(this);
+			}
 			if (IJ.isMacintosh()) {
+				if (addHelp) buttons.add(help);
 				if (yesNoCancel) buttons.add(no);
-				if (! hideCancelButton)
-					buttons.add(cancel);
+				if (!hideCancelButton) buttons.add(cancel);
 				buttons.add(okay);
 			} else {
 				buttons.add(okay);
 				if (yesNoCancel) buttons.add(no);;
-				if (! hideCancelButton)
+				if (!hideCancelButton)
 					buttons.add(cancel);
+				if (addHelp) buttons.add(help);
 			}
 			c.gridx = 0; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
@@ -982,10 +994,12 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			wasCanceled = source==cancel;
 			wasOKed = source==okay;
 			dispose();
-		} else
+		} else if (source==help)
+			showHelp();
+		else
             notifyListeners(e);
 	}
-
+	
 	public void textValueChanged(TextEvent e) {
         notifyListeners(e); 
 		if (slider==null) return;
@@ -1120,6 +1134,15 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		wasCanceled = true; 
 		dispose(); 
     }
+    
+    public void addHelp(String url) {
+    	helpURL = url;
+    }
+    
+    void showHelp() {
+		String macro = "run('URL...', 'url="+helpURL+"');";
+		new MacroRunner(macro);
+	}
     
     public void windowActivated(WindowEvent e) {}
     public void windowOpened(WindowEvent e) {}

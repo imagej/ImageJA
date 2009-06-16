@@ -177,10 +177,6 @@ public class Selection implements PlugIn, Measurements {
 			indexes[i] = i;
 			curvature[i] = (float)Math.sqrt((x2[i]-x[i])*(x2[i]-x[i])+(y2[i]-y[i])*(y2[i]-y[i]));
 		}
-		//ImageProcessor ipc = new FloatProcessor(n, 1, curvature, null);
-		//ipc.convolve(kernel3, kernel3.length, 1);
-		//PlotWindow pw = new PlotWindow("Curvature", "X", "Y", indexes, curvature);
-		//pw.draw();											
 		return curvature;
 	}
 	
@@ -285,10 +281,7 @@ public class Selection implements PlugIn, Measurements {
 			IJ.runPlugIn("ij.plugin.filter.ThresholdToSelection", "");
 			return;
 		}
-		ImageStatistics stats = null;
-		if (imp.getBitDepth()==8)
-			stats = imp.getStatistics();
-		if (stats==null || (stats.histogram[0]+stats.histogram[255]!=stats.pixelCount)) {
+		if (!ip.isBinary()) {
 			IJ.error("Create Selection",
 				"This command creates a composite selection from\n"+
 				"a mask (8-bit binary image with white background)\n"+
