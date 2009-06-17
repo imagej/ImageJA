@@ -8,45 +8,71 @@ import java.util.*;
 import java.lang.reflect.*;
 
 
-/** This plugin implements the Plugins/Utilities/Update ImageJ command. */
+/** This plugin upgrades and downgrades ImageJ by downloading ij.jar files from the ImageJ website. */
 public class ImageJ_Updater_ implements PlugIn {
 
 	public void run(String arg) {
+		if (arg.equals("menus"))
+			{updateMenus(); return;}
 		if (IJ.getApplet()!=null) return;
-		File file = new File(Prefs.getHomeDir() + File.separator + "ij.jar");
-		if (isMac() && !file.exists())
-			file = new File(Prefs.getHomeDir() + File.separator + "ImageJ.app/Contents/Resources/Java/ij.jar");
+		//File file = new File(Prefs.getHomeDir() + File.separator + "ij.jar");
+		//if (isMac() && !file.exists())
+		//	file = new File(Prefs.getHomeDir() + File.separator + "ImageJ.app/Contents/Resources/Java/ij.jar");
+		URL url = getClass().getResource("/ij/IJ.class");
+		String ij_jar = url == null ? null : url.toString();
+		if (ij_jar==null || !ij_jar.startsWith("jar:file:")) {
+			error("Could not determine location of ij.jar");
+			return;
+		}
+		int exclamation = ij_jar.indexOf('!');
+		ij_jar = ij_jar.substring(9, exclamation);
+		if (IJ.debugMode) IJ.write("Updater: "+ij_jar);
+		File file = new File(ij_jar);
 		if (!file.exists()) {
 			error("File not found: "+file.getPath());
 			return;
 		}
 		if (!file.canWrite()) {
-			error("No write access: "+file.getPath());
+			String msg = "No write access: "+file.getPath();
+			if (IJ.isVista()) msg += Prefs.vistaHint;
+			error(msg);
 			return;
 		}
-		String[] list = openUrlAsList("http://rsb.info.nih.gov/ij/download/jars/list.txt");
+		String[] list = openUrlAsList(IJ.URL+"/download/jars/list.txt");
 		int count = list.length + 2;
 		String[] versions = new String[count];
 		String[] urls = new String[count];
-		String upgradeVersion = getUpgradeVersion();
-		if (upgradeVersion==null) return;
-		versions[0] = "v"+upgradeVersion+" (latest version)";
-		urls[0] = "http://rsb.info.nih.gov/ij/upgrade/ij.jar";
+		String uv = getUpgradeVersion();
+		if (uv==null) return;
+		versions[0] = "v"+uv;
+		urls[0] = IJ.URL+"/upgrade/ij.jar";
+		if (versions[0]==null) return;
 		for (int i=1; i<count-1; i++) {
-			versions[i] = list[i-1];
-			urls[i] = "http://rsb.info.nih.gov/ij/download/jars/ij"
-				+versions[i].substring(1,2)+versions[i].substring(3,6)+".jar";
+			String version = list[i-1];
+			versions[i] = version.substring(0,version.length()-1); // remove letter
+			urls[i] = IJ.URL+"/download/jars/ij"
+				+version.substring(1,2)+version.substring(3,6)+".jar";
 		}
 		versions[count-1] = "daily build";
-		urls[count-1] = "http://rsb.info.nih.gov/ij/ij.jar";
+		urls[count-1] = IJ.URL+"/ij.jar";
 		int choice = showDialog(versions);
 		if (choice==-1) return;
+		if (!versions[choice].startsWith("daily") && versions[choice].compareTo("v1.39")<0
+		&& Menus.getCommands().get("ImageJ Updater")==null) {
+			String msg = "This command is not available in versions of ImageJ prior\n"+
+			"to 1.39 so you will need to install the plugin version at\n"+
+			"<"+IJ.URL+"/plugins/imagej-updater.html>.";
+			if (!IJ.showMessageWithCancel("Update ImageJ", msg))
+				return;
+		}
 		byte[] jar = getJar(urls[choice]);
-		if (jar==null) return;
+		//file.renameTo(new File(file.getParent()+File.separator+"ij.bak"));
 		if (version().compareTo("1.37v")>=0)
 			Prefs.savePreferences();
-		//if (!renameJar(file)) return; //doesn't work on Vista
+		// if (!renameJar(file)) return; // doesn't work on Vista
 		saveJar(file, jar);
+		if (choice<count-1) // force macro Function Finder to download fresh list
+			new File(IJ.getDirectory("macros")+"functions.html").delete();
 		System.exit(0);
 	}
 
@@ -68,10 +94,12 @@ public class ImageJ_Updater_ implements PlugIn {
 	}
 
 	String getUpgradeVersion() {
-		String url = "http://rsb.info.nih.gov/ij/notes.html";
+		String url = IJ.URL+"/notes.html";
 		String notes = openUrlAsString(url, 20);
 		if (notes==null) {
-			error("Unable to open release notes at "+url);
+			error("Unable to connect to "+IJ.URL+". You\n"
+				+"may need to use the Edit>Options>Proxy Settings\n"
+				+"command to configure ImageJ to use a proxy server.");
 			return null;
 		}
 		int index = notes.indexOf("Version ");
@@ -125,9 +153,9 @@ public class ImageJ_Updater_ implements PlugIn {
 		return data;
 	}
 
-	// Changes the name of ij.jar to ij2.jar
+	/*Changes the name of ij.jar to ij-old.jar
 	boolean renameJar(File f) {
-		File backup = new File(Prefs.getHomeDir() + File.separator + "ij2.jar");
+		File backup = new File(Prefs.getHomeDir() + File.separator + "ij-old.jar");
 		if (backup.exists()) {
 			if (!backup.delete()) {
 				error("Unable to delete backup: "+backup.getPath());
@@ -135,11 +163,12 @@ public class ImageJ_Updater_ implements PlugIn {
 			}
 		}
 		if (!f.renameTo(backup)) {
-			error("Unable to rename to ij2.jar: "+f.getPath());
+			error("Unable to rename to ij-old.jar: "+f.getPath());
 			return false;
 		}
 		return true;
 	}
+	*/
 
 	void saveJar(File f, byte[] data) {
 		try {
@@ -185,10 +214,18 @@ public class ImageJ_Updater_ implements PlugIn {
 		String osname = System.getProperty("os.name");
 		return osname.startsWith("Mac");
 	}
-
+	
 	void error(String msg) {
 		IJ.error("ImageJ Updater", msg);
 	}
-
+	
+	void updateMenus() {
+		if (IJ.debugMode) {
+			long start = System.currentTimeMillis();
+			Menus.updateImageJMenus();
+			IJ.log("Update Menus: "+(System.currentTimeMillis()-start)+" ms");
+		} else
+			Menus.updateImageJMenus();
+	}
 
 }
