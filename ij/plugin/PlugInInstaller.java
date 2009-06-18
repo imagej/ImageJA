@@ -32,46 +32,21 @@ public class PlugInInstaller implements PlugIn {
 			return;
 		}
 
-		String className;
-		if(file.endsWith(".java"))
-			className = file.substring(0,file.length()-5);
-		else if(file.endsWith(".class"))
-			className = file.substring(0,file.length()-6);
-		else {
-			IJ.error("TODO: support jar files");
-			return;
-		}
-
 		if(!(new File(pluginsPath).equals(new File(dir))))
 			if(!filecopy(dir+"/"+file,pluginsPath+"/"+file)) {
 				IJ.error("Error copying "+file+" to "+pluginsPath);
 				return;
 			}
-		if(file.endsWith(".java"))
+
+		if(file.endsWith(".java")) {
 			if(!Compiler.compileFile(pluginsPath+"/"+file)) {
 				IJ.error("Could not compile "+file);
 				return;
 			}
+		}
 
-		PluginClassLoader loader;
-		try {
-			loader = (PluginClassLoader)IJ.getClassLoader();
-		} catch(Exception e) {
-			// probably the plugins dir is lacking
-			IJ.error("Could not access plugins folder");
-			return;
-		}
-		// load using class loader & make sure it is registered
-		try {
-			loader.loadClass(className,false,true);
-		} catch(Exception e) {
-			e.printStackTrace();
-			IJ.error("Error loading class "+className);
-			return;
-		}
-		// insert into menu
-		Menus.forceInstallUserPlugin(className);
-		IJ.showMessage("PluginInstaller","Plugin "+className+" successfully installed!");
+		Menus.updateImageJMenus();
+		IJ.showMessage("PluginInstaller","Plugin "+file+" was installed!");
 	}
 
 	static boolean filecopy(String from, String to) {
