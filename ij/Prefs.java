@@ -321,8 +321,10 @@ public class Prefs {
 				msg += vistaHint;
 				delay = 8000;
 			}
-			new TextWindow("Error Saving Preferences", msg, 500, 200);
-			IJ.wait(delay);
+			try {
+				new TextWindow("Error Saving Preferences", msg, 500, 200);
+				IJ.wait(delay);
+			} catch (Throwable t2) {}
 		}
 	}
 
