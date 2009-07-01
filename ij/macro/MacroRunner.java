@@ -125,6 +125,8 @@ public class MacroRunner implements Runnable {
 			else
 				interp.runMacro(pgm, address, name);
 		} catch(Throwable e) {
+			if (!IJ.catchExceptions)
+				throw new IJ.WrappedException(e);
 			interp.abortMacro();
 			IJ.showStatus("");
 			IJ.showProgress(1.0);

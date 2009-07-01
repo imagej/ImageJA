@@ -77,6 +77,8 @@ public class Executer implements Runnable {
 			if (command.charAt(len-1)!=']' && !(len<4&&(command.equals("In")||command.equals("Out"))))
 				IJ.setKeyUp(IJ.ALL_KEYS);  // set keys up except for "<", ">", "+" and "-" shortcuts
 		} catch(Throwable e) {
+			if (!IJ.catchExceptions)
+				throw new IJ.WrappedException(e);
 			IJ.showStatus("");
 			IJ.showProgress(1.0);
 			ImagePlus imp = WindowManager.getCurrentImage();

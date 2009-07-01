@@ -131,6 +131,8 @@ public class Macro_Runner implements PlugIn {
 		try {
 			return interp.run(macro, arg);
 		} catch(Throwable e) {
+			if (!IJ.catchExceptions)
+				throw new IJ.WrappedException(e);
 			interp.abortMacro();
 			IJ.showStatus("");
 			IJ.showProgress(1.0);

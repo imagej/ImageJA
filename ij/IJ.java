@@ -25,6 +25,11 @@ public class IJ {
 	
 	public static boolean debugMode;
 	public static boolean hideProcessStackDialog;
+	public static boolean catchExceptions = true;
+	public static class WrappedException extends RuntimeException {
+		public Throwable exception;
+		public WrappedException(Throwable t) { exception = t; }
+	}
 	    
     public static final char micronSymbol = '\u00B5';
     public static final char angstromSymbol = '\u00C5';
@@ -436,6 +441,8 @@ public class IJ {
 
 	/** Displays an "out of memory" message to the "Log" window. */
 	public static void outOfMemory(String name) {
+		if (!IJ.catchExceptions)
+			throw new RuntimeException("Out of Memory");
 		Undo.reset();
 		System.gc();
 		String tot = Runtime.getRuntime().totalMemory()/1048576L+"MB";
