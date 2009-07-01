@@ -505,6 +505,10 @@ public class IJ {
 		macro is running, it is aborted. Writes to the Java console
 		if the ImageJ window is not present.*/
 	public static void error(String msg) {
+		if (!IJ.catchExceptions) {
+			String s = "IJ.error called with message '"+msg+"'";
+			throw new RuntimeException(s);
+		}
 		showMessage(ij == null ? "ImageJA" : ij.getTitle(), msg);
 		if (Thread.currentThread().getName().endsWith("JavaScript"))
 			throw new RuntimeException(Macro.MACRO_CANCELED);
@@ -516,6 +520,11 @@ public class IJ {
 		If a macro is running, it is aborted. Writes to the Java  
 		console if ImageJ is not present. */
 	public static synchronized void error(String title, String msg) {
+		if (!IJ.catchExceptions) {
+			String s = "IJ.error called with "+
+				"title '"+title+"' and message '"+msg+"'";
+			throw new RuntimeException(s);
+		}
 		showMessage(title, msg);
 		Macro.abort();
 	}
