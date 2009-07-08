@@ -53,22 +53,6 @@ public class PlugInInstaller implements PlugIn {
 				return;
 			}
 
-		PluginClassLoader loader;
-		try {
-			loader = (PluginClassLoader)IJ.getClassLoader();
-		} catch(Exception e) {
-			// probably the plugins dir is lacking
-			IJ.error("Could not access plugins folder");
-			return;
-		}
-		// load using class loader & make sure it is registered
-		try {
-			loader.loadClass(className,false,true);
-		} catch(Exception e) {
-			e.printStackTrace();
-			IJ.error("Error loading class "+className);
-			return;
-		}
 		// insert into menu
 		Menus.updateImageJMenus();
 		IJ.showMessage("PluginInstaller","Plugin "+className+" successfully installed!");
