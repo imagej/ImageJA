@@ -5,11 +5,18 @@
 </head>
 <body>
 
-<li> <u>1.42q, 4 June 2009</u>
+<li> <u>1.43b, 23 June 2009</u>
 <ul>
-<li> Fixed bugs, introduced in v1.42p, that caused an exception when opening a virtual stack
-or when closing an Image5D stack.
-<li> Fixed a bug that caused bicubic intepolation edge artifacts.
+<li> Kevin Moll contributed an enhanced and simplfied PluginClassLoader
+that extends URLClassLoader.
+<li> Added the "Use Titles as Labels" checkbox to the
+<i>Image&gt;Stacks&gt;Images to Stack</i> dialog box.
+<li> Fixed a bug, introduced in v1.43a, that caused
+<i>Help&gt;Update ImageJ</i> to fail if the path to ij.jar contained a space.
+<li> Fixed a bug that caused <i>Image&gt;Show Info</i> to not display metadata of stacks
+opened using <i>File&gt;Import&gt;TIFF Virtual Stack</i>.
+<li> Fixed a bug that sometimes caused the threshold limits to not be passed to PlugInFilters
+using the CONVERT_TO_FLOAT flag.
 </ul>
 
 <a href="http://rsb.info.nih.gov/ij">Home</a>

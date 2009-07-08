@@ -4,6 +4,14 @@ ALLCLASSES=ij/*.class ij/*/*.class ij/*/*/*.class
 COPYFILES=icon.gif aboutja.jpg plugins/*.class
 TEXTFILES=IJ_Props.txt $(wildcard macros/*.txt)
 
+ifeq ($(JAVA_HOME),)
+	JAVA_HOME=$(shell ../fiji --print-java-home)/..
+endif
+
+ifeq ($(shell javac > /dev/null 2>&1; echo $$?),127)
+	PATH:=$(PATH):$(JAVA_HOME)/bin
+endif
+
 uname_O := $(shell sh -c 'uname -o 2>/dev/null || echo not')
 ifeq ($(uname_O),Cygwin)
 PLUGINSHOME=$(shell cygpath --mixed "$(shell pwd)")

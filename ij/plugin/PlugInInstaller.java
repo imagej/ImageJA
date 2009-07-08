@@ -45,6 +45,7 @@ public class PlugInInstaller implements PlugIn {
 			}
 		}
 
+		// insert into menu
 		Menus.updateImageJMenus();
 		IJ.showMessage("PluginInstaller","Plugin "+file+" was installed!");
 	}
