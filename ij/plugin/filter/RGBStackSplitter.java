@@ -114,7 +114,7 @@ public class RGBStackSplitter implements PlugInFilter {
 			if (imp2.getNDimensions()>3)
 				imp2.setOpenAsHyperStack(true);
 			imp2.setFileInfo(fi);
-			imp2.show();
+			result[c - 1] = imp2;
 		}
 		imp.changes = false;
 		if (closeAfter)
