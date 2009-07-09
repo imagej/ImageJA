@@ -1034,7 +1034,7 @@ public class Menus {
 				CheckboxMenuItem item = (CheckboxMenuItem)window.getItem(i);
 				item.setState(i==index);
 			}
-		} catch (NullPointerException e) {}
+		} catch (Exception e) {}
 	}
 	
 	static boolean isColorLut(ImagePlus imp) {
