@@ -184,5 +184,21 @@ import java.io.*;
 		v.copyInto((String[])lines);
 		return lines;
 	}
-	
+
+	public static String escapeUnicode(String string) {
+		StringBuilder builder = new StringBuilder();
+		String[] prefix = { null, null, "\\u00", "\\u0", "\\u" };
+		int length = string.length();
+		for (int i = 0; i < length; i++) {
+			char ch = string.charAt(i);
+			if (ch < 128)
+				builder.append(ch);
+			else {
+				String hex = Integer.toHexString(ch);
+				builder.append(prefix[hex.length()]);
+				builder.append(hex);
+			}
+		}
+		return new String(builder);
+	}
 }

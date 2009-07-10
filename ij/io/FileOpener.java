@@ -9,6 +9,7 @@ import ij.gui.*;
 import ij.process.*;
 import ij.measure.*;
 import ij.*;
+import ij.util.Tools;
 
 /**
  * Opens or reverts an image specified by a FileInfo object. Images can
@@ -519,7 +520,7 @@ public class FileOpener {
 		if (!fi.description.startsWith("ImageJ"))
 			return null;
 		Properties props = new Properties();
-		InputStream is = new ByteArrayInputStream(fi.description.getBytes());
+		InputStream is = new ByteArrayInputStream(Tools.escapeUnicode(fi.description).getBytes());
 		try {props.load(is); is.close();}
 		catch (IOException e) {return null;}
 		fi.unit = props.getProperty("unit","");

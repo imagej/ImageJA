@@ -4,6 +4,10 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
+
 /**
 Decodes single and multi-image TIFF files. The LZW decompression
 code was contributed by Curtis Rueden.
@@ -173,6 +177,22 @@ public class TiffDecoder {
 		return bytes;
 	}
 
+	String decode(byte[] buffer) {
+		try {
+			ByteBuffer buf = ByteBuffer.wrap(buffer);
+			return Charset.forName("UTF-8").newDecoder()
+				.onMalformedInput(CodingErrorAction.REPORT)
+				.onUnmappableCharacter(CodingErrorAction.REPORT)
+				.decode(buf).toString();
+		} catch (Exception e) {
+			try {
+				return new String(buffer, "ISO-8859-1");
+			} catch (Exception e2) {
+				return new String(buffer);
+			}
+		}
+	}
+
 	/** Save the image description in the specified FileInfo. ImageJ
 		saves spatial and density calibration data in this string. For
 		stacks, it also saves the number of images to avoid having to
@@ -180,7 +200,7 @@ public class TiffDecoder {
 	public void saveImageDescription(byte[] description, FileInfo fi) {
 		if (description.length<7)
 			return;
-        String id = new String(description);
+        String id = decode(description);
 		fi.description = id;
         int index1 = id.indexOf("images=");
         if (index1>0) {
