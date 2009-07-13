@@ -1203,7 +1203,7 @@ public class IJ {
 		else if (title.equals("macros"))
 			return Menus.getMacrosPath();
 		else if (title.equals("luts"))
-			return Prefs.getHomeDir()+File.separator+"luts"+File.separator;
+			return Menus.getLutsPath() + File.separator;
 		else if (title.equals("home"))
 			return System.getProperty("user.home") + File.separator;
 		else if (title.equals("startup")||title.equals("imagej"))

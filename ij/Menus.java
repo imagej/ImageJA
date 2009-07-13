@@ -226,6 +226,7 @@ public class Menus {
 		if (applet==null) {
 			menuSeparators = new Properties();
 			installPlugins();
+			addLuts(getMenu("Image>Lookup Tables"));
 			if (fontSize!=0)
 				mbar.setFont(getFont());
 		}
@@ -317,14 +318,12 @@ public class Menus {
 			else
 				addPluginItem(submenu, value);
 		}
-		if (name.equals("Lookup Tables") && applet==null)
-			addLuts(submenu);
 		return submenu;
 	}
 	
 	void addLuts(Menu submenu) {
-		String path = Prefs.getHomeDir()+File.separator;
-		File f = new File(path+"luts");
+		String path = getLutsPath();
+		File f = new File(path);
 		String[] list = null;
 		if (applet==null && f.exists() && f.isDirectory())
 			list = f.list();
@@ -1135,7 +1134,18 @@ public class Menus {
 	public static String getMacrosPath() {
 		return instance.macrosPath;
 	}
-        
+
+	/** Returns the path to the luts directory or
+		null if the luts directory was not found. */
+	public static String getLutsPath() {
+		String path = instance.pluginsPath;
+		if (path == null)
+			return null;
+		File luts = new File(path).getParentFile();
+		luts = new File(luts, "luts");
+		return luts.isDirectory() ? luts.getAbsolutePath() : null;
+	}
+
 	/** Returns the hashtable that associates commands with plugins. */
 	public static Hashtable getCommands() {
 		return instance == null ? null : instance.pluginsTable;
