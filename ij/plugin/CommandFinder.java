@@ -73,6 +73,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 				result += " (in " + ca.menuLocation + ")";
 			if( ca.classCommand != null )
 				result += " [" + ca.classCommand + "]";
+			String jarFile = Menus.getJarFileForMenuEntry(command);
+			if( jarFile != null )
+				result += " {from " + jarFile + "}";
 			return result;
 		} else {
 			return command;

@@ -161,9 +161,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	/** Caculates "Feret" (maximum caliper width), "FeretAngle"
-		and "MinFeret" (minimum caliper width). */	
+		and "MinFeret" (minimum caliper width), "FeretX" and "FeretY". */	
 	public double[] getFeretValues() {
-		double min=Double.MAX_VALUE, diameter=0.0, angle=0.0;
+		double min=Double.MAX_VALUE, diameter=0.0, angle=0.0, feretX=0.0, feretY=0.0;
 		int p1=0, p2=0;
 		double pw=1.0, ph=1.0;
 		if (imp!=null) {
@@ -172,7 +172,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			ph = cal.pixelHeight;
 		}
 		Polygon poly = getConvexHull();
-		if (poly==null) return null;
+		if (poly==null) {
+			poly = getPolygon();
+			if (poly==null) return null;
+		}
 		double w2=pw*pw, h2=ph*ph;
 		double dx, dy, d;
 		for (int i=0; i<poly.npoints; i++) {
@@ -218,16 +221,20 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			double tx1=x1, ty1=y1;
 			x1=x2; y1=y2; x2=tx1; y2=ty1;
 		}
+		feretX = x1*pw;
+		feretY = y1*ph;
 		dx=x2-x1; dy=y1-y2;
 		angle = (180.0/Math.PI)*Math.atan2(dy*ph, dx*pw);
 		if (angle<0) angle = 180.0 + angle;
 		//breadth = getFeretBreadth(poly, angle, x1, y1, x2, y2);
 		if (pw==ph)
-		min *= pw;
-		double[] a = new double[3];
+			min *= pw;
+		double[] a = new double[5];
 		a[0] = diameter;
 		a[1] = angle;
 		a[2] = min;
+		a[3] = feretX;
+		a[4] = feretY;
 		return a;
 	}
 	
@@ -345,19 +352,19 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldHeight = height;
 	}
 
-	protected void moveHandle(int sx, int sy) {
+	protected void moveHandle(int sx, int sy) {	
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
 		if (ox<0) ox=0; if (oy<0) oy=0;
 		if (ox>xMax) ox=xMax; if (oy>yMax) oy=yMax;
 		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
-		int x1=x, y1=y, x2=x1+width, y2=y+height;
+		int x1=x, y1=y, x2=x1+width, y2=y+height, xc=x+width/2, yc=y+height/2;
 		switch (activeHandle) {
 			case 0: x=ox; y=oy; break;
 			case 1: y=oy; break;
 			case 2: x2=ox; y=oy; break;
-			case 3: x2=ox; break;			
+			case 3: x2=ox; break;
 			case 4: x2=ox; y2=oy; break;
 			case 5: y2=oy; break;
 			case 6: x=ox; y2=oy; break;
@@ -371,8 +378,65 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		   height = y2-y;
 		else
 		   {height=1; y=y2;}
-		if (constrain)
-			height = width;
+		
+		if (center) {
+			switch(activeHandle) {
+				case 0:
+					width=(xc-x)*2;
+					height=(yc-y)*2;
+					break;
+				case 1:
+					height=(yc-y)*2;
+					break;
+				case 2:
+					width=(x2-xc)*2;
+					x=x2-width;
+					height=(yc-y)*2;
+					break;
+				case 3:
+					width=(x2-xc)*2;
+					x=x2-width;
+					break;
+				case 4:
+					width=(x2-xc)*2;
+					x=x2-width;
+					height=(y2-yc)*2;
+					y=y2-height;
+					break;
+				case 5:
+					height=(y2-yc)*2;
+					y=y2-height;
+					break;
+				case 6:
+					width=(xc-x)*2;
+					height=(y2-yc)*2;
+					y=y2-height;
+					break;
+				case 7:
+					width=(xc-x)*2;
+					break;
+			}
+			if (x>=x2) {
+				width=1;
+				x=x2=xc;
+			}
+			if (y>=y2) {
+				height=1;
+				y=y2=yc;
+			}
+		}
+		
+		if (constrain) {
+			if (activeHandle==1 || activeHandle==5)
+				width=height;
+			else
+				height=width;
+			if(center){
+				x=xc-width/2;
+				y=yc-height/2;
+			}
+		}
+		
 		updateClipRect();
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX=x; oldY=y;

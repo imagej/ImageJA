@@ -87,13 +87,14 @@ options02="Input/Output...",ij.plugin.Options("io")
 options03="Fonts...",ij.plugin.frame.Fonts
 options04="Profile Plot Options...",ij.plugin.filter.Profiler("set")
 options05="Point Tool...",ij.plugin.Colors("point")
-options06="Colors...",ij.plugin.Colors
-options07="Appearance...",ij.plugin.Options("display")
-options08="Conversions...",ij.plugin.Options("conv")
-options09="Memory & Threads...",ij.plugin.Memory
-options10="Proxy Settings...",ij.plugin.ProxySettings
-options11="Compiler...",ij.plugin.Compiler("options")
-options12="Misc...",ij.plugin.Options("misc")
+options06="Wand Tool...",ij.plugin.WandToolOptions
+options07="Colors...",ij.plugin.Colors
+options08="Appearance...",ij.plugin.Options("display")
+options09="Conversions...",ij.plugin.Options("conv")
+options10="Memory & Threads...",ij.plugin.Memory
+options11="Proxy Settings...",ij.plugin.ProxySettings
+options12="Compiler...",ij.plugin.Compiler("options")
+options13="Misc...",ij.plugin.Options("misc")
 
 # Plugins installed in the Image/Adjust submenu
 adjust01="Brightness/Contrast...[C]",ij.plugin.frame.ContrastAdjuster
@@ -126,14 +127,18 @@ stacks07="Images to Stack",ij.plugin.ImagesToStack
 stacks08="Stack to Images",ij.plugin.StackEditor("toimages")
 stacks09="Make Montage...",ij.plugin.MontageMaker
 stacks10="Reslice [/]...",ij.plugin.Slicer
-stacks11="Z Project...",ij.plugin.ZProjector
-stacks12="3D Project...",ij.plugin.filter.Projector
-stacks13="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
-stacks14="Reduce Size...",ij.plugin.StackReducer
+stacks11="Orthogonal Views",ij.plugin.Orthogonal_Views
+stacks12="Z Project...",ij.plugin.ZProjector
+stacks13="3D Project...",ij.plugin.filter.Projector
+stacks14="Plot Z-axis Profile",ij.plugin.filter.ZAxisProfiler
 stacks15=-
-stacks16="Start Animation [\\]",ij.plugin.Animator("start")
-stacks17="Stop Animation",ij.plugin.Animator("stop")
-stacks18="Animation Options...",ij.plugin.Animator("options")
+stacks16="Label...",ij.plugin.filter.StackLabeler
+stacks17="Combine...",ij.plugin.StackCombiner
+stacks18="Concatenate...",ij.plugin.Concatenator
+stacks19=-
+stacks20="Start Animation [\\]",ij.plugin.Animator("start")
+stacks21="Stop Animation",ij.plugin.Animator("stop")
+stacks22="Animation Options...",ij.plugin.Animator("options")
 
 # Plugins installed in the Image/Hyperstacks submenu
 hyperstacks01="New Hyperstack...",ij.plugin.HyperStackConverter("new")
@@ -214,6 +219,7 @@ binary14=-
 binary15="Distance Map",ij.plugin.filter.EDM("edm")
 binary16="Ultimate Points",ij.plugin.filter.EDM("points")
 binary17="Watershed",ij.plugin.filter.EDM("watershed")
+binary18="Voronoi",ij.plugin.filter.EDM("voronoi")
 
 # Plugins installed in the Process/Math submenu
 math01="Add...",ij.plugin.filter.ImageMath("add")
@@ -320,7 +326,6 @@ utilities08="Search...",ij.plugin.SimpleCommands("search")
 utilities09="Capture Screen [G]",ij.plugin.ScreenGrabber
 utilities10="Capture Image",ij.plugin.ScreenGrabber("image")
 utilities11="Find Commands... [l]",ij.plugin.CommandFinder
-utilities12="Update ImageJ... ",ij.plugin.ImageJ_Updater
 
 # Plugins installed in the Plugins/New submenu
 new_01="Macro",ij.plugin.NewPlugin("macro")
@@ -357,16 +362,16 @@ open10="Confocal Series (2.2MB)",ij.plugin.URLOpener("confocal-series.zip")
 open11="CT (420K, 16-bit DICOM)",ij.plugin.URLOpener("ct.dcm.zip")
 open12="Dot Blot (7K)",ij.plugin.URLOpener("Dot_Blot.jpg")
 open13="Embryos (42K)",ij.plugin.URLOpener("embryos.jpg")
-open14="Enhance Me (25K)",ij.plugin.URLOpener("enhance-me.gif")
-open15="Fluorescent Cells (400K)",ij.plugin.URLOpener("FluorescentCells.zip")
+open14="Fluorescent Cells (400K)",ij.plugin.URLOpener("FluorescentCells.zip")
+open15="Fly Brain (1MB)",ij.plugin.URLOpener("flybrain.zip")
 open16="Gel (105K)",ij.plugin.URLOpener("gel.gif")
 open17="HeLa Cells (1.3M, 48-bit RGB)",ij.plugin.URLOpener("hela-cells.zip")
 open18="Leaf (36K)",ij.plugin.URLOpener("leaf.jpg")
 open19="Lena (68K)",ij.plugin.URLOpener("lena-std.tif")
 open20="Line Graph (21K)",ij.plugin.URLOpener("LineGraph.jpg")
-open21="MRI Stack (528K)",ij.plugin.URLOpener("mri-stack.zip")
-open22="M51 Galaxy (177K, 16-bits)",ij.plugin.URLOpener("m51.zip")
-open23="M51 Galaxy  (116K, RGB)",ij.plugin.URLOpener("m51.jpg")
+open21="Mitosis (26MB, 5D stack)",ij.plugin.URLOpener("Spindly-GFP.zip")
+open22="MRI Stack (528K)",ij.plugin.URLOpener("mri-stack.zip")
+open23="M51 Galaxy (177K, 16-bits)",ij.plugin.URLOpener("m51.zip")
 open24="Neuron (1.6M, 5 channels)",ij.plugin.URLOpener("Rat_Hippocampal_Neuron.zip")
 open25="Nile Bend (1.9M)",ij.plugin.URLOpener("NileBend.jpg")
 open26="Organ of Corti (2.8M, 4D stack)",ij.plugin.URLOpener("organ-of-corti.zip")

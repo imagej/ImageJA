@@ -57,7 +57,7 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			for (int i=0; i<n; i++) {
 				info[i] = (FileInfo)fi.clone();
 				info[i].nImages = 1;
-				info[i].longOffset = (long)fi.offset + i*(size + fi.gapBetweenImages);
+				info[i].longOffset = fi.getOffset() + i*(size + fi.gapBetweenImages);
 			}
 		}
 		nImages = info.length;
@@ -68,6 +68,8 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		imp2.setFileInfo(fi);
 		if (imp!=null && props!=null) {
 			imp2.setCalibration(imp.getCalibration());
+			if (fi.info!=null)
+				imp2.setProperty("Info", fi.info);
 			int channels = getInt(props,"channels");
 			int slices = getInt(props,"slices");
 			int frames = getInt(props,"frames");
@@ -140,9 +142,14 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 		return nImages;
 	}
 
-	/** Returns null. */
+	/** Returns the label of the Nth image. */
 	public String getSliceLabel(int n) {
-		 return null;
+		if (n<1 || n>nImages)
+			throw new IllegalArgumentException("Argument out of range: "+n);
+		if (info[0].sliceLabels==null || info[0].sliceLabels.length!=nImages)
+			return null;
+		else
+			return info[0].sliceLabels[n-1];
 	}
 
 	public int getWidth() {

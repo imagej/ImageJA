@@ -630,15 +630,18 @@ public class ShapeRoi extends Roi {
 			min = 0.0;
 			angle = 0.0;
 		}
-		double[] a = new double[3];
+		double[] a = new double[5];
 		a[0] = diameter;
 		a[1] = angle;
 		a[2] = min;
+		a[3] = 0.0; // FeretX
+		a[4] = 0.0; // FeretY
 		return a;
 	}
 
 	/**Returns the length of this shape (perimeter, if shape is closed). */
 	public double getLength() {
+		/*
 		if(shape==null) return 0.0;
 		Rectangle2D r2d = shape.getBounds2D();
 		double w = r2d.getWidth();
@@ -652,6 +655,8 @@ public class ShapeRoi extends Roi {
 		parsePath(pIter, par, null, null, null);
 		flatten = false;
 		return par[0];
+		*/
+		return 0.0;
 	}
 
 	/**Returns a flattened version of the path iterator for this ROi's shape*/
@@ -1038,7 +1043,7 @@ public class ShapeRoi extends Roi {
 
 	/** Non-destructively draws the shape of this object on the associated ImagePlus. */
 	public void draw(Graphics g) {
-		if(ic==null) return;
+		if (ic==null) return;
 		AffineTransform aTx = (((Graphics2D)g).getDeviceConfiguration()).getDefaultTransform();
 		g.setColor(instanceColor!=null?instanceColor:ROIColor);
 		if (stroke!=null) ((Graphics2D)g).setStroke(stroke);
@@ -1048,7 +1053,7 @@ public class ShapeRoi extends Roi {
         aTx.translate(x, y);
 		((Graphics2D)g).draw(aTx.createTransformedShape(shape));
 		if (Toolbar.getToolId()==Toolbar.OVAL) drawRoiBrush(g);
-		showStatus();
+		if (imp!=null&&imp.getRoi()!=null) showStatus();
 		if (updateFullWindow) 
 			{updateFullWindow = false; imp.draw();}
 	}
@@ -1211,6 +1216,16 @@ public class ShapeRoi extends Roi {
 
 	static ShapeRoi getCircularRoi(int x, int y, int width) {
 		return new ShapeRoi(new OvalRoi(x - width / 2, y - width / 2, width, width));
+	}
+
+	/** Always returns -1 since ShapeRois do not have handles. */
+	public int isHandle(int sx, int sy) {
+		   return -1;
+	}
+	
+	/** Always returns null. */
+	public Polygon getConvexHull() {
+		return null;
 	}
 
     /*

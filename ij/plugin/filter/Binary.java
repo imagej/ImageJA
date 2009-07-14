@@ -10,6 +10,7 @@ import java.awt.*;
 	that fills holes in objects by filling the background.
 */
 public class Binary implements PlugInFilter {
+	static final String[] outputTypes = {"Overwrite", "8-bit", "16-bit", "32-bit"};
 	
 	String arg;
 	ImagePlus imp;
@@ -99,10 +100,14 @@ public class Binary implements PlugInFilter {
 		gd.addNumericField("Iterations (1-25):", iterations, 0, 3, "");
 		gd.addNumericField("Count (1-8):", count, 0, 3, "");
 		gd.addCheckbox("Black Background", Prefs.blackBackground);
+		gd.addCheckbox("Pad Edges When Eroding", Prefs.padEdges);
+		gd.addChoice("EDM Output:", outputTypes, outputTypes[EDM.getOutputType()]);
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
 		int n = (int)gd.getNextNumber();
 		Prefs.blackBackground = gd.getNextBoolean();
+		Prefs.padEdges = gd.getNextBoolean();
+		EDM.setOutputType(gd.getNextChoiceIndex());
 		if (n>25) n = 25;
 		if (n<1) n = 1;
 		iterations = n;
@@ -128,7 +133,7 @@ public class Binary implements PlugInFilter {
 				edgePixels = true;
 		}
 		for (int y=0; y<height; y++) { // right edge
-			if (ip.getPixel(height-1, y)==foreground)
+			if (ip.getPixel(width-1, y)==foreground)
 				edgePixels = true;
 		}
 		return edgePixels;

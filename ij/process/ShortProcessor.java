@@ -128,6 +128,7 @@ public class ShortProcessor extends ImageProcessor {
 			raster = Raster.createWritableRaster(sm, db, null);
 		}
 		if (image==null || cm!=cm2) {
+			if (cm==null) cm = getDefaultColorModel();
 			image = new BufferedImage(cm, raster, false, null);
 			cm2 = cm;
 		}
@@ -285,19 +286,18 @@ public class ShortProcessor extends ImageProcessor {
 		pixels[index] = (short)value;
 	}
 
-	/** Uses the current interpolation method to calculate
-		the pixel value at real coordinates (x,y). */
+	/** Uses the current interpolation method (BILINEAR or BICUBIC)
+		to calculate the pixel value at real coordinates (x,y). */
 	public double getInterpolatedPixel(double x, double y) {
-		if (interpolationMethod==BILINEAR) {
+		if (interpolationMethod==BICUBIC)
+			return getBicubicInterpolatedPixel(x, y, this);
+		else {
 			if (x<0.0) x = 0.0;
 			if (x>=width-1.0) x = width-1.001;
 			if (y<0.0) y = 0.0;
 			if (y>=height-1.0) y = height-1.001;
 			return getInterpolatedPixel(x, y, pixels);
-		} else if (interpolationMethod==BICUBIC)
-			return getBicubicInterpolatedPixel(x, y, this);
-		else
-			return getPixel((int)(x+0.5), (int)(y+0.5));
+		}
 	}
 
 	final public int getPixelInterpolated(double x, double y) {
@@ -319,7 +319,7 @@ public class ShortProcessor extends ImageProcessor {
 		nothing if (x,y) is outside the image boundary.
 		Values outside the range 0-65535 are clipped.
 	*/
-	public void putPixel(int x, int y, int value) {
+	public final void putPixel(int x, int y, int value) {
 		if (x>=0 && x<width && y>=0 && y<height) {
 			if (value>65535) value = 65535;
 			if (value<0) value = 0;
@@ -847,7 +847,7 @@ public class ShortProcessor extends ImageProcessor {
 		double dstCenterY = dstHeight/2.0;
 		double xScale = (double)dstWidth/roiWidth;
 		double yScale = (double)dstHeight/roiHeight;
-		if (interpolationMethod!=NEAREST_NEIGHBOR) {
+		if (interpolationMethod!=NONE) {
 			dstCenterX += xScale/2.0;
 			dstCenterY += yScale/2.0;
 		}
@@ -872,7 +872,7 @@ public class ShortProcessor extends ImageProcessor {
 			int index1, index2;
 			for (int y=0; y<=dstHeight-1; y++) {
 				ys = (y-dstCenterY)/yScale + srcCenterY;
-				if (interpolate) {
+				if (interpolationMethod==BILINEAR) {
 					if (ys<0.0) ys = 0.0;
 					if (ys>=ylimit) ys = ylimit2;
 				}
@@ -939,6 +939,11 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Does nothing. The rotate() and scale() methods always zero fill. */
 	public void setBackgroundValue(double value) {
+	}
+
+	/** Always returns 0. */
+	public double getBackgroundValue() {
+		return 0.0;
 	}
 
 	/** Returns 65536 bin histogram of the current ROI, which
@@ -1055,9 +1060,8 @@ public class ShortProcessor extends ImageProcessor {
 			fPixels[i] = pixels[i]&0xffff;
 		fp.setRoi(getRoi());
 		fp.setMask(mask);
-		fp.setThreshold(minThreshold, maxThreshold, ImageProcessor.NO_LUT_UPDATE);
-		//##can be NO_LUT_UPDATE
 		fp.setMinAndMax(min, max);
+		fp.setThreshold(minThreshold, maxThreshold, ImageProcessor.NO_LUT_UPDATE);
 		return fp;
 	}
 	
@@ -1071,7 +1075,7 @@ public class ShortProcessor extends ImageProcessor {
 		float value;
 		int size = width*height;
 		for (int i=0; i<size; i++) {
-			value = fPixels[i] + 0.49999995f;
+			value = fPixels[i] + 0.5f;
 			if (value<0f) value = 0f;
 			if (value>65535f) value = 65535f;
 			pixels[i] = (short)value;

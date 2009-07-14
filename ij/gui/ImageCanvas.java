@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.awt.image.*;
 import ij.process.ImageProcessor;
 import ij.measure.*;
+import ij.plugin.WandToolOptions;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
 import ij.macro.*;
@@ -61,6 +62,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	private int offScreenWidth = 0;
 	private int offScreenHeight = 0;
 	private boolean mouseExited = true;
+	private boolean customRoi;
 	
 	
 	public ImageCanvas(ImagePlus imp) {
@@ -628,8 +630,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 	
 	protected Dimension canEnlarge(int newWidth, int newHeight) {
-		if ((flags&Event.SHIFT_MASK)!=0 || IJ.shiftKeyDown())
-			return null;
+		//if ((flags&Event.CTRL_MASK)!=0 || IJ.controlKeyDown()) return null;
 		ImageWindow win = imp.getWindow();
 		if (win==null) return null;
 		Rectangle r1 = win.getBounds();
@@ -856,7 +857,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		flags = e.getModifiers();
 		//IJ.log("Mouse pressed: " + e.isPopupTrigger() + "  " + ij.modifiers(flags) + " button: " + e.getButton() + ": " + e);		
 		//if (toolID!=Toolbar.MAGNIFIER && e.isPopupTrigger()) {
-		if (toolID!=Toolbar.MAGNIFIER && ((e.isPopupTrigger() && e.getButton() != 0) || (flags & Event.META_MASK)!=0)) {
+		if (toolID!=Toolbar.MAGNIFIER && ((e.isPopupTrigger() && e.getButton() != 0)||(!IJ.isMacintosh()&&(flags&Event.META_MASK)!=0))) {
 			handlePopupMenu(e);
 			return;
 		}
@@ -874,15 +875,17 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if (!(roi!=null && (roi.contains(ox, oy)||roi.isHandle(x, y)>=0)) && roiManagerSelect(x, y))
  				return;
 		}
+		if (customRoi && displayList!=null)
+			return;
 
 		switch (toolID) {
 			case Toolbar.MAGNIFIER:
 				if (IJ.shiftKeyDown())
 					zoomToSelection(ox, oy);
 				else if ((flags & (Event.ALT_MASK|Event.META_MASK|Event.CTRL_MASK))!=0)
-					zoomOut(x, y);
+					IJ.run("Out");
 				else
-					zoomIn(x, y);
+					IJ.run("In");
 				break;
 			case Toolbar.HAND:
 				setupScroll(ox, oy);
@@ -909,9 +912,15 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 					}
 				}
 				setRoiModState(e, roi, -1);
-				int npoints = IJ.doWand(ox, oy);
-				if (Recorder.record && npoints>0)
-					Recorder.record("doWand", ox, oy);
+				String mode = WandToolOptions.getMode();
+				double tolerance = WandToolOptions.getTolerance();
+				int npoints = IJ.doWand(ox, oy, tolerance, mode);
+				if (Recorder.record && npoints>0) {
+					if (tolerance==0.0 && mode.equals("Legacy"))
+						Recorder.record("doWand", ox, oy);
+					else
+						Recorder.recordString("doWand("+ox+", "+oy+", "+tolerance+", \""+mode+"\");\n");
+				}
 				break;
 			case Toolbar.OVAL:
 				if (Toolbar.getBrushSize()>0)
@@ -929,22 +938,6 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		}
 	}
 	
-	void zoomToSelection(int x, int y) {
-		IJ.setKeyUp(IJ.ALL_KEYS);
-		String macro =
-			"args = split(getArgument);\n"+
-			"x1=parseInt(args[0]); y1=parseInt(args[1]); flags=20;\n"+
-			"while (flags&20!=0) {\n"+
-				"getCursorLoc(x2, y2, z, flags);\n"+
-				"if (x2>=x1) x=x1; else x=x2;\n"+
-				"if (y2>=y1) y=y1; else y=y2;\n"+
-				"makeRectangle(x, y, abs(x2-x1), abs(y2-y1));\n"+
-				"wait(10);\n"+
-			"}\n"+
-			"run('To Selection');\n";
-		new MacroRunner(macro, x+" "+y);
-	}
-
     boolean roiManagerSelect(int x, int y) {
 		RoiManager rm=RoiManager.getInstance();
 		if (rm==null) return false;
@@ -962,6 +955,22 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		}
 		return false;
     }
+
+	void zoomToSelection(int x, int y) {
+		IJ.setKeyUp(IJ.ALL_KEYS);
+		String macro =
+			"args = split(getArgument);\n"+
+			"x1=parseInt(args[0]); y1=parseInt(args[1]); flags=20;\n"+
+			"while (flags&20!=0) {\n"+
+				"getCursorLoc(x2, y2, z, flags);\n"+
+				"if (x2>=x1) x=x1; else x=x2;\n"+
+				"if (y2>=y1) y=y1; else y=y2;\n"+
+				"makeRectangle(x, y, abs(x2-x1), abs(y2-y1));\n"+
+				"wait(10);\n"+
+			"}\n"+
+			"run('To Selection');\n";
+		new MacroRunner(macro, x+" "+y);
+	}
 
 	protected void setupScroll(int ox, int oy) {
 		xMouseStart = ox;
@@ -1135,6 +1144,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	public void setDisplayList(Vector list) {
 		displayList = list;
 		listColor = null;
+		if (list==null) customRoi = false;
 		if (list!=null&&list.size()>0&&((Roi)list.elementAt(0)).getInstanceColor()!=null)
 			labelListItems = false;
 		else
@@ -1158,6 +1168,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	
 	public Vector getDisplayList() {
 		return displayList;
+	}
+	
+	public void setCustomRoi(boolean customRoi) {
+		this.customRoi = customRoi;
 	}
 
 	/** Called by IJ.showStatus() to prevent status bar text from

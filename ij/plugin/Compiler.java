@@ -58,9 +58,11 @@ public class Compiler implements PlugIn, FilenameFilter {
 				javac=new com.sun.tools.javac.Main();
 			}
 		} catch (NoClassDefFoundError e) {
-			IJ.error("This JVM does not include the javac compiler.\n"
-					+"Javac is included with the Windows and Linux\n"
- 					+"versions of ImageJ that are bundled with Java.");
+			IJ.error("Unable to find the javac compiler, which comes with the Windows and \n"
+					+"Linux versions of ImageJ that include Java in the ImageJ/jre folder.\n"
+ 					+" \n"
+ 					+"   java.home: "+System.getProperty("java.home")
+ 					);
  			return false;
 		}
 		return true;
@@ -228,7 +230,8 @@ public class Compiler implements PlugIn, FilenameFilter {
 		GenericDialog gd = new GenericDialog("Compile and Run");
 		gd.addChoice("Target: ", targets, targets[target]);
 		gd.setInsets(15,5,0);
-		gd.addCheckbox("Generate Debugging Info (javac -g)", generateDebuggingInfo);
+		gd.addCheckbox("Generate debugging info (javac -g)", generateDebuggingInfo);
+        gd.addHelp(IJ.URL+"/docs/menus/edit.html#compiler");
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
 		target = gd.getNextChoiceIndex();		

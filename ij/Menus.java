@@ -75,10 +75,11 @@ public class Menus {
     private boolean isJarErrorHeading;
 	private boolean installingJars, duplicateCommand;
 	private Vector jarFiles;  // JAR files in plugins folder with "_" in their name
+	private Map menuEntry2jarFile = new HashMap();
 	private Vector macroFiles;  // Macro files in plugins folder with "_" in their name
 	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private boolean addSorted;
-	private static int defaultFontSize = IJ.isWindows()?14:0;
+	private static int defaultFontSize = IJ.isWindows()?14:12;
 	private int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
 	private Font menuFont;
 	static boolean jnlp; // true when using Java WebStart
@@ -92,7 +93,10 @@ public class Menus {
 	String addMenuBar() {
 		error = null;
 		pluginsTable = new Hashtable();
-
+		shortcuts = new Hashtable();
+		pluginsPrefs = new Vector();
+		macroShortcuts = null;
+		setupPluginsAndMacrosPaths();
 		Menu file = getMenu("File");
 		Menu newMenu = getMenu("File>New", true);
 		addPlugInItem(file, "Open...", "ij.plugin.Commands(\"open\")", KeyEvent.VK_O, false);
@@ -213,6 +217,7 @@ public class Menus {
 		addPlugInItem(help, "Plugins...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/plugins\")", 0, false);
 		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
 		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
+		addPlugInItem(help, "Update ImageJ...", "ij.plugin.ImageJ_Updater", 0, false);
 		addPlugInItem(help, "Update Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
 		help.addSeparator();
 		Menu aboutMenu = getMenu("Help>About Plugins", true);
@@ -320,9 +325,10 @@ public class Menus {
 		return submenu;
 	}
 	
-	void addLuts(Menu submenu) {
-		String path = Prefs.getHomeDir()+File.separator;
-		File f = new File(path+"luts");
+	static void addLuts(Menu submenu) {
+		String path = IJ.getDirectory("luts");
+		if (path==null) return;
+		File f = new File(path);
 		String[] list = null;
 		if (applet==null && f.exists() && f.isDirectory())
 			list = f.list();
@@ -336,7 +342,6 @@ public class Menus {
  				MenuItem item = new MenuItem(name);
 				submenu.add(item);
 				item.addActionListener(ij);
-				nPlugins++;
 			}
 		}
 	}
@@ -421,8 +426,8 @@ public class Menus {
 		String value, className;
 		char menuCode;
 		Menu menu;
-		String[] plugins = getPlugins();
-		String[] plugins2 = null;
+		String[] pluginList = getPlugins();
+		String[] pluginsList2 = null;
 		Hashtable skipList = new Hashtable();
  		for (int index=0; index<100; index++) {
 			value = Prefs.getString("plugin" + (index/10)%10 + index%10);
@@ -443,11 +448,11 @@ public class Menus {
 			value = value.substring(2,value.length()); //remove menu code and coma
 			className = value.substring(value.lastIndexOf(',')+1,value.length());
 			boolean found = className.startsWith("ij.");
-			if (!found && plugins!=null) { // does this plugin exist?
-				if (plugins2==null)
-					plugins2 = getStrippedPlugins(plugins);
-				for (int i=0; i<plugins2.length; i++) {
-					if (className.startsWith(plugins2[i])) {
+			if (!found && pluginList!=null) { // does this plugin exist?
+				if (pluginsList2==null)
+					pluginsList2 = getStrippedPlugins(pluginList);
+				for (int i=0; i<pluginsList2.length; i++) {
+					if (className.startsWith(pluginsList2[i])) {
 						found = true;
 						break;
 					}
@@ -464,10 +469,10 @@ public class Menus {
 				skipList.put(className, "");
 			}
 		}
-		if (plugins!=null) {
-			for (int i=0; i<plugins.length; i++) {
-				if (!skipList.containsKey(plugins[i]))
-					installUserPlugin(plugins[i]);
+		if (pluginList!=null) {
+			for (int i=0; i<pluginList.length; i++) {
+				if (!skipList.containsKey(pluginList[i]))
+					installUserPlugin(pluginList[i]);
 			}
 		}
 		installJarPlugins();
@@ -537,10 +542,17 @@ public class Menus {
 		menu.add(item);
 	}
 	
+	public static String getJarFileForMenuEntry(String menuEntry) {
+		if (instance == null)
+			return null;
+		return (String)instance.menuEntry2jarFile.get(menuEntry);
+	}
+
 	/** Install plugins located in JAR files. */
 	void installJarPlugins() {
 		if (jarFiles==null)
 			return;
+		Collections.sort(jarFiles);
 		installingJars = true;
 		for (int i=0; i<jarFiles.size(); i++) {
             isJarErrorHeading = false;
@@ -568,6 +580,7 @@ public class Menus {
 			}
 			for (int j=0; j<nEntries; j++) {
 				String s = entries[j];
+				//IJ.log(j+"  "+s);
 				if (nEntries2<=3) {
 					if (s.startsWith("Plugins>")) {
 						int firstComma = s.indexOf(',');
@@ -628,11 +641,29 @@ public class Menus {
             addPluginItem(menu, s);
             addSorted = false;
         }
+
+		String menuEntry = s;
+		if (s.startsWith("\"")) {
+			int quote = s.indexOf('"', 1);
+			menuEntry = quote < 0 ? s.substring(1)
+				: s.substring(1, quote);
+		} else {
+			int comma = s.indexOf(',');
+			if (comma > 0)
+				menuEntry = s.substring(0, comma);
+		}
 		if (duplicateCommand) {
 			if (jarError==null) jarError = "";
             addJarErrorHeading(jar);
-			jarError += "    Duplicate command: " + s + "\n";
+			String jar2 = (String)menuEntry2jarFile.get(menuEntry);
+			if (jar2 != null && jar2.startsWith(pluginsPath))
+				jar2 = jar2.substring(pluginsPath.length());
+			jarError += "    Duplicate command: " + s
+				+ (jar2 != null ? " (already in " + jar2 + ")"
+				   : "") + "\n";
 		}
+		else
+			menuEntry2jarFile.put(menuEntry, jar);
 		duplicateCommand = false;
     }
     
@@ -782,6 +813,7 @@ public class Menus {
 						name = className;
 					name = name.replace('_', ' ');
 					className = className.replace('/', '.');
+					//if (className.indexOf(".")==-1 || Character.isUpperCase(className.charAt(0)))
 					sb.append(plugins + ", \""+name+"\", "+className+"\n");
 				}
 			}
@@ -793,7 +825,7 @@ public class Menus {
 		else
     		return new ByteArrayInputStream(sb.toString().getBytes());
 	}
-
+	
 	/** Returns a list of the plugins with directory names removed. */
 	String[] getStrippedPlugins(String[] plugins) {
 		String[] plugins2 = new String[plugins.length];
@@ -807,28 +839,10 @@ public class Menus {
 		return plugins2;
 	}
 		
-	/** Returns a list of the plugins in the plugins menu. */
-	public static String[] getPlugins() {
-		return instance.getPluginsList();
-	}
-
-	private synchronized String[] getPluginsList() {
-		/*
-		 * Handling java webstart:
-		 * If the jnlp property is set, initialize jarFiles
-		 * and return
-		 */
-		String jnlp_jars = System.getProperty("jnlp");
-		if(jnlp_jars != null) {
-			String[] jars = Tools.split(jnlp_jars);
-			jarFiles = new Vector();
-			for(int i = 0; i < jars.length; i++)
-				jarFiles.addElement(jars[i]);
-			return new String[] {};
-		}
+	void setupPluginsAndMacrosPaths() {
+		pluginsPath = macrosPath = null;
 		String homeDir = Prefs.getHomeDir();
-		if (homeDir==null)
-			return null;
+		if (homeDir==null) return;
 		if (homeDir.endsWith("plugins"))
 			pluginsPath = homeDir+Prefs.separator;
 		else {
@@ -857,10 +871,34 @@ public class Menus {
 			macrosPath = null;
 		f = pluginsPath!=null?new File(pluginsPath):null;
 		if (f==null || (f!=null && !f.isDirectory())) {
-			//error = "Plugins folder not found at "+pluginsPath;
 			pluginsPath = null;
-			return null;
+			return;
 		}
+	}
+
+	/** Returns a list of the plugins in the plugins menu. */
+	public static String[] getPlugins() {
+		return instance.getPluginsList();
+	}
+
+	private synchronized String[] getPluginsList() {
+		/*
+		 * Handling java webstart:
+		 * If the jnlp property is set, initialize jarFiles
+		 * and return
+		 */
+		String jnlp_jars = System.getProperty("jnlp");
+		if(jnlp_jars != null) {
+			String[] jars = Tools.split(jnlp_jars);
+			jarFiles = new Vector();
+			for(int i = 0; i < jars.length; i++)
+				jarFiles.addElement(jars[i]);
+			return new String[] {};
+		}
+
+		File f = pluginsPath!=null?new File(pluginsPath):null;
+		if (f==null || (f!=null && !f.isDirectory()))
+			return null;
 		String[] list = f.list();
 		if (list==null)
 			return null;

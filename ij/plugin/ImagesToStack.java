@@ -15,6 +15,7 @@ public class ImagesToStack implements PlugIn {
 	private static int method = COPY_CENTER;
 	private static boolean bicubic;
 	private static boolean keep;
+	private static boolean titlesAsLabels = true;
 	private String filter;
 	private int width, height;
 	private int maxWidth, maxHeight;
@@ -23,6 +24,7 @@ public class ImagesToStack implements PlugIn {
 	private Calibration cal2;
 	private int stackType;
 	private ImagePlus[] image;
+	private String name = "Stack";
 
 	public void run(String arg) {
     	convertImagesToStack();
@@ -44,7 +46,7 @@ public class ImagesToStack implements PlugIn {
 				image[count++] = imp;
 		}		
 		if (count<2) {
-			IJ.error("There must be at least two open images.");
+			IJ.error("Images to Stack", "There must be at least two open images.");
 			return;
 		}
 
@@ -52,7 +54,8 @@ public class ImagesToStack implements PlugIn {
 		count = findMinMaxSize(count);
 		boolean sizesDiffer = width!=minWidth||height!=minHeight;
 		boolean showDialog = true;
-		if (IJ.macroRunning() && Macro.getOptions()==null) {
+		String macroOptions = Macro.getOptions();
+		if (IJ.macroRunning() && macroOptions==null) {
 			if (sizesDiffer) {
 				IJ.error("Images are not all the same size");
 				return;
@@ -68,22 +71,30 @@ public class ImagesToStack implements PlugIn {
 				gd.addMessage(msg);
 				gd.addChoice("Method:", methods, methods[method]);
 			}
+			gd.addStringField("Name:", name, 12);
 			gd.addStringField("Title Contains:", "", 12);
 			if (sizesDiffer)
 				gd.addCheckbox("Bicubic Interpolation", bicubic);
+			gd.addCheckbox("Use Titles as Labels", titlesAsLabels);
 			gd.addCheckbox("Keep Source Images", keep);
 			gd.showDialog();
 			if (gd.wasCanceled()) return;
 			if (sizesDiffer)
 				method = gd.getNextChoiceIndex();
+			name = gd.getNextString();
 			filter = gd.getNextString();
 			if (sizesDiffer)
 				bicubic = gd.getNextBoolean();
+			titlesAsLabels = gd.getNextBoolean();
 			keep = gd.getNextBoolean();
 			if (filter!=null && (filter.equals("") || filter.equals("*")))
 				filter = null;
-			if (filter!=null) 
+			if (filter!=null) {
 				count = findMinMaxSize(count);
+				if (count==0) {
+					IJ.error("Images to Stack", "None of the images have a title containing \""+filter+"\"");
+				}
+			}
 		} else
 			keep = false;
 		if (method==SCALE_SMALL) {
@@ -103,9 +114,11 @@ public class ImagesToStack implements PlugIn {
 			ImageProcessor ip = image[i].getProcessor();
 			if (ip.getMin()<min) min = ip.getMin();
 			if (ip.getMax()>max) max = ip.getMax();
-            String label = image[i].getTitle();
-            String info = (String)image[i].getProperty("Info");
-            if (info!=null) label += "\n" + info;
+            String label = titlesAsLabels?image[i].getTitle():null;
+            if (label!=null) {
+            	String info = (String)image[i].getProperty("Info");
+				if (info!=null) label += "\n" + info;
+			}
             if (fi!=null) {
 				FileInfo fi2 = image[i].getOriginalFileInfo();
 				if (fi2!=null && !fi.directory.equals(fi2.directory))
@@ -150,7 +163,7 @@ public class ImagesToStack implements PlugIn {
 			}
 		}
 		if (stack.getSize()==0) return;
-		ImagePlus imp = new ImagePlus("Stack", stack);
+		ImagePlus imp = new ImagePlus(name, stack);
 		if (stackType==16 || stackType==32)
 			imp.getProcessor().setMinAndMax(min, max);
 		if (cal2!=null)

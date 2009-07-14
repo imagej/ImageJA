@@ -36,7 +36,7 @@ public class IJ {
 	private static TextPanel textPanel;
 	private static String osname, osarch;
 	private static boolean isMac, isWin, isJava2, isJava14, isJava15, isJava16, isJava17, isLinux, isVista, is64Bit;
-	private static boolean altDown, spaceDown, shiftDown;
+	private static boolean controlDown, altDown, spaceDown, shiftDown;
 	private static boolean macroRunning;
 	private static Thread previousThread;
 	private static TextPanel logPanel;
@@ -140,12 +140,10 @@ public class IJ {
 		if (IJ.debugMode)
 			IJ.log("runPlugin: "+className+" "+arg);
 		if (arg==null) arg = "";
-		// Use custom classloader if this is a user plugin
-		// and we are not running as an applet
-		if (!className.startsWith("ij") && applet==null) {
- 			boolean createNewClassLoader = altKeyDown();
-			return runUserPlugIn(commandName, className, arg, createNewClassLoader);
-		}
+		// Load using custom classloader if this is a user 
+		// plugin and we are not running as an applet
+		if (!className.startsWith("ij.") && applet==null)
+			return runUserPlugIn(commandName, className, arg, false);
 		Object thePlugIn=null;
 		try {
 			Class c = Class.forName(className);
@@ -156,7 +154,7 @@ public class IJ {
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
 		}
 		catch (ClassNotFoundException e) {
-			if (IJ.getApplet()==null && className.indexOf("JpegWriter")==-1)
+			if (IJ.getApplet()==null)
 				log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
@@ -693,6 +691,11 @@ public class IJ {
 		return spaceDown;
 	}
 
+	/** Returns true if the control key is down. */
+	public static boolean controlKeyDown() {
+		return controlDown;
+	}
+
 	/** Returns true if the alt key is down. */
 	public static boolean altKeyDown() {
 		return altDown;
@@ -702,10 +705,16 @@ public class IJ {
 	public static boolean shiftKeyDown() {
 		return shiftDown;
 	}
-
+	
 	public static void setKeyDown(int key) {
 		if (debugMode) IJ.log("setKeyDown: "+key);
 		switch (key) {
+			case KeyEvent.VK_CONTROL:
+				controlDown=true;
+				break;
+			case KeyEvent.VK_META:
+				if (isMacintosh()) controlDown=true;
+				break;
 			case KeyEvent.VK_ALT:
 				altDown=true;
 				break;
@@ -725,19 +734,22 @@ public class IJ {
 			}
 		}
 	}
-	
+
 	public static void setKeyUp(int key) {
 		if (debugMode) IJ.log("setKeyUp: "+key);
 		switch (key) {
+			case KeyEvent.VK_CONTROL: controlDown=false; break;
+			case KeyEvent.VK_META: if (isMacintosh()) controlDown=false; break;
 			case KeyEvent.VK_ALT: altDown=false; break;
 			case KeyEvent.VK_SHIFT: shiftDown=false; if (debugMode) beep(); break;
-			case KeyEvent.VK_SPACE: {
+			case KeyEvent.VK_SPACE:
 				spaceDown=false;
 				ImageWindow win = WindowManager.getCurrentWindow();
 				if (win!=null) win.getCanvas().setCursor(-1,-1,-1,-1);
 				break;
-			}
-			case ALL_KEYS: altDown=shiftDown=spaceDown=false; break;
+			case ALL_KEYS:
+				shiftDown=controlDown=altDown=spaceDown=false;
+				break;
 		}
 	}
 	
@@ -1082,19 +1094,38 @@ public class IJ {
 	/** Equivalent to clicking on the current image at (x,y) with the
 		wand tool. Returns the number of points in the resulting ROI. */
 	public static int doWand(int x, int y) {
+		return doWand(x, y, 0, null);
+	}
+
+	/** Traces the boundary of the area with pixel values within
+	* 'tolerance' of the value of the pixel at the starting location.
+	* 'tolerance' is in uncalibrated units.
+	* 'mode' can be "4-connected", "8-connected" or "Legacy".
+	* "Legacy" is for compatibility with previous versions of ImageJ;
+	* it is ignored if 'tolerance' > 0.
+	*/
+	public static int doWand(int x, int y, double tolerance, String mode) {
 		ImagePlus img = getImage();
 		ImageProcessor ip = img.getProcessor();
 		if ((img.getType()==ImagePlus.GRAY32) && Double.isNaN(ip.getPixelValue(x,y)))
 			return 0;
+		int imode = Wand.LEGACY_MODE;
+		if (mode!=null) {
+			if (mode.startsWith("4"))
+				imode = Wand.FOUR_CONNECTED;
+			else if (mode.startsWith("8"))
+				imode = Wand.EIGHT_CONNECTED;
+		}
 		Wand w = new Wand(ip);
 		double t1 = ip.getMinThreshold();
-		if (t1==ImageProcessor.NO_THRESHOLD)
-			w.autoOutline(x, y);
+		if (t1==ImageProcessor.NO_THRESHOLD || (ip.getLutUpdateMode()==ImageProcessor.NO_LUT_UPDATE&& tolerance>0.0))
+			w.autoOutline(x, y, tolerance, imode);
 		else
-			w.autoOutline(x, y, t1, ip.getMaxThreshold());
+			w.autoOutline(x, y, t1, ip.getMaxThreshold(), imode);
 		if (w.npoints>0) {
 			Roi previousRoi = img.getRoi();
-			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, Roi.TRACED_ROI);
+			int type = Wand.allPoints()?Roi.FREEROI:Roi.TRACED_ROI;
+			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, type);
 			img.killRoi();
 			img.setRoi(roi);
 			// add/subtract this ROI to the previous one if the shift/alt key is down
@@ -1159,10 +1190,10 @@ public class IJ {
 		return ImageJ.VERSION;
 	}
 	
-	/** Returns the path to the home ("user.home"), startup (ImageJ directory), plugins, macros, 
-		temp, current or image directory if <code>title</code> is "home", "startup", 
-		"plugins", "macros", "temp", "current" or "image", otherwise, displays a dialog 
-		and returns the path to the directory selected by the user. 
+	/** Returns the path to the home ("user.home"), startup, ImageJ, plugins, macros, 
+		luts, temp, current or image directory if <code>title</code> is "home", "startup", 
+		"imagej", "plugins", "macros", "luts", "temp", "current" or "image", otherwise, 
+		displays a dialog and returns the path to the directory selected by the user. 
 		Returns null if the specified directory is not found or the user
 		cancels the dialog box. Also aborts the macro if the user cancels
 		the dialog box.*/
@@ -1171,12 +1202,18 @@ public class IJ {
 			return Menus.getPlugInsPath();
 		else if (title.equals("macros"))
 			return Menus.getMacrosPath();
-		else if (title.equals("luts"))
-			return Prefs.getHomeDir()+File.separator+"luts"+File.separator;
-		else if (title.equals("home"))
+		else if (title.equals("luts")) {
+			String ijdir = getIJDir();
+			if (ijdir!=null)
+				return ijdir + "luts" + File.separator;
+			else
+				return null;
+		} else if (title.equals("home"))
 			return System.getProperty("user.home") + File.separator;
-		else if (title.equals("startup")||title.equals("imagej"))
+		else if (title.equals("startup"))
 			return Prefs.getHomeDir() + File.separator;
+		else if (title.equals("imagej"))
+			return getIJDir();
 		else if (title.equals("current"))
 			return OpenDialog.getDefaultDirectory();
 		else if (title.equals("temp")) {
@@ -1196,6 +1233,14 @@ public class IJ {
 			if (dir==null) Macro.abort();
 			return dir;
 		}
+	}
+	
+	private static String getIJDir() {
+		String path = Menus.getPlugInsPath();
+		if (path==null) return null;
+		String ijdir = (new File(path)).getParent();
+		if (ijdir!=null) ijdir += File.separator;
+		return ijdir;
 	}
 	
 	/** Displays a file open dialog box and then opens the tiff, dicom, 
@@ -1328,9 +1373,12 @@ public class IJ {
 		if (path==null) return null;
 		int dotIndex = path.lastIndexOf(".");
 		int separatorIndex = path.lastIndexOf(File.separator);
-		if (dotIndex>=0 && dotIndex>separatorIndex && (path.length()-dotIndex)<=5)
-			path = path.substring(0, dotIndex) + extension;
-		else
+		if (dotIndex>=0 && dotIndex>separatorIndex && (path.length()-dotIndex)<=5) {
+			if (dotIndex+1<path.length() && Character.isDigit(path.charAt(dotIndex+1)))
+				path += extension;
+			else
+				path = path.substring(0, dotIndex) + extension;
+		} else
 			path += extension;
 		return path;
 	}

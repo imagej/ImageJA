@@ -54,7 +54,10 @@ public abstract class ImageProcessor extends Object {
 	protected boolean antialiasedText;
 	protected boolean boldFont;
 	private static String[] interpolationMethods;
-	//static Frame frame;
+	// Over/Under tresholding colors
+	private static int overRed, overGreen=255, overBlue;
+	private static int underRed, underGreen, underBlue=255;
+	private static boolean useBicubic;
 		
     ProgressBar progressBar;
 	protected int width, snapshotWidth;
@@ -68,7 +71,7 @@ public abstract class ImageProcessor extends Object {
 	protected byte[] rLUT1, gLUT1, bLUT1; // base LUT
 	protected byte[] rLUT2, gLUT2, bLUT2; // LUT as modified by setMinAndMax and setThreshold
 	protected boolean interpolate;  // replaced by interpolationMethod
-	protected int interpolationMethod = BILINEAR;
+	protected int interpolationMethod = NONE;
 	protected double minThreshold=NO_THRESHOLD, maxThreshold=NO_THRESHOLD;
 	protected int histogramSize = 256;
 	protected double histogramMin, histogramMax;
@@ -143,15 +146,7 @@ public abstract class ImageProcessor extends Object {
 	}
 
 	protected void makeDefaultColorModel() {
-		byte[] rLUT = new byte[256];
-		byte[] gLUT = new byte[256];
-		byte[] bLUT = new byte[256];
-		for(int i=0; i<256; i++) {
-			rLUT[i]=(byte)i;
-			gLUT[i]=(byte)i;
-			bLUT[i]=(byte)i;
-		}
-		cm = new IndexColorModel(8, 256, rLUT, gLUT, bLUT);
+		cm = getDefaultColorModel();
 	}
 
 	/** Inverts the values in this image's LUT (indexed color model).
@@ -267,7 +262,6 @@ public abstract class ImageProcessor extends Object {
 		return isColor;
 	}
 
-
 	/** Returns true if this image uses a pseudocolor or grayscale LUT, 
 		in other words, is this an image that can be filtered. */
     public boolean isPseudoColorLut() {
@@ -346,6 +340,9 @@ public abstract class ImageProcessor extends Object {
 
 	/** Sets the background fill value used by the rotate(), scale() and translate() methods. */
 	public abstract void setBackgroundValue(double value);
+
+	/** Returns the background fill value. */
+	public abstract double getBackgroundValue();
 
 	/** Returns the smallest displayed pixel value. */
 	public abstract double getMin();
@@ -427,13 +424,13 @@ public abstract class ImageProcessor extends Object {
 					bLUT2[i] = bLUT1[i];
 
 				} else if (i>t2) {
-					rLUT2[i] = (byte)0;
-					gLUT2[i] = (byte)255;
-					bLUT2[i] = (byte)0;
+					rLUT2[i] = (byte)overRed;
+					gLUT2[i] = (byte)overGreen;
+					bLUT2[i] = (byte)overBlue;
 				} else { 
-					rLUT2[i] = (byte)0;
-					gLUT2[i] = (byte)0; 
-					bLUT2[i] = (byte)255;
+					rLUT2[i] = (byte)underRed;
+					gLUT2[i] = (byte)underGreen; 
+					bLUT2[i] = (byte)underBlue;
 				}
 			}
 
@@ -442,6 +439,64 @@ public abstract class ImageProcessor extends Object {
 		source = null;
 	}
 	
+	public void setAutoThreshold(String method) {
+		if (method==null)
+			throw new IllegalArgumentException("Null method");
+		boolean darkBackground = method.indexOf("dark")!=-1;
+		int index = method.indexOf(" ");
+		if (index!=-1)
+			method = method.substring(0, index);
+		setAutoThreshold(method, darkBackground, RED_LUT);
+	}
+	
+	public void setAutoThreshold(String method, boolean darkBackground, int lutUpdate) {
+		if (method==null || (this instanceof ColorProcessor))
+			return;
+		if (method.equals("Default")) {
+			setAutoThreshold(ISODATA2, lutUpdate);
+			return;
+		}
+		double min=0.0, max=0.0;
+		boolean notByteData = !(this instanceof ByteProcessor);
+		ImageProcessor ip2 = this;
+		if (notByteData) {
+			ImageProcessor mask = ip2.getMask();
+			Rectangle rect = ip2.getRoi();
+			resetMinAndMax();
+			min = getMin(); max = getMax();
+			ip2 = convertToByte(true);
+			ip2.setMask(mask);
+			ip2.setRoi(rect);	
+		}
+		int options = ij.measure.Measurements.AREA+ ij.measure.Measurements.MIN_MAX+ ij.measure.Measurements.MODE;
+		ImageStatistics stats = ImageStatistics.getStatistics(ip2, options, null);
+		int[] histogram = stats.histogram;
+		AutoThresholder thresholder = new AutoThresholder();
+		int threshold = thresholder.getThreshold(method, stats.histogram);
+		double lower, upper;
+		if (darkBackground) {
+			if (isInvertedLut())
+				{lower=0.0; upper=threshold;}
+			else
+				{lower=threshold; upper=255.0;}
+		} else {
+			if (isInvertedLut())
+				{lower=threshold; upper=255.0;}
+			else
+				{lower=0.0; upper=threshold;}
+		}
+		if (notByteData) {
+			if (max>min) {
+				lower = min + (lower/255.0)*(max-min);
+				upper = min + (upper/255.0)*(max-min);
+			} else
+				lower = upper = min;
+		}
+		setThreshold(lower, upper, lutUpdate);
+		if (notByteData && lutUpdate!=NO_LUT_UPDATE)
+			setLutAnimation(true);
+	}
+
 	/** Automatically sets the lower and upper threshold levels, where 'method'
 		 must be ISODATA or ISODATA2 and 'lutUpdate' must be RED_LUT,
 		 BLACK_AND_WHITE_LUT, OVER_UNDER_LUT or NO_LUT_UPDATE.
@@ -704,16 +759,19 @@ public abstract class ImageProcessor extends Object {
 	/** This method has been replaced by setInterpolationMethod(). */
 	public void setInterpolate(boolean interpolate) {
 		this.interpolate = interpolate;
-		interpolationMethod = interpolate?BILINEAR:NEAREST_NEIGHBOR;
+		if (interpolate)
+			interpolationMethod = useBicubic?BICUBIC:BILINEAR;
+		else
+			interpolationMethod = NONE;
 	}
-
-	/** Use this method to set the interpolation method (NEAREST_NEIGHBOR, 
+	
+	/** Use this method to set the interpolation method (NONE, 
 		 BILINEAR or BICUBIC) used by scale(), resize() and rotate(). */
 	public void setInterpolationMethod(int method) {
-		if (method<NEAREST_NEIGHBOR || method>BICUBIC)
+		if (method<NONE || method>BICUBIC)
 			throw new IllegalArgumentException("Invalid interpolation method");
 		interpolationMethod = method;
-		interpolate = method!=NEAREST_NEIGHBOR?true:false;
+		interpolate = method!=NONE?true:false;
 	}
 	
 	public static String[] getInterpolationMethods() {
@@ -1223,7 +1281,7 @@ public abstract class ImageProcessor extends Object {
 
 	/**	Fills the image or ROI bounding rectangle with the current fill/draw value. Use
 	*	fill(mask) to fill non-rectangular selections.
-	*	@see ImageProcessor fill(ImageProcessor)
+	*	@see ImageProcessor fill(Roi)
 	*/
 	public void fill() {
 		process(FILL, 0.0);
@@ -1270,7 +1328,9 @@ public abstract class ImageProcessor extends Object {
 	/** Set a lookup table used by getPixelValue(), getLine() and
 		convertToFloat() to calibrate pixel values. The length of
 		the table must be 256 for byte images and 65536 for short
-		images. RGB and float processors do not do calibration. */
+		images. RGB and float processors do not do calibration.
+		@see ij.measure.Calibration#setCTable
+	*/
 	public void setCalibrationTable(float[] cTable) {
 		this.cTable = cTable;
 	}
@@ -1415,6 +1475,8 @@ public abstract class ImageProcessor extends Object {
 	/** Uses bilinear interpolation to find the pixel value at real coordinates (x,y). 
 		Returns zero if the (x, y) is not inside the image. */
 	public final double getInterpolatedValue(double x, double y) {
+		if (useBicubic)
+			return getBicubicInterpolatedPixel(x, y, this);
 		if (x<0.0 || x>=width-1.0 || y<0.0 || y>=height-1.0) {
 			if (x<-1.0 || x>=width || y<=1.0 || y>=height)
 				return 0.0;
@@ -1442,17 +1504,30 @@ public abstract class ImageProcessor extends Object {
 	public double getBicubicInterpolatedPixel(double x0, double y0, ImageProcessor ip2) {
 		int u0 = (int) Math.floor(x0);	//use floor to handle negative coordinates too
 		int v0 = (int) Math.floor(y0);
+		if (u0<=0 || u0>=width-2 || v0<=0 || v0>=height-2)
+			return ip2.getBilinearInterpolatedPixel(x0, y0);
 		double q = 0;
 		for (int j = 0; j <= 3; j++) {
 			int v = v0 - 1 + j;
 			double p = 0;
 			for (int i = 0; i <= 3; i++) {
 				int u = u0 - 1 + i;
-				p = p + ip2.getPixel(u,v) * cubic(x0 - u);
+				p = p + ip2.get(u,v) * cubic(x0 - u);
 			}
 			q = q + p * cubic(y0 - v);
 		}
 		return q;
+	}
+	
+	final double getBilinearInterpolatedPixel(double x, double y) {
+		if (x>=-1 && x<width && y>=-1 && y<height) {
+			int method = interpolationMethod;
+			interpolationMethod = BILINEAR;
+			double value = getInterpolatedPixel(x, y);
+			interpolationMethod = method;
+			return value;
+		} else
+			return getBackgroundValue();
 	}
 	
 	static final double a = 0.5; // Catmull-Rom interpolation
@@ -1676,7 +1751,7 @@ public abstract class ImageProcessor extends Object {
   	public void translate(double xOffset, double yOffset) {
   		ImageProcessor ip2 = this.duplicate();
 		boolean integerOffsets = xOffset==(int)xOffset && yOffset==(int)yOffset;
-  		if (integerOffsets || interpolationMethod==NEAREST_NEIGHBOR) {
+  		if (integerOffsets || interpolationMethod==NONE) {
 			for (int y=roiY; y<(roiY + roiHeight); y++) {
 				for (int x=roiX; x<(roiX + roiWidth); x++)
 					putPixel(x, y, ip2.getPixel(x-(int)xOffset, y-(int)yOffset));
@@ -1993,6 +2068,27 @@ public abstract class ImageProcessor extends Object {
 		icm.getBlues(tmp);
 		for (int i=0; i<mapSize; i++) blues[i] = tmp[i]&0xff;
 		cm2 = cm;
+	}
+	
+	/** Sets the upper Over/Under threshold color. Can be called from a macro,
+		e.g., call("ij.process.ImageProcessor.setOverColor", 0,255,255). */
+	public static void setOverColor(int red, int green, int blue) {
+		overRed=red; overGreen=green; overBlue=blue;
+	}
+
+	/** Set the lower Over/Under thresholding color. */
+	public static void setUnderColor(int red, int green, int blue) {
+		underRed=red; underGreen=green; underBlue=blue;
+	}
+	
+	/** Returns 'true' if this is a binary image (8-bit-image with only 0 and 255). */
+	public boolean isBinary() {
+		return false;
+	}
+
+	/* This method is experimental and may be removed. */
+	public static void setUseBicubic(boolean b) {
+		useBicubic = b;
 	}
 
 }

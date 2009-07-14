@@ -95,12 +95,9 @@ public class ColorProcessor extends ImageProcessor {
 		return sampleModel;
 	}
 
-	/** Returns a new, blank ShortProcessor with the specified width and height. */
+	/** Returns a new, blank ColorProcessor with the specified width and height. */
 	public ImageProcessor createProcessor(int width, int height) {
-		int[] pixels = new int[width*height];
-		for (int i=0; i<width*height; i++)
-			pixels[i] = -1;
-		ImageProcessor ip2 = new ColorProcessor(width, height, pixels);
+		ImageProcessor ip2 = new ColorProcessor(width, height);
 		ip2.setInterpolationMethod(interpolationMethod);
 		return ip2;
 	}
@@ -129,6 +126,11 @@ public class ColorProcessor extends ImageProcessor {
 	/** Sets the background fill value, where <code>value</code> is interpreted as an RGB int. */
 	public void setBackgroundValue(double value) {
 		bgColor = (int)value;
+	}
+
+	/** Returns the background fill value. */
+	public double getBackgroundValue() {
+		return bgColor;
 	}
 
 	/** Returns the smallest displayed pixel value. */
@@ -306,7 +308,7 @@ public class ColorProcessor extends ImageProcessor {
 
 	/** Sets a pixel in the image using a 3 element (R, G and B)
 		int array of samples. */
-	public void putPixel(int x, int y, int[] iArray) {
+	public final void putPixel(int x, int y, int[] iArray) {
 		int r=iArray[0], g=iArray[1], b=iArray[2];
 		putPixel(x, y, (r<<16)+(g<<8)+b);
 	}
@@ -330,7 +332,7 @@ public class ColorProcessor extends ImageProcessor {
 	}
 
 	/** Stores the specified value at (x,y). */
-	public void putPixel(int x, int y, int value) {
+	public final void putPixel(int x, int y, int value) {
 		if (x>=0 && x<width && y>=0 && y<height)
 			pixels[y*width + x] = value;
 	}
@@ -755,7 +757,7 @@ public class ColorProcessor extends ImageProcessor {
 				if (checkCoordinates && ((xsi<xmin) || (xsi>xmax) || (ysi<ymin) || (ysi>ymax)))
 					pixels[index1++] = bgColor;
 				else {
-					if (interpolate) {
+					if (interpolationMethod==BILINEAR) {
 						if (xs<0.0) xs = 0.0;
 						if (xs>=xlimit) xs = xlimit2;
 						pixels[index1++] = getInterpolatedPixel(xs, ys, pixels2);
@@ -856,7 +858,7 @@ public class ColorProcessor extends ImageProcessor {
 		double yScale = (double)dstHeight/roiHeight;
 		double xlimit = width-1.0, xlimit2 = width-1.001;
 		double ylimit = height-1.0, ylimit2 = height-1.001;
-		if (interpolate) {
+		if (interpolationMethod==BILINEAR) {
 			if (xScale<=0.25 && yScale<=0.25)
 				return makeThumbnail(dstWidth, dstHeight, 0.6);
 			dstCenterX += xScale/2.0;
@@ -868,7 +870,7 @@ public class ColorProcessor extends ImageProcessor {
 		int index1, index2;
 		for (int y=0; y<=dstHeight-1; y++) {
 			ys = (y-dstCenterY)/yScale + srcCenterY;
-			if (interpolate) {
+			if (interpolationMethod==BILINEAR) {
 				if (ys<0.0) ys = 0.0;
 				if (ys>=ylimit) ys = ylimit2;
 			}
@@ -876,7 +878,7 @@ public class ColorProcessor extends ImageProcessor {
 			index2 = y*dstWidth;
 			for (int x=0; x<=dstWidth-1; x++) {
 				xs = (x-dstCenterX)/xScale + srcCenterX;
-				if (interpolate) {
+				if (interpolationMethod==BILINEAR) {
 					if (xs<0.0) xs = 0.0;
 					if (xs>=xlimit) xs = xlimit2;
 					pixels2[index2++] = getInterpolatedPixel(xs, ys, pixels);
@@ -1286,7 +1288,7 @@ public class ColorProcessor extends ImageProcessor {
 		int shift = 16 - 8*channelNumber;
 		int resetMask = 0xffffffff^(255<<shift);
 		for (int i=0; i<size; i++) {
-			value = fPixels[i] + 0.49999995f;
+			value = fPixels[i] + 0.5f;
 			if (value<0f) value = 0f;
 			if (value>255f) value = 255f;
 			pixels[i] = (pixels[i]&resetMask) | ((int)value<<shift);
