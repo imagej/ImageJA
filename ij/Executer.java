@@ -152,7 +152,7 @@ public class Executer implements Runnable {
 				return;
 			}
 			// Is this command a LUT name?
-			String path = IJ.getDirectory("luts")+cmd+".lut";
+			String path = IJ.getDirectory("luts")+cmd.command+".lut";
 			File f = new File(path);
 			if (f.exists()) {
 				IJ.open(path);
