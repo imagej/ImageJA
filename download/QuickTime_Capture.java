@@ -18,14 +18,19 @@ import quicktime.io.*;
 import quicktime.std.image.*;
 
 /**
-Previews and captures a single video frame using QuickTime for Java.
-Press the space bar to stop previewing. Press the alt key to 
-capture a frame and continue previewing.
-While previewing, type "+" to zoom in, "-" to zoom out,
-and "h" to display a histogram. Captures and
-displays a single frame if called with the argument "grab".
-Based on the LiveCam example posted to the QuickTime for Java mailing list
-by Jochen Broz.
+Previews and captures video frames using QuickTime for Java.
+Hold down the alt key at startup to display a dialog that allows
+the camera to be selected. While previewing live video, press
+the space bar to capture a frame and stop previewing. Press the 
+alt key to  capture a frame and continue previewing.
+
+Also while previewing, type "+" to zoom in, "-" to zoom out,
+and "h" to display a histogram. Captures and displays a single 
+frame if called from a macro with the argument "grab". Displays
+a dialog if called from a macro with the argument "dialog".
+
+Based on the LiveCam example by Jochen Broz that was 
+posted to the QuickTime for Java mailing list.
 http://lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html
 */
 public class QuickTime_Capture implements PlugIn {
@@ -53,7 +58,9 @@ public class QuickTime_Capture implements PlugIn {
 		if (options!=null && options.indexOf("grab")!=-1)
 			arg = "grab";
 		grabMode = arg.equals("grab");
-		showDialog = options!=null && options.indexOf("dialog")!=-1;
+		showDialog = IJ.altKeyDown() || (options!=null && options.indexOf("dialog")!=-1);
+		if (IJ.altKeyDown()) IJ.setKeyUp(KeyEvent.VK_ALT);
+
 		try {
 			QTSession.open();
 			initSequenceGrabber();

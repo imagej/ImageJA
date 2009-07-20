@@ -16,7 +16,7 @@
 
 <blockquote>
 
-<table cellspacing=5>
+<table cellspacing=5 width=700>
 
 <tr valign=top><td ><b>Author:</b></td><td >
 Wayne Rasband (wsr at nih.gov) 
@@ -27,16 +27,18 @@ Wayne Rasband (wsr at nih.gov)
 <A HREF="http://developer.apple.com/quicktime/qtjava/">QuickTime for Java</A>
 </td></tr>
 
-<tr valign=top><td ><b>Limitation:</b></td><td >
-Does not work with 64-bit versions of Java.
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Does not work with 64-bit versions of Java. File names cannot be longer
+that 32 characters.
+</td></tr>
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+<font color=#994400>Saving in a folder with a name longer than 31 characters
+can cause a QuickTime -47 (fBsyErr) error.</font>
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
 <A HREF="download/QuickTime_Writer.java">QuickTime_Writer.java</A>
-</td></tr>
-
-<tr valign=top><td ><b>Bugs:</b></td><td >
-File names longer than 32 characters can cause a QuickTime -47 (fBsyErr) error.
 </td></tr>
 
 <tr valign=top><td ><b>Installation:</b></td><td >
@@ -75,20 +77,27 @@ high compression and attractive playback
 <li><b>MPEG-4</b> - massive compression; requires QuickTime 7
 </ul>
 
+With hyperstacks (4D and 5D stacks), if T>1, it writes the current t-series (e.g., the "Mitosis" sample 5D stack),
+with the channels merged. If T=1 and Z>1, it writes the z-series (e.g., the "Confocal Series"
+and "Organ or Corti" sample 4D stacks), with the channels merged.
+If T=1 and Z=1, it writes the channels (e.g., the "Neuron" sample image).
+<p>
 This plugin is based on the VideoSampleBuilder example in Chapter 8 of 
 <A HREF="http://www.oreilly.com/catalog/quicktimejvaadn/">QuickTime for Java: A Developer's Notebook</A>
 by Chris Adamson. The codec descriptions are from the MakeCSequence example in the
 <A HREF="http://www.onjava.com/pub/a/onjava/2003/08/13/qtj_reintro.html">Making Media from Scratch</A>
 article, also by Chris Adamson.
+</td></tr>
 
 <tr valign=top><td ><b>History:</b></td><td >
-2000/10/20: First version<br>
-2005/10/11: Works with Java 1.4 on Mac OS X<br>
-2005/10/13: Fixed byte ordering bug on Windows<br>
-2005/11/09: Up to 8 times faster<br>
-2005/11/22: Compression ratio calculated correctly; options dialog displayed before save as dialog<br>
-2007/05/22: Displays error if file name longer than 32 characters<br>
-2008/05/14: Minimum frame rate no longer limited to 0.1 fps<br>
+<u>2000/10/20:</u> First version<br>
+<u>2005/10/11:</u> Works with Java 1.4 on Mac OS X<br>
+<u>2005/10/13:</u> Fixed byte ordering bug on Windows<br>
+<u>2005/11/09:</u> Up to 8 times faster<br>
+<u>2005/11/22:</u> Compression ratio calculated correctly; options dialog displayed before save as dialog<br>
+<u>2007/05/22:</u> Displays error if file name longer than 32 characters<br>
+<u>2008/05/14:</u> Minimum frame rate no longer limited to 0.1 fps<br>
+<u>2009/05/07:</u> Works with hyperstacks<br>
 </td></tr>
 
 <tr valign=top><td ><b>See Also:</b></td><td >
