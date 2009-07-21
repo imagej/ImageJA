@@ -16,6 +16,7 @@ import java.awt.*;
 import java.applet.Applet;
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.*;
 
 
 /** This class consists of static utility methods. */
@@ -345,7 +346,7 @@ public class IJ {
 	}
 
 	private static void showResults() {
-		TextWindow resultsWindow = new TextWindow("Results", "", 300, 200);
+		TextWindow resultsWindow = new TextWindow("Results", "", 400, 250);
 		textPanel = resultsWindow.getTextPanel();
 		textPanel.setResultsTable(Analyzer.getResultsTable());
 		if (ij!=null)
@@ -355,7 +356,7 @@ public class IJ {
 	public static synchronized void log(String s) {
 		if (s==null) return;
 		if (logPanel==null && ij!=null) {
-			TextWindow logWindow = new TextWindow("Log", "", 350, 250);
+			TextWindow logWindow = new TextWindow("Log", "", 400, 250);
 			logPanel = logWindow.getTextPanel();
 			logPanel.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		}
@@ -1218,6 +1219,7 @@ public class IJ {
 			return OpenDialog.getDefaultDirectory();
 		else if (title.equals("temp")) {
 			String dir = System.getProperty("java.io.tmpdir");
+			if (isMacintosh()) dir = "/tmp/";
 			if (dir!=null && !dir.endsWith(File.separator)) dir += File.separator;
 			return dir;
 		} else if (title.equals("image")) {
@@ -1279,6 +1281,34 @@ public class IJ {
 	/** Opens an image using a file open dialog and returns it as an ImagePlus object. */
 	public static ImagePlus openImage() {
 		return openImage(null);
+	}
+
+	/** Opens a URL and returns the contents as a string.
+		Returns "<Error: message>" if there an error, including
+		host or file not found. */
+	public static String openUrlAsString(String url) {
+		StringBuffer sb = null;
+		url = url.replaceAll(" ", "%20");
+		try {
+			URL u = new URL(url);
+			URLConnection uc = u.openConnection();
+			long len = uc.getContentLength();
+			if (len>1048576L)
+				return "<Error: file is larger than 1MB>";
+			InputStream in = u.openStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			sb = new StringBuffer() ;
+			String line;
+			while ((line=br.readLine()) != null)
+				sb.append (line + "\n");
+			in.close ();
+		} catch (Exception e) {
+			return("<Error: "+e+">");
+		}
+		if (sb!=null)
+			return new String(sb);
+		else
+			return "";
 	}
 
 	/** Saves the current image, lookup table, selection or text window to the specified file path. 

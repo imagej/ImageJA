@@ -784,8 +784,10 @@ public class Menus {
 					return jf.getInputStream(entry);
 				}
 			}
-		} catch (Exception e) {}
-
+		}
+    	catch (Throwable e) {
+    		IJ.log(jar+": "+e);
+    	}
 		return autoGenerateConfigFile(jar);
 	}
 	
@@ -818,7 +820,9 @@ public class Menus {
 				}
 			}
 		}
-	catch (Exception e) { IJ.log("Warning: could not access " + jar); }
+    	catch (Throwable e) {
+    		IJ.log(jar+": "+e);
+    	}
 		//IJ.log(""+(sb!=null?sb.toString():"null"));
 		if (sb==null)
 			return null;
@@ -838,7 +842,7 @@ public class Menus {
 		}
 		return plugins2;
 	}
-		
+	
 	void setupPluginsAndMacrosPaths() {
 		pluginsPath = macrosPath = null;
 		String homeDir = Prefs.getHomeDir();
@@ -877,7 +881,7 @@ public class Menus {
 	}
 
 	/** Returns a list of the plugins in the plugins menu. */
-	public static String[] getPlugins() {
+	public static synchronized String[] getPlugins() {
 		return instance.getPluginsList();
 	}
 
@@ -1108,7 +1112,7 @@ public class Menus {
 				CheckboxMenuItem item = (CheckboxMenuItem)window.getItem(i);
 				item.setState(i==index);
 			}
-		} catch (NullPointerException e) {}
+		} catch (Exception e) {}
 	}
 	
 	static boolean isColorLut(ImagePlus imp) {
@@ -1546,6 +1550,6 @@ public class Menus {
 		if (err!=null) IJ.error(err);
 		IJ.setClassLoader(null);
 		IJ.runPlugIn("ij.plugin.ClassChecker", "");
-		IJ.showStatus(m.nPlugins + " commands, " + m.nMacros + " macros");
+		IJ.showStatus("Menus updated: "+m.nPlugins + " commands, " + m.nMacros + " macros");
 	}
 }

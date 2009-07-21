@@ -3,6 +3,7 @@ import ij.util.Tools;
 import ij.text.TextWindow;
 import ij.plugin.MacroInstaller;
 import ij.plugin.frame.Recorder;
+import ij.io.OpenDialog;
 import java.io.*;
 import java.util.*;
 import java.awt.event.KeyEvent;
@@ -155,10 +156,11 @@ public class Executer implements Runnable {
 			String path = IJ.getDirectory("luts")+cmd.command+".lut";
 			File f = new File(path);
 			if (f.exists()) {
+				String dir = OpenDialog.getLastDirectory();
 				IJ.open(path);
 				notifyCommandListeners(cmd, CommandListenerPlus.CMD_LUT);
-			}
-			else
+				OpenDialog.setLastDirectory(dir);
+			} else
 				IJ.error("Unrecognized command: " + cmd.command);
 	 	}
 		notifyCommandListeners(cmd, CommandListenerPlus.CMD_FINISHED);
