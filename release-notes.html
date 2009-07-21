@@ -5,18 +5,32 @@
 </head>
 <body>
 
-<li> <u>1.43b, 23 June 2009</u>
+<li> <u>1.43d, 20 July 2009</u>
 <ul>
-<li> Kevin Moll contributed an enhanced and simplfied PluginClassLoader
-that extends URLClassLoader.
-<li> Added the "Use Titles as Labels" checkbox to the
-<i>Image&gt;Stacks&gt;Images to Stack</i> dialog box.
-<li> Fixed a bug, introduced in v1.43a, that caused
-<i>Help&gt;Update ImageJ</i> to fail if the path to ij.jar contained a space.
-<li> Fixed a bug that caused <i>Image&gt;Show Info</i> to not display metadata of stacks
-opened using <i>File&gt;Import&gt;TIFF Virtual Stack</i>.
-<li> Fixed a bug that sometimes caused the threshold limits to not be passed to PlugInFilters
-using the CONVERT_TO_FLOAT flag.
+<li> Thanks to Dimiter Prodanov, plugins (.jar and .class files)
+dragged from a browser window and dropped on the "ImageJ" window
+are installed and the ImageJ menus are updated.
+<li> Text files can be dragged from a browser window
+and dropped on the "ImageJ" window.
+<li> Thanks to Julian Cooper, the alt key constrains resizing to 
+the current aspect ratio for rectangle and oval selections, and 
+keeps the same length for line selections.
+<li> Added a "32-bit ABGR" option to the <i>File&gt;Import&gt;Raw</i>
+dialog box.
+<li> The ImageJ and Java version numbers are displayed when
+you click in the status bar.
+<li> Added the IJ.openUrlAsString() method.
+<li> Fixed a bug that sometimes caused the micron symbol (&micro;) to not
+be displayed correctly on Linux.
+<li> Fixed a bug that caused big-endian ARGB TIFFs to open incorrectly.
+<li> Fixed a bug that caused LUTs in the ImageJ/luts folder to not be
+added to the Image>Lookup Tables menu when running Fiji on OS X.
+<li> Fixed a bug that could cause Metamorph .stk files to open with
+an all zero LUT.
+<li> Fixed a bug that could cause ImageJ to generate an exception or fail
+to start if there was a corrupted jar file in the plugins folder.
+<li> Fixed a bug in the TIFF reader that could cause
+a "Strip offsets are not in order" error.
 </ul>
 
 <a href="http://rsb.info.nih.gov/ij">Home</a>

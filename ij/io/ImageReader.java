@@ -149,7 +149,7 @@ public class ImageReader {
 		int base = 0;
 		short last = 0;
 		for (int k=0; k<fi.stripOffsets.length; k++) {
-			//IJ.log("seek: "+fi.stripOffsets[k]+" "+(in instanceof RandomAccessStream));
+			IJ.log("seek: "+fi.stripOffsets[k]+" "+(in instanceof RandomAccessStream));
 			if (in instanceof RandomAccessStream)
 				((RandomAccessStream)in).seek(fi.stripOffsets[k]);
 			else if (k > 0) {
@@ -339,16 +339,16 @@ public class ImageReader {
 						j++; // ignore alfa byte
 						r = buffer[j++]&0xff;
 						g = buffer[j++]&0xff;
-					} else if (fi.intelByteOrder) {
-						r = buffer[j++]&0xff;
-						g = buffer[j++]&0xff;
+					} else if (fi.fileType==FileInfo.ABGR) {
 						b = buffer[j++]&0xff;
+						g = buffer[j++]&0xff;
+						r = buffer[j++]&0xff;
 						j++; // ignore alfa byte
 					} else {
-						j++; // ignore alfa byte
-						b = buffer[j++]&0xff;
-						g = buffer[j++]&0xff;
 						r = buffer[j++]&0xff;
+						g = buffer[j++]&0xff;
+						b = buffer[j++]&0xff;
+						j++; // ignore alfa byte
 					}
 				} else {
 					r = buffer[j++]&0xff;
@@ -495,6 +495,8 @@ public class ImageReader {
 	}
 	
 	Object readRGB48(InputStream in) throws IOException {
+		if (fi.compression==FileInfo.LZW || fi.compression==FileInfo.LZW_WITH_DIFFERENCING || fi.compression==FileInfo.PACK_BITS)
+			return readCompressedRGB48(in);
 		int channels = 3;
 		short[][] stack = new short[channels][nPixels];
 		DataInputStream dis = new DataInputStream(in);
@@ -514,6 +516,48 @@ public class ImageReader {
 			int channel=0;
 			boolean intel = fi.intelByteOrder;
 			for (int base=0; base<len; base+=2) {
+				if (intel)
+					value = ((buffer[base+1]&0xff)<<8) | (buffer[base]&0xff);
+				else
+					value = ((buffer[base]&0xff)<<8) | (buffer[base+1]&0xff);
+				if (value<min) min = value;
+				if (value>max) max = value;
+				stack[channel][pixel] = (short)(value);
+				channel++;
+				if (channel==channels) {
+					channel = 0;
+					pixel++;
+				}
+			}
+			showProgress(i+1, fi.stripOffsets.length);
+		}
+		this.min=min; this.max=max;
+		return stack;
+	}
+
+	Object readCompressedRGB48(InputStream in) throws IOException {
+		if (fi.compression==FileInfo.LZW_WITH_DIFFERENCING)
+			throw new IOException("ImageJ cannot open 48-bit LZW compressed TIFFs with predictor");
+		int channels = 3;
+		short[][] stack = new short[channels][nPixels];
+		DataInputStream dis = new DataInputStream(in);
+		int pixel = 0;
+		int min=65535, max=0;
+		for (int i=0; i<fi.stripOffsets.length; i++) {
+			if (i>0) {
+				int skip = fi.stripOffsets[i] - fi.stripOffsets[i-1] - fi.stripLengths[i-1];
+				if (skip>0) dis.skip(skip);
+			}
+			int len = fi.stripLengths[i];
+			byte[] buffer = new byte[len];
+			dis.readFully(buffer);
+			buffer = uncompress(buffer);
+			len = buffer.length;
+			if (len % 2 != 0) len--;
+			int value;
+			int channel=0;
+			boolean intel = fi.intelByteOrder;
+			for (int base=0; base<len && pixel<nPixels; base+=2) {
 				if (intel)
 					value = ((buffer[base+1]&0xff)<<8) | (buffer[base]&0xff);
 				else
@@ -667,6 +711,7 @@ public class ImageReader {
 				case FileInfo.RGB:
 				case FileInfo.BGR:
 				case FileInfo.ARGB:
+				case FileInfo.ABGR:
 				case FileInfo.BARG:
 					bytesPerPixel = fi.getBytesPerPixel();
 					skip(in);
