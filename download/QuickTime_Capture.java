@@ -18,19 +18,14 @@ import quicktime.io.*;
 import quicktime.std.image.*;
 
 /**
-Previews and captures video frames using QuickTime for Java.
-Hold down the alt key at startup to display a dialog that allows
-the camera to be selected. While previewing live video, press
-the space bar to capture a frame and stop previewing. Press the 
-alt key to  capture a frame and continue previewing.
-
-Also while previewing, type "+" to zoom in, "-" to zoom out,
-and "h" to display a histogram. Captures and displays a single 
-frame if called from a macro with the argument "grab". Displays
-a dialog if called from a macro with the argument "dialog".
-
-Based on the LiveCam example by Jochen Broz that was 
-posted to the QuickTime for Java mailing list.
+Previews and captures a single video frame using QuickTime for Java.
+Press the space bar to stop previewing. Press the alt key to 
+capture a frame and continue previewing.
+While previewing, type "+" to zoom in, "-" to zoom out,
+and "h" to display a histogram. Captures and
+displays a single frame if called with the argument "grab".
+Based on the LiveCam example posted to the QuickTime for Java mailing list
+by Jochen Broz.
 http://lists.apple.com/archives/quicktime-java/2005/Feb/msg00062.html
 */
 public class QuickTime_Capture implements PlugIn {
@@ -107,26 +102,6 @@ public class QuickTime_Capture implements PlugIn {
 		channel.setCompressorType( quicktime.std.StdQTConstants.kComponentVideoCodecType);
 	}
 
-	private void initSequenceGrabber2() throws Exception{
-		grabber = new SequenceGrabber();
-		// added by Jeff Hardin to account for change in byte order on Intel Macs
-		if (quicktime.util.EndianOrder.isNativeLittleEndian())
-			gWorld = new QDGraphics(QDConstants.k32BGRAPixelFormat, cameraSize);
-		else
-			gWorld = new QDGraphics(QDGraphics.kDefaultPixelFormat, cameraSize);
-		SGVideoChannel channel = new SGVideoChannel(grabber);
-		cameraSize = channel.getSrcVideoBounds();
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		if (cameraSize.getHeight()>screen.height-40) // iSight camera claims to 1600x1200!
-			cameraSize.resize(640, 480);
-		gWorld =new QDGraphics(cameraSize);
-		grabber.setGWorld(gWorld, null);
-		channel.setBounds(cameraSize);
-		channel.setUsage(quicktime.std.StdQTConstants.seqGrabPreview);
-		//channel.setFrameRate(0);
-		//channel.setCompressorType( quicktime.std.StdQTConstants.kComponentVideoCodecType);
-	}
-
 	/**
 	* This is a bit tricky. We do not start Previewing, but recording. By setting the output to a
 	* dummy file (which will never be created (hope so)) with the
@@ -157,7 +132,7 @@ public class QuickTime_Capture implements PlugIn {
 		}
 		if (IJ.altKeyDown()) {
 			IJ.setKeyUp(KeyEvent.VK_ALT);
-			IJ.run("Add Slice");
+			addSlice();
 		}
 		if (intsPerRow!=width) {
 			for (int i=0; i<height; i++)
@@ -169,6 +144,16 @@ public class QuickTime_Capture implements PlugIn {
 			{grabbing = false; imp.setTitle("Untitled"); return;}
 		frame++;
 		IJ.wait(10);
+	}
+
+	void addSlice() {
+		ImageStack stack = imp.getStack();
+		ImageProcessor ip = imp.getProcessor().duplicate();
+		stack.addSlice(null, ip.createProcessor(width, height));
+		int n = stack.getSize();
+		stack.setPixels(ip.getPixels(), n-1);
+		imp.setStack(null, stack);
+		imp.setSlice(stack.getSize());
 	}
 
 	void printStackTrace(Exception e) {
