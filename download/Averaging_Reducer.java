@@ -1,42 +1,56 @@
 import ij.*;
 import ij.process.*;
+import ij.measure.Calibration;
 import ij.gui.*;
 import java.awt.*;
-import ij.plugin.filter.*;
+import ij.plugin.*;
 
-public class Averaging_Reducer  implements PlugInFilter {
-    ImagePlus imp;
-    static int xshrink=5, yshrink=5;
+public class Averaging_Reducer implements PlugIn {
+    static int xshrink=2, yshrink=2;
     double product;
     int[] pixel = new int[3];
     int[] sum = new int[3];
     int samples;
 
-    public int setup(String arg, ImagePlus imp) {
-        this.imp = imp;
-        if (IJ.versionLessThan("1.28e"))
-            return DONE;
-        else
-            return DOES_ALL+NO_UNDO;
+    public void run(String arg) {
+        ImagePlus imp = IJ.getImage();
+        if (showDialog()) {
+            ImagePlus imp2 = shrink(imp);
+            imp2.show();
+            imp2.setSlice(imp2.getStackSize()/2);
+            imp2.getProcessor().resetMinAndMax();
+        }
     }
 
-    public void run(ImageProcessor ip) {
-        if (showDialog())
-            shrink(ip);
+    public ImagePlus shrink(ImagePlus imp) {
+        ImageStack stack1 = imp.getStack();
+        ImageStack stack2 = new ImageStack(imp.getWidth()/xshrink,imp.getHeight()/yshrink);
+        int n = stack1.getSize();
+        for (int i=1; i<=n; i++) {
+            IJ.showStatus(i+"/"+n);
+            IJ.showProgress(i, n);
+            ImageProcessor ip2 = shrink(stack1.getProcessor(i));
+            stack2.addSlice(null, ip2);
+        }
+        ImagePlus imp2 = new ImagePlus("Reduced "+imp.getShortTitle(), stack2);
+        imp2.setCalibration(imp.getCalibration());
+        Calibration cal2 = imp2.getCalibration();
+        cal2.pixelWidth *= xshrink;
+        cal2.pixelHeight *= yshrink;
+        return imp2;
     }
 
-    public void shrink(ImageProcessor ip) {
-        if (imp.getBitDepth()==32)
-                    {shrinkFloat(ip); return;}
+    public ImageProcessor shrink(ImageProcessor ip) {
+        if (ip instanceof FloatProcessor)
+                    return shrinkFloat(ip);
         samples = ip instanceof ColorProcessor?3:1;
         int w = ip.getWidth()/xshrink;
         int h = ip.getHeight()/yshrink;
-         ImageProcessor ip2 = ip.createProcessor(w, h);
+        ImageProcessor ip2 = ip.createProcessor(w, h);
         for (int y=0; y<h; y++)
             for (int x=0; x<w; x++) 
                 ip2.putPixel(x, y, getAverage(ip, x, y));
-         ip2.resetMinAndMax();
-        new ImagePlus("Reduced "+imp.getShortTitle(), ip2).show();
+       return ip2;
     }
 
     int[] getAverage(ImageProcessor ip, int x, int y) {
@@ -67,15 +81,14 @@ public class Averaging_Reducer  implements PlugInFilter {
         return true;
     }
 
-   void shrinkFloat(ImageProcessor ip) {
+   ImageProcessor shrinkFloat(ImageProcessor ip) {
         int w = ip.getWidth()/xshrink;
         int h = ip.getHeight()/yshrink;
         ImageProcessor ip2 = ip.createProcessor(w, h);
         for (int y=0; y<h; y++)
             for (int x=0; x<w; x++) 
                 ip2.putPixelValue(x, y, getFloatAverage(ip, x, y));
-        ip2.resetMinAndMax();
-        new ImagePlus("Reduced "+imp.getShortTitle(), ip2).show();
+        return ip2;
     }
 
     float getFloatAverage(ImageProcessor ip, int x, int y) {
