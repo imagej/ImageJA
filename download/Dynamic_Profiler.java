@@ -74,7 +74,12 @@ public class Dynamic_Profiler
 
     // this listener is activated if the image content is changed (by imp.updateAndDraw)
     public synchronized void imageUpdated(ImagePlus imp) {
-        if (imp == this.imp) { doUpdate = true; notify(); }
+        if (imp == this.imp) { 
+            if (!isSelection())
+                IJ.run(imp, "Restore Selection", "");
+            doUpdate = true;
+            notify();
+        }
     }
 
     // if either the plot image or the image we are listening to is closed, exit
