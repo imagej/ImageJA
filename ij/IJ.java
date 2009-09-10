@@ -1559,7 +1559,21 @@ public class IJ {
 		classLoader = loader;
 	}
 
+	public interface ExceptionHandler {
+		public void handle(Throwable e);
+	}
+
+	static ExceptionHandler exceptionHandler;
+
+	public static void setExceptionDisplay(ExceptionHandler handler) {
+		exceptionHandler = handler;
+	}
+
 	public static void handle(Throwable e) {
+		if (exceptionHandler != null) {
+			exceptionHandler.handle(e);
+			return;
+		}
 		CharArrayWriter caw = new CharArrayWriter();
 		PrintWriter pw = new PrintWriter(caw);
 		e.printStackTrace(pw);
