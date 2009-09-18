@@ -27,9 +27,9 @@ public class Opener {
 
 	public static final int UNKNOWN=0,TIFF=1,DICOM=2,FITS=3,PGM=4,JPEG=5,
 		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,
-		TIFF_AND_DICOM=14,CUSTOM=15, AVI=16; // don't forget to also update 'types'
+		TIFF_AND_DICOM=14,CUSTOM=15, AVI=16, OJJ=17; // don't forget to also update 'types'
 	private static final String[] types = {"unknown","tif","dcm","fits","pgm",
-		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d","custom","avi"};
+		"jpg","gif","lut","bmp","zip","java/txt","roi","txt","png","t&d","custom","ojj"};
 	private static String defaultDirectory = null;
 	private static int fileType;
 	private boolean error;
@@ -127,13 +127,14 @@ public class Opener {
 				(new PluginInstaller()).install(path);
 				return;
 		}
-
-        boolean fullPath = path.startsWith("/") || path.startsWith("\\") || path.indexOf(":\\")==1 || isURL;
-        if (!fullPath && IJ.getInstance()!=null) {
-            String workingDir = OpenDialog.getDefaultDirectory();
-            if (workingDir!=null)
-                path = workingDir + path;
-        }
+		boolean fullPath = path.startsWith("/") || path.startsWith("\\") || path.indexOf(":\\")==1 || isURL;
+		if (!fullPath) {
+			String defaultDir = OpenDialog.getDefaultDirectory();
+			if (defaultDir!=null)
+				path = defaultDir + path;
+			else
+				path = (new File(path)).getAbsolutePath();
+		}
 		if (!silentMode) IJ.showStatus("Opening: " + path);
 		long start = System.currentTimeMillis();
 		ImagePlus imp = openImage(path);
@@ -173,6 +174,9 @@ public class Opener {
 					} else
 						new TextWindow(path,400,450);
 					break;
+				case OJJ:  // ObjectJ project
+					IJ.runPlugIn("ObjectJ_", path);
+					break;
 				case UNKNOWN:
 					String msg =
 						"File is not in a supported format, a reader\n"+
@@ -181,7 +185,7 @@ public class Opener {
 						if (path.length()>64)
 							path = (new File(path)).getName();
 						if (path.length()<=64)
-							msg += " \n  \n"+path;
+							msg += " \n	 \n"+path;
 					}
 					if (openUsingPlugins)
 						msg += "\n \nNOTE: The \"OpenUsingPlugins\" option is set.";
@@ -200,15 +204,16 @@ public class Opener {
 			return true;
 		int lastSlash = path.lastIndexOf("/");
 		if (lastSlash==-1) lastSlash = 0;
-		int dotIndex = path.indexOf(".", lastSlash+1);
-		if (dotIndex==-1 ||  (path.length()-dotIndex)>6)
+		int lastDot = path.lastIndexOf(".");
+		if (lastDot==-1 || lastDot<lastSlash || (path.length()-lastDot)>6)
 			return true;  // no extension
-		return false;
+		else
+			return false;
 	}
 	
 	/** Opens the specified file and adds it to the File/Open Recent menu.
 		Returns true if the file was opened successfully.  */
-	public  boolean openAndAddToRecent(String path) {
+	public	boolean openAndAddToRecent(String path) {
 		open(path);
 		if (!error)
 			Menus.addOpenRecentItem(path);
@@ -302,7 +307,7 @@ public class Opener {
 		must end in ".zip" and dicom file names must end in ".dcm". Returns an 
 		ImagePlus object if successful. */
 	public ImagePlus openURL(String url) {
-	   	try {
+		try {
 			String name = "";
 			int index = url.lastIndexOf('/');
 			if (index==-1)
@@ -317,11 +322,11 @@ public class Opener {
 			IJ.showStatus(""+url);
 			String lurl = url.toLowerCase(Locale.US);
 			ImagePlus imp = null;
-		    if (lurl.endsWith(".tif"))
+			if (lurl.endsWith(".tif"))
 				imp = openTiff(u.openStream(), name);
-	 	    else if (lurl.endsWith(".zip"))
+			else if (lurl.endsWith(".zip"))
 				imp = openZipUsingUrl(u);
-	 	    else if (lurl.endsWith(".dcm")) {
+			else if (lurl.endsWith(".dcm")) {
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", url);
 				if (imp!=null && imp.getWidth()==0) imp = null;
 			} else if (lurl.endsWith(".jpg") || lurl.endsWith(".gif"))
@@ -340,13 +345,13 @@ public class Opener {
 			}
 			IJ.showStatus("");
 			return imp;
-    	} catch (Exception e) {
-    		String msg = e.getMessage();
-    		if (msg==null || msg.equals(""))
-    			msg = "" + e;	
+		} catch (Exception e) {
+			String msg = e.getMessage();
+			if (msg==null || msg.equals(""))
+				msg = "" + e;	
 			IJ.error("Open URL",msg + "\n \n" + url);
 			return null;
-	   	} 
+		} 
 	}
 	
 	/** Used by open() and IJ.open() to open text URLs. */
@@ -361,6 +366,7 @@ public class Opener {
 			name = name.substring(0, len-1);
 		else if (index!=-1 && index<len-1)
 			name = name.substring(index+1);
+		name = name.replaceAll("%20", " ");
 		Editor ed = new Editor();
 		ed.setSize(600, 300);
 		ed.create(name, text);
@@ -401,7 +407,7 @@ public class Opener {
 		URLConnection uc = url.openConnection();
 		int fileSize = uc.getContentLength(); // compressed size
 		fileSize *=2; // estimate uncompressed size
-      	InputStream in = uc.getInputStream();
+		InputStream in = uc.getInputStream();
 		ZipInputStream zin = new ZipInputStream(in);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] buf = new byte[4096];
@@ -446,23 +452,23 @@ public class Opener {
 	}
 
 	ImagePlus openJpegOrGif(String dir, String name) {
-	   	ImagePlus imp = null;
+		ImagePlus imp = null;
 		Image img = Toolkit.getDefaultToolkit().createImage(dir+name);
- 		if (img!=null) {
- 			try {
- 				imp = new ImagePlus(name, img);
- 			} catch (IllegalStateException e) {
+		if (img!=null) {
+			try {
+				imp = new ImagePlus(name, img);
+			} catch (IllegalStateException e) {
 				return null; // error loading image
 			}				
-	    	if (imp.getType()==ImagePlus.COLOR_RGB)
-	    		convertGrayJpegTo8Bits(imp);
-	    	FileInfo fi = new FileInfo();
-	    	fi.fileFormat = fi.GIF_OR_JPG;
-	    	fi.fileName = name;
-	    	fi.directory = dir;
-	    	imp.setFileInfo(fi);
-	    }
-	    return imp;
+			if (imp.getType()==ImagePlus.COLOR_RGB)
+				convertGrayJpegTo8Bits(imp);
+			FileInfo fi = new FileInfo();
+			fi.fileFormat = fi.GIF_OR_JPG;
+			fi.fileName = name;
+			fi.directory = dir;
+			imp.setFileInfo(fi);
+		}
+		return imp;
 	}
 	
 	ImagePlus openUsingImageIO(String path) {
@@ -481,7 +487,7 @@ public class Opener {
 		fi.fileName = f.getName();
 		fi.directory = f.getParent()+File.separator;
 		imp.setFileInfo(fi);
-	    return imp;
+		return imp;
 	}
 
 	/** If this image is grayscale, convert it to 8-bits. */
@@ -803,8 +809,8 @@ public class Opener {
 			return TIFF_AND_DICOM;
 
 		 // Big-endian TIFF ("MM")
-        if (name.endsWith(".lsm"))
-        		return UNKNOWN; // The LSM  Reader plugin opens these files
+		if (name.endsWith(".lsm"))
+				return UNKNOWN; // The LSM	Reader plugin opens these files
 		if (b0==73 && b1==73 && b2==42 && b3==0 && !(bioformats&&name.endsWith(".flex")))
 			return TIFF;
 
@@ -827,9 +833,9 @@ public class Opener {
 			return DICOM;
 		}
 
- 		// ACR/NEMA with first tag = 00002,00xx or 00008,00xx
- 		if ((b0==8||b0==2) && b1==0 && b3==0 && !name.endsWith(".spe") && !name.equals("fid")) 	
-  			 	return DICOM;
+		// ACR/NEMA with first tag = 00002,00xx or 00008,00xx
+		if ((b0==8||b0==2) && b1==0 && b3==0 && !name.endsWith(".spe") && !name.equals("fid"))	
+				return DICOM;
 
 		// PGM ("P1", "P4", "P2", "P5", "P3" or "P6")
 		if (b0==80&&(b1==49||b1==52||b1==50||b1==53||b1==51||b1==54)&&(b2==10||b2==13||b2==32||b2==9))
@@ -859,17 +865,21 @@ public class Opener {
 		if (b0==73 && b1==111) // "Iout"
 			return ROI;
 			
-        // Text file
-        boolean isText = true;
-        for (int i=0; i<10; i++) {
-          int c = buf[i]&255;
-          if ((c<32&&c!=9&&c!=10&&c!=13) || c>126) {
-              isText = false;
-              break;
-          }
-        }
-        if (isText)
-           return TEXT;
+		// ObjectJ project
+		if (name.endsWith(".ojj")) 
+			return OJJ;
+
+		// Text file
+		boolean isText = true;
+		for (int i=0; i<10; i++) {
+		  int c = buf[i]&255;
+		  if ((c<32&&c!=9&&c!=10&&c!=13) || c>126) {
+			  isText = false;
+			  break;
+		  }
+		}
+		if (isText)
+		   return TEXT;
 
 		// BMP ("BM")
 		if ((b0==66 && b1==77)||name.endsWith(".dib"))
@@ -897,13 +907,13 @@ public class Opener {
 		else if (fi.url!=null && !fi.url.equals(""))
 			return new URL(fi.url+fi.fileName).openStream();
 		else {
-		    File f = new File(fi.directory + fi.fileName);
-		    if (f==null || f.isDirectory())
-		    	return null;
-		    else {
-		    	InputStream is = new FileInputStream(f);
-		    	if (fi.compression>=FileInfo.LZW)
-		    		is = new RandomAccessStream(is);
+			File f = new File(fi.directory + fi.fileName);
+			if (f==null || f.isDirectory())
+				return null;
+			else {
+				InputStream is = new FileInputStream(f);
+				if (fi.compression>=FileInfo.LZW)
+					is = new RandomAccessStream(is);
 				return is;
 			}
 		}
