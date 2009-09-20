@@ -1789,6 +1789,16 @@ public class Interpreter implements MacroConstants {
 		return Double.NaN;
 	}
 
+	public String getStringVariable(String name) {
+		int index;
+		for (int i=0; i<=topOfStack; i++) {
+			index = stack[i].symTabIndex;
+			if (pgm.table[index].str.equals(name))
+				return stack[i].getString();
+		}
+		return null;
+	}
+
 } // class Interpreter
 
 

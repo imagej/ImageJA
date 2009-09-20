@@ -17,14 +17,17 @@
 package ij.plugin;
 
 import ij.*;
+import ij.text.*;
+
+import ij.util.Levenshtein;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Hashtable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Hashtable;
 
 public class CommandFinder implements PlugIn, TextListener, ActionListener, WindowListener, KeyListener, ItemListener, MouseListener {
 
@@ -59,12 +62,12 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	Dialog d;
 	TextField prompt;
 	List completions;
-	Button runButton;
-	Button closeButton;
-	Checkbox fullInfoCheckbox, closeCheckbox;
+	Button runButton, closeButton, exportButton;
+	Checkbox fullInfoCheckbox, fuzzyCheckbox, closeCheckbox;
 	Hashtable commandsHash;
 	String [] commands;
 	Hashtable listLabelToCommand;
+	static boolean closeWhenRunning = true;
 
 	protected String makeListLabel(String command, CommandAction ca, boolean fullInfo) {
 		if (fullInfo) {
@@ -86,6 +89,10 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		boolean fullInfo=fullInfoCheckbox.getState();
 		String substring = matchingSubstring.toLowerCase();
 		completions.removeAll();
+		if (fuzzyCheckbox.getState()) {
+			populateListFuzzily(substring, fullInfo);
+			return;
+		}
 		for(int i=0; i<commands.length; ++i) {
 			String commandName = commands[i];
 			if (commandName.length()==0)
@@ -99,6 +106,39 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		}
 	}
 
+	private static class LevenshteinPair implements Comparable {
+		int index, cost;
+
+		LevenshteinPair(int index, int cost) {
+			this.index = index;
+			this.cost = cost;
+		}
+
+		public int compareTo(Object o) {
+			return cost - ((LevenshteinPair)o).cost;
+		}
+	}
+
+	protected void populateListFuzzily(String substring, boolean fullInfo) {
+		Levenshtein levenshtein = new Levenshtein(0, 10, 1, 5, 0, 0);
+		LevenshteinPair[] pairs = new LevenshteinPair[commands.length];
+		for (int i = 0; i < commands.length; i++) {
+			int cost = levenshtein.cost(substring,
+					commands[i].toLowerCase());
+			pairs[i] = new LevenshteinPair(i, cost);
+		}
+
+		Arrays.sort(pairs);
+
+		for (int i = 0; i < pairs.length && i < 50; i++) {
+			String name = commands[pairs[i].index];
+			CommandAction ca =
+				(CommandAction)commandsHash.get(name);
+			String listLabel = makeListLabel(name, ca, fullInfo);
+			completions.add(listLabel);
+		}
+	}
+
 	public void actionPerformed(ActionEvent ae) {
 		Object source = ae.getSource();
 		if (source==runButton) {
@@ -108,6 +148,8 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 				return;
 			}
 			runFromLabel(selected);
+		} else if (source == exportButton) {
+			export();
 		} else if (source == closeButton) {
 			d.dispose();
 		}
@@ -137,6 +179,18 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 	public void mouseReleased(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
 	public void mouseExited(MouseEvent e) {}
+	
+	void export() {
+		String[] list = completions.getItems();
+		StringBuffer sb = new StringBuffer(2000);
+		for (int i=0; i<list.length; i++) {
+			sb.append(i);
+			sb.append("\t");
+			sb.append(list[i]);
+			sb.append("\n");
+		}
+		TextWindow tw = new TextWindow("ImageJ Menu Commands", " \tCommand", sb.toString(), 600, 500);
+	}
 
 	protected void runFromLabel(String listLabel) {
 		String command = (String)listLabelToCommand.get(listLabel);
@@ -154,7 +208,8 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 			IJ.error("BUG: nothing to run found for '"+listLabel+"'");
 			return;
 		}
-		if (closeCheckbox.getState())
+		closeWhenRunning = closeCheckbox.getState();
+		if (closeWhenRunning)
 			d.dispose();
 	}
 
@@ -314,7 +369,9 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		fullInfoCheckbox = new Checkbox("Show full information", false);
 		fullInfoCheckbox.addItemListener(this);
-		closeCheckbox = new Checkbox("Close when running", true);
+		fuzzyCheckbox = new Checkbox("Fuzzy matching", false);
+		fuzzyCheckbox.addItemListener(this);
+		closeCheckbox = new Checkbox("Close when running", closeWhenRunning);
 		closeCheckbox.addItemListener(this);
 
 		Panel northPanel = new Panel();
@@ -338,9 +395,11 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 		completions.addMouseListener(this);
 
 		runButton = new Button("Run");
+		exportButton = new Button("Export");
 		closeButton = new Button("Close");
 
 		runButton.addActionListener(this);
+		exportButton.addActionListener(this);
 		closeButton.addActionListener(this);
 		runButton.addKeyListener(this);
 		closeButton.addKeyListener(this);
@@ -350,10 +409,12 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		Panel optionsPanel = new Panel();
 		optionsPanel.add(fullInfoCheckbox);
+		optionsPanel.add(fuzzyCheckbox);
 		optionsPanel.add(closeCheckbox);
 
 		Panel buttonsPanel = new Panel();
 		buttonsPanel.add(runButton);
+		buttonsPanel.add(exportButton);
 		buttonsPanel.add(closeButton);
 
 		southPanel.add(optionsPanel, BorderLayout.CENTER);
