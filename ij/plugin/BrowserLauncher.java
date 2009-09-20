@@ -109,7 +109,7 @@ public class BrowserLauncher implements PlugIn {
 		} else {
 				// Assume Linux or Unix
 				// Based on BareBonesBrowserLaunch (http://www.centerkey.com/java/browser/)
-				String[] browsers = {"netscape", "firefox", "konqueror", "mozilla", "opera", "epiphany", "lynx" };
+				String[] browsers = {"xdg-open", "netscape", "firefox", "konqueror", "mozilla", "opera", "epiphany", "lynx" };
 				String browserName = null;
 				try {
 					for (int count=0; count<browsers.length && browserName==null; count++) {
