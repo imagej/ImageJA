@@ -265,18 +265,28 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 					String selected = (String)completionsModel.elementAt(0);
 					runFromLabel(selected);
 				}
+			}
 			/* If you hit the up or down arrows in the
 			   text field, move the focus to the
 			   completions list and select the item at the
 			   bottom or top of that list. */
-			} else if (key==KeyEvent.VK_UP) {
+			int index = -1;
+			if (key==KeyEvent.VK_UP) {
+				index = completions.getSelectedIndex() - 1;
+				if (index < 0)
+					index = items - 1;
+			}
+			else if (key==KeyEvent.VK_DOWN) {
+				index = completions.getSelectedIndex() + 1;
+				if (index >= items)
+					index = Math.min(items - 1, 0);
+			}
+			else if (key==KeyEvent.VK_PAGE_DOWN)
+				index = completions.getLastVisibleIndex();
+			if (index>=0) {
 				completions.requestFocus();
-				if(items>0)
-					completions.setSelectedIndex(items-1);
-			} else if (key==KeyEvent.VK_DOWN)  {
-				completions.requestFocus();
-				if (items>0)
-					completions.setSelectedIndex(0);
+				completions.ensureIndexIsVisible(index);
+				completions.setSelectedIndex(index);
 			}
 		} else if (key==KeyEvent.VK_BACK_SPACE) {
 			/* If someone presses backspace they probably want to
@@ -291,6 +301,18 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 				String selected = (String)completions.getSelectedValue();
 				if (selected!=null)
 					runFromLabel(selected);
+			}
+			else if (key==KeyEvent.VK_UP) {
+				if (completions.getSelectedIndex() <= 0) {
+					completions.clearSelection();
+					prompt.requestFocus();
+				}
+			}
+			else if (key==KeyEvent.VK_DOWN) {
+				if (completions.getSelectedIndex() == items-1) {
+					completions.clearSelection();
+					prompt.requestFocus();
+				}
 			}
 		} else if (source==runButton) {
 			if (key==KeyEvent.VK_ENTER) {
