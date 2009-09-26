@@ -324,18 +324,20 @@ public class CommandFinder implements PlugIn, TextListener, ActionListener, Wind
 
 		Hashtable realCommandsHash = ij.Menus.getCommands();
 
-		Set realCommandSet = realCommandsHash.keySet();
+		synchronized (realCommandsHash) {
+			Set realCommandSet = realCommandsHash.keySet();
 
-		for (Iterator i = realCommandSet.iterator();
-		     i.hasNext();) {
-			String command = (String)i.next();
-			// Some of these are whitespace only or separators - ignore them:
-			String trimmedCommand = command.trim();
-			if (trimmedCommand.length()>0 && !trimmedCommand.equals("-")) {
-				commandsHash.put(command,
-						 new CommandAction((String)realCommandsHash.get(command),
-								   null,
-								   null));
+			for (Iterator i = realCommandSet.iterator();
+			     i.hasNext();) {
+				String command = (String)i.next();
+				// Some of these are whitespace only or separators - ignore them:
+				String trimmedCommand = command.trim();
+				if (trimmedCommand.length()>0 && !trimmedCommand.equals("-")) {
+					commandsHash.put(command,
+							 new CommandAction((String)realCommandsHash.get(command),
+									   null,
+									   null));
+				}
 			}
 		}
 

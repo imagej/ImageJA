@@ -287,14 +287,18 @@ public class Menus {
 	}
 
 	void addPlugInItem(Menu menu, String label, String className, int shortcut, boolean shift) {
-		pluginsTable.put(label, className);
-		nPlugins++;
+		synchronized (pluginsTable) {
+			pluginsTable.put(label, className);
+			nPlugins++;
+		}
 		addItem(menu, label, shortcut, shift);
 	}
 
 	CheckboxMenuItem addCheckboxItem(Menu menu, String label, String className) {
-		pluginsTable.put(label, className);
-		nPlugins++;
+		synchronized (pluginsTable) {
+			pluginsTable.put(label, className);
+			nPlugins++;
+		}
 		CheckboxMenuItem item = new CheckboxMenuItem(label);
 		menu.add(item);
 		item.addItemListener(ij);
@@ -382,10 +386,12 @@ public class Menus {
 			lastComma++; // remove leading spaces
 		String className = s.substring(lastComma+1,s.length());
 		//IJ.log(command+"  "+className);
-		if (installingJars)
-			duplicateCommand = pluginsTable.get(command)!=null;
-		pluginsTable.put(command, className);
-		nPlugins++;
+		synchronized (pluginsTable) {
+			if (installingJars)
+				duplicateCommand = pluginsTable.get(command)!=null;
+			pluginsTable.put(command, className);
+			nPlugins++;
+		}
 	}
 
 	void checkForDuplicate(String command) {
@@ -507,14 +513,16 @@ public class Menus {
 		else
 			command = command.substring(0, command.length()-4); //remove ".txt" or ".ijm"
 		command.trim();
-		if (pluginsTable.get(command)!=null) // duplicate command?
-			command = command + " Macro";
-		MenuItem item = new MenuItem(command);
-		addOrdered(menu, item);
-		item.addActionListener(ij);
-		String path = (dir!=null?dir+File.separator:"") + name;
-		pluginsTable.put(command, "ij.plugin.Macro_Runner(\""+path+"\")");
-		nMacros++;
+		synchronized (pluginsTable) {
+			if (pluginsTable.get(command)!=null) // duplicate command?
+				command = command + " Macro";
+			MenuItem item = new MenuItem(command);
+			addOrdered(menu, item);
+			item.addActionListener(ij);
+			String path = (dir!=null?dir+File.separator:"") + name;
+			pluginsTable.put(command, "ij.plugin.Macro_Runner(\""+path+"\")");
+			nMacros++;
+		}
 	}
 
 	int addPluginSeparatorIfNeeded(Menu menu) {
@@ -992,20 +1000,22 @@ public class Menus {
 		}
 		command = command.replace('_',' ');
 		command.trim();
-		boolean itemExists = (pluginsTable.get(command)!=null);
-		if(force && itemExists)
-			return;
+		synchronized (pluginsTable) {
+			boolean itemExists = (pluginsTable.get(command)!=null);
+			if(force && itemExists)
+				return;
 
-		if (!force && itemExists)  // duplicate command?
-			command = command + " Plugin";
-		MenuItem item = new MenuItem(command);
-		if(force)
-			addItemSorted(menu,item,0);
-		else
-			addOrdered(menu, item);
-		item.addActionListener(ij);
-		pluginsTable.put(command, className.replace('/', '.'));
-		nPlugins++;
+			if (!force && itemExists)  // duplicate command?
+				command = command + " Plugin";
+			MenuItem item = new MenuItem(command);
+			if(force)
+				addItemSorted(menu,item,0);
+			else
+				addOrdered(menu, item);
+			item.addActionListener(ij);
+			pluginsTable.put(command, className.replace('/', '.'));
+			nPlugins++;
+		}
 	}
 	
 	void installPopupMenu(ImageJ ij) {
@@ -1359,7 +1369,9 @@ public class Menus {
 		}
 		menu.add(item);
 		item.addActionListener(ij);
-		pluginsTable.put(command, plugin);
+		synchronized (pluginsTable) {
+			pluginsTable.put(command, plugin);
+		}
 		shortcut = code>0 && !functionKey?"["+shortcut+"]":"";
 		//IJ.write("installPlugin: "+menuCode+",\""+command+shortcut+"\","+plugin);
 		pluginsPrefs.addElement(menuCode+",\""+command+shortcut+"\","+plugin);
