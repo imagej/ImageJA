@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.DefaultListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
+import javax.swing.JScrollBar;
 
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
@@ -277,12 +278,20 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 				completions.requestFocus();
 				if (items>0)
 					completions.setSelectedIndex(0);
-			}
-		} else if (key==KeyEvent.VK_BACK_SPACE) {
+			/* If the user does Page Up / Down move the focus
+			   to the completions list and perform a
+			   Page Up / Down */
+			} else if (key==KeyEvent.VK_PAGE_UP ||
+				   key==KeyEvent.VK_PAGE_DOWN) {
+				completions.requestFocus();
+				int direction = (key==KeyEvent.VK_PAGE_UP) ? -1 : 1;
+				JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+				int increment = scrollBar.getBlockIncrement(direction);
+				scrollBar.setValue(scrollBar.getValue()+increment*direction);
 			/* If someone presses backspace they probably want to
 			   remove the last letter from the search string, so
 			   switch the focus back to the prompt: */
-			prompt.requestFocus();
+			}
 		} else if (source==completions) {
 			/* If you hit enter with the focus in the
 			   completions list, run the selected
