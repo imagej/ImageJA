@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Hashtable;
 
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -94,7 +94,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	int multiClickInterval;
 	long lastClickTime=Long.MIN_VALUE;
 	String lastClickedItem;
-	JDialog d;
+	JFrame d;
 	JTextField prompt;
 	JList completions;
 	JScrollPane scrollPane;
@@ -408,7 +408,18 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 
 		ImageJ imageJ = IJ.getInstance();
 
-		d = new JDialog(imageJ, "Command Finder");
+		d = new JFrame("Command Finder") {
+			public void setVisible(boolean visible) {
+				if (visible)
+					WindowManager.addWindow(this);
+				super.setVisible(visible);
+			}
+
+			public void dispose() {
+				WindowManager.removeWindow(this);
+				super.dispose();
+			}
+		};
 		Container contentPane = d.getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		d.addWindowListener(this);
