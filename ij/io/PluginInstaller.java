@@ -11,7 +11,7 @@ import java.net.*;
 class PluginInstaller {
 
 	boolean install(String path) {
-		boolean isURL = path.startsWith("http://");
+		boolean isURL = path.startsWith("http://") || path.startsWith("https://");
 		byte[] data = null;
 		String name = path;
 		if (isURL) {

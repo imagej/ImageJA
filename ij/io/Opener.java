@@ -118,7 +118,7 @@ public class Opener {
 		roi, or text file. Displays an error message if the specified file
 		is not in one of the supported formats. */
 	public void open(String path) {
-		boolean isURL = path.startsWith("http://");
+		boolean isURL = path.startsWith("http://") || path.startsWith("https://");
 		if (isURL && isText(path)) {
 			openTextURL(path);
 			return;
