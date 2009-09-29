@@ -12,6 +12,7 @@
     also run the appropriate command.
 
     @author Mark Longair <mark-imagej@longair.net>
+    @author Johannes Schindelin <johannes.schindelin@gmx.de>
  */
 
 package ij.plugin;
