@@ -38,6 +38,12 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 			iterator = null;
 			DataFlavor[] flavors = t.getTransferDataFlavors();
 			if (IJ.debugMode) IJ.log("DragAndDrop.drop: "+flavors.length+" flavors");
+			if (flavors==null || flavors.length==0) {
+				IJ.error("Drag and Drop ignored. Please try again. You can avoid\n"
+				+"this problem, which occurs the first time a file is dropped,\n"
+				+"by dragging to the toolbar instead of the status bar.");
+				return;
+			}
 			for (int i=0; i<flavors.length; i++) {
 				if (IJ.debugMode) IJ.log("  flavor["+i+"]: "+flavors[i].getMimeType());
 				if (flavors[i].isFlavorJavaFileListType()) {
