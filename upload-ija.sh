@@ -65,8 +65,8 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
 }
 fi
 
-git tag v"$VERSION" imageja
-git push dumbo
+test -z "$NO_TAG" && git tag v"$VERSION" imageja
+git push dumbo imagej imageja fiji
 git push orcz imageja:master imageja imagej v"$VERSION"
 make signed-ij.jar
 scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
