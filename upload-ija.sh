@@ -72,6 +72,7 @@ make signed-ij.jar
 scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
-rsync -e ssh -avP ij-$VERSION.jar ij-src-$VERSION.jar frs.sf.net:uploads/
-echo http://sourceforge.net/project/admin/editpackages.php?group_id=150609
-
+mkdir $VERSION
+mv ij-$VERSION.jar ij-src-$VERSION.jar $VERSION
+rsync -e ssh -avP $VERSION frs.sf.net:/home/frs/project/i/im/imageja/imageja/
+echo http://sourceforge.net/project/admin/explorer.php?group_id=150609
