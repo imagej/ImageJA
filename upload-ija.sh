@@ -12,6 +12,9 @@ else
 	VERSION="$VERSION"
 fi
 
+if false
+then
+
 # CVS
 CVS=.git/cvs-checkout
 test -d $CVS ||
@@ -60,6 +63,7 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
 	echo "CVS lags behind..."
 	exit 1
 }
+fi
 
 git tag v"$VERSION" imageja
 git push dumbo
