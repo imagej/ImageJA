@@ -48,7 +48,7 @@ public class WindowManager {
 		if (!suppressRecording && Recorder.record)
 			Recorder.record("selectWindow", win.getTitle());
 		Menus.updateMenus();
-		if (Recorder.record)
+		if (Recorder.record && !IJ.isMacro())
 			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
 	
@@ -322,14 +322,6 @@ public class WindowManager {
 
 	/** The specified frame becomes the front window, the one returnd by getFrontWindow(). */
 	public static void setWindow(Frame win) {
-		/*
-		if (Recorder.record && win!=null && win!=frontWindow) {
-			String title = win.getTitle();
-			IJ.log("Set window: "+title+"  "+(getFrame(title)!=null?"not null":"null"));
-			if (getFrame(title)!=null && !title.equals("Recorder"))
-				Recorder.record("selectWindow", title);
-		}
-		*/
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
 		if (IJ.getApplet() != null && win instanceof ImageWindow) {
@@ -419,7 +411,7 @@ public class WindowManager {
 			if (menuItemLabel.equals(title)) {
 				win.toFront();
 				((CheckboxMenuItem)item).setState(false);
-				if (Recorder.record)
+				if (Recorder.record && !IJ.isMacro())
 					Recorder.record("selectWindow", title);
 				return;
 			}
