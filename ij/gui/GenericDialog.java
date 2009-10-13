@@ -65,6 +65,9 @@ public class GenericDialog implements java.awt.event.ActionListener {
 
     /** Creates a new GenericDialog using the specified title and parent frame. */
     public GenericDialog(String title, java.awt.Frame parentUnused) {
+		numberField = new Vector(5);
+		defaultValues = new Vector(5);
+		defaultText = new Vector(5);
 		macroOptions = Macro.getOptions();
 		macro = macroOptions!=null;
     }
@@ -99,11 +102,6 @@ public class GenericDialog implements java.awt.event.ActionListener {
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
-		if (numberField==null) {
-			numberField = new Vector(5);
-			defaultValues = new Vector(5);
-			defaultText = new Vector(5);
-		}
 		numberField.addElement(label);
 		saveLabel("" + defaultValue, label);
     }
@@ -199,7 +197,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
     
    public void addSlider(String label, double minValue, double maxValue, double defaultValue) {
 		numberField.addElement(label);
-		saveLabel(new Double(defaultValue), label);
+		saveLabel("" + defaultValue, label);
 		firstSlider = false;
     }
 
