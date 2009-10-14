@@ -220,12 +220,12 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	
 	void export() {
 		String[] list = (String [])completionsModel.toArray();
-		StringBuffer sb = new StringBuffer(2000);
+		StringBuilder sb = new StringBuilder(2000);
 		for (int i=0; i<list.length; i++) {
 			sb.append(i);
-			sb.append("\t");
+			sb.append('\t');
 			sb.append(list[i]);
-			sb.append("\n");
+			sb.append('\n');
 		}
 		TextWindow tw = new TextWindow("ImageJ Menu Commands", " \tCommand", sb.toString(), 600, 500);
 	}
