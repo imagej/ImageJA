@@ -109,6 +109,8 @@ public class BrowserLauncher implements PlugIn {
 		} else {
 				// Assume Linux or Unix
 				// Based on BareBonesBrowserLaunch (http://www.centerkey.com/java/browser/)
+				// The utility 'xdg-open' launches the URL in the user's preferred browser,
+				// therefore we try to use it first, before trying to discover other browsers.
 				String[] browsers = {"xdg-open", "netscape", "firefox", "konqueror", "mozilla", "opera", "epiphany", "lynx" };
 				String browserName = null;
 				try {

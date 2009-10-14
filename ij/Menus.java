@@ -50,8 +50,8 @@ public class Menus {
 	public static final int MAX_OPEN_RECENT_ITEMS = 15;
 
 	private static Menus instance;
-	private MenuBar mbar;
-	private CheckboxMenuItem gray8Item,gray16Item,gray32Item,
+	private static MenuBar mbar;
+	private static CheckboxMenuItem gray8Item,gray16Item,gray32Item,
 			color256Item,colorRGBItem,RGBStackItem,HSBStackItem;
 	private PopupMenu popup;
 
@@ -73,15 +73,16 @@ public class Menus {
 	private String jarError;
 	private String pluginError;
     private boolean isJarErrorHeading;
-	private boolean installingJars, duplicateCommand;
-	private Vector jarFiles;  // JAR files in plugins folder with "_" in their name
+	private static boolean installingJars, duplicateCommand;
+	private static Vector jarFiles;  // JAR files in plugins folder with "_" in their name
 	private Map menuEntry2jarFile = new HashMap();
-	private Vector macroFiles;  // Macro files in plugins folder with "_" in their name
-	private int userPluginsIndex; // First user plugin or submenu in Plugins menu
-	private boolean addSorted;
+	private static Vector macroFiles;  // Macro files in plugins folder with "_" in their name
+	private static int userPluginsIndex; // First user plugin or submenu in Plugins menu
+	private static boolean addSorted;
 	private static int defaultFontSize = IJ.isWindows()?14:12;
-	private int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
-	private Font menuFont;
+	private static int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
+	private static Font menuFont;
+
 	static boolean jnlp; // true when using Java WebStart
 		
 	Menus(ImageJ ijInstance, ImageJApplet appletInstance) {
@@ -153,11 +154,11 @@ public class Menus {
 		Menu hyperstacksMenu = getMenu("Image>Hyperstacks", true);
 		image.addSeparator();
 		addPlugInItem(image, "Crop", "ij.plugin.Resizer(\"crop\")", KeyEvent.VK_X, true);
-		addPlugInItem(image, "Duplicate...", "ij.plugin.filter.Duplicater", KeyEvent.VK_D, true);
+		addPlugInItem(image, "Duplicate...", "ij.plugin.Duplicator", KeyEvent.VK_D, true);
 		addPlugInItem(image, "Rename...", "ij.plugin.SimpleCommands(\"rename\")", 0, false);
 		addPlugInItem(image, "Scale...", "ij.plugin.Scaler", KeyEvent.VK_E, false);
-		addPlugInItem(image, "Translate...", "ij.plugin.filter.Translator", 0, false);
-		getMenu("Image>Rotate", true);
+		addPlugInItem(image, "Flatten", "ij.plugin.ScreenGrabber(\"flatten\")", 0, false);
+		getMenu("Image>Transform", true);
 		getMenu("Image>Zoom", true);
 		image.addSeparator();
 		getMenu("Image>Lookup Tables", true);
@@ -647,8 +648,7 @@ public class Menus {
 		String menuEntry = s;
 		if (s.startsWith("\"")) {
 			int quote = s.indexOf('"', 1);
-			menuEntry = quote < 0 ? s.substring(1)
-				: s.substring(1, quote);
+			menuEntry = quote<0?s.substring(1):s.substring(1, quote);
 		} else {
 			int comma = s.indexOf(',');
 			if (comma > 0)
@@ -663,8 +663,7 @@ public class Menus {
 			jarError += "    Duplicate command: " + s
 				+ (jar2 != null ? " (already in " + jar2 + ")"
 				   : "") + "\n";
-		}
-		else
+		} else
 			menuEntry2jarFile.put(menuEntry, jar);
 		duplicateCommand = false;
     }
