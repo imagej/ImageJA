@@ -225,7 +225,8 @@ public class Menus {
 		help.addSeparator();
 		addPlugInItem(help, "ImageJA Web Site...", "ij.plugin.BrowserLauncher", 0, false);
 		addPlugInItem(help, "Online Docs...", "ij.plugin.BrowserLauncher(\"online\")", 0, false);
-		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBoxJA", 0, false);
+		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBox", 0, false);
+		pluginsTable.put("About ImageJ...", "ij.plugin.AboutBox");
 				
 		if (applet==null) {
 			menuSeparators = new Properties();

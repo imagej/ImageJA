@@ -9,7 +9,7 @@ import java.awt.image.*;
 
 /** This plugin implements the Help/About ImageJ command by opening
 	the about.jpg in ij.jar, scaling it 400% and adding some text. */
-	public class AboutBoxJA implements PlugIn {
+	public class AboutBox implements PlugIn {
 		static final int SMALL_FONT=14, LARGE_FONT=30;
 
 	public void run(String arg) {
