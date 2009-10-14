@@ -480,7 +480,7 @@ public void convolution(double[][] mat1, double[][]mat2, int p, int q, int width
     for(int i=m;i<width+m;i++){
       for(int j=m;j<height+m;j++){
 
-           mat2[i][j]=(mat1[i-q][j-q]/256 + mat1[i-q][j-p]/64 + mat1[i-q][j]*3/128 + mat1[i-q][j+1]/64 + mat1[i-q][j+q]/256 +
+           mat2[i][j]=(mat1[i-q][j-q]/256 + mat1[i-q][j-p]/64 + mat1[i-q][j]*3/128 + mat1[i-q][j+p]/64 + mat1[i-q][j+q]/256 +
                 mat1[i-p][j-q]/64 + mat1[i-p][j-p]/16 + mat1[i-p][j]*3/32 + mat1[i-p][j+p]/16 + mat1[i-p][j+q]/64 +
                 mat1[i][j-q]*3/128 + mat1[i][j-p]*3/32 + mat1[i][j]*9/64 + mat1[i][j+p]/32 + mat1[i][j+q]*3/128 +
                 mat1[i+p][j-q]/64 + mat1[i+p][j-p]/16 + mat1[i+p][j]*3/32 + mat1[i+p][j+p]/16 + mat1[i+p][j+q]/64 +
