@@ -57,7 +57,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected boolean displayList;
 
 
-	/** Creates a new rectangular Roi. */
+	/** 
+	 * Creates a new rectangular Roi.
+	 * 
+	 * @param x origin x- coordinate
+	 * @param y origin y- coordinate
+	 * @param width ROI width
+	 * @param height ROI height
+	 */
 	public Roi(int x, int y, int width, int height) {
 		setImage(null);
 		if (width<1) width = 1;
@@ -710,14 +717,27 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	
 	public void draw(Graphics g) {
 		if (ic==null) return;
+		mag = ic.getMagnification();
+		int sx1 = ic.screenX(x);
+		int sy1 = ic.screenY(y);
+		draw(g, mag, sx1, sy1);
+	}
+	
+	/**
+	 * Draw ROI (with no ImageCanvas dependency)
+	 * 
+	 * @param g graphics pointer
+	 * @param mag zoom magnification
+	 * @param sx1 screen x- coordinate
+	 * @param sy1 screen y- coordinate
+	 */
+	public void draw(Graphics g, double mag, int sx1, int sy1) {
 		Color color = outlineColor!=null?outlineColor:ROIColor;
 		if (fillColor!=null) color = fillColor;
 		g.setColor(color);
-		mag = ic.getMagnification();
 		int sw = (int)(width*mag);
 		int sh = (int)(height*mag);
-		int sx1 = ic.screenX(x);
-		int sy1 = ic.screenY(y);
+		
 		int sx2 = sx1+sw/2;
 		int sy2 = sy1+sh/2;
 		int sx3 = sx1+sw;
@@ -815,13 +835,34 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		inside or near a handle, otherwise returns -1. */
 	public int isHandle(int sx, int sy) {
 		if (clipboard!=null || ic==null) return -1;
-		double mag = ic.getMagnification();
+		
+		final int size = HANDLE_SIZE+3;
+		final int halfSize = size/2;
+		
+		final int sx1 = ic.screenX(x) - halfSize;
+		final int sy1 = ic.screenY(y) - halfSize;
+		final int sx3 = ic.screenX(x+width) - halfSize;
+		final int sy3 = ic.screenY(y+height) - halfSize;
+		
+		return isHandle(sx, sy, sx1, sy1, sx3, sy3);
+		
+	}
+	/**
+	 * Returns a handle number if the specified screen coordinates are 
+	 * inside or near a handle, otherwise returns -1.
+	 * (No ImageCanvas interaction) 
+	 * @param sx input screen x- coordinate
+	 * @param sy input screen y- coordinate
+	 * @param sx1 origin handle screen x- coordinate
+	 * @param sy1 origin handle screen y- coordinate
+	 * @param sx3 last handle screen x- coordinate
+	 * @param sy3 last handle screen y- coordinate
+	 * @return handle number if the specified screen coordinates are inside or near a handle, otherwise returns -1
+	 */
+	public int isHandle(int sx, int sy, int sx1, int sy1, int sx3, int sy3) 
+	{
 		int size = HANDLE_SIZE+3;
-		int halfSize = size/2;
-		int sx1 = ic.screenX(x) - halfSize;
-		int sy1 = ic.screenY(y) - halfSize;
-		int sx3 = ic.screenX(x+width) - halfSize;
-		int sy3 = ic.screenY(y+height) - halfSize;
+		
 		int sx2 = sx1 + (sx3 - sx1)/2;
 		int sy2 = sy1 + (sy3 - sy1)/2;
 		if (sx>=sx1&&sx<=sx1+size&&sy>=sy1&&sy<=sy1+size) return 0;
@@ -835,6 +876,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return -1;
 	}
 	
+	
 	public void mouseDownInHandle(int handle, int sx, int sy) {
 		state = MOVING_HANDLE;
 		activeHandle = handle;
@@ -845,6 +887,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			state = MOVING;
 			startX = ic.offScreenX(sx);
 			startY = ic.offScreenY(sy);
+			showStatus();
+		}
+	}
+	
+	public void handleMouseDownScreenCoords(int startX, int startY) {
+		if (state==NORMAL && ic!=null) {
+			this.state = Roi.MOVING;
+			this.startX = startX;
+			this.startY = startY;
 			showStatus();
 		}
 	}
@@ -1006,7 +1057,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			ip.copyBits(clipboard.getProcessor(), x, y, pasteMode);
 			if (type!=RECTANGLE)
 				ip.reset(ip.getMask());
-			ic.setImageUpdated();
+			if(this.ic != null)
+				ic.setImageUpdated();
 		}
 	}
 
