@@ -246,8 +246,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			g.setColor(showAllColor);
     }
     
-    void drawRoi(Graphics g, Roi roi, int index) {
-    	int type = roi.getType();
+    void drawRoi(Graphics g, Roi roi, int index) 
+    {
 		ImagePlus imp2 = roi.getImage();
 		roi.setImage(imp);
 		Color saveColor = roi.getLineColor();
