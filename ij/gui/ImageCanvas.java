@@ -722,7 +722,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		double newMag = getLowerZoomLevel(magnification);
 		double srcRatio = (double)srcRect.width/srcRect.height;
 		double imageRatio = (double)imageWidth/imageHeight;
-		double initialMag = imp.getWindow().getInitialMagnification();
+		//double initialMag = imp.getWindow().getInitialMagnification();
 		if (Math.abs(srcRatio-imageRatio)>0.05) {
 			double scale = oldMag/newMag;
 			int newSrcWidth = (int)Math.round(srcRect.width*scale);
