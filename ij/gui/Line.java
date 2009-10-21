@@ -283,7 +283,7 @@ public class Line extends Roi {
 		oldHeight = height;
 	}
 
-	protected void mouseDownInHandle(int handle, int sx, int sy) {
+	public void mouseDownInHandle(int handle, int sx, int sy) {
 		state = MOVING_HANDLE;
 		activeHandle = handle;
 		if (lineWidth<=3)

@@ -56,11 +56,11 @@ public class PointRoi extends PolygonRoi {
 		return array;
 	}
 				
-	void handleMouseMove(int ox, int oy) {
+	public void handleMouseMove(int ox, int oy) {
 		//IJ.log("handleMouseMove");
 	}
 	
-	protected void handleMouseUp(int sx, int sy) {
+	public void handleMouseUp(int sx, int sy) {
 		super.handleMouseUp(sx, sy);
 		modifyRoi(); //adds this point to previous points if shift key down
 	}

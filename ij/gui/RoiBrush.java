@@ -3,14 +3,15 @@ import ij.*;
 import java.awt.*;
 
 /** Implements the ROI Brush tool.*/
-class RoiBrush implements Runnable {
+public class RoiBrush implements Runnable {
 	static int ADD=0, SUBTRACT=1;
 	static int leftClick=16, alt=9, shift=1;
 	private Polygon poly;
 	private Point previousP;
 	private int mode = ADD;
  
-	RoiBrush() {
+	public RoiBrush() 
+	{
 		Thread thread = new Thread(this, "RoiBrush");
 		thread.start();
 	}

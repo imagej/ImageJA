@@ -154,7 +154,7 @@ public class TextRoi extends Roi {
 		if (r!=null) g.setClip(r.x, r.y, r.width, r.height);
 	}
 	
-	void drawText(Graphics g) {
+	public void drawText(Graphics g) {
 		g.setColor(outlineColor!=null?outlineColor:ROIColor);
 		Java2.setAntialiasedText(g, antialiasedText);
 		if (newFont || width==1)
@@ -237,7 +237,7 @@ public class TextRoi extends Roi {
 		}
 	}
 
-	protected void handleMouseUp(int screenX, int screenY) {
+	public void handleMouseUp(int screenX, int screenY) {
 		super.handleMouseUp(screenX, screenY);
 		if (firstMouseUp) {
 			updateBounds();

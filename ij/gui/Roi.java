@@ -20,12 +20,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	public static final int HANDLE_SIZE = 5; 
 	public static final int NOT_PASTING = -1; 
 	
-	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
+	public static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
 	int startX, startY, x, y, width, height;
 	int activeHandle;
-	int state;
-	int modState = NO_MODS;
+	public int state;
+	public int modState = NO_MODS;
 	
 	public static Roi previousRoi;
 	protected static Color ROIColor = Prefs.getColor(Prefs.ROICOLOR,Color.yellow);
@@ -138,7 +138,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 	}
 	
-	ImagePlus getImage() {
+	public ImagePlus getImage() {
 		return imp;
 	}
 	
@@ -682,7 +682,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		clipWidth+=m*2; clipHeight+=m*2;
 	 }
 		
-	protected void handleMouseDrag(int sx, int sy, int flags) {
+	public void handleMouseDrag(int sx, int sy, int flags) {
 		if (ic==null) return;
 		constrain = (flags&Event.SHIFT_MASK)!=0;
 		center = (flags&Event.CTRL_MASK)!=0 || (IJ.isMacintosh()&&(flags&Event.META_MASK)!=0);
@@ -835,12 +835,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return -1;
 	}
 	
-	protected void mouseDownInHandle(int handle, int sx, int sy) {
+	public void mouseDownInHandle(int handle, int sx, int sy) {
 		state = MOVING_HANDLE;
 		activeHandle = handle;
 	}
 
-	protected void handleMouseDown(int sx, int sy) {
+	public void handleMouseDown(int sx, int sy) {
 		if (state==NORMAL && ic!=null) {
 			state = MOVING;
 			startX = ic.offScreenX(sx);
@@ -849,21 +849,32 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 	}
 		
-	protected void handleMouseUp(int screenX, int screenY) {
+	/** 
+	 * Handle ROI when mouse up (released)
+	 * @param screenX
+	 * @param screenY
+	 */
+	public void handleMouseUp(int screenX, int screenY) 
+	{
 		state = NORMAL;
-		if (imp==null) return;
+		if (imp == null) 
+			return;
 		imp.draw(clipX-5, clipY-5, clipWidth+10, clipHeight+10);
-		if (Recorder.record) {
-			String method;
-			if (type==LINE) {
+		if (Recorder.record) 
+		{
+			//String method;
+			if (type==LINE) 
+			{
 				Line line = (Line)imp.getRoi();
 				Recorder.record("makeLine", line.x1, line.y1, line.x2, line.y2);
-			} else if (type==OVAL)
+			} 
+			else if (type==OVAL)
 				Recorder.record("makeOval", x, y, width, height);
 			else if (!(this instanceof TextRoi))
 				Recorder.record("makeRectangle", x, y, width, height);
 		}
-		if (Toolbar.getToolId()==Toolbar.OVAL&&Toolbar.getBrushSize()>0)  {
+		if (Toolbar.getToolId()==Toolbar.OVAL&&Toolbar.getBrushSize()>0)  
+		{
 			int flags = ic!=null?ic.getModifiers():16;
 			if ((flags&16)==0) // erase ROI Brush
 				{imp.draw(); return;}
@@ -871,18 +882,23 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		modifyRoi();
 	}
 
-    void modifyRoi() {
+	/**
+	 * Modify (update) ROI
+	 */
+    void modifyRoi()     
+    {
     	if (previousRoi==null || previousRoi.modState==NO_MODS || imp==null)
     		return;
 		//IJ.log("modifyRoi: "+ type+"  "+modState+" "+previousRoi.type+"  "+previousRoi.modState);
-    	if (type==POINT || previousRoi.getType()==POINT) {
+    	if (type==POINT || previousRoi.getType()==POINT) 
+    	{
     		if (type==POINT && previousRoi.getType()==POINT)
     			addPoint();
     		else if (isArea() && previousRoi.getType()==POINT && previousRoi.modState==SUBTRACT_FROM_ROI)
     			subtractPoints();
     		return;
     	}
-		Roi previous = (Roi)previousRoi.clone();
+		final Roi previous = (Roi)previousRoi.clone();
 		previous.modState = NO_MODS;
         ShapeRoi s1  = null;
         ShapeRoi s2 = null;
@@ -982,7 +998,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 	}
 	
-	void updatePaste() {
+	public void updatePaste() {
 		if (clipboard!=null) {
 			imp.getMask();
 			ImageProcessor ip = imp.getProcessor();

@@ -1020,7 +1020,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
         addTool(name);
 	}
 			
-	void runMacroTool(int id) {
+	public void runMacroTool(int id) {
 		if (macroInstaller!=null)
 			macroInstaller.runMacroTool(names[id]);
 	}

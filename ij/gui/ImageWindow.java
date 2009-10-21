@@ -25,9 +25,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	protected boolean closed;
 	private boolean newCanvas;
 	private boolean unzoomWhenMinimizing = true;
-	Rectangle maxWindowBounds; // largest possible window on this screen
-	Rectangle maxBounds; // Size of this window after it is maximized
-	long setMaxBoundsTime;
+	/** largest possible window on this screen */
+	public Rectangle maxWindowBounds;
+	/** Size of this window after it is maximized */
+	public Rectangle maxBounds; 
+	public long setMaxBoundsTime;
 
 	private static final int XINC = 8;
 	private static final int YINC = 12;
@@ -216,7 +218,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			pack();
 	}
 				
-	Rectangle getMaxWindow(int xloc, int yloc) {
+	public Rectangle getMaxWindow(int xloc, int yloc) {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Rectangle bounds = ge.getMaximumWindowBounds();
 		//bounds.x=960; bounds.y=0; bounds.width=960; bounds.height=1200;

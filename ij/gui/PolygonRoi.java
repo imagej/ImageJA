@@ -257,7 +257,7 @@ public class PolygonRoi extends Roi {
 		}
 	}
 
-	void handleMouseMove(int ox, int oy) {
+	public void handleMouseMove(int ox, int oy) {
 	// Do rubber banding
 		int tool = Toolbar.getToolId();
 		if (!(tool==Toolbar.POLYGON || tool==Toolbar.POLYLINE || tool==Toolbar.ANGLE)) {
@@ -454,7 +454,7 @@ public class PolygonRoi extends Roi {
 		return ", angle=" + IJ.d2s(degrees);
 	}
    
-   protected void mouseDownInHandle(int handle, int sx, int sy) {
+   public void mouseDownInHandle(int handle, int sx, int sy) {
         if (state==CONSTRUCTING)
             return;
 		int ox=ic.offScreenX(sx), oy=ic.offScreenY(sy);
@@ -691,7 +691,7 @@ public class PolygonRoi extends Roi {
 		return length;
 	}
 	
-	protected void handleMouseUp(int sx, int sy) {
+	public void handleMouseUp(int sx, int sy) {
 		if (state==MOVING)
 			{state = NORMAL; return;}				
 		if (state==MOVING_HANDLE) {
