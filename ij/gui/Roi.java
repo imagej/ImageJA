@@ -731,10 +731,13 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	 * @param sx1 screen x- coordinate
 	 * @param sy1 screen y- coordinate
 	 */
-	public void draw(Graphics g, double mag, int sx1, int sy1) {
-		Color color = outlineColor!=null?outlineColor:ROIColor;
-		if (fillColor!=null) color = fillColor;
+	public void draw(Graphics g, double mag, int sx1, int sy1) 
+	{		
+		Color color = outlineColor != null ? outlineColor : ROIColor;
+		if (fillColor != null) 
+			color = fillColor;
 		g.setColor(color);
+		
 		int sw = (int)(width*mag);
 		int sh = (int)(height*mag);
 		
@@ -744,16 +747,21 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		int sy3 = sy1+sh;
 		Graphics2D g2d = (Graphics2D)g;
 		Stroke saveStroke = null;
-		if (stroke!=null) {
+		
+		if (stroke!=null) 
+		{
 			saveStroke = g2d.getStroke();
 			g2d.setStroke(stroke);
 		}
+		
 		if (fillColor!=null)
 			g.fillRect(sx1, sy1, sw, sh);
 		else
 			g.drawRect(sx1, sy1, sw, sh);
+		
 		if (saveStroke!=null) g2d.setStroke(saveStroke);
-		if (state!=CONSTRUCTING && clipboard==null && !displayList) {
+		if (state!=CONSTRUCTING && clipboard==null && !displayList) 
+		{
 			int size2 = HANDLE_SIZE/2;
 			drawHandle(g, sx1-size2, sy1-size2);
 			drawHandle(g, sx2-size2, sy1-size2);
@@ -767,7 +775,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		drawPreviousRoi(g);
 		if (state!=NORMAL) showStatus();
 		if (updateFullWindow)
-			{updateFullWindow = false; imp.draw();}
+		{
+			updateFullWindow = false; 
+			imp.draw();
+		}
 	}
 	
 	public void drawDisplayList(Graphics g) {
