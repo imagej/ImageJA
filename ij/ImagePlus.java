@@ -237,6 +237,21 @@ public class ImagePlus implements ImageObserver, Measurements {
 				notifyListeners(UPDATED);
 		}
 	}
+
+	/** 
+	 * Draws image and roi outline using a clip rect (no ImageCanvas dependencies). 
+	 */
+	public void draw(int x, int y, int width, int height, double mag, int sx, int sy)
+	{
+		if (win!=null) 
+		{					
+			width = (int)(width*mag);
+			height = (int)(height*mag);			
+			if (listeners.size()>0 && roi!=null && roi.getPasteMode()!=Roi.NOT_PASTING)
+				notifyListeners(UPDATED);
+		}
+	}
+	
 	
 	/** Updates this image from the pixel data in its 
 		associated ImageProcessor, then displays it. Does
