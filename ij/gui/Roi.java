@@ -415,7 +415,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		moveHandleOffScreenCoords(ox, oy, ic.magnification);
 	}
 
-	
+	/**
+	 * Move handle (no ImageCanvas dependencies).
+	 * @param ox
+	 * @param oy
+	 * @param mag
+	 */
 	protected void moveHandleOffScreenCoords(int ox, int oy, double mag) 
 	{
 		double asp;
@@ -877,8 +882,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			drawHandle(g, sx1-size2, sy3-size2);
 			drawHandle(g, sx1-size2, sy2-size2);
 		}
-		drawPreviousRoi(g);
-		if (state!=NORMAL) showStatus();
+		drawPreviousRoi(g, mag, sx1, sy1);
+		
+		if (state!=NORMAL) 
+			showStatus();
 		if (updateFullWindow)
 		{
 			updateFullWindow = false; 
@@ -904,6 +911,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 				return;
 			previousRoi.setImage(imp);
 			previousRoi.draw(g);
+		}		
+	}
+	
+	void drawPreviousRoi(Graphics g, double mag, int sx1, int sy1) {
+		if (previousRoi!=null && previousRoi!=this && previousRoi.modState!=NO_MODS) {
+			if (type!=POINT && previousRoi.getType()==POINT && previousRoi.modState!=SUBTRACT_FROM_ROI)
+				return;
+			previousRoi.setImage(imp);
+			previousRoi.draw(g, mag, sx1, sy1);
 		}		
 	}
 	

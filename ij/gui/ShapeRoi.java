@@ -1237,6 +1237,12 @@ public class ShapeRoi extends Roi {
 		   return -1;
 	}
 	
+	/** Always returns -1 since ShapeRois do not have handles. */
+	public int isHandle(int sx, int sy, int sx1, int sy1, int sx3, int sy3) 
+	{
+		return -1;
+	}
+	
 	/** Always returns null. */
 	public Polygon getConvexHull() {
 		return null;

@@ -28,12 +28,25 @@ public class OvalRoi extends Roi {
 	}
 
 	protected void moveHandle(int sx, int sy) {
-		double asp;
+		
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
-		int x1=x, y1=y, x2=x+width, y2=y+height, xc=x+width/2, yc=y+height/2;
+		moveHandleOffScreenCoords(ox, oy, ic.magnification);
+	}
+	/**
+	 * Move handle (no ImageCanvas dependencies).
+	 * @param ox
+	 * @param oy
+	 * @param mag
+	 */
+	protected void moveHandleOffScreenCoords(int ox, int oy, double mag) 
+	{
+		if (clipboard!=null) return;
+		
+		double asp;
+		
+		int x2=x+width, y2=y+height, xc=x+width/2, yc=y+height/2;
 		int w2 = (int)(0.14645*width);
 		int h2 = (int)(0.14645*height);
 		if (width > 7 && height > 7) {
@@ -53,7 +66,7 @@ public class OvalRoi extends Roi {
 			case 6: x=ox-w2; y2=oy+h2; break;
 			case 7: x=ox; break;
 		}
-		//if (x<0) x=0; if (y<0) y=0;
+		
 		if (x<x2)
 		   width=x2-x;
 		else
@@ -200,25 +213,45 @@ public class OvalRoi extends Roi {
 			}
 		}
 
-		updateClipRect();
+		updateClipRect(mag);
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX=x; oldY=y;
 		oldWidth=width; oldHeight=height;
 		cachedMask = null;
 	}
+	
 
-	public void draw(Graphics g) {
+	public void draw(Graphics g) 
+	{
 		if (ic==null) return;
+		
+		int sx1 = ic.screenX(x);
+		int sy1 = ic.screenY(y);
+		
+		mag = ic.getMagnification();
+		
+		draw(g, mag, sx1, sy1);
+	}
+	
+	/**
+	 * Draw ROI (with no ImageCanvas dependency)
+	 * 
+	 * @param g graphics pointer
+	 * @param mag zoom magnification
+	 * @param sx1 screen x- coordinate
+	 * @param sy1 screen y- coordinate
+	 */
+	public void draw(Graphics g, double mag, int sx1, int sy1) 
+	{
 		Color color = outlineColor!=null?outlineColor:ROIColor;
 		if (fillColor!=null) color = fillColor;
 		g.setColor(color);
-		mag = ic.getMagnification();
+		
 		int sw = (int)(width*mag);
 		int sh = (int)(height*mag);
 		int sw2 = (int)(0.14645*width*mag);
 		int sh2 = (int)(0.14645*height*mag);
-		int sx1 = ic.screenX(x);
-		int sy1 = ic.screenY(y);
+		
 		int sx2 = sx1+sw/2;
 		int sy2 = sy1+sh/2;
 		int sx3 = sx1+sw;
@@ -245,11 +278,12 @@ public class OvalRoi extends Roi {
 			drawHandle(g, sx2-size2, sy3-size2);
 			drawHandle(g, sx1-size2, sy2-size2);
 		}
-		drawPreviousRoi(g);
+		drawPreviousRoi(g, mag, sx1, sy1);
 		if (updateFullWindow)
 			{updateFullWindow = false; imp.draw();}
 		if (state!=NORMAL) showStatus();
 	}
+	
 
 	/** Draws an outline of this OvalRoi on the image. */
 	public void drawPixels(ImageProcessor ip) {
@@ -290,15 +324,40 @@ public class OvalRoi extends Roi {
 		
 	/** Returns a handle number if the specified screen coordinates are  
 		inside or near a handle, otherwise returns -1. */
-	public int isHandle(int sx, int sy) {
+	public int isHandle(int sx, int sy) 
+	{
 		if (clipboard!=null || ic==null) return -1;
-		double mag = ic.getMagnification();
+		
 		int size = HANDLE_SIZE+3;
 		int halfSize = size/2;
 		int sx1 = ic.screenX(x) - halfSize;
 		int sy1 = ic.screenY(y) - halfSize;
 		int sx3 = ic.screenX(x+width) - halfSize;
 		int sy3 = ic.screenY(y+height) - halfSize;
+		
+		return isHandle(sx, sy, sx1, sy1, sx3, sy3);
+		
+	}
+
+	/**
+	 * Returns a handle number if the specified screen coordinates are 
+	 * inside or near a handle, otherwise returns -1.
+	 * (No ImageCanvas interaction) 
+	 * @param sx input screen x- coordinate
+	 * @param sy input screen y- coordinate
+	 * @param sx1 origin handle screen x- coordinate
+	 * @param sy1 origin handle screen y- coordinate
+	 * @param sx3 last handle screen x- coordinate
+	 * @param sy3 last handle screen y- coordinate
+	 * @return handle number if the specified screen coordinates are inside or near a handle, otherwise returns -1
+	 */
+	public int isHandle(int sx, int sy, int sx1, int sy1, int sx3, int sy3) 
+	{
+		if(clipboard != null)
+			return -1;
+		
+		final int size = HANDLE_SIZE+3;
+		
 		int sx2 = sx1 + (sx3 - sx1)/2;
 		int sy2 = sy1 + (sy3 - sy1)/2;
 		
@@ -315,7 +374,7 @@ public class OvalRoi extends Roi {
 		if (sx>=sx1&&sx<=sx1+size&&sy>=sy2&&sy<=sy2+size) return 7;
 		return -1;
 	}
-
+	
 	public ImageProcessor getMask() {
 		if (cachedMask!=null && cachedMask.getPixels()!=null)
 			return cachedMask;

@@ -66,10 +66,28 @@ public class PointRoi extends PolygonRoi {
 	}
 	
 	/** Draws the points on the image. */
-	public void draw(Graphics g) {
+	public void draw(Graphics g) 
+	{
+		if (ic==null) return;
 		//IJ.log("draw: " + nPoints+"  "+width+"  "+height);
-		updatePolygon();
-		if (ic!=null) mag = ic.getMagnification();
+		updatePolygon();		
+		mag = ic.getMagnification();
+		int sx1 = ic.screenX(x);
+		int sy1 = ic.screenY(y);
+		draw(g, mag, sx1, sy1);
+		
+	}
+
+	/**
+	 * Draws the points on the image (with no ImageCanvas dependency)
+	 * 
+	 * @param g graphics pointer
+	 * @param mag zoom magnification
+	 * @param sx1 screen x- coordinate
+	 * @param sy1 screen y- coordinate
+	 */
+	public void draw(Graphics g, double mag, int sx1, int sy1) 
+	{
 		int size2 = HANDLE_SIZE/2;
 		if (!Prefs.noPointLabels && nPoints>1) {
 			fontSize = 9;
@@ -88,7 +106,8 @@ public class PointRoi extends PolygonRoi {
 		if (updateFullWindow)
 			{updateFullWindow = false; imp.draw();}
 	}
-
+	
+	
 	void drawPoint(Graphics g, int x, int y, int n) {
 		g.setColor(Color.white);
 		g.drawLine(x-4, y+2, x+8, y+2);

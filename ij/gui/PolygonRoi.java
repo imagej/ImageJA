@@ -239,6 +239,11 @@ public class PolygonRoi extends Roi {
 	protected void grow(int sx, int sy) {
 	// Overrides grow() in Roi class
 	}
+		
+	protected void growOffScreenCoords(int xNew, int yNew, double mag) 
+	{
+		
+	}
 
 
 	protected void updatePolygon() {
@@ -256,6 +261,7 @@ public class PolygonRoi extends Roi {
 			}
 		}
 	}
+
 
 	public void handleMouseMove(int ox, int oy) {
 	// Do rubber banding
@@ -359,15 +365,32 @@ public class PolygonRoi extends Roi {
 		}
 	}
 	
-    protected void moveHandle(int sx, int sy) {
+    protected void moveHandle(int sx, int sy) 
+    {
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		xp[activeHandle] = ox-x;
+		
+		moveHandleOffScreenCoords(ox, oy, ic.magnification);
+		
+	}
+    
+    /**
+	 * Move handle (no ImageCanvas dependencies).
+	 * @param ox
+	 * @param oy
+	 * @param mag
+	 */
+    protected void moveHandleOffScreenCoords(int ox, int oy, double mag)
+    {
+    	if (clipboard!=null) return;
+    	
+    	xp[activeHandle] = ox-x;
 		yp[activeHandle] = oy-y;
-		if (xSpline!=null) {
+		if (xSpline!=null) 
+		{
 			fitSpline(splinePoints);
-			updateClipRect();
+			updateClipRect(mag);
 			if (Line.getWidth()>1 && isLine())
 				imp.draw();
 			else
@@ -382,7 +405,7 @@ public class PolygonRoi extends Roi {
 		}
 		String angle = type==ANGLE?getAngleAsString():"";
 		IJ.showStatus(imp.getLocationAsString(ox,oy) + angle);
-	}
+    }
 
    /** After handle is moved, find clip rect and repaint. */
    void updateClipRectAndDraw() {
@@ -770,6 +793,26 @@ public class PolygonRoi extends Roi {
 		return handle;
 	}
 
+	/** Returns a handle number if the specified screen coordinates are  
+	inside or near a handle, otherwise returns -1. */
+	public int isHandle(int sx, int sy, int sx1, int sy1, int sx3, int sy3) 
+	{
+		if (!(xSpline!=null||type==POLYGON||type==POLYLINE||type==ANGLE||type==POINT)||clipboard!=null)
+			return -1;
+		int size = HANDLE_SIZE+5;
+		int halfSize = size/2;
+		int handle = -1;
+		int sx2, sy2;
+		for (int i=0; i<nPoints; i++) {
+			sx2 = xp2[i]-halfSize; sy2=yp2[i]-halfSize;
+			if (sx>=sx2 && sx<=sx2+size && sy>=sy2 && sy<=sy2+size) {
+				handle = i;
+				break;
+			}
+		}
+		return handle;
+	}	
+	
 	/** Override Roi.nudge() to support splines. */
 	//public void nudge(int key) {
 	//	super.nudge(key);

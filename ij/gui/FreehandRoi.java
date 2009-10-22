@@ -17,9 +17,22 @@ public class FreehandRoi extends PolygonRoi {
 		if (nPoints==2) nPoints--;
 	}
 
-	protected void grow(int sx, int sy) {
+	protected void grow(int sx, int sy) 
+	{
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
+		
+		growOffScreenCoords(ox, oy, ic.magnification);
+	}
+	
+	/**
+	 * Grow ROI (no ImageCanvas dependencies)
+	 * @param ox
+	 * @param oy
+	 * @param mag
+	 */
+	protected void growOffScreenCoords(int ox, int oy, double mag) 
+	{
 		if (ox<0) ox = 0;
 		if (oy<0) oy = 0;
 		if (ox>xMax) ox = xMax;
@@ -30,9 +43,10 @@ public class FreehandRoi extends PolygonRoi {
 			nPoints++;
 			if (nPoints==xp.length)
 				enlargeArrays();
-			drawLine();
+			drawLine(mag);
 		}
 	}
+	
 	
 	void drawLine() {
 		int x1 = xp[nPoints-2]+x;
@@ -53,6 +67,31 @@ public class FreehandRoi extends PolygonRoi {
 		imp.draw(xmin-margin, ymin-margin, (xmax-xmin)+margin*2, (ymax-ymin)+margin*2);
 	}
 
+	/**
+	 * Draw ROI line with no ImageCanvas dependencies.
+	 *
+	 * @param mag magnification
+	 */
+	void drawLine(double mag)
+	{
+		int x1 = xp[nPoints-2]+x;
+		int y1 = yp[nPoints-2]+y;
+		int x2 = xp[nPoints-1]+x;
+		int y2 = yp[nPoints-1]+y;
+		int xmin = Math.min(x1, x2);
+		int xmax = Math.max(x1, x2);
+		int ymin = Math.min(y1, y2);
+		int ymax = Math.max(y1, y2);
+		int margin = 4;
+		if (lineWidth>margin && isLine())
+			margin = lineWidth;
+		
+		if (mag<1.0) margin = (int)(margin/mag);
+		
+		imp.draw(xmin-margin, ymin-margin, (xmax-xmin)+margin*2, (ymax-ymin)+margin*2);
+	}
+	
+	
 	public void handleMouseUp(int screenX, int screenY) {
 		if (state==CONSTRUCTING) {
             addOffset();
