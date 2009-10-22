@@ -66,6 +66,27 @@ public class TextRoi extends Roi {
 			previousRoi = null;
 		}
 	}
+	/**
+	 * Constructor with no ImageCanvas dependencies.
+	 * @param x
+	 * @param y
+	 * @param imp
+	 * @param mag
+	 */
+	public TextRoi(int x, int y, ImagePlus imp, double mag) {
+		super(x, y, imp);                
+        if (mag>1.0)
+            mag = 1.0;
+        if (size<(12/mag))
+        	size = (int)(12/mag);
+		theText[0] = "Type, then";
+		theText[1] = "Ctl+D";
+		if (previousRoi!=null && (previousRoi instanceof TextRoi)) {
+			firstMouseUp = false;
+			//IJ.write(""+previousRoi.getBounds());
+			previousRoi = null;
+		}
+	}
 
 	/** Adds the specified character to the end of the text string. */
 	public void addChar(char c) {
@@ -159,7 +180,7 @@ public class TextRoi extends Roi {
 		Java2.setAntialiasedText(g, antialiasedText);
 		if (newFont || width==1)
 			updateBounds();
-		double mag = ic.getMagnification();
+		//double mag = ic.getMagnification();
 		int sx = nonScalable?x:ic.screenX(x);
 		int sy = nonScalable?y:ic.screenY(y);
 		Font font = getCurrentFont();
@@ -171,9 +192,9 @@ public class TextRoi extends Roi {
 		if (fillColor!=null) {
 			updateBounds();
 			Color c = g.getColor();
-			int alpha = fillColor.getAlpha();
+			//int alpha = fillColor.getAlpha();
  			g.setColor(fillColor);
- 			Graphics2D g2d = (Graphics2D)g;
+ 			//Graphics2D g2d = (Graphics2D)g;
 			int sw = nonScalable?width:(int)(ic.getMagnification()*width);
 			int sh = nonScalable?height:(int)(ic.getMagnification()*height);
 			g.fillRect(sx-5, sy-5, sx+sw, sy+sh);
