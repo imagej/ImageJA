@@ -65,7 +65,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	 * @param width ROI width
 	 * @param height ROI height
 	 */
-	public Roi(int x, int y, int width, int height) {
+	public Roi(int x, int y, int width, int height) 
+	{
 		setImage(null);
 		if (width<1) width = 1;
 		if (height<1) height = 1;
@@ -323,10 +324,24 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		catch (CloneNotSupportedException e) {return null;}
 	}
 	
-	protected void grow(int sx, int sy) {
+	protected void grow(int sx, int sy) 
+	{
 		if (clipboard!=null) return;
 		int xNew = ic.offScreenX(sx);
 		int yNew = ic.offScreenY(sy);
+		growOffScreenCoords(xNew, yNew, ic.magnification);
+	}
+
+	/**
+	 * Grow ROI (no ImageCanvas dependencies)
+	 * @param xNew
+	 * @param yNew
+	 * @param mag
+	 */
+	protected void growOffScreenCoords(int xNew, int yNew, double mag) 
+	{
+		if (clipboard!=null) return;
+
 		if (type==RECTANGLE) {
 			if (xNew < 0) xNew = 0;
 			if (yNew < 0) yNew = 0;
@@ -360,13 +375,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 				if ((y+height) > yMax) height = yMax-y;
 			}
 		}
-		updateClipRect();
+		updateClipRect(mag);
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX = x;
 		oldY = y;
 		oldWidth = width;
 		oldHeight = height;
 	}
+	
 
 	private void growConstrained(int xNew, int yNew) {
 		int dx = xNew - startX;
@@ -391,23 +407,43 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldHeight = height;
 	}
 
-	protected void moveHandle(int sx, int sy) {
-		double asp;
+	protected void moveHandle(int sx, int sy) 
+	{	
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		if (ox<0) ox=0; if (oy<0) oy=0;
-		if (ox>xMax) ox=xMax; if (oy>yMax) oy=yMax;
+		moveHandleOffScreenCoords(ox, oy, ic.magnification);
+	}
+
+	
+	protected void moveHandleOffScreenCoords(int ox, int oy, double mag) 
+	{
+		double asp;
+		if (clipboard!=null) 
+			return;
+
+		if (ox<0) 
+			ox=0; 
+		if (oy<0) 
+			oy=0;
+		if (ox>xMax) 
+			ox=xMax; 
+		if (oy>yMax) 
+			oy=yMax;
 		//IJ.log("moveHandle: "+activeHandle+" "+ox+" "+oy);
-		int x1=x, y1=y, x2=x1+width, y2=y+height, xc=x+width/2, yc=y+height/2;
-		if (width > 7 && height > 7) {
+		int x1=x, x2=x1+width, y2=y+height, xc=x+width/2, yc=y+height/2;
+		if (width > 7 && height > 7) 
+		{
 			asp = (double)width/(double)height;
 			asp_bk = asp;
-		} else {
+		} 
+		else 
+		{
 			asp = asp_bk;
 		}
 		
-		switch (activeHandle) {
+		switch (activeHandle) 
+		{
 			case 0:
 				x=ox; y=oy;
 				break;
@@ -442,8 +478,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		else
 		   {height=1; y=y2;}
 		
-		if(center) {
-			switch(activeHandle){
+		if(center) 
+		{
+			switch(activeHandle)
+			{
 				case 0:
 					width=(xc-x)*2;
 					height=(yc-y)*2;
@@ -490,7 +528,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 
 		}
 		
-		if(constrain) {
+		if(constrain) 
+		{
 			if (activeHandle==1 || activeHandle==5)
 				width=height;
 			else
@@ -535,7 +574,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			}
 		}
 
-		if(aspect && !constrain) {
+		if(aspect && !constrain)
+		{
 			if(activeHandle==1 || activeHandle==5) width=(int)Math.rint((double)height*asp);
 			else height=(int)Math.rint((double)width/asp);
 			
@@ -582,15 +622,27 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			
 		}
 		
-		updateClipRect();
+		updateClipRect(mag);
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX=x; oldY=y;
 		oldWidth=width; oldHeight=height;
 	}
-
-	void move(int sx, int sy) {
+	
+	void move(int sx, int sy) 
+	{
 		int xNew = ic.offScreenX(sx);
 		int yNew = ic.offScreenY(sy);
+		moveOffScreenCoords(xNew, yNew, ic.magnification);
+	}
+	
+	/**
+	 * Move ROI (no ImageCanvas dependencies)
+	 * @param xNew
+	 * @param yNew
+	 * @param mag
+	 */
+	void moveOffScreenCoords(int xNew, int yNew, double mag) 
+	{	
 		x += xNew - startX;
 		y += yNew - startY;
 		if (clipboard==null && type==RECTANGLE) {
@@ -600,7 +652,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 		startX = xNew;
 		startY = yNew;
-		updateClipRect();
+		updateClipRect(mag);
 		if (lineWidth>1 && isLine())
 			imp.draw();
 		else
@@ -610,6 +662,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldWidth = width;
 		oldHeight=height;
 	}
+	
 
 	/** Nudge ROI one pixel on arrow key press. */
 	public void nudge(int key) {
@@ -671,8 +724,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		showStatus();
 	}
 	
-	protected void updateClipRect() {
-	// Finds the union of current and previous roi
+	protected void updateClipRect() 
+	{
+		// Finds the union of current and previous roi
 		clipX = (x<=oldX)?x:oldX;
 		clipY = (y<=oldY)?y:oldY;
 		clipWidth = ((x+width>=oldX+oldWidth)?x+width:oldX+oldWidth) - clipX + 1;
@@ -688,6 +742,31 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		clipX-=m; clipY-=m;
 		clipWidth+=m*2; clipHeight+=m*2;
 	 }
+	
+	/**
+	 * Update clip with no ImageCanvas dependencies (the magnification is a parameter)
+	 * 
+	 * @param mag magnification
+	 */
+	protected void updateClipRect(double mag) 
+	{
+		// Finds the union of current and previous roi
+		clipX = (x<=oldX)?x:oldX;
+		clipY = (y<=oldY)?y:oldY;
+		clipWidth = ((x+width>=oldX+oldWidth)?x+width:oldX+oldWidth) - clipX + 1;
+		clipHeight = ((y+height>=oldY+oldHeight)?y+height:oldY+oldHeight) - clipY + 1;
+		int m = 3;
+		if (type==POINT) m += 4;
+
+		if (mag<1.0)
+			m = (int)(3/mag);
+
+		m += getLineWidth();
+		clipX-=m; clipY-=m;
+		clipWidth+=m*2; clipHeight+=m*2;
+	}
+			
+	
 		
 	public void handleMouseDrag(int sx, int sy, int flags) {
 		if (ic==null) return;
@@ -703,6 +782,32 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 				break;
 			case MOVING_HANDLE:
 				moveHandle(sx, sy);
+				break;
+			default:
+				break;
+		}
+	}
+	/**
+	 * Handle Mouse Drag with no ImageCanvas dependencies (input coordinates are already off screen)
+	 * @param sx
+	 * @param sy
+	 * @param flags
+	 */
+	public void handleMouseDragOffScreenCoords(int sx, int sy, int flags) 
+	{
+		constrain = (flags&Event.SHIFT_MASK)!=0;
+		center = (flags&Event.CTRL_MASK)!=0 || (IJ.isMacintosh()&&(flags&Event.META_MASK)!=0);
+		aspect = (flags&Event.ALT_MASK)!=0;
+		switch(state) 
+		{
+			case CONSTRUCTING:
+				growOffScreenCoords(sx, sy, mag);
+				break;
+			case MOVING:
+				moveOffScreenCoords(sx, sy, mag);
+				break;
+			case MOVING_HANDLE:
+				moveHandleOffScreenCoords(sx, sy, mag);
 				break;
 			default:
 				break;
@@ -784,6 +889,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	public void drawDisplayList(Graphics g) {
 		displayList = true;
 		draw(g);
+		displayList = false;
+	}
+	
+	public void drawDisplayList(Graphics g, double mag, int sx1, int sy1) {
+		displayList = true;
+		draw(g, mag, sx1, sy1);
 		displayList = false;
 	}
 	
@@ -872,6 +983,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	 */
 	public int isHandle(int sx, int sy, int sx1, int sy1, int sx3, int sy3) 
 	{
+		if(clipboard != null)
+			return -1;
+		
 		int size = HANDLE_SIZE+3;
 		
 		int sx2 = sx1 + (sx3 - sx1)/2;
@@ -888,7 +1002,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	
-	public void mouseDownInHandle(int handle, int sx, int sy) {
+	public void mouseDownInHandle(int handle, int sx, int sy) 
+	{
 		state = MOVING_HANDLE;
 		activeHandle = handle;
 	}
@@ -903,7 +1018,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	public void handleMouseDownScreenCoords(int startX, int startY) {
-		if (state==NORMAL && ic!=null) {
+		if (state==NORMAL) 
+		{
 			this.state = Roi.MOVING;
 			this.startX = startX;
 			this.startY = startY;
@@ -943,6 +1059,45 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 		modifyRoi();
 	}
+	
+	/** 
+	 * Handle ROI when mouse up (released)
+	 * @param screenX
+	 * @param screenY
+	 */
+	public void handleMouseUp(int screenX, int screenY, int flags) 
+	{
+		this.state = NORMAL;
+		
+		if (imp == null) 
+			return;
+		
+		imp.draw(clipX-5, clipY-5, clipWidth+10, clipHeight+10);
+		
+		if (Recorder.record) 
+		{
+			//String method;
+			if (type==LINE) 
+			{
+				Line line = (Line)imp.getRoi();
+				Recorder.record("makeLine", line.x1, line.y1, line.x2, line.y2);
+			} 
+			else if (type==OVAL)
+				Recorder.record("makeOval", x, y, width, height);
+			else if (!(this instanceof TextRoi))
+				Recorder.record("makeRectangle", x, y, width, height);
+		}
+		if (Toolbar.getToolId()==Toolbar.OVAL&&Toolbar.getBrushSize()>0)  
+		{			
+			if ((flags&16)==0) // erase ROI Brush
+			{
+				imp.draw(); 
+				return;
+			}
+		}
+		modifyRoi();
+	}
+	
 
 	/**
 	 * Modify (update) ROI
@@ -977,8 +1132,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
         else
         	s1.not(s2);
 		previousRoi.modState = NO_MODS;
-		Roi[] rois = s1.getRois();
-		if (rois.length==0) return;
+		final Roi[] rois = s1.getRois();
+		if (rois.length==0) 
+			return;
 		int type2 = rois[0].getType();
 		//IJ.log(rois.length+" "+type2);
 		Roi roi2 = null;
