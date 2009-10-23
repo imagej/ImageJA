@@ -255,15 +255,20 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		ImagePlus imp = getImage();
 		if (imp==null)
 			return false;
-		if (color==null && defaultColor!=null)
-			color = defaultColor;
-		if (lineWidth<0) lineWidth = defaultLineWidth;
-		if (lineWidth>100) lineWidth = 1;
 		Roi roi = imp.getRoi();
 		if (roi==null) {
 			error("The active image does not have a selection.");
 			return false;
 		}
+		if (color==null && roi.getStrokeColor()!=null)
+			color = roi.getStrokeColor();
+		else if (color==null && defaultColor!=null)
+			color = defaultColor;
+		if (lineWidth<0) {
+			int sw = roi.getStrokeWidth();
+			lineWidth = sw>1?sw:defaultLineWidth;
+		}
+		if (lineWidth>100) lineWidth = 1;
 		int n = list.getItemCount();
 		if (n>0 && !IJ.isMacro()) {
 			// check for duplicate
@@ -889,37 +894,47 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		int[] indexes = list.getSelectedIndexes();
 		if (indexes.length==0)
 			indexes = getAllIndexes();
-        if (indexes.length==0) return;
+		int n = indexes.length;
+        if (n==0) return;
+		Roi rpRoi = null;
+		String rpName = null;
         if (color==null && lineWidth==0 && fillColor==null) {
 			String label = list.getItem(indexes[0]);
-			Roi roi = (Roi)rois.get(label);
-			if (indexes.length!=1)
-				roi = (Roi)roi.clone();
-			else
-				fillColor = roi.getFillColor();
-			roi.setFillColor(fillColor);
-			RoiProperties rp = new RoiProperties(roi);
+			rpRoi = (Roi)rois.get(label);
+			if (n==1) {
+				fillColor =  rpRoi.getFillColor();
+				rpName = rpRoi.getName();
+			}
+			if (rpRoi.getStrokeColor()==null)
+				rpRoi.setStrokeColor(ImageCanvas.getShowAllColor());
+			rpRoi = (Roi) rpRoi.clone();
+			if (n>1)
+				rpRoi.setName("range: "+(indexes[0]+1)+"-"+(indexes[n-1]+1));
+			rpRoi.setFillColor(fillColor);
+			RoiProperties rp = new RoiProperties("Properties", rpRoi);
 			if (!rp.showDialog())
 				return;
-			lineWidth = roi.getStrokeWidth();
+			lineWidth =  rpRoi.getStrokeWidth();
 			defaultLineWidth = lineWidth;
-			color = roi.getStrokeColor();
-			fillColor = roi.getFillColor();
+			color =  rpRoi.getStrokeColor();
+			fillColor =  rpRoi.getFillColor();
 			defaultColor = color;
 		}
-		for (int i=0; i<indexes.length; i++) {
+		for (int i=0; i<n; i++) {
 			String label = list.getItem(indexes[i]);
 			Roi roi = (Roi)rois.get(label);
 			//IJ.log("set "+color+"  "+lineWidth+"  "+fillColor);
 			if (color!=null) roi.setStrokeColor(color);
-			if (lineWidth!=0) roi.setStrokeWidth(lineWidth);
+			if (lineWidth>0) roi.setStrokeWidth(lineWidth);
 			roi.setFillColor(fillColor);
 		}
+		if (rpRoi!=null && rpName!=null && !rpRoi.getName().equals(rpName))
+			rename(rpRoi.getName());
 		ImagePlus imp = WindowManager.getCurrentImage();
 		ImageCanvas ic = imp!=null?imp.getCanvas():null;
 		Roi roi = imp!=null?imp.getRoi():null;
 		boolean showingAll = ic!=null &&  ic.getShowAllROIs();
-		if (roi!=null && !showingAll) {
+		if (roi!=null && (n==1||!showingAll)) {
 			if (lineWidth!=0) roi.setStrokeWidth(lineWidth);
 			if (color!=null) roi.setStrokeColor(color);
 			if (fillColor!=null) roi.setFillColor(fillColor);
@@ -928,8 +943,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			showAll(SHOW_ALL);
 			showingAll = true;
 		}
-		if (imp!=null && imp.getRoi()!=null)
-			imp.draw();
+		if (imp!=null) imp.draw();
 		if (record()) {
 			Recorder.record("roiManager", "Set Color", Colors.getColorName(color!=null?color:Color.red, "red"));
 			Recorder.record("roiManager", "Set Line Width", lineWidth);
@@ -937,12 +951,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	}
 	
 	void flatten() {
-		if (WindowManager.getCurrentImage()==null)
-			IJ.noImage();
-		else if (list.getItemCount()==0)
-			error("The ROI list is empty");
-		else if (!showAllCheckbox.getState())
-			error("Not in \"Show All\" mode");
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp==null)
+			{IJ.noImage(); return;}
+		ImageCanvas ic = imp.getCanvas();
+		if (!ic.getShowAllROIs() && ic.getDisplayList()==null && imp.getRoi()==null)
+			error("Image does not have an overlay or ROI");
 		else
 			IJ.doCommand("Flatten"); // run Image>Flatten in separate thread
 	}
@@ -1300,9 +1314,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		else if (cmd.equals("show all with labels")) {
 			labelsCheckbox.setState(true);
 			showAll(LABELS);
+			if (Interpreter.isBatchMode()) IJ.wait(250);
 		} else if (cmd.equals("show all without labels")) {
 			labelsCheckbox.setState(false);
 			showAll(NO_LABELS);
+			if (Interpreter.isBatchMode()) IJ.wait(250);
 		} else if (cmd.equals("deselect")||cmd.indexOf("all")!=-1) {
 			if (IJ.isMacOSX()) ignoreInterrupts = true;
 			select(-1);
