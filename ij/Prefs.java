@@ -45,7 +45,8 @@ public class Prefs {
 		AUTO_MEASURE=1<<9, REQUIRE_CONTROL=1<<10, USE_INVERTING_LUT=1<<11, ANTIALIASED_TOOLS=1<<12,
 		INTEL_BYTE_ORDER=1<<13, DOUBLE_BUFFER=1<<14, NO_POINT_LABELS=1<<15, NO_BORDER=1<<16,
 		SHOW_ALL_SLICE_ONLY=1<<17, COPY_HEADERS=1<<18, NO_ROW_NUMBERS=1<<19,
-		MOVE_TO_MISC=1<<20, ADD_TO_MANAGER=1<<21, RUN_SOCKET_LISTENER=1<<22; 
+		MOVE_TO_MISC=1<<20, ADD_TO_MANAGER=1<<21, RUN_SOCKET_LISTENER=1<<22,
+		MULTI_POINT_MODE=1<<23; 
     public static final String OPTIONS = "prefs.options";
     
 	public static final String vistaHint = "\n \nOn Windows Vista, ImageJ must be installed in a directory that\nthe user can write to, such as \"Desktop\" or \"Documents\"";
@@ -104,6 +105,8 @@ public class Prefs {
 	public static int enableRMIListener = -1;
 	/** Only for backwards compatibility */
 	public static boolean runSocketListener;
+	/** Use MultiPoint tool. */
+	public static boolean multiPointMode;
 
 	static Properties ijPrefs = new Properties();
 	static Properties props = new Properties(ijPrefs);
@@ -368,6 +371,7 @@ public class Prefs {
 		moveToMisc = (options&MOVE_TO_MISC)!=0;
 		pointAddToManager = (options&ADD_TO_MANAGER)!=0;
 		enableRMIListener = getInt(ENABLE_RMI, -1);
+		multiPointMode = (options&MULTI_POINT_MODE)!=0;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -381,7 +385,8 @@ public class Prefs {
 			+ (noPointLabels?NO_POINT_LABELS:0) + (noBorder?NO_BORDER:0)
 			+ (showAllSliceOnly?SHOW_ALL_SLICE_ONLY:0) + (copyColumnHeaders?COPY_HEADERS:0)
 			+ (noRowNumbers?NO_ROW_NUMBERS:0) + (moveToMisc?MOVE_TO_MISC:0)
-			+ (pointAddToManager?ADD_TO_MANAGER:0);
+			+ (pointAddToManager?ADD_TO_MANAGER:0)
+			+ (multiPointMode?MULTI_POINT_MODE:0);
 		prefs.put(OPTIONS, Integer.toString(options));
 		if (enableRMIListener >= 0)
 			prefs.put(ENABLE_RMI, new Integer(enableRMIListener));
