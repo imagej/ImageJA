@@ -71,7 +71,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private static Color foregroundColor = Prefs.getColor(Prefs.FCOLOR,Color.black);
 	private static Color backgroundColor = Prefs.getColor(Prefs.BCOLOR,Color.white);
 	private static boolean brushEnabled;
-	private static boolean multiPointMode;
+	private static boolean multiPointMode = Prefs.multiPointMode;
 	private static int brushSize = (int)Prefs.get(BRUSH_SIZE, 15);
 	private int lineType = LINE;
 	
@@ -413,15 +413,16 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.showStatus(name);
 			return;
 		}
+		String hint = " (right click to switch)";
 		switch (tool) {
 			case RECTANGLE:
 				IJ.showStatus("Rectangular selections");
 				return;
 			case OVAL:
 				if (brushEnabled)
-					IJ.showStatus("Elliptical or *brush* selections");
+					IJ.showStatus("Elliptical or *brush* selections"+hint);
 				else
-					IJ.showStatus("*Elliptical* or brush selections");
+					IJ.showStatus("*Elliptical* or brush selections"+hint);
 				return;
 			case POLYGON:
 				IJ.showStatus("Polygon selections");
@@ -440,9 +441,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				return;
 			case POINT:
 				if (multiPointMode)
-					IJ.showStatus("Point or *multi-point* selections");
+					IJ.showStatus("Point or *multi-point* selections"+hint);
 				else
-					IJ.showStatus("*Point* or multi-point selections");
+					IJ.showStatus("*Point* or multi-point selections"+hint);
 				return;
 			case WAND:
 				IJ.showStatus("Wand (tracing) tool");
@@ -520,9 +521,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			setTool(FREEROI);
 		else if (name.indexOf("multi")!=-1) {
 			multiPointMode = true;
+			Prefs.multiPointMode = true;
 			setTool(POINT);
 		} else if (name.indexOf("point")!=-1) {
 			multiPointMode = false;
+			Prefs.multiPointMode = false;
 			setTool(POINT);
 		} else if (name.indexOf("wand")!=-1)
 			setTool(WAND);
@@ -542,7 +545,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	public void setTool(int tool) {
-		if ((tool==current&&tool!=OVAL) || tool<0 || tool>=NUM_TOOLS-1)
+		if ((tool==current&&!(tool==OVAL||tool==POINT)) || tool<0 || tool>=NUM_TOOLS-1)
 			return;
 		if (tool==SPARE1||(tool>=SPARE2&&tool<=SPARE8)) {
 			if (names[tool]==null)
@@ -555,7 +558,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 		
 	private void setTool2(int tool) {
-		if ((tool==current&&tool!=OVAL) || !isValidTool(tool)) return;
+		if ((tool==current&&!(tool==OVAL||tool==POINT)) || !isValidTool(tool)) return;
 		current = tool;
 		down[current] = true;
 		down[previous] = false;
@@ -786,9 +789,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
 					break;
 				case POINT:
-					if (multiPointMode)
-						IJ.doCommand("Add Selection...");
-					else
+					if (multiPointMode) {
+						if (imp!=null && imp.getRoi()!=null)
+							IJ.doCommand("Add Selection...");
+					} else
 						IJ.doCommand("Point Tool...");
 					break;
 				case WAND:
@@ -894,6 +898,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			showMessage(OVAL);
 		} else if (item==pointItem || item==multiPointItem) {
 			multiPointMode = item==multiPointItem;
+			Prefs.multiPointMode = multiPointMode;
 			repaintTool(POINT);
 			showMessage(POINT);
 		} else if (item==straightLineItem) {
