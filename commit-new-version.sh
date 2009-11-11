@@ -80,6 +80,7 @@ cd tmpCommit &&
 unzip $zipfile &&
 cd source &&
 export GIT_WORK_TREE="$(pwd)" &&
+find -name .DS_Store -exec rm {} \; &&
 find -type f -print0 | xargs -0 perl "$MAC2UNIX" &&
 find -type f -print0 | xargs -0 git update-index --add &&
 tree=$(git write-tree) &&
