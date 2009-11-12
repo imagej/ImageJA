@@ -1545,6 +1545,7 @@ public class Menus {
 	}
 	
 	public static void updateImageJMenus() {
+		mbar = null;
 		Menus m = new Menus(IJ.getInstance(),
 				(ImageJApplet)IJ.getApplet());
 		String err = m.addMenuBar();
