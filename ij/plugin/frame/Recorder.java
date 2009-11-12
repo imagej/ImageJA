@@ -1,4 +1,4 @@
-package ij.plugin.frame;
+ package ij.plugin.frame;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -50,23 +50,23 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 		record = true;
 		scriptMode = false;
 		recordInMacros = false;
-		Panel panel = new Panel(new FlowLayout(FlowLayout.CENTER, 2, 0));
-		panel.add(new Label("Record:"));
+		Panel panel = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.add(new Label("  Record:"));
 		mode = new Choice();
 		for (int i=0; i<modes.length; i++)
 			mode.addItem(modes[i]);
 		mode.addItemListener(this);
 		mode.select(Prefs.get("recorder.mode", modes[MACRO]));
 		panel.add(mode);
-		panel.add(new Label("   Name:"));
+		panel.add(new Label("    Name:"));
 		fileName = new TextField(defaultName, 15);
 		setFileName();
 		panel.add(fileName);
-		panel.add(new Label("  "));
+		panel.add(new Label("   "));
 		makeMacro = new Button("Create");
 		makeMacro.addActionListener(this);
 		panel.add(makeMacro);
-		panel.add(new Label("  "));
+		panel.add(new Label("   "));
 		help = new Button("?");
 		help.addActionListener(this);
 		panel.add(help);
@@ -123,11 +123,15 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 		}
 		return new String(sb);
 	}
-
+	
 	public static void record(String method, String arg) {
 		if (IJ.debugMode) IJ.log("record: "+method+"  "+arg);
-		if (textArea!=null && !(scriptMode&&method.equals("selectWindow")))
+		boolean sw = method.equals("selectWindow");
+		if (textArea!=null && !(scriptMode&&sw||commandName!=null&&sw)) {
+			if (method.equals("setTool"))
+				method = "//"+(scriptMode?"IJ.":"")+method;
 			textArea.append(method+"(\""+arg+"\");\n");
+		}
 	}
 
 	public static void record(String method, String arg1, String arg2) {
@@ -144,8 +148,6 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 
 	public static void record(String method, int a1) {
 		if (textArea==null) return;
-		if (method.equals("setTool"))
-			method = "//"+method;
 		textArea.append(method+"("+a1+");\n");
 	}
 
