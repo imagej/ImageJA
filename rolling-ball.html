@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Rolling Ball Background Subtraction</title> 
+</head>
+<body bgcolor = "#ffffff"> 
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Rolling Ball Background Subtraction</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Michael Castle and Janice Keller<br>
+Mental Health Research Institute<br>
+University of Michigan<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/11/22: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Rolling_Ball_Background.java">Rolling_Ball_Background.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/Rolling_Ball_Background.java">Rolling_Ball_Background.java</a> 
+to the plugins folder, or subfolder, compile and run it using <i>Plugins/Compile and Run</i>,
+then restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+ This is the plugin that implemented ImageJ's <i>Subtract Background</i>
+    command in versions up to 1.39e,
+    but with "Preview" added and support for multiprocessor machines when
+    processing stacks. This plugin does not support Float (32-bit) images.
+    ImageJ uses a different algorithm since 1.39f (slighly modified in 1.39k).
+<p>
+    This algorithm produces better results than the new ImageJ code for
+    some 16-bit images, but it has the disadvantage of producing artifacts
+    for many images if the ball radius is >=10.
+<p>
+    Based on the NIH Image Pascal version by Michael Castle and Janice 
+    Keller of the University of Michigan Mental Health Research
+    Institute. Rolling ball algorithm inspired by Stanley 
+    Sternberg's article, "Biomedical Image Processing",
+    IEEE Computer, January 1983.
+<p>
+    To display the background subtracted in a separate (new) window,
+    hold the ALT key when pressing "OK" (Preview must be off).
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
