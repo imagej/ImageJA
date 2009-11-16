@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>TIFF Tags</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>TIFF Tags</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Wesner (joachim.wesner at leica-microsystems.com)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2009/09/11: first version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Included in <a href="download/jars/tiff_tags.jar">tiff_tags.jar</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/tiff_tags.jar">tiff_tags.jar</A> to the plugins folder,
+or subfolder, run <i>Help&gt;Update Menus</i>, and there will be a new "Tiff Tags" command in the Plugins menu or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is a simple IJ plugin that displays all of the tags of a specified TIFF file.
+It only lists the first elements of a multiple element tag up to an 
+approximate total string length, which can be specified in the dialog.
+Tags with field type of 2 (ASCII) are (optionally) printed as strings, where 
+control chars (&lt; 32) are replaced by blanks.
+<p>
+This version now retains large unsigned values as such and list the results in 
+it's own TextWindow.
+It also adds three static methods (in two variants each) to get the 
+information on arbitrary TIFF tags of a given file, which can be called from
+the ImageJ macro language, i.e. for example as:
+<pre>
+    tag = call("TIFF_Tags.getTag", path, tag);
+</pre>
+
+
+Method descriptions:
+<pre>
+    public static String getTag(String path, int tag);
+    public static String getTag(String path, int tag, int ifd);
+</pre>
+Tries to read the tag with id <i>tag</i> and IFD <i>ifd</i> from the file given by <i>path</i>.
+If <i>ifd</i> is missing, IFD 1 is assumed.
+If the tag is not found, an empty string is returned.
+If the file cannot be opened or another error occurs, the string "*Err*" is returned.
+Tags with numerical value are converted to decimal ASCII strings, separated by blanks.
+<pre>
+    public static int getTagCount(String path, int tag);
+    public static int getTagCount(String path, int tag, int ifd);
+</pre>
+Returns the number of elements for the specified tag, or zero if the tag is not found, 
+or -1 if an error occurs.
+<pre>
+    public static int getTagType(String path, int tag);
+    public static int getTagType(String path, int tag, int ifd);
+</pre>
+ Returns the "field type" of the given tag as given by the TIFF standard (for the 
+ numerical values see the constant definitions below. Returns zero if the tag is not 
+ found or -1 if an error occurs.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<ul>
+<li> The <a href="http://rsbweb.nih.gov/ij/plugins/tiff-dumper.html">TIFF Dumper</a> plugin
+uses the
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats</a>
+plugin to display the tags of the current image.
+<li> The "Debug mode" option in <i>Edit&gt;Options&gt;Misc</i>, when enabled, causes ImageJ to
+display tags when opening TIFF images.
+<li> The <i>Image&gt;Show Info</i> command and the getMetadata() macro function(), 
+in v1.43g or later, retrieve ASCII tags, such as "DateTime" and "Software".
+<li> <i>Image&gt;Show Info</i> and getMetadata() retrieve the tags of TIFF images opened using the
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats</a> plugin.
+</ul>
+</td></tr>
+
+</table>
+</blockquote>
+
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
