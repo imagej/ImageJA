@@ -1,0 +1,137 @@
+<html>
+<head>
+<title>Contact Angle</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Contact Angle</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Marco Brugnara (marco.brugnara at ing.unitn.it)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2004/07/08:</u> First version<br>
+<u>2005/07/21:</u> Bug fixes and improved best fit precision<br>
+<u>2005/09/29:</u> Elliptical best fit option, calculation of the uncertainly,
+modifiable threshold level, minor bug fixes<br>
+<u>2006/02/16:</u> Variable number of points in profile selection;
+preference file;
+error propagation analysis;
+minor bug fixes<br>
+<u>2006/03/14:</u> Fixed bug with finding preference file<br>
+<u>2006/12/07:</u> Works with latest version of ImageJ<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Contact_Angle.jar">Contact_Angle.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Contact_Angle.jar">Contact_Angle.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+then run the plugin using the <i>Contact Angle</i> command.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plug-in calculates the contact angle of a drop on a flat surface using
+the sphere approximation (theta=2atan(2h/l) and the ellipse approximation.
+This code has been written by Marco Brugnara and it¡¯s based on the plug-in
+"Pointpicker".
+<p>
+The necessity to have a self-developed software comes by considering that
+commercial softwares do not provide a sufficient enough description of the
+methods used in their contact angle calculation. In fact people often
+perform contact angle measurements, by applying the sphere approximation,
+neglecting in this way the gravity effect, or by calculating the tangent of
+the profile without limit the drop volume. In our experience, confirmed by
+the Literature as well, the maximum volume, whose profile as a sphere shape,
+is about 3-5 microlitres; it depends on the contact angle as well. For
+bigger drops the other possible approaches are 2: to use some "correction
+factors", present in Literature, or to apply another model called ADSA,
+which in fact calculates the angle applying on the profile the Laplace
+equation. This last model works really well on profiles strongly modified by
+the gravity, instead it has some trouble by solving the equation if the drop
+has an almost spherical profile. It is important to underline that in many
+commercial packages coming with the devices, it is often present another
+approach called in general "tangent line" which calculates the tangent of a
+fitting curve of the drop profile near the triphase line. This approach is a
+least debatable, if the best-fit function is polynomial equation, chosen
+only for its low chi square, but without any physical meaning. Then way to
+analyze images can furnish precise results, which are however meaningless if
+the drop volume is too large: in fact the contact angle is not the
+geometrical angle if this last one is modified by other forces than surface
+tension. In fact if the shape depends significantly on the gravity force,
+the resulting angle is not a value of contact angle as defined in Theory,
+but just an angle depending on the gravity. It is a pity that who develops
+these programs, most of the times does not know the Literature.
+<p>
+In our plug-in the image analysis works offline; it means that an image
+database is required. After a picture is loaded, the drop profile is
+detected.
+It is important to remind that the program was written supposing the drop is
+upside down. The reason is that our images are obtained by a camera
+connected to a microscope and the final picture is reversed up/down.
+<p>
+A manual detection of the base line is required, by choosing the FIRST 2
+points. For this reason the plug-in could fail if the triphase line is not a
+straight line.
+<p>
+In the PlugIn Preferences menu the user finds the option "boundary
+conditions" where one can include or exclude one or both of these points in
+the drop profile.
+<p>
+Other 3 points are then requested along the drop profile in order to
+identify a ROI.
+<p>
+In order to calculate to contact angle, four different options are possible:
+
+<ul>
+<li> a Manual points selection
+<li> a measurement by using a circle best-fit
+<li> a measurement by using an ellipse best-fit
+<li> an analysis by applying both bestfits
+</ul>
+
+When the manual points selection is chosen, the user need to detect the
+profile manually placing some points along the drop edge. The circle and the
+ellipse passing trough the points are reckoned.
+<p>
+The best-fit analysis automatically detects the drop profile; for this
+reason a very well defined picture is required. The user has the possibility
+to modify the threshold in order to exclude the main part of the background.
+After these points are automatically collected a best fit procedure of a
+circle or an ellipse or both can be applied.
+<p>
+It is important to point out that an ellipse best-fit analysis poses itself
+between the circle best fit (which has a physical meaning) and an absolute
+best-bit function. Some times can happen that the drop is not perfectly
+symmetric, or that there is a slight effect of the gravity. In this case an
+almost-circle analysis can provide useful results.
+<p>
+
+Our plug-in is completely open source and in a constant developing and there
+are still many things to improve. For instance many error controls are not
+implemented yet, so if points are chosen in the wrong sequence, the user
+just obtains meaningless results.
+<p>
+A sample image is 
+<a href="images/contact-angle.jpg">available</a>.
+</td></tr>
+ 
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
