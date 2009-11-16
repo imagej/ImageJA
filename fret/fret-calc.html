@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0054)http://rsb.info.nih.gov/ij/plugins/fret/fret-calc.html -->
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="FRETcalc_files/filelist.xml">
+<title>FRETcalc</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="place"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="PlaceType"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="PlaceName"/>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>David</o:Author>
+  <o:LastAuthor>David</o:LastAuthor>
+  <o:Revision>4</o:Revision>
+  <o:TotalTime>25</o:TotalTime>
+  <o:Created>2007-06-19T20:13:00Z</o:Created>
+  <o:LastSaved>2007-06-19T20:19:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>474</o:Words>
+  <o:Characters>2662</o:Characters>
+  <o:Company>Home</o:Company>
+  <o:Lines>80</o:Lines>
+  <o:Paragraphs>24</o:Paragraphs>
+  <o:CharactersWithSpaces>3112</o:CharactersWithSpaces>
+  <o:Version>10.6830</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if !mso]><object
+ classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
+<style>
+st1\:*{behavior:url(#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:536885895 0 0 0 511 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:36.0pt;
+	mso-footer-margin:36.0pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0cm 5.4pt 0cm 5.4pt;
+	mso-para-margin:0cm;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="4098"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body bgcolor=white lang=EN-US link=blue vlink=blue style='tab-interval:36.0pt'>
+
+<div class=Section1>
+
+<p><span class=SpellE><b><span style='font-size:13.5pt;font-family:Helvetica;
+color:#224488'>FRETcalc</span></b></span><b><span style='font-size:13.5pt;
+font-family:Helvetica;color:#224488'> – FRET by acceptor <span class=SpellE>photobleaching</span></span></b></p>
+
+<p>&nbsp;</p>
+
+<table class=MsoNormalTable border=0 cellspacing=5 cellpadding=0
+ style='mso-cellspacing:3.7pt;mso-padding-alt:0cm 0cm 0cm 0cm'>
+ <tr style='mso-yfti-irow:0'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Author:</strong></p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p>David <span class=SpellE>Stepensky</span> (david.stepensky@yale.edu) from <st1:place><st1:PlaceName>Yale</st1:PlaceName>
+   <st1:PlaceType>University</st1:PlaceType></st1:place><br style='mso-special-character:
+  line-break'>
+  <![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
+  <![endif]></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>History:</strong><span style='font-size:10.0pt'><o:p></o:p></span></p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p class=MsoNormal>2006/09/05: Version 1.0</p>
+  <p class=MsoNormal>2006/11/01: Version 2.0 - more output options added</p>
+  <p class=MsoNormal>2007/05/08: Version 3.0 - change in the calculation
+  algorithm, both FRET<sub>TH</sub> and FRET<sub>ALL</sub> are calculated</p>
+  <p class=MsoNormal>2007/06/18: update of the manual</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Requires:</strong> </p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><span class=SpellE>ImageJ</span> 1.31i or later</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Limitations:</strong> </p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p>Was tested for 8-bit tiff <span class=GramE>images only, analysis is</span>
+  based on ROI of rectangular shape only.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Source:</strong></p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><a href="http://rsb.info.nih.gov/ij/plugins/download/Cell_Outliner.java"></a><a
+  href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_.java"
+  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_.java"
+  title="FRETcalc_.java"><span class=SpellE>FRETcalc_.java</span></a></p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Installation:</strong></p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p>Download <a href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_.java"
+  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_.java"
+  title="FRETcalc_.java">FRETcalc_.java</a> to the <span class=SpellE>plugins</span>
+  folder, or subfolder, and compile and run using <span class=SpellE><em>Plugins</em></span><em>/Compile
+  and Run</em>. Restarting <span class=SpellE>ImageJ</span> will add a &quot;<span
+  class=SpellE>FRETcalc</span>&quot; command to the <span class=SpellE>Plugins</span>
+  menu or a submenu of the <span class=SpellE>Plugins</span> menu. </p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><strong>Description:</strong></p>
+  </td>
+  <td valign=top style='padding:0cm 0cm 0cm 0cm'>
+  <p><span class=SpellE>FRETcalc</span> plugin for <span class=SpellE>ImageJ</span>
+  program allows pixel-by-pixel analysis of FRET by acceptor <span
+  class=SpellE>photobleaching</span>. <span class=SpellE>FRETcalc</span> uses <span
+  class=SpellE>thresholding</span> FRET<sub>TH</sub> algorithm to exclude from
+  data analysis pixels that do not match user-defined thresholds of donor
+  and/or acceptor fluorescence intensity, bleaching efficiency, and %FRET.
+  Subsequently, FRET signal-containing pixels on the analyzed images could be
+  separated from the <span class=SpellE>fluorophore</span>-free background
+  pixels, making possible analysis of FRET signal arising from non-continuous
+  intracellular organelles/compartments (e.g., endoplasmic reticulum, <span
+  class=SpellE>endosomal</span> system, etc.). Effect of the threshold-based
+  pixel selection on the estimated FRET values can be determined by comparing
+  FRET<sub>TH</sub> and FRET<sub>ALL</sub> (that is calculated using all the
+  pixels in the selected region of interest (ROI)). The plugin allows easy
+  visualization of the analysis results (as plots and/or histograms), thus
+  helping to estimate the statistical robustness of FRET analysis. <span
+  class=SpellE>FRETcalc</span> plugin, its validation, and application to study
+  protein-protein interactions in the MHC class I loading complex in the
+  endoplasmic reticulum has been described in: <span class=SpellE>Stepensky</span>
+  D. <span class=SpellE>FRETcalc</span> plugin for calculation of FRET in
+  non-continuous intracellular compartments. <span class=SpellE>Biochem</span> <span
+  class=SpellE>Biophys</span> <span class=SpellE>Res</span> <span class=SpellE>Commun</span>
+  2007; 359(3):752-8.</p>
+  <p><a
+  href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v3.0%20manual.pdf"
+  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v3.0%20manual.pdf"
+  title="FRETcalc v3.0 manual.pdf"><span class=SpellE>FRETcalc</span> v3.0 <span
+  class=SpellE>manual.pdf</span></a> provides general description of the <span
+  class=SpellE>FRETcalc</span> plugin.</p>
+  <p><a href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_sample.tif"
+  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_sample.tif"
+  title="FRETcalc_sample.tif"><span class=SpellE>FRETcalc_sample.tif</span> </a>contains
+  the images in the required format and could be used for testing and learning
+  the <span class=SpellE>FRETcalc</span> plugin.</p>
+  </td>
+ </tr>
+</table>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html" title=Plugins>Plugins</a>
+| <a href="http://rsb.info.nih.gov/ij/index.html" title=Home>Home</a> |</b> </p>
+
+</div>
+
+</body>
+
+</html>
