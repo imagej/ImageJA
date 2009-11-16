@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>Linearize GelData</title>
+</head>
+<body bgcolor =" #ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Linearize GelData</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Remi Cathelin - SIGENAE Team - INRA (cathelin at toulouse.inra.fr) <br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/01/25: First version<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+0 bug(s) listed.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Linearize_GelData.java">Linearize_GelData.java</A> 
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Linearize_GelData.class">Linearize_GelData.class</A>  
+to the plugins folder and restart ImageJ. Use the <I>Linearize GelData</I> command in the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This plugin allows to transform Square-Root Encoded Data (.gel files) to Linear Data.<br>
+Formula: grayscale_value = Square(stored_value)*scale factor<br>
+2 steps for each pixel:<br>
+1/ multiply the pixel value by itself to square the data.<br>
+2/ Multiply the squared pixel value by the Scale factor.<br>
+ <br>
+Note that the Scale factor is a private tag of the .gel format of files. <br>
+16-bit GEL file is an extension to the standard TIFF using private tags.<br>
+The MD_ScalePixel tag  code is 332446<br>
+Default Scale factor value: 1/21025 = 4,75624256837099E-5 <br>
+<br>
+A <A HREF="http://rsb.info.nih.gov/ij/plugins/images/sample-gel.tif">sample image</A>
+is available.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
