@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Spectral Unmixing of Bioluminescence Signals</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Spectral Unmixing of Bioluminescence Signals</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Seth Gammon (gammons at mir.wustl.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/04/14: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+the JAR file. 
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download 
+<a href="download/jars/Spectral_Unmixing_Plugin.jar">Spectral_Unmixing_Plugin.jar</a>
+to the plugins folder, or subfolder, restart ImageJ, and there
+will be a new "Spectral Unmixing" command in the Plugins menu, or submenu.
+ </td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+The program allows spectral deconvolution of bioluminescence images.
+ There is no limit to the number of luciferases present in the image; 
+ nor is there an internal limit to the maxiumum number of filters that 
+ may be used during image aquisisiton. 8, 12, and 32 bit images are 
+ all acceptable. The strength/limitation of this program is that one 
+ area in each image must contain a known pure sample of each 
+ luciferase to serve as an internal calibration.
+ <p>
+This program was not intented for use in living animals as attenuation 
+of light due to depth will confound the quatification of the images.
+<p>
+ If you use this program in a publication please cite and read the following reference:
+Gammon ST, Leevy WM, Gross S, Gokel GW, Piwnica-Worms D.
+Spectral unmixing of multicolored bioluminescence emitted from heterogeneous 
+biological sources. Anal Chem. 2006 Mar 1;78(5):1520-7. PMID: 16503603 [PubMed - in process].
+Download the publication from
+<a href="http://pubs.acs.org/cgi-bin/article.cgi/ancham/2006/78/i05/pdf/ac051999h.pdf">Analytical Chemistry</a>
+<p>
+The linear unmixing algorithm utilizes the pseudoinverse function of the public domain 
+<a href="http://math.nist.gov/javanumerics/jama/">JAMA</a>
+matrix algebra library from the NIST, 
+which is included in the JAR file.
+<p>
+<a href="docs/spectral-unmixing.pdf">Instructions in PDF format</a>
+<p>
+<a href="images/unmixing-example.tif">Sample stack of images for deconvolution</a>
+<p>&nbsp; 
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="spectral-unmixing.html">Spectral Unmixing Plugins</a> by Joachim Walter
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
