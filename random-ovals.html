@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>Random Ovals</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Random Ovals</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/03/06: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Random_Ovals.java">Random_Ovals.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Random_Ovals.class">Random_Ovals.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	This plugin opens a window and draws ovals in random sizes and colors.
+	<p>
+	Here is a macro version (requires ImageJ 1.29f or later):
+	<pre>	
+  run("New...", "name=Untitled type='32-bit RGB' width=400 height=400");
+  width = getWidth();
+  height = getHeight();
+  for (i=0; i<500; i++) {
+      w = random()*width/2+1;
+      h = random()*width/2+1;
+      x = random()*width-w/2;
+      y = random()*height-h/2;
+      setForegroundColor(random()*255, random()*255, random()*255);
+      makeOval(x, y, w, h);
+      run("Fill");
+   }
+   <pre>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
