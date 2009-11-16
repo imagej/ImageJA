@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>Biorad PIC</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Open Biorad PIC</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Geert Meesen (Geert.Meesen at rug.ac.be)<br>
+Wayne Rasband (wsr at nih.gov)<br> 
+Morris Feldman (mf243 at cornell.edu)<br>
+Greg Joss (gjoss at bio.mq.edu.au)<br>
+Gregory Jefferis (gsxej2 at cam dot ac dot uk)<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/05/04: First version<br>
+2003/01/30: Opens files with more than 1024 images<br>
+2003/06/26: Fixed truncated "notes" bug<br>
+2003/07/01: Opens images smaller than 128x128<br>
+2003/07/02: Opens 16-bit stacks<br>
+2003/08/11: Reads LUTs; extracts frame rate from notes<br>
+2005/06/16: Fixed "Unexpected EOF" bug<br>
+2006/02/16: Compatible with getDirectory('image') function<br>
+2006/03/06: Opens 16-bit, little-endian images<br>
+2007/06/14: Opens gzipped PIC files in IJ>1.38s<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitation:</b></td><td >
+Cannot read merged pseudocolored files.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Biorad_Reader.java">Biorad_Reader.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/Biorad_Reader.class">Biorad_Reader.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	Opens a Biorad z-series of images as a stack.  The width, height and number of images are
+	extracted from the first 3 16-bit word in the 76 byte header and the spatial calibration is
+    extracted from the ASCII "notes" at the end of the file. Use <i>Image/Show Info</i> to display
+	all the "notes".
+	<p>
+	Install the <A HREF="http://rsb.info.nih.gov/ij/plugins/file-handler.html">
+	HandleExtraFileTypes</A> plugin and you will be able to open Biorad images using <i>File/Open</i>
+	or by using drag and drop.
+	<p>
+	Mac OS X users: Avoid the ".pic" extension. OS X seems to 
+	think files with this extension belong to QuickTime, which may cause ImageJ to crash.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="http://flybrain.stanford.edu/imageJplugins/">Biorad plugins by Gregory Jefferis</a>
+(Batch Convert To Biorad,  Biorad Batch Merger,  Biorad Batch Projector,
+ Biorad OverWriter and  Biorad Writer)
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
