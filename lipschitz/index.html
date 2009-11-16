@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Lipschitz Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Lipschitz Filter</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Mikulas Stencel (mikulas.stencel at gmail.com)<br>
+Jiri Janacek (janacek at biomed.cas.cz) 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/06/21: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Lipschitz_.java">Lipschitz_.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="Lipschitz_.class">Lipschitz_.class</a> 
+to the plugins folder, or subfolder, restart ImageJ, 
+and there will be a new "Lipschitz " command in the Plugins menu,
+or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin implements Lipschitz cover of image that is equivalent to a 
+grayscale opening by a cone. The Lipschitz cover can be applied for 
+the elimination of a slowly varying image background by subtraction 
+of the lower Lipschitz cover (a top-hat procedure). Sequential double 
+scan algorithm (according Rosenfeld) was used.
+<p>
+This plug-in is designed to perform filtering on an 8-bit, 16-bit and RGB 
+images with support for ROI and Stacks. Long processing can be stopped 
+with Esc. 
+<p>
+Dialog box parameters:
+<ul>
+<li>Slope - maximum allowed difference between two neighbouring pixels
+<li>TopDown - covering from top to bottom.
+<li>TopHat - computes lower (upper) Lipschitz cover. 
+</ul>
+
+A PDF document and sample images
+<a href="../download/docs/lipschitz">are available</a>.
+<p>
+References:
+<ol>
+<li>Mikulas Stencel, Jiri Janacek: On calculation of chamfer distance and lipschitz covers in digital images. S4G conference, Prague, 2006.
+<li>Bloch I.: Fuzzy spatial relationships for image processing and interpretation: a review. Image and Vision Computing 23 (2005), 89-110. 
+<li>Borgefors G.: Distance transformations in arbitrary dimensions. CVGIP 27 (1984), 321-345.
+<li>Borgefors G.: Distance transformations in digital images. CVGIP 34 (1986), 344-371.
+<li>Breu H., Gil J., Kirkpatrick D., Werman M.: Linear time euclidean distance transform algorithms, IEEE Trans. PAMI 17 (1995), 529-533.
+<li>Danielsson P.-E.: Euclidean distance mapping. CVIP 14 (1980), 227-248.
+<li>Moreau P., Ronse C.: Generation of shading-off in images by extrapolation of Lipschitz functions. Graphical Models and Image Processing 58 (1996), 314-333.
+<li>Rosenfeld A., Pfaltz J. L.: Sequential Operations in Digital Picture Processing. (1966), 33-61.
+<li>Rosenfeld A., Pfaltz J. L.: Distance functions on digital pictures. Pattern Recognition 1 (1968), 33-61.
+<li>Sternberg S. R.: Grayscale morphology. CVGIP 35 (1986), 333-355.
+</ol
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
+
+</body>
+</html>
