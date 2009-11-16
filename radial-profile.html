@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>Radial Profile Plot</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Radial Profile Plot</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Paul Baggethun, <br>
+an engineer in Pittsburgh, PA
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/05/01: First version<br>
+2009/05/14: Works with batch mode macros<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Radial_Profile.java">Radial_Profile.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Radial_Profile.class">Radial_Profile.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This plugin produces a profile plot of normalized integrated intensities around concentric circles as a function of 
+distance from a point in the image. The point is automatically defined as the center of the rectangle that bounds
+the current ROI. The position of this point can be modified in a dialog box.
+<p>The intensity at any given distance from the point represents the sum of the pixel values around a circle. 
+This circle has the point as its center and the distance from the point as radius. The integrated intensity is divided
+by the number of pixels in the circle that is also part of the image, yielding normalized comparable values. 
+The profile x-axis can be plotted as pixel values or as 
+values according to the spatial calibration of input image. 
+<p>Radial profiles are useful for measurement of 
+X-ray powder diffraction patterns as well as electron diffraction patterns.
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="radial-profile-ext.html">Radial Profile Extended</A> plugin by Philippe Carl
+</td></tr>
+
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
