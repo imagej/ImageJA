@@ -1,0 +1,93 @@
+<html><head><title>MultiThresholder</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>MultiThresholder</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5" width=700>
+
+<tbody><tr valign="top"><td><b>Authors:</b></td><td>
+Kevin (Gali) Baler<br>
+Gabrial Landini<br>
+Wayne Rasband (wsr at nih.gov)<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+In <A HREF="download/jars/Multi_Thresholder.jar">Multi_Thresholder.jar</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Multi_Thresholder.jar">Multi_Thresholder.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>MultiThresholder</i> command in the Plugins menu.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This plugin allows the user to segment the current image using any of the 15 thresholding
+methods from Gabriel Landini's
+<a href="http://pacific.mpi-cbg.de/wiki/index.php/Auto_Threshold">Auto Threshold</a> plugin. More
+information about each of the methods is available as comments in the
+<A HREF="download/AutoThresholder.java">source code</A>.
+ <p>
+ <img src="images/multi-thresholder.jpg" alt="[screen shot]" width=484 height=388>
+ <p>
+ The MultiThresholder is macro recordable. Here is an example macro that uses the "Cell Colony" sample 
+ image to demonstate the 15 thresholding methods supported by MultiThresholder:
+ <pre>
+  run("Cell Colony (31K)");
+  run("Subtract Background...", "rolling=25 white");
+  threshold("Huang");
+  threshold("Intermodes");
+  threshold("IsoData");
+  threshold("Li");
+  threshold("Mean");
+  threshold("MinError(I)");
+  threshold("MaxEntropy");
+  threshold("Minimum");
+  threshold("Moments");
+  threshold("Otsu");
+  threshold("Percentile");
+  threshold("RenyiEntropy");
+  threshold("Shanbhag");
+  threshold("Triangle");
+  threshold("Yen");
+  threshold("Yen (apply)");
+
+  function threshold(method) {
+     run("MultiThresholder", method);
+     getThreshold(lower, upper);
+     print(method+": "+lower+"-"+upper);
+     wait(2000);
+  }
+</pre>
+To run this macro, select it and copy it to the clipboard (ctrl-c), switch to ImageJ, 
+use <i>Plugins/New</i> (shift-n) to open a macro window, 
+paste in the macro (ctrl-v), 
+then run it using the macro editor's <i>File/Run Macro</i> command (ctrl-r).
+
+<tr valign="top"><td><b>History:</b></td><td>
+<u>2005/07/21:</u> First version<br>
+<u>2005/08/03:</u> Works with 16-bit and 32-bit images; adds "Refresh" button<br>
+<u>2007/01/25:</u> Fixes bug that caused an exception when running the sample macro using the 
+<A HREF="http://www.macbiophotonics.ca/imagej/">MBF ImageJ bundle</A><br>
+<u>2009/04/12:</u> Uses the 13 thresholding methods from Gabriel Landini's
+<a href="http://pacific.mpi-cbg.de/wiki/index.php/Auto_Threshold">Auto Threshold</a> plugin;
+adds "Dark Background" checkbox<br>
+<u>2009/04/14:</u> Adds "Mean" and "MinError(I)" methods; adds "Stack Histogram" checkbox<br>
+</td></tr>
+
+
+</td></tr>
+
+</table>
+
+</blockquote>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
