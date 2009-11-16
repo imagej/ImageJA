@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Discrete Cosine Transform (DCT)</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Discrete Cosine Transform (DCT)</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Werner Bailer (werner@wbailer.com)
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >
+2001/10/29
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/DCT_.java">DCT_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/DCT_.class">DCT_.class</A> and
+<A HREF="download/DCT.class">DCT.class</A> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Calculates forward and inverse 2D discrete cosine transform (DCT). The
+DCT class implements the DCT and provides methods for writing coefficients in zig zag 
+order into a 1D array. The DCT_ class is the ImageJ plugin handling user input 
+of parameters and creating a new image showing the result of the DCT/IDCT. 
+The user can set the following parameters:
+<ul>
+	<li>block size (a power of 2)
+	<li>forward or inverse DCT
+	<li> if the image is sclaed to the block size or split into tiles of this size
+	<li>scaling of output (by default [-1,1])
+</ul>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Only works with 8, 16 and 32 bit grayscale images.
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
