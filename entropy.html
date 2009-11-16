@@ -1,0 +1,66 @@
+<html><head><title>Maximum Entropy Threshold</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Maximum Entropy Threshold</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Jerek Sacha (jarek at ieee.org)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2004/02/13: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Entropy_Threshold.java">Entropy_Threshold.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Entropy_Threshold.java">Entropy_Threshold.java</A>
+to the plugins folder, or subfolder, and compile and run
+it using <i>Plugins/Compile and Run</i>. Restart ImageJ and there will be a new 
+"Entropy_Threshold" command in the Plugins menu.
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/Entropy_Threshold.class">Entropy_Threshold.class</a>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>Entropy_Threshold</i> command in the Plugins menu.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This plugin does automatic thresholding based on the entopy of the histogram.
+The method is very similar to  
+<A HREF="http://rsb.info.nih.gov/ij/plugins/otsu-thresholding.html">Otsu's method</A>.
+Rather than maximising the
+inter-class variance, it maximises the inter-class entropy. Entropy is a
+measure of the uncertainity of an event taking place. You can calculate
+it as:
+<bloclquote>
+S = -(sum)p*log2(p)
+</bloclquote>
+so it is very straightforward to do using the histogram data. (p is the
+probability of a pixel greyscale value in the image, and (sum) is the
+greek capital sigma. It is customary to use log in base 2.
+<p>
+See: P.K. Sahoo, S. Soltani, K.C. Wong and, Y.C. Chen "A Survey of
+Thresholding Techniques", Computer Vision, Graphics, and Image
+Processing, Vol. 41, pp.233-260, 1988.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
