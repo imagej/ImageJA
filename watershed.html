@@ -1,0 +1,103 @@
+<html><head><title>Watershed Algorithm</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Watershed Algorithm</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Christopher Mei (christopher.mei at sophia.inria.fr)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2003/12/15 : First version<br>
+</td></tr>
+
+<tr valign="top"><td><b>Requires:</b></td><td>ImageJ 1.31p or later, which adds the ability to 
+package plugins in JAR files</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Watershed_Algorithm.jar">Watershed_Algorithm.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Watershed_Algorithm.jar">Watershed_Algorithm.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>Plugins/Filters/Watershed Algorithm...</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>See Also:</b></td><td>
+<a href="http://bigwww.epfl.ch/sage/soft/watershed/">Watershed plugin by Daniel Sage</a><br>
+<a href="http://rsb.info.nih.gov/ij/docs/menus/process.html#watershed"><i>Process/Binary/Watershed</i> command</a>
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This algorithm is an implementation of the watershed immersion algorithm
+written by Vincent and Soille (1991).
+<pre>  
+@Article{Vincent/Soille:1991,
+    author =       "Lee Vincent and Pierre Soille",
+    year =         "1991",
+    keywords =     "IMAGE-PROC SKELETON SEGMENTATION GIS",
+    institution =  "Harvard/Paris+Louvain",
+    title =        "Watersheds in digital spaces: An efficient algorithm
+                    based on immersion simulations",
+    journal =      "IEEE PAMI, 1991",
+    volume =       "13",
+    number =       "6",
+    pages =        "583--598",
+    annote =       "Watershed lines (e.g. the continental divide) mark the
+                   boundaries of catchment regions in a topographical map.
+                   The height of a point on this map can have a direct
+                   correlation to its pixel intensity. WIth this analogy,
+                   the morphological operations of closing (or opening)
+                   can be understood as smoothing the ridges (or filling
+                   in the valleys). Develops a new algorithm for obtaining
+                   the watershed lines in a graph, and then uses this in
+                   developing a new segmentation approach based on the
+                   {"}depth of immersion{"}.",
+   }
+ </pre>
+A review of Watershed algorithms can be found at :
+http://www.cs.rug.nl/~roe/publications/parwshed.pdf	      
+<pre>
+@Article{RoeMei00,
+    author =       "Roerdink and Meijster",
+    title =        "The Watershed Transform: Definitions, Algorithms and
+                    Parallelization Strategies",
+    journal =      "FUNDINF: Fundamenta Informatica",
+    volume =       "41",
+    publisher =    "IOS Press",
+    year =         "2000",
+   }
+</pre>
+</td></tr>
+</tbody></table>
+<hr>
+<p>
+
+<center>
+<img SRC="images/example.gif">
+<img SRC="images/example_result.gif"><br>
+</center>
+<blockquote>
+<p>
+The image on the left represents the type of result obtained from the thresholding of classical images where Watershed segmentation is efficient. This could be a picture of coffee beans, blood cells, sand ... <br>
+The segmentation on the right was obtained with the following operations : invert image (<i>Edit/Invert</i>), calculate the distance transform  
+(<i>Process/Binary/Distance Map</i>), invert result, apply Watershed.
+
+</p>
+</blockquote>
+</center>
+<br>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
