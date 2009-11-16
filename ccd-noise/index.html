@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>Calculate CCD Noise </title>  
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> 
+<b>Calculate CCD Noise </b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Sebastian Rhode (Sebastian.Rhode at gmx.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2008/05/09: First version<br>
+2008/08/28: Version 1.2<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="CCD_noise.java">CCD_noise.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="CCD_noise.class">CCD_noise.class</a> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin calculates the CCD readout noise on the basis of two dark images with 
+zero exposure. Both images have to be recorded at different time points 
+with identical CCD settings. It can be used to check the noise value given 
+by the manufacturer or to compare CCD cameras. The plugin was inspired by:
+<p>
+<a href="http://spiff.rit.edu/classes/phys559/lectures/readout/readout.html">spiff.rit.edu/classes/phys559/lectures/readout/readout.html</a>
+(Thanks to Michael Richmond for this little tutorial)
+<p>
+Algorithm used for noise calculation:
+<blockquote>
+<i><small>Noise =  stdDev(Darkframe1-Darkframe2)/sqrt(2)*AD-Factor/EM-Gain</small></i>
+</blockquote>
+You only need two dark frames with zero exposure taken at different time points!
+I do not guarantee for correct results. So feel free to change and improve the plugin.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
