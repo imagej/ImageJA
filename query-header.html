@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Query DICOM Header</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Query DICOM Header</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+	Anthony Padua (padua001@mc.duke.edu)<br>
+	Duke University Medical Center, Department of Radiology<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/04/21: First version<br>
+2003/05/12: Can be called from macros
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.30m or later
+</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Query_Dicom_Header.java">Query_Dicom_Header.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Query_Dicom_Header.class">Query_Dicom_Header.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin queries the DICOM header to return the value for given criterion.
+A typical search string would look like "0020,0013", but without the double quotes.
+<p>
+The latest version of QDH plugin (requires v1.30m) is now "macro-able": the DICOM header 
+can easily be queried in a macro, and the result of the query can then be used by the macro.
+Because the results are returned to the results table in differing formats depending on 
+whether the returned result is numeric or non-numeric, the Type field in the results table 
+is used to differentiate numeric data (type=1) from non-numeric data (type=2) from missing 
+or invalid data (type=9).
+<p>
+Usage is particularly straightforward if the [group,element] query returns a numeric result; 
+this can be accessed by a macro using the getResult function. If the [group, element] query 
+returns a non-numeric result, this result is appended to the name of the attribute after a 
+colon and placed in the Attribute column. This can then be accessed from the results 
+table using the getInfo function followed by the split function to divide the contents of 
+the results table into lines, then the lines into fields, and then the appropriate field into 
+two items divided by a colon. As an example, the following macro will print the value of a 
+DICOM [group, element] in the log table, whether numeric or non-numeric ([group,element]=[0008,0025]
+is used as an example).
+
+<blockquote>
+<pre>
+run("Clear Results");
+run("Set Measurements...", "decimal=3");
+run("Query Dicom Header", "9=0008,0025");
+typechk = getResult("Type",0);
+if (typechk == 9) x= "INVALID";
+if (typechk == 1) x = getResult("ValNum",0);
+if (typechk == 2) {
+   selectWindow("Results");
+   data = getInfo();
+   lines = split(data, '
+');
+   fields = split(lines[1], '	');
+   items = split(fields[1],':');
+   x = items[1];
+}
+print (x);
+</pre>
+</blockquote>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
