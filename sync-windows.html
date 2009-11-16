@@ -1,0 +1,178 @@
+<html>
+<head>
+<title>Sync Windows and Sync Measure 3D</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Sync Windows and Sync Measure 3D</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Walter (walter at biz.uni-muenchen.de)
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.37b or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Sync_Win.jar">Sync_Win.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Sync_Win.jar">Sync_Win.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be two new commands (<i>Sync Windows</i> and
+<i>Sync Measure 3D</i>) in the <i>Analyze/Tools</i> submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<p>
+<font size=+1><b>Sync Windows</b><br></font>
+<p>
+
+The Sync Windows plugin synchronizes mouse motion and input between multiple windows. Thus, an ROI drawn in one window is replicated in all other synchronized windows in the synchronized window set. A synchronization cursor (the red box above) indicates the location of the mouse in all synchronized windows.
+<p>
+
+It is an enhanced version of the SyncWindows_ plugin by Partrick Kelly (part of the UCSD package) that adds the following new features:
+<ul>
+	<li>Optionally passes on changes of the z-slice in a StackWindow
+   to other synchronized StackWindows.
+	<li>Optionally translates positions to different windows via offscreen
+   coordinates, providing correct registration at different zoom levels.
+	<li>Has an "Update Window List" Button, so that it is not necessary to
+   restart the plugin for adding a newly opened window.
+	<li>Is not disturbed by closing windows while the plugin is running.
+	<li>Can handle Polyline selections.
+</ul>
+
+<font size=+1><b>Sync Measure 3D</b><br></font>
+<pre>
+Synchronizes the cursor and z-slice in all selected windows, 
+and performs measurements on 3D ROIs in all selected windows.
+
+Usage:
+- Load the data, each color channel as a separate 8- or 16-bit grayscale stack.
+
+- Run Sync_Measure_3D. (Analyze>Tools>Sync Measure 3D)
+
+- Synchronize the windows, in which you want to measure by selecting them in the
+    window list.
+
+- Click "Start Measurements".
+
+- Click on "Projection" to obtain a combined maximum intensity projection of all
+  selected images (stacks). This projection is not used for measurements, but is
+  synchronized with the other images and might be a convenient reference.
+
+- Choose a threshold for each image.
+
+- Measure gravity center, Volume, Intensity and distance to preceding stacks:
+    o Draw a ROI around the particle you want to measure. If the particles in different
+        channels are at different positions, turn "Synchronize Cursor" off for that.
+    o If necessary (when other particles are inside the ROI in different z-slices),
+        Select first and last slice to include this particle and exclude the other ones.
+  o Double-click (left mousebutton) into the ROI to perform a measurement.
+        + The X, Y and Z values are the coordinates of the intensity gravity centers
+            of the measured objects.
+        + The Volume and Intensity values are the volumes and the total intensities
+            of the measured objects.
+        + The Dist 1, Dist 2, ... values (for 2 or more image stacks) are the 3D distances
+            of the intensity gravity center of the object in the current stack to the intensity
+            gravity center of the object in the first, second, ... stack in the list.
+        + If the scale of the image is not set, the results are displayed in "pixels".
+            3D-distances are meaningless in this case, if the distance between slices
+            differs from the pixelsize. If the image scale is set, the results are displayed
+            in the selected unit.
+        + Intensity values are given in gray values or the selected units in case that the
+            image has been density calibrated. If the image is density calibrated, the centers
+            of mass are calculated with the calibrated values, but the threshold is still a raw
+            value (0-255 for 8-bit images).
+    o To calculate mean values and standard deviations, click on "Stop Measurements".
+        + For the x- y- and z- coordinates the differences to the coordinates of image stack #1
+             are calculated ( (value for this stack) minus (value for stack #1) ) and their mean
+             and standard deviation values are displayed. This helps in calculating the chromatic
+             shift to stack #1.
+        + For the Dist 1, Dist 2, ... values, simply the mean and the standard deviation are
+             calculated.
+</pre>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="image5d.html">Image5D</a><br>
+<a href="spectral-unmixing.html">Spectral Unmixing Plugins</a><br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td>
+<u>2002/03/11:</u> First version<br>
+<u>2002/04/01:</u> Fixes zooming bug<br>
+<u>2002/06/19:</u> Added Sync_Measure_3D plugin<br>
+<u>2002/10/07:</u> Slice spacing used when calculating volumes<br>
+<u>2004/02/22:</u> Updated
+<ul>
+<li>When Sync_Windows is active, the ImageJ Statusbar shows the intensity
+  value of the image, which contains the "main" cursor (corrects a
+  previous bug).
+<li> New crosshairs Sync cursor
+<li> Sync_Windows is displayed in the window list.
+<li> Sync_Measure_3D now measures on "Space-click". (Alt-Click and
+  Shift-click no longer work as they are used to add parts to and remove
+  parts from ROIs)
+<li> Sync_Measure_3D works on 16-bit images.
+<li> Threshold values can be typed into text fields in addition to setting
+  them with the sliders.
+<li> z-Positions measured by Sync_Measure_3D are now consistent with the
+  cursor position displayed in the ImageJ window.
+<li> The size adapts better to smaller screens.
+</ul>
+<u>2004/10/24:</u>
+Now measures on double-click. Space-click in v1.2 was a bad idea, because if 
+a button in the control window still has the focus, it gets "pressed" by 
+pressing the spacebar. Also, pressing the spacebar while scrolling through 
+16-bit image stacks resets the Min- and Max-values.
+<p>
+<u>2005/06/03:</u> Updated to work with <a href="image5d.html">Image5D</a>
+<p>
+<u>2005/07/09:</u> Works with AND WITHOUT <a href="image5d.html">Image5D</a>
+<p>
+<u>2006/04/19: Version 1.5</u>
+<ul>
+<li> Uses the new ImageListener interface to update the image list. This also works with Image5Ds 
+when version 1.1.5 or higher of Image5D is installed. Needs ij 1.37b or higher.
+<li> Can use the image scaling and offset values for determining cursor positions in synchronized images. This only works correctly, when the images have the same length unit i.e. the difference between 10nm and 10um is not recognized, but the difference between 10um and 0.01um is.
+<li> Frames and Channels of Image5Ds can be synchronized.
+<li> Corrected a compilation problem that would make Sync_Measure_3D unresponsive at the first measurement when measurements were performed in spatially calibrated images.
+</ul>
+<p>
+<u>2006/10/02: Version 1.6</u>
+<ul>
+<li> Works with Image5D v1.1.6, which sorts base Image5D classes in a package structure.
+<li> Fixed a bug: Cropped images from synchronized windows are not equally sized when 
+   the ROI is selected at zoom <100%
+<li> Fixed a bug: For the active window of several synchronized images the position values are not updated
+   in the statusbar.
+</ul>
+<p>
+<u>2007/08/14: Version 1.7</u>
+<ul>
+<li> Works with Image5D v1.2.0 (where Scrollbars for z and t have been changed).
+<li> Also synchronizes slices (channels, frames), when they are changed by moving the mousewheel.
+</ul>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
