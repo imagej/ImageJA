@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Untilt Stack</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Untilt Stack</b>
+</font>
+
+<p>
+
+<blockquote>
+  <table cellspacing=5 width=700>
+    <tr valign=top>
+      <td ><b>Author:</b></td>
+      <td ><p>Julian Cooper<br>
+        Julian.Cooper[at]uhb.nhs.uk </p></td>
+    </tr>
+    <tr valign=top>
+      <td ><b>History:</b></td>
+      <td >2009/05/22: First version<br>
+        2009/06/01: Performance enhanced. Also handles anisotropic voxel calibration far more efficiently. Corrected bug in calculation. </td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Source:</b></td>
+      <td ><a href="download/Untilt_Stack.java">Untilt_Stack.java</a> </td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Installation:</b></td>
+      <td > Download <a href="download/Untilt_Stack.class">Untilt_Stack.class</a> to the plugins folder and restart ImageJ or click Help &gt; Update Menus. </td>
+    </tr>
+    <tr valign=top>
+      <td ><strong>Dependency:</strong></td>
+      <td >Requires the latest version of Erik Meijering's <a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ</a> (or at least imagescience.jar) to be installed in the ImageJ plugins folder. </td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Description:</b></td>
+      <td ><p>This plugin is designed to remove tilt from a stack of images, where it is desired to make  images of a longitudinal object parallel to the z-axis of the stack. An example would be an axial CT of a bone  where the bone is tilted with respect to the stack z-axis. The plugin will work with isotropic and anisotropic voxel calibration (i.e. where the voxel depth is different to the pixel width and height).</p>
+        <p><strong>Entry:</strong> the plugin can be run either with or without an ROI already selected. If already selected the ROI should be centred over the object to be aligned towards the upper (lower slice number) end of the stack. Any of the ImageJ selection tools appear to  work well. If no ROI is present then the user will be prompted to scroll to the upper end of the stack and select the appropriate feature.</p>
+        <p>Distal end of radius selected using polygon tool: <img src="images/dialog-1.jpg" alt="Distal end of radius selected" width="795" height="229" title="Distal end of radius selected"></p>
+        <p><strong>Selection of second point:</strong> the user is prompted to scroll to the lower end of the stack and to select the object to be aligned with the first point. Again any of the selction tools can be used. If you need to record the angular correction select the &quot;Log angular corrections &quot; checkbox. If you wish to inspect or save the transformation matrix checking the &quot;Display matrix as text&quot; box will open a text window containing a space-delimited layout of the 4x4 matrix used for the transformation. </p>
+        <p>Proximal end of radius selected with oval tool:<em><img src="images/dialog-2.jpg" alt="Proximal end of radius selected" width="795" height="229" title="Proximal end of radius selected"></em></p>
+        <p>The plugin then calculates an affine transformation matrix that will rotate the stack taking account of voxel calibration. The imagescience Affine routine is then called to apply the matrix, rotating the stack around the x-axis and y-axis so that the first selected point is now above the second.</p>
+        <p><strong>Example:</strong> a stack of CT images (montaged summary) of a malunited complex forearm fracture referred for correction shows the forearm to be tilted:<br>
+        <img src="images/pre-montage.jpg" alt="Montaged stack of CT images of a malunited forearm fracture which is very tilted" width="637" height="397" title="Montaged stack of CT images of a malunited forearm fracture which is very tilted"></p>
+        <p>Z-projections of orthogonal reslices of above stack (from top and from left). The red X marks each end of the radius to emphasise the tilt:<br>
+        <img src="images/from-top-pre.jpg" alt="AP Z-projection of the original stack" width="241" height="388" title="AP Z-projection of the original stack"> <img src="images/from-left-pre.jpg" alt="Lateral Z-projection of the original stack" width="150" height="388" title="Lateral Z-projection of the original stack"> </p>
+        <p>After applying this plugin to the selected points at the distal and proximal ends of the radius  the two ends lie in the same longitudinal alignment along the z-axis:<br>
+        <img src="images/post-Montage.jpg" alt="The untilted stack showing the forearm in the same general position in each slice" width="637" height="385" title="The untilted stack showing the forearm in the same general position in each slice"> </p>
+        <p>Image &gt; Stacks &gt; Orthogonal Views showing the proximal and distal ends of the radius lying on the same longitudinal axis. Log output also shown.<br>
+        <img src="images/orthogonal-1.jpg" alt="AP Z-projection of the untilted stack" width="640" height="604" title="AP Z-projection of the untilted stack"></p>
+      </td>
+    </tr>
+  </table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
+
