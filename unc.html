@@ -1,0 +1,85 @@
+<html><head><title>Open and Save UNC format images</title></head><body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Open and Save UNC format images</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Jonathan Jackson (j.jackson at ucl.ac.uk)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2005/09/27: First Version<br>
+2006/06/14: Works with File>Import>Image Sequence (requires updated <a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">HandleExtraFileTypes</a>)<br>
+
+</td></tr>
+
+<tr valign="top"><td><b>Requires:</b></td><td>
+Java 1.4 or later and ImageJ 1.35 or later
+</td></tr>
+
+<tr valign="top"><td><b>Limitations:</b></td><td>
+UNC Writer saves only general header fields not slice specific information. 
+No support for editing header fields.
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>
+Included in 
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/UNC_.jar">UNC_.jar</a>
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download 
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/UNC_.jar">UNC_.jar</a>
+to the ImageJ plugins folder. <br>
+Download an installer for the <a href="http://www.xinapse.com/">Jim medical image display package</a> 
+from <a href="http://www.xinapse.com/Manual/install_sections.html">here</a>.  
+Install the program (there is a 30 day free trial).  
+Copy the xinapse.jar file from the Jim installation directory to the ImageJ plugins directory.  
+(The xinapse.jar classes are freely distributable, and not limited to the trial period)
+<p>
+Optionally, install the
+<a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">HandleExtraFileTypes</a> 
+plugin. This will enable UNC files to be opened with the File&gt;Open command.
+</p><p>
+After restarting ImageJ, the following commands will appear.<br> 
+<strong>UNC Reader</strong> in the File&gt;Import menu<br>
+<strong>UNC Writer</strong> in the File&gt;Export menu<br>
+<strong>UNC Header</strong> in the Analyze&gt;Tools menu<br>
+</p></td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+These plugins load and save images in UNC format, a multidimensional 
+biomedical imaging format. You can open UNC images with the File&gt;Open 
+command, or by drag and drop, if the HandleExtraFileTypes plugin is 
+installed. 
+<p>
+The UNC Header plugin allows the UNC header entries to be displayed and 
+searched. Custom filter definitions are stored in UNCHeaderFilters.txt 
+in the plugins directory. An example file, containing GE DICOM style 
+header entries, is
+<a href="http://rsb.info.nih.gov/ij/plugins/docs/UNCHeaderFilters.txt">UNCHeaderFilters.txt</a>. 
+UNC Header also runs 
+from the command line as a standalone utility. The UNIX shell script 
+<a href="http://rsb.info.nih.gov/ij/plugins/docs/uncheader">uncheader</a>
+ illustrates command syntax. 
+</p></td></tr>
+
+<tr valign="top"><td><b>See Also:</b></td><td>
+<a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">HandleExtraFileTypes</a><br>
+<a href="http://www.xinapse.com/Manual/api/index.html">Xinapse API</a> 
+</td></tr>
+
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+
+</p></body></html>
