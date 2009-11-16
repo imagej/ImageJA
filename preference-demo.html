@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>Plugin Preference Demo</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Plugin Preference Demo</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Ulf Dittmer (udittmer at yahoo.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/3/1: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.32c or later</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Preference_Demo.java">Preference_Demo.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Preference_Demo.java">Preference_Demo.java</A>
+to the plugins folder, or subfolder, and compile and run
+it using <i>Plugins/Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+  This plugin demonstrates how a plugin can store preference settings
+  using ImageJs built-in preference mechanism (i.e., the IJ_Prefs.txt file).
+  <p>
+  There are three overloaded methods for saving preferences values (strings, 
+  numbers and booleans) and three for retrieving values.
+
+<blockquote>
+<dl>
+<dt><b>Prefs.set(key, value);</b>
+    <dd> Saves the value of a string, number or boolean in the preferences 
+        file using the keyword <i>key</i>.
+<p>
+
+<dt><b>value = Prefs.get(key, defaultValue);</b>
+    <dd> Uses the keyword <i>key</i> to retrieve a string, number or boolean value 
+        from the preferences file. Returns <i>defaultValue</i> if the key is not found.
+
+</dl>
+</blockquote>
+
+Note that the key should begin with a prefix that is unique to 
+the calling plugin (e.g. "prefsdemo.").
+
+
+</td></tr>
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
