@@ -1,0 +1,101 @@
+<html>
+<head>
+<title>RG2B Colocalization</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>RG2B Colocalization</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Christopher Philip Mauer (cpmauer at northwestern.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/06/29: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with RGB images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/RG2B_Colocalization.java">RG2B_Colocalization.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/RG2B_Colocalization.java">RG2B_Colocalization.java</A>
+to the plugins folder and compile it with the "Compile and Run" command. 
+<br>Restart ImageJ to add the "RG2B_Colocalization" command to the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin takes the Red and Green channel values from an RGB image or stack of images, determines 
+whether or not there is colocalization for a given pixel, and stores the result in the Blue channel 
+of the image or slice.  This method of storage for the colocalization data allows for the easy 
+appreciation of the presence of colocalized pixels in a sample by superimposing the colocalization 
+data without corrupting or modifying the original data.  To alter the sensitivity of the selection 
+algorithm, the user can specify the minimum ratio for the pixels in question, as well as the threshold 
+for the red and green channels.  Alternatively, the user can choose to have the threshold values determined 
+automatically (for each slice if a stack) via the getAutoThreshold() method in the ImageProcessor Class.  
+The colocalization data can be expressed as the average, max, or min of the corresponding red and green 
+pixels, or as a saturated pixel (255).  The colocalized data can also be displayed in a separate window 
+as an 8bit or RGB image.  If any data was present in the Blue channel of the original image, it will 
+be replaced by the colocalization data.
+<br><br>
+<TT>
+Copyright (C) 2004  CHRISTOPHER PHILIP MAUER
+<br>
+Permission to use, copy, modify, and distribute this software for any purpose 
+without fee is hereby granted, provided that this entire notice is included in 
+all copies of any software which is or includes a copy or modification of this 
+software and in all copies of the supporting documentation for such software.
+Any for profit use of this software is expressly forbidden without first
+obtaining the explicit consent of the author.<br>
+THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED WARRANTY. 
+IN PARTICULAR, THE AUTHOR DOES NOT MAKE ANY REPRESENTATION OR WARRANTY 
+OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS SOFTWARE OR ITS FITNESS FOR ANY 
+PARTICULAR PURPOSE</TT>.
+<br><br>
+
+The plugin operates on a previously opened image or stack of images, and
+produces a new image or stack of images.  The output image or stack is 
+generated upon completion of processing for all of the input data.  Be sure to save
+the output if desired.<br><br>
+The user can specify the following:<br>
+<ul>
+        <li>Whether auto-thresholding should be applied 
+        <br> or
+	<li>The minimum ratio cut-off for colocalization (0.0 to 1.0)
+	<li>The minimum threshhold for the red channel (0 to 255)
+	<li>The minimum threshhold for the greenchannel (0 tio 255)
+        <br> and
+	<li>Which method will be employed to set the colocalized pixels:
+	<ul>
+        <li>the average of the red and green</li>
+        <li>the maximum of the red and green</li>
+	<li>the minimum of the red and green</li>
+	<li>a saturated pixel (255)</li>
+        </ul>
+	<li>How to display the colocalization data in a separate window:
+	<ul>
+	<li>as an RGB image</li>
+        <li>as an 8bit image</li>
+        <li>do not display the colocalization data</li>
+</ul>
+
+
+<center>
+<IMG SRC="images/rg2bmontage.jpg" ALT="images/rg2bmontage.jpg"><br>
+<blockquote>
+<p>
+Images show Zprojections of the original data and data generated with the RG2B Colocalization on autoThreshold with the colocalized pixels set to the max of the red or green channel, and generating the colocalized data as an RGB image.  Zprojections were performed with <A HREF="rgbzprojector.html">RGB Zprojector</A>. Original Data and Colocalized Data were zprojected using PowerMean (p=2) for the Red, Green, and Blue channels, and the RG2B Colocalization was zprojected with PowerMean (p=2) for the Red and Green channels, and Maximum Intensity for the Blue channel.
+</p>
+</blockquote>
+</center>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
