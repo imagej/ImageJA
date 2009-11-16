@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>3D Object Counter</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">
+body {max-width: 60em;}
+</style>
+</head>
+
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+  | <a href="../../links.html">links</a></p>
+
+<h1>3D Object Counter</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td > 
+Fabrice Cordelires (Fabrice.Cordelieres at curie.u-psud.fr)<br>
+Institut Curie, Orsay, France<br>
+Jonathan Jackson (j.jackson at ion.ucl.ac.uk)<br>
+UCL Institute of Neurology, London, UK<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Object_Counter3D.java">Object_Counter3D.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="Object_Counter3D.class">Object_Counter3D.class</a> 
+to the plugins folder, or subfolder, restart ImageJ, 
+and there will be a new " 3D objects counter" command in the Plugins menu,
+or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plug-in counts the number of 3D  objects in a stack and displays the 
+volume, the surface, the centre of mass  and the centre of intensity for 
+each object. The threshold value can be  adjusted using the first slider 
+and user may navigate through the stack using  a second slider. 
+Results are presented both as a results table and as new  stacks 
+where either the full volume, the edges of each particle, the centre 
+of mass or centre of intensity is represented. On this stack, each 
+structure  appears under a different colour. A tick box allows 
+logging a summary of the  overall measurement (useful to 
+keep a track of successive counts).
+<p>
+Thanks to Gabriel Landini for major  feedbacks and suggestions.
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2005/06/15:</u> First version<p>
+<u>2005/12/05:</u> Threshold can now be set up  using a slider. 
+Modifications in algorithm: first step of ID attribution  followed 
+by a second step of ID minimization (regularization)<p>
+
+<u>2006/05/31 (v1.3):</u> (Jonathan Jackson, j.jackson at ucl.ac.uk) 
+<ul>
+<li> Added "New_Results Window"  option: Use to preserve existing data in the main ImageJ "Results Table"
+Unselect this option if you wish to use the commands <i>Analyze&gt;Summarize</i> and <i>Analyze&gt;Distribution</i>
+<li> Results are given in floating point precision
+<li> Works in "Batch Mode"
+<li> Improved exectution speed
+<li> Added methods to facilitate calling from another plugin
+</ul>
+
+<u>2006/06/14 (v1.4):</u> (Jonathan Jackson, j.jackson at ucl.ac.uk) 
+<ul>
+<li> Plugin remembers user selected options
+<li> Fixed bug causing particles to wrap-around image boarders
+</ul>
+
+<u>2007/06/18 (v1.5):</u> (Jonathan Jackson, j.jackson at ucl.ac.uk) 
+<ul>
+<li> Measurements now spatially calibrated 
+<li> Volume and Centre of Mass/Centroid 'Surface' value is now expressed as 
+the fraction of voxels on the object surface
+</ul>
+
+<u>2007/06/25 (v1.5.1):</u> (Jonathan Jackson, j.jackson at ucl.ac.uk) 
+<ul>
+<li>Fixes bug introduced in version 1.5 causing 'draw particles' to fail for particles centered in the first slice
+</ul>
+
+</td></tr>
+
+<tr valign=top><td ><b>To Do:</b></td><td >
+<ul>
+<li> An algorithm to estimate the 'Surface Area', rather than 
+the fraction of surface voxels
+<li> Contributions welcome!
+</ul>
+</td></tr>
+
+
+</table>
+
+</body>
+</html>
