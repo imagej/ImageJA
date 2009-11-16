@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>Polar Transformer</title>   
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Polar Transformer</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Authors:</b></td><td > 
+Edwin Donnelly (edwin.donnelly at vanderbilt.edu)<br>
+Frederic Mothe (mothe at nancy.inra.fr)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/10/30: First version<p>
+2008/03/10: Improvements by Frederic Mothe:
+<ul>
+ <li> The default center for the polar transform may be given by drawing a selection (point, line or area) onto the initial image before launching the plugin.
+<li> The settings of the original image (calibration function, contrast and pixel size) are copied to the transformed image.
+<li> There is a new clockWise option for changing the rotation direction.
+</ul>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Requires 8-bit, 16-bit or RGB image
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Polar_Transformer.java">Polar_Transformer.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/Polar_Transformer.class">Polar_Transformer.class</a> 
+to the plugins folder, or subfolder, restart ImageJ, 
+and there will be a new "Polal Transformer" command in the Plugins menu,
+or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin will convert images to and from polar coordinates. It assumes that
+ the polar image uses the y value to represent the angle (theta) and the x value
+ for r (distance from the center).
+ <p>
+ The "180" option assumes that the x values lines in polar space go from -radius
+ to +radius and that there are 180 degrees worth of data (the way a sinogram is
+ stored in computed tomography), while the "360" option assumes that the x
+ values go from 0 to +radius and that there are 360 degrees worth of data (a
+ more intuitive option for other applications). The default setting is that the
+ origin (0,0) of Cartesian space is the center of the image, though there is an
+ option to manually change it. The plug-in produces a 16-bit grayscale image for
+ 8 or 16-bit grayscale inputs, and an RGB color image for RGB inputs. Choosing
+ "polar" will assume that input image is in Cartesian space and will remap it to
+ polar coordinates, while choosing "Cartesian" will assume that the input image
+ is in polar coordinates and will remap it to Cartesian space. By default, when
+ creating a polar map, the plug-in will use 1 line for each degree (either 180
+ or 360, depending upon the above option) but this can be manually changed.
+ <p>
+ The polar transformation is useful for "unwrapping" images which have a
+ generally round object, while the Cartesian transformation is useful for
+ "bending" images which have a generally linear object.
+ 
+ <p><img src="images/polarOriginal.jpg" width=400 height=397 alt="orginal"><p>
+ 
+  Original Image (courtesy of the National Oceanic and Atmospheric Administration, NOAA)
+  
+   <p><img src="images/polarTransform.jpg" width=282 height=720 alt="transformed"><p>
+   
+After Polar 360 Degree Transform
+
+ <p><img src="images/cartOriginal.jpg" width=182 height=403 alt="orginal"><p>
+ 
+  Original Image (courtesy of the National Oceanic and Atmospheric Administration, NOAA)
+  
+   <p><img src="images/cartTransform.jpg" width=365 height=365 alt="transformed"><p>
+   
+After Cartesian 360 Degree Transform
+
+    
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
