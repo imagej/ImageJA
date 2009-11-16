@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Image Inverter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Image Inverter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/11/03: First version<br>
+2006/07/01: Simplified; uses get() and set() methods<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.37j or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Image_Inverter.java">Image_Inverter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Image_Inverter.class">Image_Inverter.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This example plugin filter inverts the current image. Here is what the 
+code looks like:
+<pre>
+  public class Image_Inverter implements PlugInFilter {
+    public int setup(String arg, ImagePlus imp) {
+        return DOES_ALL+DOES_STACKS+SUPPORTS_MASKING;
+    }
+    public void run(ImageProcessor ip) {
+      Rectangle r = ip.getRoi();
+      for (int y=r.y; y<(r.y+r.height); y++)
+        for (int x=r.x; x<(r.x+r.width); x++)
+          ip.set(x, y, ~ip.get(x,y));
+    }
+  }
+</pre>
+  
+A few things to note:
+<ol>
+	<li> Filter plugins must implement the PlugInFilter interface.
+	<li> The setup() method is called one time when the plugin starts 
+	but run() is called repeatedly, once for each image in the stack.
+	<li> User plugins do not use the package statement;
+	<li> Plugins residing in the "plugins" folder, and with at
+	least one underscore in their name, are automatically
+	installed in the PlugIns menu.
+	<li> Plugins can be installed in other menus by 
+	packaging them as JAR files.
+	<li> The class name ("Image_Inverter") and file name ("Image_Inverter.java") must be the same.
+	<li> This filter works with selections, including non-rectangular selections.
+	<li> It will be called repeatedly to process all the slices in a stack.
+	<li> It supports Undo for single images.
+	<li> This plugin does not work with 32-bit (float) images with non-integer pixel values. 
+	Use getf() and setf() to work with such images.
+	<li> "~" is the bitwise complement operator.</ol>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="download/Inverter_.java">Inverter_.java</a> - the original version, 
+which was faster, but a lot more complicated
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
