@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>LoG Filtering </title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>LoG Filtering </b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Lokesh Taxali (<a href="mailto:lkt@cse.unsw.edu.au">lkt@cse.unsw.edu.au</a>) and
+Dr. Jesse Jin (<a href="mailto:jesse@cs.usyd.edu.au">jesse@cs.usyd.edu.au</a>)
+
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >2000/6/27</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Log_Filter.java">Log_Filter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Log_Filter.class">Log_Filter.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+This plugin performs LoG Filtering on 8-bit grayscale
+images and stacks. The usefulness of this plugin is that
+the LoG Filtering is highly customisable.
+
+User input (via GUI) and suggested values:
+
+ * Sigma (cfsize) : The width of filter centre  (3,5,9,17,35)
+ * FilterWidth 'w': The width of filter, aka support  (2,3,4)
+ * Threshold 'thr': The threshold for 1 D DoG Filtering
+ * Delta          : The delta level for adjusting zero crossings  (-1 .. 1)
+ * Mode of output : 0: Filtering results in intensity 0 .. 255
+ *               1: absolute value of filtering
+ *               2: results representing values -1, 0 or 1
+ *               3: Zero crossings overlaid on original image
+ *               4: Zero crossings only
+
+The code was developed in UNSW, Australia as part of
+Honours thesis.
+
+<pre>
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
