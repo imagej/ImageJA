@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>Stack Focuser</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Stack Focuser</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Michael Umorin (mikeumo at sbcglobal.net)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/10/11: First version<br>
+2002/11/05: Support for rectangular ROIs; different naming scheme of the resluting image<br>
+2003/08/13: Height map option; recordable<br>
+2004/03/15: Works with RGB stacks<br>
+2006/07/18: Added option of 
+using only one color for focusing (green) and copying the rest of the colors 
+along, which can be useful in human vision applications. <br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Stack_Focuser_.java">Stack_Focuser_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/Stack_Focuser_.class">Stack_Focuser_.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+The plugin is a very simple algorithm of patching a *focused * image from a
+stack of images corresponding to different focal planes. Plugin provides optional generation of
+an 8-bit greyscale "height" map, i.e. image of heights at which focused elements are located. It is very important
+that images in the stack are of the same brightness; otherwise pasting together
+pieces of different images will create artificial edges. 
+<p>
+Code for running this plugin from another plugin or from a macro can be generated using the 
+command recorder (<i>Plugins/Macros/Record</i>).
+
+<p>
+What the plugin does:
+<ol>
+<li> creates a 32-bit float copy of original stack of ROI or the whole image area
+ to preserve precision;
+<li> on 32-bit copy finds edges for each slice in a stack by running median 3x3 
+filter
+(to reduce noise) and then Sobel filter;
+<li> creates a "map" of how far the influence of edges extends; i.e. how far from
+a focused edge we still think that the image is focused; this is done by taking
+the maximum value in the neighborhood of the specified size;
+<li> for every pixel (x, y) based on the choice of the maximum "edge" value among
+different slices in the "map" stack [the plugin] copies the pixel value from the 
+
+
+appropriate
+original image to the new image. if selected, sets the corresponding value in the "height" map to
+the 255*i/stack_size, where i is the "focused" slice.
+</ol>
+<p>
+Plugin works on a currently active 8-bit or 16-bit grayscale stack and
+accepts rectangular ROI; if no ROI is specified plugin works in the whole image.
+It is possible to consequetively select a ROI and run plugin several times on
+the same stack
+with different kernel
+sizes since ImageJ allows coexistence of several windows with same title at the 
+same time.
+ The size in pixels (odd integer > 1) of
+the Maximum square filter is requested; trial and error would be the fastest way
+to optimize the result. The final image is written to "Focused_"+&lt;original stack
+title - extension&gt; window. The height map is written to "HeightMap_"+&lt;original stack
+title - extension&gt; window. No changes are made to the original stack.
+<p>
+For more information see program code. The author would appreciate any 
+suggestions regarding the plugin (improvements, extensions, interface changes, etc.).
+<br>&nbsp;
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://bigwww.epfl.ch/demo/edf/index.html">Extended Depth of Field</A> plugin
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
