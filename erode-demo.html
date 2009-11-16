@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Erode Demo</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Erode Demo</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Michael Schmid (schmid at iap.tuwien.ac.at)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2009/05/19: First version<br>
+2009/05/22: Adds "Help" button to dialog<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.42n or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Erode_Demo.java">Erode_Demo.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Erode_Demo.class">Erode_Demo.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin demonstrates how to do binary erosion using the EDM, how to implement
+"Preview", how to process a stack using parallel threads, and how to add a "Help" button to
+a dialog box.
+<p>
+
+<p align=center> <img src="images/erode-demo.png" width=271 height=190 alt="[dialog]"></p>
+
+Note that the definition of 'radius' here is different from that
+in the RankFilters (<i>Process&gt;Filters&gt;Show Circular Masks</i>).
+E.g., radius=1 erodes only the 4-connected nearest pixels, not the
+(8-connected) 3x3 neighborhood of a background pixel.
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
