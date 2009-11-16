@@ -1,0 +1,448 @@
+<html>
+<head>
+<title>AVI Splitter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>AVI Splitter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Marco Caimi<br>
+Advanced Light and Electron Microscopy Bio-Imaging Centre<br>
+San Raffaele Scientific Institute<br>
+Milan Italy<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/08/02: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with uncompressed AVIs</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/ALEMBIC_AVISplitter.java">ALEMBIC_AVISplitter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/ALEMBIC_AVISplitter.java">ALEMBIC_AVISplitter.java</A>
+to the plugins folder and compile it with the "Compile and Run" command. 
+Restartng ImageJ will add an "ALEMBIC AVISplitter" command to the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">ALEMBIC AVI Splitter is
+
+an ImageJ plug-in for viewing and importing AVI files by reading frame
+
+data directly from the file. It is based on the <em>AVI reader</em>
+
+plug-in and accepts grayscale or 24-bit, uncompressed AVI files. The
+
+current version is 0.2.</font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Quick
+
+instructions:</strong> start the AVI Splitter plug-in by selecting it
+
+in the ImageJ <em>Plugins</em> menu. Choose the AVI file in the <em>Select
+
+AVI</em> file dialog. An <em>AVI Preview Window</em> is then
+
+displayed. </font></p>
+
+<p align="center"><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><img src="images/AVISplitter.jpg"></font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">The Preview window
+
+consists of two main work areas: the <em>frame preview </em>area and
+
+the<em> remote control </em>area<em>. </em></font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">The <em>frame preview</em>
+
+area displays, from left to right, the <em>current frame</em>, the <em>start
+
+frame</em> and the <em>end frame</em>. At any time, the start and stop
+
+frames identify a section of the source file that can be exported to an
+
+ImageJ stack window. The current frame can be used to examine the AVI
+
+file and/or as a reference to set start and stop frames. Initially the
+
+current frame is set to the first frame of the AVI file, the start
+
+frame to the first frame and the end frame to the last frame of the
+
+file. The Preview Window title can be used to check the frame number of
+
+current, start and end frame.</font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">The <em>remote control </em>area
+
+can be used to scan the AVI file, to set current/start/end frames, to
+
+export one or more sections of the file and to exit the plugin. A
+
+description of each remote control interface component follows.</font></p>
+
+<table width="90%" border="1" cellpadding="1" cellspacing="0" bordercolor="#ffcc00">
+
+  <tbody>
+
+    <tr bgcolor="#ffcc00">
+
+      <td width="48%"><strong><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Remote control interface
+
+component</font></strong></td>
+
+      <td width="52%"><strong><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Function</font></strong></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Slider control </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Used
+
+to scan the AVI file. Moving the slider causes the current frame
+
+preview image and frame number text field to change.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">&lt;&lt; button </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+current frame to first frame</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">&lt; button</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+current frame to previous frame</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Frame number text field</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Displays
+
+current frame number. To quickly go to a frame in the file, enter a
+
+frame number and press ENTER. The current frame preview window will be
+
+updated to reflect the new position in file.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">&gt; button</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+current frame to next frame</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">&gt;&gt; button </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+current frame to last frame</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Play button</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Replays
+
+the AVI filr from disk. To stop the replay press this button again.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Constrain check-box </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Limits
+
+the replay to the currently selected section instead of the whole file.
+
+In other words, selecting the constrain control before pressing the
+
+Play button causes the AVI file segment contained within the start and
+
+stop frames to be played.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Repeat check-box </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Causes
+
+the file or segment to be replayed repeatedly.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Ping-pong check-box </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Causes
+
+the file or segment to be replayed in a ping-pong fashion.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Delay text box</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Delay
+
+in milliseconds between frames when the replay function is active.
+
+Higher values produce slower replay. To set the delay, make sure the
+
+file is not playing, enter a value in the text box, then press the
+
+ENTER button. Then press the play button. While the replay is active,
+
+entering values in the text box does not have any effect.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Set Curr button </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+current frame preview to the frame number displayed in the frame number
+
+text field. To quickly access a frame in the file, enter aframe number
+
+in frame number text box, then press the Set Curr button.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Set Start button </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+the start frame to the frame number displayed in the frame number text
+
+box.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Set End button </font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Sets
+
+the end frame to the frame number displayed in the frame number text
+
+box.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Segment text box</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Specifies
+
+the segment or segments that will be exported upon pressing the Export
+
+button. See <em>Exporting sections</em> below for more details.</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Export button</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Exports
+
+frames indicated in the segment text box to an ImageJ stack window for
+
+later processing or saving</font></td>
+
+    </tr>
+
+    <tr valign="top">
+
+      <td><em><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Exit button</font></em></td>
+
+      <td><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Closes
+
+the preview window and exits the plugin.</font></td>
+
+    </tr>
+
+  </tbody>
+
+</table>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Exporting
+
+sections: </strong>this plug-in allows export of one or more
+
+non-contiguous segments of the AVI file to a new stack. To export one
+
+or more segments, in the segment text box enter segment boundaries
+
+according to the following format:</font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">min1-max1, min2-max2, ...</font></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Note that segments are
+
+identified by their first and last frame numbers, separated by a dash.
+
+Different segments are separated by a comma. The following picture
+
+displays how the segment text box should be filled to export two
+
+segments to a stack.</font></p>
+
+<p align="center"><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><img src="images/segmenttbox.jpg" width="98" height="33"></font></p>
+
+<p align="left"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">After pressing the Export
+
+button, segments from frame 5 to 10 and from frame 14 to 19 will be
+
+exported to a stack window. The window title will bear the avi file
+
+name followed by the segment list composing its frames as showed by the
+
+following picture.</font></p>
+
+<p align="center"><img src="images/quasiediting.jpg" width="271" height="329"></p>
+
+<p align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Quick start:</strong>
+
+to extract a portion of an avi file, follow these instructions</font></p>
+
+</div>
+
+<ol>
+
+  <li>
+
+    <div align="justify"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Start the AVI Splitter
+
+plugin from the ImageJ plugin menu.</font></div>
+
+  </li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Choose
+
+an uncompressed grayscale-color AVI file in the file dialog.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Examine
+
+the AVI file frames pressing the slider bar, &lt;&lt;, &lt;, &gt;&gt;,
+
+&gt;, Play buttons. If you want, enter a frame number in the frame
+
+number text box, then press ENTER or the Set Curr button to quickly
+
+access that frame.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">When
+
+you have located the initial frame of the file portion to export, press
+
+the Set Start button. The start frame is set to the current frame
+
+number and the preview image is changed accordingly. Note that the
+
+segment text box is updated to reflect the start frame.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Repeat
+
+step 3 to locate the end frame, then press the Set End button to set
+
+the end frame. Note that the segment text box is updated to reflect the
+
+stop frame.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">If
+
+you want press the constrain check-box and the Play button to play the
+
+selected segment.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Export
+
+the file portion to an ImageJ stack pressing Export. A new stack window
+
+called <em>&lt;filename&gt;_&lt;startframenumber&gt;_&lt;endframenumber&gt;</em>
+
+is displayed. You can process or save the exported stack by selecting
+
+its window then using the processing or save commands of ImageJ.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Repeat
+
+steps 3-6 to export another file section.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">If
+
+you want, export more than one file section in the same stack by
+
+following instructions detailed in <em>Exporting Sections. </em>A new
+
+stack window called <em>&lt;filename&gt;: &lt;min1&gt;-&lt;max1&gt;,
+
+&lt;min2&gt;-&lt;max2&gt;, ...</em> is displayed. You can process or
+
+save the exported stack by selecting its window then using the
+
+processing or save commands of ImageJ.</font></li>
+
+  <li><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Close
+
+the plugin pressing the Exit button.</font></li>
+
+</ol>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
