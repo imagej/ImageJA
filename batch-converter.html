@@ -1,0 +1,103 @@
+<html> <head> <title>Batch Converter</title> </head> <body bgcolor =
+"#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> <b>Batch
+Converter</b> </font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2000/12/14:</u> First version<br>
+<u>2000/12/14:</u> Works more reliably from the command line<br>
+<u>2003/01/27:</u> Adds option to convert to 8-bit TIFF<br>
+<u>2004/12/29:</u> Added <A HREF="http://rsb.info.nih.gov/ij/macros/BatchConvert.txt">BatchConvert</A> macro<br>
+<u>2008/04/15:</u> Updated to use IJ.getDiretory(), IJ.openImage() and IJ.saveAs()<br>
+<u>2009/02/10:</u> Added "Make Grayscale" option; works with 48-bit RGB TIFFs<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Batch_Converter.java">Batch_Converter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+This plugin is built into ImageJ 1.43 and later as the <i>Process&gt;Batch&gt;Convert</i> command.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Converts a folder of images in any format supported by ImageJ's File>Open
+command (TIFF, JPEG, DICOM, GIF, PNG, PGM, BMP, FITS, ZIP Compressed TIFF) to
+TIFF, 8-bit TIFF, JPEG, GIF, PNG, PGM, BMP, FITS, Text Image, ZIP or Raw format. The plugin displays 
+three dialogs. In the first, select the source folder. In the second, select the 
+format you want to convert to. In the third, select the destination folder.
+<p>
+This plugin can be run from the command line using commands something like this:
+<p>
+<font size=-1> 
+&nbsp;&nbsp;&nbsp;
+java -cp ij.jar;. Batch_Converter c:\dir1\ c:\dir2\  (Windows)<br>
+&nbsp;&nbsp;&nbsp;
+java -cp ij.jar:. Batch_Converter /dir1 /dir2  (Unix)<br>
+</font>
+<p>
+To use a plugin to open the files (e.g., Analyze_Reader), use the -Dplugins.dir=path option
+to specify the location of the ImageJ directory (requires v1.37n or later):
+<p>
+<font size=-1> 
+&nbsp;&nbsp;&nbsp;
+java -cp ij.jar;. -Dplugins.dir=c:\ImageJ Batch_Converter c:\dir1\ c:\dir2\  (Windows)<br>
+&nbsp;&nbsp;&nbsp;
+java -cp ij.jar:. -Dplugins.dir=/Applications/ImageJ Batch_Converter /dir1 /dir2  (OS X)<br>
+<p>
+Here is what 
+<A HREF="http://rsb.info.nih.gov/ij/macros/BatchConvert.txt">BatchConvert</A>,
+the macro version of this plugin, looks like:
+<pre>
+  dir1 = getDirectory("Choose Source Directory ");
+  format = getFormat();
+  dir2 = getDirectory("Choose Destination Directory ");
+  list = getFileList(dir1);
+  setBatchMode(true);
+  for (i=0; i&lt;list.length; i++) {
+     showProgress(i+1, list.length);
+     open(dir1+list[i]);
+     if (format=="8-bit TIFF" || format=="GIF")
+        convertTo8Bit();
+     saveAs(format, dir2+list[i]);
+     close();
+  }
+ 
+  function getFormat() {
+       formats = newArray("TIFF", "8-bit TIFF", "JPEG", "GIF", "PNG",
+          "PGM", "BMP", "FITS", "Text Image", "ZIP", "Raw");
+       Dialog.create("Batch Convert");
+       Dialog.addChoice("Convert to: ", formats, "TIFF");
+       Dialog.show();
+       return Dialog.getChoice();
+  }
+
+  function convertTo8Bit() {
+      if (bitDepth==24)
+          run("8-bit Color", "number=256");
+      else
+          run("8-bit");
+  }
+</pre>
+<p></td></tr>
+
+
+</table>
+
+</blockquote> <p><b>|<a href="index.html">Plugins</a> | <a
+href="../index.html">Home</a> |</b>
+
+</body> </html>
