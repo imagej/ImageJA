@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Import Dicom Sequence</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Import Dicom Sequence</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Anthony Padua, Duke University Medical Center, Department of Radiology, padua001@mc.duke.edu, 
+Daniel P. Barboriak, MD, Duke University Medical Center, Department of Radiology, 
+barbo013@mc.duke.edu </td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/01/08: First version<br>
+2003/05/12: DICOM information available using the Show Info command<br>
+2003/07/18: Renamed "FolderOpenerDialog" class "IDSDialog" to minimize name conflicts<br>
+2005/11/15: Mimics the <i>File&gt;Import&gt;Image Sequence</i> command<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.34k or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Import_Dicom_Sequence.java">Import_Dicom_Sequence.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+The <A HREF="http://rsb.info.nih.gov/ij/docs/menus/file.html#import"><i>File&gt;Import&gt;Image Sequence</i></A>
+command in ImageJ 1.34k or later imports DICOM images sorted by image number.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin imports DICOM images and uses the image number in the header information for 
+proper sorting. If there is no image number, the plugin will use the numerical equivalent 
+found in the image name for sorting.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://rsb.info.nih.gov/ij/docs/menus/file.html#import"><i>File&gt;Import&gt;Image Sequence</i></A>, which sorts by image number in v1.34k or later<br>
+<A HREF="dicom-rewriter.html">DICOM Rewriter (Anonymizer)</A><br>
+<A HREF="dicom-sort.html">DICOM Sort</A><br>
+<A HREF="query-header.html">Query DICOM Header</A><br>
+<A HREF="http://www.iftm.de/telemedizin/dcmimex.htm">DICOM Import/Export Plugins</A><br>
+<A HREF="http://imagejdocu.tudor.lu/doku.php?id=plugin:inputoutput:the_tudor_dicom_toolkit:start">Tudor Dicom Tools</A><br>
+<A HREF="http://www.loci.wisc.edu/ome/formats.html">LOCI Bio-Formats Plugin</A><br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
