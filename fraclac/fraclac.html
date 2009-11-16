@@ -1,0 +1,190 @@
+<html><head><title>Fractal Dimension and Lacunarity</title></head><body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Fractal Dimension and Lacunarity</b>
+</font>
+<p>
+
+</p><blockquote>
+<table cellspacing="5" width="650">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+A. Karperien, Charles Sturt University, Australia
+</td></tr><tr><td></td><td>This plugin, an ongoing project,  
+            was initially developed as part of a master's at 
+Charles Sturt University with input from Dr. H. Jelinek
+and code from Thomas R. Roy, University of Alberta, and continues to develop in response to the many suggestions from users.
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2002/08/26: First version<br>
+2002/09/26: Calculates circularity<br>
+2003/12/17: Major update<br>
+2004/06/30: Updated<br>
+2005/03/23: Updated to version 2.0aF<br>
+2005/11/24: Updated to version 2.3<br>
+2006/03/17: Updated to version 2.3j<br>
+2006/05/22: Updated to version 2.4b<br>
+2006/11/20: Updated to version 2.4e<br>
+2007/03/13: Major update to version 2.5<br>
+2007/03/27: Fixes bug that caused no printed and saved results for some scans (2.5a)<br>
+2007/04/04: Fixes bug that sometimes prevented maximum epsilon from changing (2.5b)<br>
+2007/07/17: Fixes bugs that prevented box masses from being printed for sliding box lacunarity
+scans and prevented batches from being processed (2.5c)<br>
+2007/08/01: Fixes bug that prevented user from knowing if the number of grid orientations was changed or not; implements user suggestions for multifractal optimization and local connected fractal dimension; help file is now html (2.5d)<br></td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/Frac_Lac.jar">Frac_Lac.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Requires:</b></td><td>Java 1.5</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/fraclac/Frac_Lac.jar">Frac_Lac.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+then run the plugin using the <i>Plugins/Fractal Analysis/FracLac</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+Some patterns - such as contours of biological cells, other biological
+structures, fractals, and some textures - are difficult to describe
+using Euclidean measures like diameter or length, but can be
+quantitatively assessed using measures of complexity. FracLac
+quantitates such difficult to describe details of morphology
+represented in binary or grayscale digital images, using mass and box
+counting fractal dimensions (D<sub>B</sub>s), multifractal analysis data, lacunarity (&#955;) data, and some other morphometrics. 
+</td></tr>
+<tr valign="top"><td><b>Features:</b></td><td>
+
+<p>
+FracLac scans images using a shifting grid algorithm that can do
+multiple scans from different locations on each image, and uses either
+a nonoverlapping or an overlapping sliding box method. The overlapping
+method can be exhaustive or not, depending on user choices. FracLac
+automatically generates different types of series of box sizes (e.g.,
+power or linear). In addiiton, local dimension scans may be done on
+subareas of either images or rois to show local variation in the D<sub>B</sub>
+and &#955;. These subareas are determined according to the user's choice,
+using ImageJ's ParticleAnalyzer, a square grid sized according to the
+user's choice, randomly selected blocks, or individual pixels. Users
+can view or save the results, and can reapply LUT's to colour coded
+images or generated text images (explained below).</p>
+</td></tr>
+<tr valign="top"><td><b>Use:</b></td><td>
+Before images can be analyzed, FracLac has to be set up. This is
+usually simply a matter of clicking a button for the type of scan you
+want to do, then selecting the defaults in the relevant options panel
+that appears, or making modifications if required. <p>Once
+FracLac has been set up, the type of scan appears at the bottom of the
+FracLac panel, and buttons to perform scans are enabled, as shown on
+the screen shot below. Using FracLac, one can do fractal, multifractal,
+and lacunarity analyses on:
+</p><ol><li>entire open images,</li><li>rois,</li><li>stacks, and</li><li>multiple files selected from directories.</li></ol>  
+<table><tbody><tr><td><!--img src="shot.jpg"--></td></tr></tbody></table></td></tr>
+<tr valign="top"><td><b>Outputs:</b></td><td>
+The information returned by the various types of scans is summarized below:
+<ol><li>Standard Box Count<ul><li>D<sub>B</sub>s for binary images, based on multiple origins for each image or roi, including a minimum cover D<sub>B</sub>, slope-corrected D<sub>B</sub>, and average D<sub>B</sub> all based on the count of boxes containing pixels at different box sizes and grid locations</li>
+<li>Mass dimensions for each image or roi for binary and grayscale
+images using the difference in either the density or intensity of
+pixels in boxes of different sizes placed over an image.</li> 
+</ul></li>
+<li>Subareas Scan
+<ul><li>Local fractal dimensions.  These are based on
+<ol><li>subareas (e.g., systematically or randomly chosen blocks or else particles) or </li>
+<li>pixels and their surrounding environments, which can be set to be round or square</li></ol></li></ul></li>
+<li>Local Connected Fractal Dimensions.
+<ul><li>These are based on the round or square environment surrounding each
+ pixel but limited to the connected set around that pixel. 
+
+<table><tbody><tr><td><img src="cs.jpg"></td></tr></tbody></table>
+The screen shot shown here illustrates the panel that comes up when the
+button for a "Local Connected Fractal Dimension" scan is clicked. The
+panel as shown is set up to use a circular sampling element by
+selecting the box marked "Use round scan areas". The panel also shows
+where the user can select to save generated files or view them on the
+screen (the option is presented when each type of scan is set up). </li>
+<table><tbody><tr><td><img src="panel.jpg"></td></tr></tbody></table></ul>
+</li><li>Multifractal spectra.
+<ul><li>For multifractal scans, FracLac returns an array of D<sub>Q</sub> values over a range of arbitrary values for Q set by the user.</li>
+<li>It also provides &#964;, &#945;, and the multifractal function &#402;(&#945;). </li></ul>
+</li><li>Lacunarity data
+<ul><li>FracLac returns measures of &#955; based on data gathered during
+<ul><li>overlapping scans (sliding box lacunarity) or
+</li><li>nonoverlapping (regular box counting)</li></ul></li></ul>
+</li><li>Other morphometrics, including measures of density, span ratio, circularity, and the convex hull.  
+</li></ol>
+
+<h3>Data Files</h3><p>The measures noted above are reported in data
+files accompanied by various statistics for the data, including the
+y-intercept, standard deviation, and coefficient of variation, for
+instance. Reports generated can be viewed and saved as Results Windows
+or automatically saved as .xls files (tab-delimited). These include:
+</p><li>summary reports
+</li><li>data files
+</li><li>raw pixel counts
+<p></p>
+<h3>Graphics Files</h3><p>Some measures are represented in graphics that can be viewed and saved or automatically saved.  These include:
+</p></li><li>colour coded images for local dimensions, as illustrated in the image below
+<table><tbody><tr><td><img src="coded.jpg"></td></tr></tbody></table>
+</li><li>text images for colour coded images
+</li><li>convex hull and bounding circle images
+</li><li>graphs (e.g., multifractal spectra, as shown below, and regression statistics)
+<table><tbody><tr><td><img src="mf.jpg"></td></tr></tbody></table>
+<p></p>
+</li></td></tr>
+<tr valign="top"><td><b>Limitations:</b></td><td>FracLac works on
+binary images (black pixels on a white background, or white pixels on a
+black background) and grayscale images. For a binary analysis (e.g., of
+cellular outlines), images must be thresholded prior to analysis to
+ensure that only the pixels of interest are assessed. For grayscale
+scans, images and rois are padded with a value that is ignored by the
+counting method. <p>
+ </p></td></tr>
+<tr valign="top"><td><b>Support:</b></td><td>
+A User's Guide and Help using FracLac are available by contacting the author at Charles Sturt University through 
+<a href="mailto:akarpe01@postoffice.csu.edu.au">email</a>.
+The User's Guide is also 
+<a href="FLHelp/Introduction.htm">available online</a>.
+<p>A new help archive that can be unzipped into the plugins folder where FracLac will access it, is 
+<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/FLH.zip">available for download</a>.
+The 38 page PDF manual for previous versions is still 
+<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/fraclac-manual.pdf">available for download</a>.
+</p></td></tr>
+<tr valign="top"><td><b>References:</b></td><td>
+<p>For details of the calculations, see the FracLac javadoc,which can be generated using the FracLac source code.  For more information, the references below are 
+the main ones used in defining the calculations:</p><p>
+
+</p><ol> <li>Smith, TG Jr., Lange GD and Marks, WB, <a name="end">"Fractal Methods</a> and Results in
+                Cellular Morphology", <i>J. Neurosci. Methods</i>,
+                69:1123-126, 1996.</li>
+ <li>Fernandez et al., "Are neurons multifractals?",
+                <i>J. Neurosci. Methods</i>, 89:151&#8211;157, 1999</li>
+ <li>Plotnick, RE; Gardner, RH; and O'Neil, RV.
+	         "Lacunarity indices as measures of landscape
+               texture", <i>Landscape Ecology</i> 8(3):201-211, 1993</li>
+ <li>Innaconne, <i>Geometry in Biological Systems</i>.</li>
+ <li>Costa and Cesar, <i>Shape Analysis and
+                Classification</i>, CRC Press, 2001</li>
+ <li>Chhabra, A and Jensen, RV "Direct Determination
+                of the &#402;(&#945;) singularity spectrum",
+                <i>Phys. Rev . Lett.</i> 62: 1327, 1989.</li>
+ <li>Posadas, AND; Gime´nez, D; Bittelli, M; Vaz, CMP; and Flury, M 
+"Multifractal Characterization of Soil Particle-Size
+                Distributions", <i>Soil Sci. Soc. Am. J.</i>
+                65:1361&#8211;1367 2001</li> 
+<li>Landini,G; Murray, PI; and Missonf, GP. "Local 
+            Connected Fractal Dimensions and Lacunarity
+            Analyses of 60° Fluorescein Angiograms" 
+            <i>Investigative Ophthalmology &amp; Visual Science</i>, 
+            December 1995, Vol. 36, No. 13 
+
+</li>
+</ol></td></tr>
+
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/plugins/index.html">Home</a> |</b>
+
+</p></body></html>
