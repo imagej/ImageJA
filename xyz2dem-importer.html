@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head>    
+<title>XYZ2DEM Importer</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">  
+<meta name="description" content="Digital Elevation Model Importer">  
+<meta name="keywords" content="Geoinformatics and Surveying">    
+<meta http-equiv="expires" content="86400">  
+<meta name="Content-Language" content="en">  
+<meta name="revisit-after" content="15 days">  
+<meta name="robots" content="index,follow">  
+</head><body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>XYZ2DEM Importer</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Martin Schlueter (ij<img src="xyz2dem-importer_files/at.gif" alt="[at]" align="top" height="18" width="15">ms3d.de),
+<a href="http://www.i3mainz.fh-mainz.de/">i3mainz</a>
+</td></tr>
+
+</tbody><tbody><tr valign="top"><td><b>Contributor:</b></td><td>
+Barry Joe (bjoe<img src="xyz2dem-importer_files/at.gif" alt="[at]" align="top" height="18" width="15">shaw.ca), 
+author of <a href="http://members.shaw.ca/bjoe/" target="_blank">Geompack</a>
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2009/04/23: Fix (removes java generics compiler warnings)<br>
+2005/02/22: First version
+</td></tr>
+
+
+<tr valign="top"><td><b>Source:</b></td><td>
+<a href="http://ij.ms3d.de/plugins/download/XYZ2DEM_Importer.java">XYZ2DEM_Importer.java</a>
+</td></tr>
+
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://ij.ms3d.de/plugins/download/XYZ2DEM_Importer.class">XYZ2DEM_Importer.class</a> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This ImageJ plugin imports X,Y,Z coordinates 
+of (usually irregularly distributed) points
+from the first 3 columns of a plain text file
+and interpolates a Digital Elevation Model (DEM) image
+using a Delaunay triangulation.
+<p>
+<a href="http://ij.ms3d.de/plugins/images/xyz2dem_importer.png" target="ImageWindow">
+   <img src="xyz2dem-importer_files/xyz2dem_importer.png" alt="images/xyz2dem_importer.png" border="0" height="265" width="499"></a>
+</p>
+<p>
+The given points are projected to the X,Y-plane and are meshed by a 2D-Delaunay triangulation.
+For each image pixel position, a signed 32-bit floating-point pixel value Z=Z(X,Y) is calculated 
+by linear interpolation within the corresponding triangle. Pixel positions outside the convex hull 
+get a user chosen background value. 
+The detection of occluded surface areas is not supported.
+It is recommended to use the TIFF file format for 32-bit images.
+</p>
+</td></tr>
+
+<tr valign="top"><td><b>Formats:</b></td><td>
+Tab- or blank-delimited input text files with three numbers per line will do.
+To learn more about accepted delimiters and notations of comments please refer to 
+some <a href="http://ij.ms3d.de/plugins/xyz2dem-importer_text.php">notes on input text file formats</a>.
+</td></tr>
+
+<tr valign="top"><td><b>Options:</b></td><td>
+The user is requested to choose an adequate pixel size for the resulting image. 
+Large triangles can be disregarded by a user chosen maximum edge length;
+otherwise all pixels within the convex hull of the given X,Y-coordinates 
+are interpolated. 
+The user might choose a proper background value.
+Please refer to some <a href="http://ij.ms3d.de/plugins/xyz2dem-importer_intro.php">examples on how to set appropriate input parameters</a>.
+<p>
+</p></td></tr>
+
+<tr valign="top"><td><b>Examples:</b></td><td>
+More <a href="http://ij.ms3d.de/xyz2dem-importer.php">
+tutorials, exemplary data and applications</a>
+are brought to you by <a href="http://www.i3mainz.fh-mainz.de/">i3mainz</a>.
+</td></tr>
+
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://ij.ms3d.de/xyz2dem-importer.php">XYZ2DEM Importer - Tutorials, Examples, Applications</a> |<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
