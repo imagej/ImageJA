@@ -1,0 +1,198 @@
+<html>
+<head>
+<title>FFT Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>FFT Filter</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Walter (Walter at biz.uni-muenchen.de)
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+<b>2001/10/29: </b>First version<br>
+<b>2003/02/06:</b>
+(1) Corrected a bug which made the FFT_Filter unusable in plugins and 
+macros (the input fields for large and small structures had the same 
+values when the plugin was called from another plugin or a macro).
+(2) Can be called on each image in a stack.
+(3) The original image or ROI is now overwritten.<br>
+<b>2003/07/03: </b>Integrated into ImageJ, added "Display Filter" option<br>
+<b>2007/03/26:</b> 2nd bugfix (Fixed incorrect calculation of filter from structure sizes, which caused
+            the real structure sizes to be wrong by a factor of 0.75 to 1.5 depending on the image size.)<br>
+
+</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/FFT_Filter.java">FFT_Filter.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+This plugin is built into ImageJ as the <i>Process/FFT/Bandpass Filter</i> command.
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+Filters out large structures (shading correction) and small structures
+
+(smoothing) of the specified size by gaussian filtering in fourier space.
+
+Filtering of large structures can be imagined as subtracting a version
+
+of the image, which is smoothed by a (very large) filter of the size given 
+
+in the "Filter large structures ..." parameter.
+
+Filtering of small structures works as usual: the larger the filter the
+
+smoother the image.
+
+<p>
+
+The plugin can suppress stripes in horizontal / vertical direction by 
+
+suppressing fourier components on the vertical / horizontal coordinate 
+
+axes. The "tolerance" parameter specifies how much the frequencies besides 
+
+the axes are suppressed. See the figures for examples for the effect of 
+
+the parameter.
+
+<p>
+
+"Autoscale" puts the lowest intensity to 0 and the highest intensity to
+
+255, preserving all intensities. "Saturate" allows some intensities to
+
+go into saturation, and produces a better visual contrast. Saturate only
+
+has an effect when "Autoscale" is enabled. 
+
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Figures:</b></td><td >
+
+All images were scaled down from 1024x1024 to 256x256, but FFT Filtering
+
+was done at the original resolution.
+
+<p>
+
+<center>
+
+<IMG SRC="images/fft-fig1.jpg" ALT="fft-fig1.jpg">
+
+</center>
+
+<p>
+
+Fig. 1: Unprocessed image of fibroblasts on a coverslip taken with a 
+
+	laser scanning microscope in transmission mode. A square was 
+
+	scratched into the coverslip to locate the cells. Strong shading.
+
+<p>
+
+<center>
+
+<IMG SRC="images/fft-fig2.jpg" ALT="fft-fig2.jpg">
+
+</center>
+
+<p>
+
+Fig. 2: Same image after filtering of 
+
+	large structures down to 40 pixels
+
+	small structures up to 3 pixels
+
+
+
+	One clearly sees that stripes, which in this case are due to 
+
+	laser/detector variations or background light from fluorescent
+
+	tubes, are not suppressed.
+
+<p>
+
+<center>
+
+<IMG SRC="images/fft-fig3.jpg" ALT="fft-fig3.jpg">
+
+</center>
+
+<p>
+
+Fig. 3:	The same as Fig. 2 plus suppression of horizontal stripes
+
+	Tolerance: 5%
+
+<p>
+
+<center>
+
+<IMG SRC="images/fft-fig4.jpg" ALT="fft-fig4.jpg">
+
+</center>
+
+<p>
+
+Fig. 4: A similar image with some high intensity dirt after filtering 
+
+	with the same parameters as in Fig. 3. Generally all stripes 
+
+	are removed, but stripe artifacts around the dirt are created.
+
+<p>
+
+<center>
+
+<IMG SRC="images/fft-fig5.jpg" ALT="fft-fig5.jpg">
+
+</center>
+
+<p>
+
+Fig. 5: Like fig.4, but with a tolerance of 90% instead of 5%. The stripe
+
+	artifacts have become shorter. However the upper scratch has 
+
+	vanished in the left corner, where it was almost horizontal, and
+
+	the stripe artifacts around the small dirt have become a bit 
+
+	stronger.
+
+</td></tr>
+
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
