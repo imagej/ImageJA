@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Grouped ZProjector</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Grouped ZProjector</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Charlie Holly (caholly at colby.edu), Holly Mountain Software 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/05/11: First version<br>
+2003/05/11: Updated to work with ImageJ 1.31<br>
+2004/02/09: Worked around Windows JVM bug that caused ImageJ to crash<br>
+2004/04/01: Works with RGB stacks (requires ImageJ 1.32f or later)<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Grouped_ZProjector.java">Grouped_ZProjector.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Grouped_ZProjector.class">Grouped_ZProjector.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Grouped_ZProjector performs a z-projection on a stack of images.
+The stack is segregated into some number of groups (by specifying
+a group size) and a z-projection is performed on each group using
+ZProjector.  The result is a new stack of images, one slice for
+ each group. The output stack has the same type as the input stack.
+The projection methods supported are the same as for ZProjector;
+ currently "Average Intensity", "Max Intensity", and "Sum Slices".
+ (It appears that ZProjector actually uses the "Average Intensity"
+ method instead of the "Sum Slices" method.) 
+ <p>
+
+ Grouped_ZProjector is primarily designed to be run as a plugin
+from within the ImageJ environment, but may also be used by other
+ plugins, etc...  When launched as a plugin, the default constructor
+is used and then the run method is called.  Other code wishing to
+ use Grouped_ZProjector should use the setMethod and computeProjection
+methods directly; the buildDialog getMethod, and validGroupSize methods
+ may also come in handy. 
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+The <i>Image&gt;Stacks&gt;Z Project</i> command in ImageJ 1.40 or later, which does "grouped" projections if 
+you first convert to a hyperstack using the <i>Image&gt;Hyperstacks&gt;Stack to Hyperstack</i> command.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
