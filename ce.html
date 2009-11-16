@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>Contrast Enhancer (Filter Rank)</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Contrast Enhancer (Filter Rank)</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Jean-Francois Leveque (software at artenum dot com)<br>
+G. Landini G.Landini@bham dot ac dot uk</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/06/19: (version	1.0.3)<br>
+2003/12/09: Renamed Filter_Rank and modified by G. Landini
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Filter_Rank.java">Filter_Rank.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Filter_Rank.class">Filter_Rank.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This is a contrast-enhancing ImageJ plugin for 8 bit
+greyscale images.  It creates a new contrast-enhanced image from the processed image.
+It asks for the geometric half length (halfLength) of the 
+contrast-enhancing square. More information is available at
+<a href="http://www.artenum.com/en/produits/libre/ijce/ijce.html">
+http://www.artenum.com/en/produits/libre/ijce/ijce.html</a>.
+  <p>
+  The contrast-enhancing algorithm was proposed by 
+Didier Pelat (Paris Observatory 
+<a href="http://www.obspm.fr/">http://www.obspm.fr/</a>)
+and implemented by Artenum 
+(<a href="http://www.artenum.com/">http://www.artenum.com/</a>).
+  <p>
+Filter_Rank version 1.1.0 based on Contrast_Enhancer_ version 1.0.3
+<p>
+ Modified by G. Landini G.Landini@bham.ac.uk on 23/Nov/2003:
+<ul>
+	<li>Changed "half-length" for "filter window size" (more intuitive)
+	<li>Added option to do (or rather "not to do") rank randomisation, so please be
+        aware of this change in the algorithm
+	<li>Added option for (not to) rescale to 8 bit range (to keep the real rank value)
+	<li>Added option to overwrite the image data (no new image is created)
+	<li>Added capability to filter stacks and to be recordable (for macro creation)
+	<li>Moved dialog to setup()
+	<li>Added "About..."
+</ul>
+<p>
+Pending issues / bugs:
+When a stack is processed and "Create new image" is checked,
+it creates individual images rather than a new stack.
+As a temporary measure do run("Convert Images to Stack"); to merge result into a stack.
+
+  <p>Copyright (C) 2001 ARTENUM SARL.
+
+  <p>This program is a free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public license
+  as published by the Free Software Foundation; either version 2
+  of license, or (at your option) any later version.
+
+
+  <p>This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  <p>You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ 
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
