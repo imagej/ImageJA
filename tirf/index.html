@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>Calculate TIRF</title>  
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> 
+<b>Calculate TIRF</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Sebastian Rhode (Sebastian.Rhode at gmx.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2008/04/01: First version<br>
+2008/04/16: Version 1.1<br>
+2008/05/09: Version 1.2<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Calc_TIRF.java">Calc_TIRF.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="Calc_TIRF.class">Calc_TIRF.class</a> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin calculates the penetration depth of the evanescent field for imaging
+application using TIRF microscopy. Additionally it displays the critical angle (where 
+Total Internal reflection starts) and the maximum working angle of the used 
+objective and the evanescent field intensity for a desired penetration depth. 
+<p>
+
+<img src="dialog.gif" alt="[Dialog]" width="385" height="326"><br>
+
+The required input parameters are:
+<ul>
+<li> <b>Wavelength of laser</b> - right now 3 lines are implemented; in [nm] 
+<li> <b>Refractive index n1</b> -  this is the index of the immersion oil; usually 1.518
+<li> <b>Refractive Index n2</b> -  this is the index of the medium; usually 1.330 (some people use 1.360 for the cytosol)
+<li> <b>Numerical aperture</b> -  numerical aperture of the used TIRF objective
+<li> <b>Desired penetration depth</b> -  this value will be used to calculate the required incident angles
+</ul>
+
+If the calculated incident angle = NaN -> the desired penetration depth is not possible
+for the respective wavelength and the given parameters. If the value for the angle is
+bigger than maxAngle, the penetration depth is theoretically possible, but can not be
+achieved with the given parameters --> NA, n1 & n2.
+
+<img src="plot.gif" alt="[Plot]" width="521" height="370"><br>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
