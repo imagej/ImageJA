@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>Hypervolume Shuffler</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Hypervolume Shuffler</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Michael Abràmoff (<a href="http://bij.isi.uu.nl">http://bij.isi.uu.nl</a>)
+</td></tr>
+
+
+<tr valign=top><td ><b>Date:</b></td><td >2001/9/11</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Hypervolume_Shuffler.java">Hypervolume_Shuffler.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/Hypervolume_Shuffler.class">Hypervolume_Shuffler.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+The plugin does various reconstruction operations on a hypervolume (a series of 3D volumes). 
+It can split a 4D xyzt stack into separate xyz volume stacks or separate xyt time series 
+stacks, where
+<blockquote>
+x and y are slice dimensions<br>
+z is depth of each volume within the hypervolume<br>
+t is the number of volumes in the hypervolume<br>
+</blockquote>
+
+It can also change the order of hypervolume from xytz to xyzt or from xyzt to xytz.
+<p>
+An example hypervolume (<A HREF="images/xyzt-100x100x6x12.zip">xyzt-100x100x6x12.zip</A>) is available for testing. This stack was acquired on a zeiss 510 confocal microscope. Z
+depth is 6, with 12 different time points. It was contributed by Da-Ting Lin, Cellular and Structural Biology, UTHSCSA.
+<p>
+
+Also available is a computer generated test stack 
+(<A HREF="images/xyzt-200x200x10x15.zip">xyzt-200x200x10x15.zip</A>) that has each image labeled with the z and t position.
+<p>
+
+ Note that the example stacks are ZIP compressed TIFF files that can be directly opened in ImageJ using the <i>File/Open</i> command. 
+
+</td></tr>
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
