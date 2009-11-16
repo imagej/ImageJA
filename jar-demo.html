@@ -1,0 +1,132 @@
+<html>
+<head>
+<title>JAR Plugin</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>JAR Plugin</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih dot gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/11/28: First version<br>
+2003/12/02: Displays an Edit&gt;Options&gt; dialog box<br>
+2003/12/16: Adds <i>Plugins/JAR Demo</i> submenu with four commands
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.31s or later, which adds the ability to 
+package plugins in JAR files</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/jar_demo.jar">jar_demo.jar</A>, which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/jar_demo.jar">jar_demo.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there should be 11 new commands that run this plugin.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin demonstrates how plugins can be packaged
+in JAR files and installed in multiple menus. The JAR
+file must have an underscore in its name and contain a file
+named "plugins.config". This is what "plugins.config" in the
+JAR file containing this plugin ("jar_demo.jar") looks like:
+<blockquote>
+<pre>
+# Name: JAR_Plugin
+# Author: Wayne Rasband
+# Version: 1.2
+# Date: 2003/12/15
+# Requires: ImageJ 1.31s
+# Generate the jar file using: "jar cvfM jar_demo.jar *"
+
+File>Import, "JAR Demo (Import 1)...", JAR_Plugin("import1")
+File>Import, "JAR Demo (Import 2)...", JAR_Plugin("import2")
+File>Save As, "JAR Demo (Save As)...", JAR_Plugin("save")
+Edit>Options, "JAR Demo...", JAR_Plugin("options1")
+Analyze>Tools, "JAR Demo (Tools)...", JAR_Plugin("tools")
+Plugins>JAR Demo, "Run JAR Demo...", JAR_Plugin("run")
+Plugins>JAR Demo, "JAR Demo Options...", JAR_Plugin("options2")
+Plugins>JAR Demo, "About JAR Demo...", JAR_Plugin("about1")
+Plugins>JAR Demo, "Uninstall JAR Demo...", JAR_Plugin("uninstall")
+Plugins, "JAR Demo (Plugins)...", JAR_Plugin("plugins")
+Help>About Plugins, "JAR_Plugin...", JAR_Plugin("about2")
+</pre>
+</blockquote>
+
+Lines starting with '#" are comments that may 
+be used by a future <i>Plugin Manager</i>.
+Each line in the form
+<blockquote>
+<i>Menu>Submenu, "Command", Plugin</i>
+</blockquote>
+creates an ImageJ menu command. There are three parts, separated by commas. The first specifies
+the menu where the command will be installed, the second is the command name, and the third
+is the plugin. As an example, the line
+<blockquote>
+<i>File>Save As, "JAR Demo (Save As)...", JAR_Plugin("save")
+</i>
+</blockquote>
+installs the command "JAR Demo (Save As)..." in the <i>File&gt;Save As</i> menu. When the user selects this
+command ImageJ runs the plugin <i>JAR_Plugin.class</i>, passing it the argument "save".
+<p>
+Plugins can be installed in the <i>File&gt;Import</i>, <i>File&gt;Save As</i>, <i>Edit&gt;Options</i>, 
+<i>Analyze&gt;Tools</i>, <i>Help&gt;About Plugins</i> and <i>Plugins</i> menu and submenus. If <i>Plugins&gt;Submenu</i> is specified, the 
+command will installed in the submenu of the <i>Plugins</i> manu named <i>Submenu</i>. If this
+submenu does not exist, it is created.  If <i>Plugins</i> is specified, the command will be
+installed in the submenu of the Plugins menu that corresponds to the directory containing the JAR
+file. For example, if the JAR file is in ImageJ/plugins/jars, the command will be installed in
+Plugins&gt;jars.
+<p>
+JAR files are basically the same as ZIP files. They are created using the command line jar 
+utility or a ZIP utility such
+WinZip. The jar utility is included with Sun's free Java SDK (aka JDK). It is pre-installed on
+Mac OS X.
+<p>
+On Mac OS X, use the pre-installed jar utility to create a JAR
+file:
+<ol>
+   <li> Open a Terminal window
+   <li> Type "cd "
+   <li> Drag and drop the folder containing the plugin(s) and plugins.config file 
+   to the Terminal window and press return
+   <li> Type "jar cvfM Name_of_Package.jar *"
+</ol>
+
+<p>
+On Windows, use the jar utility included with the Java
+Software Development Kit (SDK) from Sun:
+<ol>
+   <li> Open a command line window
+   <li> Change (cd) to the directory containing the plugin(s) and plugins.config file
+   <li> Type "C:\jdk1.5.0in\jar cvf Name_of_Package.jar *" (assumes the SDK is installed in C:\jdk1.5.0)
+</ol>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+The
+<a href="http://rsb.info.nih.gov/ij/plugins/pcl-demo.html">PluginClassLoader Demo</a>
+plugin demonstrates how files required for plugins (images, config files, etc) can be 
+packaged in a jar file.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
