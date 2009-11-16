@@ -1,0 +1,126 @@
+<html>
+<head>
+<title>AVI Reader</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>AVI Reader</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Michael Schmid and Daniel Marsh
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/AVI_Reader.java">AVI_Reader.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+This plugin is built into ImageJ 1.41b or later. Supported AVI files can be opened
+using the <i>File&gt;Open</i> command or by dragging and dropping on the
+"Image" window.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin opens uncompressed 8-bit and 24-bit AVI movies as a stack. The latest version, by
+Michael Schmid, adds support for YUV formats, the ability to specify the starting and
+ending frame, an option to convert to 8-bit grayscale, an option to open the movie as a virtual stack, 
+along with many bug fixes.
+<p>
+PC users can use the free <a HREF="http://virtualdub.org/">VirtualDub</a> program to uncompress AVI files.
+Macintosh users can use <a HREF="http://www.apple.com/quicktime/">QuickTime Pro</a>
+to convert QuickTime movies into uncompressed AVI movies. Note that AVI files with audio tracks may
+fail to open.
+	Install the <A HREF="http://rsb.info.nih.gov/ij/plugins/file-handler.html">
+	HandleExtraFileTypes</A> plugin and you will be able to open AVI movies with a ".avi" extension using <i>File/Open</i>
+	or by using drag and drop.
+<p>
+Another way to open an AVI movie in ImageJ is to use VirtualDub (Windows only)
+to convert it to an image sequence and then open the sequence using ImageJ's 
+<i>File/Import/Image Sequence</i> command.
+To create a sequence in VirtualDub, use the <i>File/Save image sequence</i> command, 
+set "Minimum number of digits
+in name" to 3 or more, and check "Windows BMP" as the "Output format".
+<p>
+On Windows, the <a href="http://rsb.info.nih.gov/ij/macros/tools/VideoCaptureTool.txt">Video Capture Tool</a>
+macro can capture and display video using the VirtualDub program.
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+<ul> 
+<li> Only a few formats are supported:
+<ul> 
+<li> Uncompressed 8 bit with palette (LUT)
+<li> Uncompressed 8 & 16 bit grayscale
+<li> Uncompressed 24 & 32 bit RGB (alpha channel ignored)
+<li> Uncompressed 32 bit AYUV (alpha channel ignored)
+<li> Various YUV 4:2:2 compressed formats
+<li> PNG or JPEG-encoded individual frames. Note that most MJPG (motion-JPEG)
+ formats are not read correctly.
+</ul> 
+<li> Does not read AVI formats with more than one frame per chunk
+<li> Palette changes during the video not supported
+<li> Out-of-sequence frames (sequence given by index) not supported
+<li> Different frame sizes in one file (rcFrame) not supported
+<li> Conversion of (A)YUV formats to grayscale is non-standard:
+<ul> 
+All 255 levels are kept as in the input (i.e. the full dynamic
+range of data from a frame grabber is preserved).
+For standard behavior, use "Brightness&Contrast", Press "Set",
+enter "Min." 16, "Max." 235, and press "Apply".
+</ul> 
+</ul>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2002/07/11:</u> First version<br>
+<u>2002/07/16:</u> Opens 8-bit movies faster<br>
+<u>2002/10/02:</u> Bug fixes<br>
+<u>2004/07/18:</u> Better "this is not an AVI" error message<br>
+<u>2005/01/24:</u> Open AVI files using <i>File/Open</i> or drag and drop<br>
+<u>2005/02/14:</u> Uses file name as window title instead of "stack"<br>
+<u>2005/10/20:</u> Opens 32-bit (ARGB) AVIs<br>
+<u>2007/10/19: </u>Fixed bug that could cause "Map size(0)>=1" error; fixed progress bar<br>
+<u>2008/04/29:</u>
+<li> Support for several other formats added, especially some YUV
+(also named YCbCr) formats
+<li> Uneven chunk sizes fixed
+<li> Negative biHeight fixed  
+<li> Audio or second video stream don't cause a problem
+<li> Can read part of a file (specify start & end frame numbers)
+<li> Can convert YUV and RGB to grayscale (does not convert 8-bit with palette)
+<li> Can flip vertically
+<li> Can create a virtual stack
+<li> Added slice label: time of the frame in the movie
+<li> Added a public method 'getStack' that does not create an image window
+<li> More compact code, especially for reading the header (rewritten)
+<li> In the code, bitmapinfo items have their canonical names
+<u>2008-06-08:</u>
+<li> Support for PNG and JPEG/MJPG encoded files added
+<li> Retrieves animation speed from image frame rate
+<li> Exception handling without multiple error messages
+<u>2008/07/07:</u>
+<li> Adds support for 16-bit grayscale AVIs created by 
+MIL (Matrox Imaging Library), thanks to a patch by Reinhard Mayr
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a HREF="avi.html">AVI Writer plugin</a><br>
+<a href="http://rsb.info.nih.gov/ij/macros/tools/VideoCaptureTool.txt">Video Capture Tool macro</a><br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
