@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>DICOM Sort</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>DICOM Sort</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Thomas Stamm (stammt at uni-muenster.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/05/13: Initial version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/DICOM_Sort.java">DICOM_Sort.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/DICOM_Sort.class">DICOM_Sort.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin produces different image sequences of DICOM files by exploring the DICOM header information via several tags. Images can be sorted by<I> image number</I> (moderate), <I>image time</I> (good) or <I>acquisition time</I> (best) before importing. The plugin displays the tag information with full paths and file names in the log window. The plugin is useful for the following problems.<BR>
+<BR>
+<B>Problem 1. ImageJ imports a sequence of DICOM files, but the slices are not in the correct order.</B><BR>
+The filenames produced by different DICOM devices do not reflect the correct order of the image sequence. Furthermore filename sequences differ between different operating systems.<BR>
+<B>Solution.</B> <BR>
+<B>a)</B> Open DICOM Sort. For the first attempt leave all settings as default. <BR>
+<B>b)</B> Select &quot;Open sorted Images as a Stack&quot;. <BR>
+<B>c)</B> Press OK and select any DICOM file in your DICOM folder. <BR>
+If some header information are missing, select &quot;None&quot; for all prefix settings. Try different sorting options until you are satisfied. <BR>
+<BR>
+<B>Problem 2. There is one folder with DICOM files of different patients and studies.<BR>
+Solution. <BR>
+a) </B>Open DICOM Sort and choose desired prefix settings for the report in the log window. <BR>
+<B>b)</B> Press OK and select any DICOM file in your DICOM folder. <BR>
+With the detailed report in the log window it is possible to locate the different files which can be moved manually.<BR>
+<BR>
+<B>Problem 3. There are to many DICOM files and folders of different patients / studies for manual separation.</B><BR>
+<B>Solution.</B> <BR>
+<B>a)</B> Copy all DICOM files in one folder, open DICOM Sort and choose desired prefix settings for the report in the log window.<BR>
+<B>b)</B> Save the report as a text file. <BR>
+<B>c)</B> Repeat <B>a</B> and <B>b</B> with the option &quot;Make Sorted Text File List&quot;. <BR>
+<B>d)</B> Edit the text file created with <B>c</B> based on the report information created with <B>a</B> and <B>b</B>.<BR>
+<B>e)</B> Create different text files of your desired sequences and open these sequences separately with the 
+<A HREF="list-opener.html">List_Opener plugin</A>.<BR>
+DICOM Sort creates file lists with full paths. Therefore you can leave the DICOM files at their origin (DICOM CD, network, DVD etc.) while using the List_Opener plugin.<BR>
+<BR>
+<B>Problem 4. I would like to store important studies for further use without loosing the original DICOM information and without overstuff my local disks.<BR>
+Solution.</B><BR>
+<B>a)</B> Create sorted text file lists of desired sequences and save the text files.<BR>
+<B>b)</B> Place the original DICOM files on a backup media.<BR>
+<B>c)</B> Open the text file lists with a text editor and replace the old path with the new one<B>(*)</B> via find &amp; replace.<BR>
+<B>d)</B> Save the edited text files on your local disk. <BR>
+<B>e)</B> Open the sequences with the List_Opener plugin. Be sure your backup media is mounted while importing the DICOM files via List_Opener.<BR>
+<BR>
+<B>(*) How to display a directory path ... <BR>
+
+OSX. </B>Open a Terminal window, type cd with a space after it, drag the directory (or a file in the directory) to the Terminal window.<BR>
+<B>WINDOWS.</B> ?<BR>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://rsb.info.nih.gov/ij/docs/menus/file.html#import">File/Import/Image Sequence</A>, which sorts by image number in v1.34k or later<br>
+<A HREF="import-dicom.html">Import Dicom Sequence</A><br>
+<A HREF="dicom-rewriter.html">DICOM Rewriter (Anonymizer)</A><br>
+<A HREF="query-header.html">Query DICOM Header</A><br>
+<A HREF="list-opener.html">List Opener</A><br>
+<A HREF="http://www.iftm.de/dicom/dcmimex.htm">DICOM Import/Export Plugins</A>
+</td></tr>
+
+</table>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
