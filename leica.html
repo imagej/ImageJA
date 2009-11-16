@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Leica SP</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Open Leica SP Multi-page TIFFs</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Nico Stuurman (<a href="mailto:Stuurman@rulbim.leidenuniv.nl">Stuurman@rulbim.leidenuniv.nl</a>)
+and<br>
+Wayne Rasband (<a href="mailto:wayne@codon.nih.gov">wayne@codon.nih.gov</a>)
+</td></tr>
+
+
+<tr valign=top><td ><b>Date:</b></td><td >2000/8/7</td></tr>
+
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Leica_SP_Reader.java">Leica_SP_Reader.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/Leica_SP_Reader.class">Leica_SP_Reader.class</A>
+and 
+<A HREF="download/LeicaTiffDecoder.class">LeicaTiffDecoder.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	Opens each channel in a Leica SP multi-channel tiff file as a separete stack.
+	<p>
+	Note that this plugin is not designed to open Leica multi-channel TIFFs saved as
+	 multiple files. Instead, use <i>File/Import/Image Sequence</i> in ImageJ 1.27c or newer
+	  and filter by filename. For example, to import the first channel, enter "ch00" in
+	   the "File Name Contains" field.
+	<p>
+
+You can use the command recorder to create a plugin that opens multiple channels.
+Here's an example that opens three channels (green, red and transmitted).
+<p>
+
+<pre>
+    import ij.*;
+    import ij.plugin.*;
+    
+    public class Open_Leica_SP implements PlugIn {
+    
+        public void run(String arg) {
+            IJ.run("Image Sequence...", "number=1000 starting=1 file=ch00");
+            IJ.run("Rename...", "title=green");
+            IJ.run("Image Sequence...", "number=1000 starting=1 file=ch01");
+            IJ.run("Rename...", "title=red");
+            IJ.run("Image Sequence...", "number=1000 starting=1 file=ch02");
+            IJ.run("Rename...", "title=transmitted");
+        }
+        
+    } 
+</pre>
+This plugin is available in compiled form as
+<A HREF="download/Open_Leica_SP.class">Open_Leica_SP.class</A>.
+
+</td></tr>
+
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
