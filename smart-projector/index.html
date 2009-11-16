@@ -1,0 +1,97 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<title>Smart Projector</title>
+</head><body bgcolor="#ffffff">
+
+<font size="+1" color="#224488" face="Helvetica, Arial">
+<b>Smart Projector</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table width="700" cellspacing="5">
+
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Fanny Serman, Institut Curie, Paris (France), fanny (dot) serman (at) gmail (dot) com 
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2009/03/31: first version<br>
+2009/04/07: supplementary options (normalize, tracking, other peaks in the calculated function)<br>
+</td></tr>
+
+<tr valign="top"><td><b>Requirements:</b></td><td>
+works with ImageJ 1.40 or later <br>
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>
+<a href="Smart_Projector.java">Smart_Projector.java</a>
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="Smart_Projector.class">Smart_Projector.class</a> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign="top"><td><b>Limitations:</b></td><td>
+works with stacks of 8-bit and 16-bit gray images, either .tiff, .STK, .lsm
+<br>
+(should work with all gray stacks handled by the Class Opener - and the plugin HandleExtraFileTypes - but not tested yet).
+<br>
+Each time in your film must be in an independant file (film_t1.tif, film_t2.tif...). If all your film is concatenated in a single file, you must first split it with Stack_splitter.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This plugin is developed to optimize for each time point the projection of Z-stacks acquired by time-lapse microscopy.
+
+<p>For each slice of a stack, the plugin will calculate the function "focus_index" whose maxima should correspond to the sharpest structures in the stack. If your stack corresponds to a thin and simple specimen, the focus_index will have only one maximum along the Z axis (which will be in most cases the structure you really want to see and not the noise you have acquired under and above your tissue / organ...).
+
+Projection can be made using this maximum (= "autofocus" slice)  with different options :
+<br><br>
+- around the autofocus: the given parameter is the number of slices projected around the maximum (3 or 4 will correspond to the projection of 3 slices : the one with the maximal focus_index, one before and one after). If you select the tracking option, it will restrict the calculation of the focus_index to the +/- n slices around the position of the maximum calculated at the previous timepoint. You can force the first position +/- n slices ("force beginning slice") in order to restrict the calculation from the beginning (by default "beginning slice" is put to zero to search in the entire first Z-stack).
+<br><br>
+- near a % of the autofocus: keeps for the projection all the slices which have a focus_index at least equal to a certain percentage of the maximum (can give some rough results if other options do not work)
+<br><br>
+- around the first (resp. second) peak of autofocus: sometimes two structures are recognised (for example membranes and nuclei) and this option forces the program to keep only the first (resp. second) maximum and to project around it (the % parameter is used to calculate the treshold above which the second maximum will be taken into account : treshold = (1 - parameter/100) x firstmaximum )
+</p>
+<p>When you launch Smart_Projector, the plugin asks you to open one file among your selected directory (as in the Import>ImageSequence command of ImageJ). You give then the number of different stacks you want to proceed, the kind of projection (same options as in the Z-project plugin of ImageJ) and the options of projection (see example).
+</p>
+<p>
+
+</p></td></tr>
+
+<tr valign="top"><td><b>Function focus_index:</b></td><td>
+<img src="image5.png" width=300 height=79 alt="[Screen Shot Function]"> 
+<br>The kernel used to convolve images for the numerator of the function is a simple derivative filter [-1 0 1].
+</td></tr>
+
+<tr valign="top"><td><b>Options:</b></td><td>
+<p>Project all stack: you can avoid all calculation by choosing to project all slices of each Z-stack. It can be handy if you have several kind of stacks (with different number of slices in each) and can't directly use Concatenate_ and Grouped_ZProjector to compile your film. Can help too if your files are too big to be all concatenated because this plugin will handle each one separately.
+</p>
+<p>
+Normalize: use only the numerator of the function focus_index (it can help if there are very dark slices among bright ones).
+</p></td></tr>
+
+
+
+
+<tr valign="top"><td><b>Example:</b></td><td>
+<img src="image1.png" width=850 height=847 alt="[Screen Shot Opening]">
+<img src="image2.png" width=453 height=698 alt="[Screen Shot Plugin]">
+<img src="image3.png" width=464 height=174 alt="[Screen Shot Filmnames]">
+<img src="image4.png" width=517 height=101 alt="[Screen Shot Proceeding]">
+</td></tr>
+
+<tr valign="top"><td><b>See also:</b></td><td>
+For more information about focus_index, see " Digital autofocus methods for automated microscopy", Shen F, Hodgson L, Hahn K., Methods Enzymol. 2006;414:620-32.
+</td></tr>
+
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://rsbweb.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsbweb.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
