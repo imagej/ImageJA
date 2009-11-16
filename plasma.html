@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>Plasma</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>"Plasma" Benchmark</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (<a href="mailto:wayne@codon.nih.gov">wayne@codon.nih.gov</a>) 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/02/21: First version<br>
+2001/12/17: 640x480 window, no drawImage scaling<br>
+2001/12/21: Displays frames generated per second in parentheses<br>
+2002/09/30: Pixels are produced and drawn in the same thread<br>
+2002/10/01: Displays FPS in status bar
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Plasma_.java">Plasma_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Plasma_.class">Plasma_.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This is a plugin version of the "Plasma2" applet at<br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<A HREF="http://rsb.info.nih.gov/plasma2/">http://rsb.info.nih.gov/plasma2/</A><br>
+It continously generates and displays images and displays the frame rate in the ImageJ status bar.
+ <p>
+Here are some test results in frames per second:
+
+<blockquote>
+109 &nbsp;&nbsp; P3/400, Win95, JDK 1.4.1beta<br>
+100 &nbsp;&nbsp; P3/400, Win95, JDK 1.3.1<br>
+&nbsp;49 &nbsp;&nbsp; P3/400, Win95, JRE 1.1.8<br>
+&nbsp;42 &nbsp;&nbsp; P3/400, Win95, Microsoft Java<br>
+&nbsp;36 &nbsp;&nbsp; PPC "G4"/400/, Mac OS 9, MRJ 2.2.5<br>
+&nbsp;26 &nbsp;&nbsp; PPC "G4"/400/, Mac OS X, v10.2.1<br>
+</blockquote>
+
+Set 'sync' to false and recompile and to use
+separate unsynchronized threads for image generation and image display.
+On Mac OS X and Linux, this causes images to be produced at a higher rate than they
+are displayed, resulting in jerkiness and indicating a threading problem.
+<p>
+This plugin and ImageJ generate and display images in essentually the same way, with 
+the exception that ImageJ always uses separate unsynchronized threads.
+ImageJ would run a lot faster on OS X if someone at Apple could figure out how to make
+this plugin run faster.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
