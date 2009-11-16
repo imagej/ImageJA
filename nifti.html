@@ -1,0 +1,72 @@
+<html><head><title>NIfTi Input/Output</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>NIfTi Input/Output</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5" width=700>
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Guy Williams (gbw1000 at wbic.cam.ac.uk)
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+In <A HREF="download/jars/nifti_io.jar">nifti_io.jar</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/nifti_io.jar">nifti_io.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be five new commands:
+<i>File/Import/NIfTI-Analyze</i>,
+<i>File/Save As/Analyze (NIfTI-1)</i>,
+<i>File/Save As/NIfTI-1</i>,
+<i>File/Save As/Analyze 7.5</i> and
+<i>Analyze/Tools/Coordinate Viewer</i>.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+These plugins are modified and rewritten versions of the 
+<A HREF="analyze.html">Analyze_Reader and Analyze_Writer</A>,
+ plugins that support the 
+<A HREF="http://nifti.nimh.nih.gov">NIfTI-1 Data Format</A>,
+ a modified and extended version of the Analyze file format.
+ <p>
+ The <i>File/Import/NIfTI-Analyze</i> command loads Analyze and Nifti-1 format files. 
+If the &lt;filename&gt; provided (or selected) ends with ".hdr" or ".img"
+	then &lt;filename&gt;.hdr will be parsed and used to appropriately load 
+	the raw image data found in '&lt;filename&gt;.img'. Otherwise the file is
+	assumed to be in the concatenated nifti format. 
+	If the header information conforms to the nifti-1 standard, the 
+	information is stored in property "nifti" as an object of class 
+	NiftiHeader.
+	<p>
+	The <i>File/Save As/Analyze (NIfTI-1)</i> command saves the current image as a Nifti-1 .img/.hdr pair,
+	<i>File/Save As/NIfTI-1</i> saves as a combined header/image file (.nii), and
+	<i>File/Save As/Analyze 7.5</i> saves in Analyze 7.5 format.
+	<p>
+	 <i>Analyze/Tools/Coordinate Viewer</i> tool can be used to display the interpretation of
+ image coordinates based on coordinate mapping information in the NIfTI header. 
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2005/08/19: First version<br>
+2005/10/26: Bug fixes<br>
+2006/07/05: Imports 64 bit data<br>
+2007/06/29: Compiles without Image5D plugin<br>
+2009/02/12: Opens 4D images as hyperstacks<br>
+2009/06/30: Opens gzip-ed images; bug fixes<br>
+</td></tr>
+
+</table>
+
+</blockquote>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
