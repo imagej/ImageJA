@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Anisotropic Diffusion 2D</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Anisotropic Diffusion 2D</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Vladimir Pilny (vladimir at pilny.com) <br>                         
+and Jiri Janacek (janacek at biomed.cas.cz)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/12/01 (v0.1): First version<br>
+2005/12/07 (v0.2): Works better with 16-bit images<br>
+2006/02/14 (v0.3): Adds "edge threshold height" parameter<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.34 or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Requires a lot of memory (e.g., 220MB to process a 1.3MB 8-bit image)<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Anisotropic_Diffusion_2D.java">Anisotropic_Diffusion_2D.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Anisotropic_Diffusion_2D.class">Anisotropic_Diffusion_2D.class</A>
+to the ImageJ plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin performs anisotropic diffusion filtering on 8-bit, 16-bit
+and RGB images, with support for ROI and stacks. Processing can be
+stopped by pressing Esc.
+
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="images/anisotropic.jpg" width=439 height=406 alt="Dialog">
+<p>
+<b>Dialog box parameters:</b>
+<ul>
+<li> <b>Number of iterations -</b> Maximum number of complete iterations, default value is 20.
+
+<li> <b>Smoothings per iteration -</b> Number of smoothings by anisotropic Gaussian with 3x3 mask per iterations, 
+default value is 1. Size of the smoothing per one complete iteration is proportional to the square root of this number.
+
+<li> <b>Keep each -</b> Number of iterations between successive savings of the results. Default value is 20.
+
+<li> <b>a1 (Diffusion limiter along minimal variations) - </b> a1 influences the shape of the smoothing mask. f1(l1,l2)= (1.0+l1+l2)^-a1. The smoothing in each iteration is defined by a tensor (2x2 matrix), that is linear combination of tensors corresponding to minimal and maximal eigenvalue of structure tensor. f1 and f2 are weights of the tensors (see Tschumperle and Deriche, 2005). 
+
+<li> <b>a2 (Diffusion limiter along maximal variations) -</b>. a2 influences the shape of the smoothing mask. f2(l1,l2)= (1.0+l1+l2)^-a2. 
+
+<li> <b>dt (Time step) -</b> Default value is 20. The result of the filter is proportional to the step, 
+but too long time step yields numerical instability of the procedure.
+
+<li> <b>Edge threshold height -</b> Defines minimum "strength" of edges that will be preserved by the filter. Default value is 5.
+
+<li> <b>Show filter stats -</b> Display filter statistics for each iteration.
+
+<li> <b>Show time stats -</b> Display elapsed times.
+
+<li> <b>Add labels -</b> Add labels to output stack. Double click on the eye dropper tool to set the label color.
+</ul>
+
+Based on CImg Library by David Tschumperle
+ (<a href="http://cimg.sourceforge.net/">cimg.sourceforge.net</a>).
+The algorithm used by this plugin is an implementation of Anisotropic
+Diffusion from 
+<a href="ftp://ftp-sop.inria.fr/odyssee/Publications/2003/tschumperle-deriche:03.pdf">
+"Vector-Valued Image Regularization with PDE: A Common Framework for Different Applications"</a>
+by David Tschumperle and Rachid Deriche.
+
+<tr valign=top><td ><b>Examples:</b></td><td >
+&nbsp;<p>
+<img src="images/anisotropic-gray2.gif" width=248 height=248 alt="8-bit Example">
+<img src="images/anisotropic-rgb2.gif" width=248 height=248 alt="RGB Example">
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="anisotropic-diffusion.html">Anisotropic Diffusion plugin</A>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
+
