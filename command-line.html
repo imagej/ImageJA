@@ -30,7 +30,14 @@ using the <i>Plugin/Compile and Run</i> command.
 </td></tr>
 
 <tr valign=top><td ><b>Description:</b></td><td >
-This example program/plugin shows how to use ImageJ from the command line. It opens an image, 
+<p>
+<font color="#aa0000">
+This plugin is obsolete. ImageJ 1.36 and later can directly run plugins and macros from the command line 
+using the -macro and -batch options described at the beginning of
+<A HREF="http://rsb.info.nih.gov/ij/developer/source/ij/ImageJ.java.html">ImageJ.java</A>. 
+</font>
+<p>
+This example program/plugin shows one way to use ImageJ from the command line. It opens an image, 
 converts it to binary, runs the particle analyzer, calculates mean area, and writes the results
 to a file named "results.txt". Use the <i>Plugins/Compile and Run</i> 
 command to compile and test it.
@@ -51,10 +58,6 @@ the plugins directory, as in these examples:
 &nbsp;&nbsp;&nbsp;&nbsp;java -Dplugins.dir=C:\ImageJ -cp C:\ImageJ\ij.jar;. analyze blobs.tif > results.txt (Windows)  
 </font><p>
 
-</td></tr>
-
-<tr valign=top><td ><b>See Also:</b></td><td>
-The <A HREF="command-line-macros.html">RunMacro</A> program, which runs macros from the command line.
 </td></tr>
 
 </table>
