@@ -1,0 +1,72 @@
+<html><head><title>Grayscale Morphology</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Grayscale Morphology</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Dimiter Prodanov (D.Prodanov at lumc.nl)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+<b>2003/19/15:</b> First version<br>
+<b>2006/06/05:</b>
+<li> "fast" versions of the erosion, dilation,
+opening and closing operations based on local histograms. Also the van Herk/Gil-Werman (vHGW)
+algorithm for linear SEs was implemented (it is really fast).
+<li> Processing of stacks is now enabled
+<li> The plugin can handle arbitrary ROIs
+<br>
+<b>2006/06/14:</b> Fixed bug that caused an exception<br>
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Gray_Morphology.jar">Gray_Morphology.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Gray_Morphology.jar">Gray_Morphology.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+then run the plugin using the <i>Plugins/Morphology/Graysale Morphology...</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This plugin performs the basic grayscale morphologic operations
+of erosion, dilation, opening and closing with several types of structuring elements (SEs):
+
+<ul>
+	<li> circles
+	<li> diamonds
+	<li> horizontal lines
+	<li> vertical lines
+	<li> 2 horizontal points
+	<li> 2 verical poins
+	<li> arbitrary shape
+</ul>
+
+What is more important, is that the user can vary the size of the SEs!
+It is build upon the StructureElement class and the Constants interface
+The develpoment of this alogorithm was inspired by the book of Jean Serra"
+Image Analysis and Mathematical Morphology". I felt the lack of mathematical 
+morphology tools in the Open Source community and decided to contribute it 
+under the GNU Lesser General Public License.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<img src="images/gray-morphology.jpg" width=949 height=341 alt="[example]">
+
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
