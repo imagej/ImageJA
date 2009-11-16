@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Granulometry</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Granulometry</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Dimiter Prodanov (D.Prodanov at lumc.nl) 
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/06/09: First version <br>
+2003/10/08: Extended result section;
+user can choose the step of increase of the structuring element;
+user can choose between plots Rel. intensity vs. radius of opening or
+Rel. intensity vs. are of opening
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Granulometry_.java">Granulometry_.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Granulometry_.class">Granulometry_.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Granulometries were introduced by Matheron [G. Matheron, Randoms sets and
+integral equation, Wiley, New York, 1978.] as tools to extract size
+distribution from binary images. By performing series of morphological
+openings with a family of structuring elements (SE-s) of increasing size, we
+can obtain the granulometry function which maps each SE to the number of
+image pixels removed during the opening operation with the corresponding
+structuring element.
+<p> 
+The pixel size distribution function Ps can be defined as
+<p>
+Ps(k)= Sum of all the pixels in the image, opened with k-th SE.
+
+One can also define the Normalized size distribution function simply as
+N(k)=1- Ps(k)/Ps(0), where Ps(0) is the Ps of the original image.
+<p>
+The granulometric density function can be defined as
+<p>
+G(k)= N(k+1) -N(k)
+<p>
+This function can be viewed as discrete first derivative function of image
+structure sizes. The above definition is often referred to as pattern
+spectrum of the image. A local maximum in the pattern spectrum at a given
+scale indicates the presence of many structures at that scale.
+<p>
+In the current algorithm implementation I use the RankFilter class provided
+by ImageJ for the gray-level openings with structure element of circular
+shape with specified size (hence the Maximal size of opening parameter).
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
