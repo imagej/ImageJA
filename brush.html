@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Paint Brush</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Paint Brush</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Jeffrey Kuhn (jkuhn at ccwf.cc.utexas.edu)<br>
+The University of Texas at Austin
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >2001/1/19</td></tr>
+
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+Requires Java 1.2 or later
+</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Toggle_Paintbrush_.java">Toggle_Paintbrush_.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Replaced by a macro tool now included in the StartupMacros file
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This Paintbrush tool is based on the Mouse_Listener example plugin. 
+It allows painting on images or stacks. Click and drag to paint
+using the current foreground color, or hold down the ALT key to paint
+using the background color. The size of the paintbrush can be set with
+
+<i>Edit/Options/Line Width...</i>
+<p>
+If you make a mistake, select <i>Edit/Undo</i> to remove the last painted
+stroke.
+<p>
+The plugin acts as a toggle switch for painting or selecting. Run
+the plugin once to attach the paintbrush to the foreground window and
+begin painting. Run it a second time on the same window to detach the
+paintbrush and allow selection. The paintbrush may be toggled on a
+per-window basis.
+<p>
+The plugin works by removing any other mouse listeners from an image
+canvas and setting itself up as the only mouse listener. If it finds a
+paintbrush already attached to a canvas, that paintbrush is removed and
+the old mouse listeners are restored.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="http://rsb.info.nih.gov/ij/macros/StartupMacros.txt">Paintbrush macro tool</A> included in StartupMacros
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
