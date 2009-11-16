@@ -1,0 +1,114 @@
+<html>
+<head>
+<title>SensiCam Long Exposure Camera</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>SensiCam Long Exposure Camera</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kunito Yoshida (k.yoshida at IMPERIAL.AC.UK)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<i>2003/08/12:</i> First version<br>
+<i>2003/08/12:</i> Version 0.2<br>
+<i>2003/10/24:</i> 
+<a href="http://cookecorp.com/">PCO/Cooke Corp.</a>
+is developing
+<a href="ftp://ftp.cookecorp.com/ImageJ/">improved versions</a>
+of this plugin for Mac, Linux and Windows.
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only runs on Windows</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Source code is in the <A HREF="download/sensicam.zip">ZIP archive</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+	1. Download <A HREF="download/sensicam.zip">sensicam.zip</A> and extract the files.<br>
+	2. Add the files in the "Classes" folder to ImageJ "plugins" folder.<br>
+	3. Put "SensiCam_8bitNative.dll" into "ImageJ\jrein".<br>
+	4. Install the PCO SDK
+	    (<A HREF=" http://www.pco.de">http://www.pco.de</A>)
+	   on your computer.<br>
+	5. Make a folder named "Acquired" in the "ImageJ" folder.<br>
+	6. Make a folder named "Default" in the "Acquired" folder.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<b>12-bit to 8-bit conversion</b> - SensiCam is 12-bit camera but this plugin convert the
+12-bit data into 8bit data. To do this, plugin should map the 12-bit
+scale to 8-bit scale. If you press 'Auto Gain' button on the main
+panel, the plugin first aquire an image according to the exposure time
+(in milliseconds) that you set in the 'Gain Control' or 'Time-Lapse
+Condition' panel, then analyse the pixel value, and try to set the
+minimal pixel value in 12-bit scale to 0 in 8-bit scale (LUT MIN) and
+the maximal pixel value in 12-bit scale to 255 in 8-bit scale (LUT
+MAX), respectively. You can set these LUT MIN and MAX values manually
+in the 'Gain Control' or 'Time-Lapse Condition' panel.
+<p>
+<b>Aquire an image</b> - You specify the ROI (or if not the whole area will
+be selected) and press 'Take A Picture' button in the main panel. If
+you checked 'Auto Save' checkbox in the 'Save Option' panel, the
+captured the image will be automatically saved in the folder (a
+subfolder of 'ImageJ\Acquired', 'Default' as default) which you
+specified in the 'Save Option' panel.
+<p>
+<b>Time-lapse mode</b> - If you press the 'Time-Lapse Mode' button, another
+ panel will be activated according to the ROI that you
+ specified. Press 'Start/Break' button to start recording. Capturing
+ interval should be specified in the 'Time-Lapse Condition' panel, and
+ should not exceed the time required to capture an image which is
+ determined by the sum of the 'Exposure' time you specified and the
+ intrinsic time for the hardware (~150 msec but may depend on your
+ machine). Captured images will be sequentially numbered and stored in
+ the specified folder as separate image files. If you want to stop
+ capturing during the course, press the 'Start/Break' button again or
+ simply close the 'Time-Lapse' window panel.
+<p>
+<b>Focus mode</b> - If you are working with long exposure time, you will
+ often experience that it is hard to focus your specimen. The 'Focus
+ Mode' is a facility to achieve this more easily. By pressing the
+ 'Focus<=>Capture' button, you can switch between 'Focus Mode' and
+ 'Capture Mode'. In 'Focus Mode', a red circle will appear in the main
+ monitor so that you will know that you are in 'Focus Mode'. You can
+ set the capturing condition for each mode in the 'Gain Control' panel
+ or by pressing 'Auto Gain' button while you are in the corresponding
+ mode. 'Focus Mode' is just to monitor the camera, and you will always
+ capture images according to the condition set for 'Capture Mode' even
+ when you are in 'Focus Mode'.
+<p>
+<b>Pause</b> - By pressing 'Pause Plugin' button, your machine will be freed
+ from continuous image aquisition cycle, so that you could work more
+ comfortably in other jobs. To reactivate the acquisition cycle, you
+ may need to press any of other buttons.
+<p>
+<b>Place A ROI</b> - It is nothing but a facility to set a ROI reproducibly.
+<p>
+This plugin is only compatible with SensiCam Long Exposure camera from
+<A HREF=" http://www.pco.de">PCO Imaging</A>,
+but you could adapt it to cameras of other types in relatively simple
+manner.
+<p>
+I compiled the plugin using gcc in cygwin environment. See the ReadMe for details.
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
