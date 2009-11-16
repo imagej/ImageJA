@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>Color Space Converter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Color Space Converter</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Duane Schwartzwald (vonschwartzwalder at mac.com)
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+<b>2006/02/15:</b> First version<br>
+<b>2006/02/22:</b> Title of the window changes to reflect the color space;
+uses title to suggest default color space conversion<br>
+<b>2006/03/12:</b> Option to convert to separate float images; white point can be specified<br>
+<b>2007/03/01:</b> Harry Parker fixed a bug in the RGB to XYZ and XYZ to RGB converters<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Color_Space_Converter.java">Color_Space_Converter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Color_Space_Converter.java">Color_Space_Converter.java</A> 
+to the plugins folder or subfolder and run it using <i>Plugins/Compile and Run</i>. Restart ImageJ and
+there will be a new <i>Color Space Converter</i> command in the Plugins menu or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin converts between any combination of RGB, HSB, LAB and XYZ, possibly modifying the image in place. More color spaces can be added later, perhaps, if needed.
+<p>
+The HSB conversions use the java Color class. All others rely on code that converts to XYZ and then on to something else.
+<p>
+The RGB to XYZ conversion assumes sRGB as input (with it's D65 white point). Pretty standard, should give decent results in most cases.
+<p>
+The RGB to L*a*b* conversion assumes sRGB for conversion to XYZ but then uses the specified white point to convert from XYZ to L*a*b*.
+<p>
+All in-place output is scaled and placed in the RGB image. HSB is normally 0..1, L*a*b* is normally 0..100, -100..100, -100..100 and XYZ is normally 0..100, 0..100, 0..100. That means that the resulting images are NOT what you get with pure conversions (like Photoshop). It does give you something interesting to look at. There is a danger of having out-of-gamut and round off errors creep in (actually, run screaming in) and this becomes readily apparent after multiple conversions.
+<p>
+All separated images are unscaled and placed in FloatProcessors.
+<p>
+I don't make any claim as to accuracy: use at your own risk.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
