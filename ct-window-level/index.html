@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>CT Window Level</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>CT Window Level </b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td>
+<td > <p>Julian Cooper (based in part on ImageJ code ij.plugin.frame.ContrastAdjuster.java)<br>
+  Julian.Cooper[at]uhb.nhs.uk</p>
+  </td>
+</tr>
+
+
+
+<tr valign=top><td ><b>History:</b></td>
+<td >2009/07/01 First version</td>
+</tr>
+
+<tr valign=top>
+<td ><b>Source:</b></td>
+<td >In <A HREF="download/CT_Window_Level.jar">CT_Window_Level.jar</A>
+</td>
+</tr>
+
+<tr valign=top><td ><b>Installation:</b></td>
+<td > Download  <a href="download/CT_Window_Level.jar">CT_Window_Level.jar</a> to the plugins folder and restart ImageJ or click Help &gt; Update Menus.
+</td>
+</tr>
+
+<tr valign=top><td ><b>Description:</b></td>
+<td >
+  <p>This plugin allows 16-bit DICOM grayscale images to be displayed with Window and Level specified in Hounsfield Units, as is standard for CT scans. On the Hounsfield scale the radiodensity of water is zero and the radiodensity of air is -1000.</p>
+  <p>If the  image to which the plugin is applied is not 16-bit grayscale an error message is displayed. If a valid image the plugin will display the image using any Window and Level settings specified in the DICOM header. If no such settings are specified the display defaults to the full range from minimum to maximum.</p>
+  <p>Although no changes are made to pixel values it may be appropriate to work on a duplicate of important images to avoid occasional display issues with some stacks when the Brightness/Contrast adjuster is set to Auto or Reset.</p>
+  <p>The drop down box allows selection of presets for Window and Level to optimise the display of specific tissues or pathologies on human CT scans. As seen in the examples below the 'Lung' preset shows details in lung tissue not apparent on the 'Bone' window, but conversely much of the detail in bone and subcutaneous soft tissue is lost on the 'Lung' window. Other presets are listed, similar to those found as standard on CT Workstations. I have found that the appearance of certain presets can be improved by running the ImageJ menu command Process &gt; Smooth, although this will clearly alter the underlying pixel data so should be used with caution. I hope to add the facility to save custom presets in the future. </p>
+  <p><strong>Reset:</strong> resets the display to the image specified Window and Level settings, or full range if not otherwise specified.</p>
+  <p><strong>Set:</strong> permits the user to specify Window and Level in a dialog box (in Hounsfield Units), rather than using the sliders.</p>
+  <p><strong>Write:</strong> overwrites the Window and Level settings specified in the DICOM header with the current settings. </p>
+  <p><strong>Example:<br>
+  </strong>Three different views of a chest CT slice:</p>
+  <p>Image specified:<br>
+    <img src="images/imagew.jpg" width="756" height="590"></p>
+  <p>Lung window:<br>
+    <img src="images/lungw.jpg" width="758" height="589">    </p>
+  <p>Bone window:<br>
+    <img src="images/bonew.jpg" width="755" height="586">    </p>
+  </td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
