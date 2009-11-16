@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Cell Outliner</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<p><font color="#224488" face="Helvetica, Arial" size=+1>
+  <b>Multi Cell Outliner</b></font></p>
+<p>&nbsp;</p>
+<table border="0" cellspacing="5" cellpadding="0">
+  <tr>
+    <td valign="top"><p><strong>Author:</strong></p></td>
+    <td valign="top"><p>Koldo    Latxiondo (koldo2k at hotmail.com) from Deusto University    &ndash; P.A.S.Group <br />
+      Based on    the original Cell_Outliner plugin<br />
+      by Mike Castleman (m at mlcastle.net)</p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>History:</strong> </p></td>
+    <td valign="top"><p>2006/04/04:    First version</p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Requires:</strong> </p></td>
+    <td valign="top"><p>ImageJ    1.31i or later</p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Limitations:</strong> </p></td>
+    <td valign="top"><p>Won't    work on single images - a work around is to simply add an empty frame into    the image. </p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Source:</strong></p></td>
+    <td valign="top"><p><a href="download/Multi_Cell_Outliner.java" target="_blank">Multi_Cell_Outliner.java</a><a href="http://rsb.info.nih.gov/ij/plugins/download/Cell_Outliner.java"></a> </p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Installation:</strong></p></td>
+    <td valign="top"><p>Download <a href="download/Multi_Cell_Outliner.java" target="_blank">Multi_Cell_Outliner.java</a> to the plugins folder, or subfolder, and    compile and run using <em>Plugins/Compile and Run</em>. Restarting ImageJ will    add a &quot;Cell Outliner&quot; command to the Plugins menu or a submenu of    the Plugins menu. </p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Description:</strong></p></td>
+    <td valign="top"><p>Applies    the magic wand with a specified threshold and at a specified point or points (X    and Y values) on the images or slices from a stack. Generated regions (ROIs)    are saved for each slice, so we can process the lungs from an image stack for    example, or other organs. It could be very useful to    reconstruct a 3D image of an organ composed of various regions with the    plugin &lsquo;Volume Viewer&rsquo; for example or other 3D reconstruction application. </p>
+        <p>To    capture the values, we select the point in the image with ImageJ&acute;s point    selector, and push the &lsquo;Take Point&rsquo; button. We can create more than 1 region    (maximum 4) by slice or image using &lsquo;More ROIs&rsquo;. </p>
+      <p>With    &lsquo;View ROI =&gt;&rsquo; we can view the different ROIs in the same slice. </p>
+      <p>The application,    will process an entire stack with specified starting frame and ending frame,    using the magic wand outline to clear inside, and clear outside and then draw    a line with graylevel=255. It will apply&nbsp;    cuts defined by &lsquo;First Slice&rsquo; and &lsquo;Last Slice&rsquo;.</p>
+      <p>&nbsp;The plugin provides navigation buttons for    scanning through the stack (&lt;&lt; , &gt;&gt;). </p>
+      <p>It also    provides a very nice little feature that has the program to compare the size    of the current outline with the previous outline and to jog the &lsquo;Vertical&rsquo;    value or &lsquo;Horizontal&rsquo; value in order to find the full outline again. This is    helpful when dealing with noisy data where the magic wans will occasionally    find the outline around a patch of above threshold noise instead of finding    the desired object. </p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>See Also:</strong></p></td>
+    <td valign="top"><p>Deusto University Bilbao; P.A.S. Group: <a href="http://www.pas.deusto.es/utilidades.htm" target="_blank">www.pas.deusto.es/utilidades</a> </p></td>
+  </tr>
+  <tr>
+    <td valign="top"><p><strong>Example:</strong></p></td>
+    <td valign="top"><p align="center"><img src="images/multi-cell-outliner_clip_image002.jpg" alt="example" width="281" height="312" /> <img src="images/multi-cell-outliner_clip_image002_0000.jpg" alt="example 2" width="281" height="312" /></p>
+      <p align="center"><img src="images/multi-cell-outliner_clip_image002_0001.jpg" alt="program example" width="277" height="306" /> <img src="images/multi-cell-outliner_clip_image004.jpg" alt="program example" width="277" height="306" /></p>
+      <p align="center"><img src="images/multi-cell-outliner_clip_image006.jpg" alt="result" width="248" height="276" /></p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p></td>
+  </tr>
+</table>
+<p>
+
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
