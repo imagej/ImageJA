@@ -1,0 +1,83 @@
+<html> <head> <title>Command Line Macros</title> </head> <body bgcolor =
+"#ffffff">
+<font color="#224488" face="Helvetica, Arial" size=+1> <b>Command Line Macros</b> </font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=750>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/06/03: First version<br>
+2006/05/27: Updated to work with ImageJ 1.37h<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.37h or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Contained in <A HREF="download/jars/macro-runner.zip">macro-runner.zip</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td>
+Download <A HREF="download/jars/macro-runner.zip">macro-runner.zip</A> and extract the MacroRunner
+folder.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+RunMacro is a Java program (not a plugin) that runs an 
+ImageJ macro from the command line with no GUI. It uses the
+<i>IJ.runMacroFile(path, arg)</i> method that was added in ImageJ 1.33c
+to run a macro and to pass it a single string argument.
+<p>
+ImageJ 1.37h and later can also runs macros from the command line 
+using the -batch option documented at the beginning of
+<A HREF="http://rsb.info.nih.gov/ij/developer/source/ij/ImageJ.java.html">ImageJ.java</A>. 
+<p>
+To compile:
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>javac -classpath ij.jar RunMacro.java</i>
+<p>
+To run "analyze.txt", passing it the argument "blobs.tif":
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>java -cp ij.jar:. RunMacro analyze.txt Blobs.tif (Unix)</i><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>java -cp ij.jar;. RunMacro analyze.txt Blobs.tif (Windows)</i>
+<p>
+You can also run this macro by running ImageJ with
+the -batch command line option:
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>java -jar ij.jar -batch analyze blobs.tif</i>
+<p>
+Use I/O redirection to save macro output in a file:
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;<i>java -jar ij.jar -batch analyze blobs.tif>results.txt</i>
+<p>
+Four example command line macros are in MacroRunner folder:
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;table.txt: Generates a sine/cosine table<br>
+&nbsp;&nbsp;&nbsp;&nbsp;analyze.txt: Runs the particle analyzer on an image<br>
+&nbsp;&nbsp;&nbsp;&nbsp;process.txt: Analyzes all the tiff images in a folder<br>
+&nbsp;&nbsp;&nbsp;&nbsp;count.txt: Counts the number of lines in a text file<br>
+<p>
+OS X and Linux users can create an alias something like this
+<blockquote>
+<i>alias run 'java -cp /usr/local/ij/ij.jar:/usr/local/ij RunMacro'</i>
+</blockquote>
+that enables macros to be run by typing something like
+<blockquote>
+<i>run analyze blobs.tif</i>
+</blockquote>
+
+</td></tr>
+
+</table>
+
+</blockquote> <p><b>|<a href="index.html">Plugins</a> | <a
+href="../index.html">Home</a> |</b>
+
+</body> </html>
