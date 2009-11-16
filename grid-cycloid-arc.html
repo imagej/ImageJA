@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<TITLE>Grid Cycloid Arc,&nbsp;Grid Cycloid Arc Batch Processor</TITLE>
+<META content="MSHTML 5.50.4134.600" name=GENERATOR>
+</HEAD>
+<BODY bgColor=#ffffff>
+<FONT face="Helvetica, Arial" color=#224488 size=+1>
+<B>Grid Cycloid Arc,&nbsp;Grid Cycloid Arc Batch Processor</B> 
+</FONT>
+
+<BLOCKQUOTE>
+<TABLE cellSpacing=5>
+<TR vAlign=top>
+<TD><B>Author:</B></TD>
+<TD>Eric Kischell (keesh)&nbsp;&nbsp; <A href="MAILTO:keesh@ieee.org?subject='Grid Cycloid Arc plugin'">keesh@ieee.org</A><BR> 
+Grid Cycloid Arc was originally based upon the <A href="http://rsb.info.nih.gov/ij/plugins/grid.html"> Grid</A>
+plugin by Wayne Rasband <A href="MAILTO:wayne@codon.nih.gov?subject='Gird ImageJ plugin'">wayne@codon.nih.gov</A>       
+<BR>
+Grid Cycloid Arc Batch Processor pillages from the <A href="http://rsb.info.nih.gov/ij/plugins/batch-converter.html"> Batch Converter</A> 
+plugin by Wayne Rasband <A href="MAILTO:wayne@codon.nih.gov?subject='Batch Converter ImageJ plugin'">wayne@codon.nih.gov</A>  
+</TD>
+</TR>
+	  
+	<TR vAlign=top>
+      <TD><B>History:</B></TD>
+      <TD>
+		<P>11/08/2003: First version requested by Tom Einar Andersen&nbsp;
+		 <A href="MAILTO:andersen@microscopica.com?subject='Grid Cycloid Arc plugin'">andersen@microscopica.com
+		 </A><BR>
+		 01/25/2004: Minor enhancements to support being called for batch operation<BR>    
+		 08/14/2004: Grid Cycloid Arc Batch Processor introduced<BR>  
+		</P>
+		</TD></TR>
+    <TR vAlign=top>
+      <TD><B>Requires:</B></TD>
+      <TD>ImageJ 1.31p or later <BR>
+		  &nbsp;ImageJ 1.32j or later, and Java 1.4 or later, and Swing for Batch Processor<BR>
+		  &nbsp;Batch Processor requires Grid Cycloid Arc plugin for operation.
+	  </TD>
+	</TR>
+    <TR vAlign=top>
+      <TD><B>Source:</B></TD>
+	  <TD>
+	  Contained in <A href="download/jars/Grid_Cycloid_Arc_Pkg.jar">Grid_Cycloid_Arc_Pkg.jar</A>, which can be opened using a ZIP utility 
+      </TD></TR>
+    <TR vAlign=top>
+	
+      <TD><B>Installation:</B></TD>
+      <TD>Download 
+	  <A href="download/jars/Grid_Cycloid_Arc_Pkg.jar">Grid_Cycloid_Arc_Pkg.jar</A>&nbsp;
+	  to the plugins folder or subfolder, restart ImageJ,<br>
+	  and there will be a new Plugins/Filters/Grid Cycloid Arc and Grid Cycloid Arc Batch Processor commands. 
+	  <br>
+	</TD></TR>
+    
+	<!-- Grid Cycloid Arc section starts here -->
+	<TR vAlign=top>
+      <TD><B>Description:</B></TD>
+      <TD>This plug-in is a custom jobber for Tom.<BR>
+		<blockquote>
+		The Grid Cycloid Arc plugin enables the estimation of surface area from VUR (Vertical Uniform Random) sections.
+		A grid consisting of cycloids (defined by: x = &#952; - sin&#952;, y = 1 - cos&#952;, 
+		where &#952; is the angle ranging from 0 to &#960;) is drawn on the image.
+		The cycloids must be aligned with their short axes parallell to the vertical axis in the specimen.
+		Since the grid itself cannot be rotated, the vertical axis of the specimen must be aligned with the vertical in the image.
+		Counting intersections between the cycloids and a surface enables the estimation of surface fractions in vertical sections.
+		Combined with an estimate of the reference volume, this also enables estimation of total area. 
+		Please refer to the references for details on the procedure.<BR>
+		Please note:: The Grid Cycloid Arc plugin is not suitable for use with IUR (Isotropic Uniform Random) sections.
+		</blockquote> 
+	
+	<strong>About the grid</strong>:
+	<ul>
+	<li>The grid is drawn in the current foreground color
+	(ImageProcessor drawing routines may not honour foreground colour for greyscale images).</li>
+	<li>A short &quot;dash&quot; is added at the ends of the cycloids to make it a lot easier to judge the &quot;in or out&quot; 
+	at the ends of the lines.</li>
+	<li>A &quot;poor man's&quot; form of undo is implemented for the destructive overlay.
+	It uses the original image's id.</li>
+	<li>Depending on the nature of the specimen, different arrangements of the cycloids may influence the variability in the estimate.
+	The plugin offers a choice of three different arrangements (A, B and C).
+	B is not completed in the first edition of the plugin.</li>
+	</ul>
+ 	<blockquote>
+	<strong>For sequence A and B</strong>:<BR>
+		To avoid introducing a systematical error (bias), if there is an odd number of points in both X and Y,
+ 		then an even number of points (in X) is forced (via increment by 1).<BR>
+ 		The cycloid (including dashes) fit within a single tile. 
+	</blockquote>
+	<blockquote>
+	<strong>For sequence C (rolling)</strong>:<BR>
+		In this mode, the dashes marking the transitions between the cycloids also function as the volumetric counting points.
+		To get an equal number of points and cycloids, one point is omitted at the end of each cyloid row. 
+ 		The tiles are forced to have the same aspect ratio as the cycloids via
+ 		changing the number of points in X. 
+ 		We want an arrangement as per figure 14. in ref. #3
+		(i.e. half the dash (arm) meets the &quot;next&quot; tile).
+	</blockquote>
+	 <BR>
+	<P>
+	<img SRC="images/cycloid_image1.jpg" title="example sequence A" ALT="[cycloid example sequence A]" ALIGN="MIDDLE" WIDTH="387" HEIGHT="306">
+	</P>
+	<P>
+	<B>User Parameters</B>
+	<BR>
+ 	The user can define the number of points in the grid (in the x and y direction).<BR>
+	The grid has a static position<BR>
+	The &quot;Safety zone&quot; near the edges of the image, where no points or cycloids are drawn
+ 	is selectable in size (as a percentage of the image width).<BR>
+	The user can define the height of the cycloid (and as a result, also the width) 
+ 	as a percentage of the image width.
+	The cycloid height and width are limited by the height or width of the tile,
+	depending on which is the greatest.<BR>
+	<BR>
+	<img SRC="images/cycloid_dialog.jpg" ALT="[cycloid arc dialog]" ALIGN="MIDDLE" WIDTH="457" HEIGHT="279">
+	</P>
+	
+	<B>Measurements</B>
+	<ol title="Measurements" type="i">
+	<li>Distance between Points X = tile width  (in physical units)</li>
+	<li>Distance between Points Y = tile height (in physical units)</li>
+	<li>Length of Cycloid per Point = 2.0 * cycloidHeight (in physical units) for Sequence C</li>
+	<li>Length of Cycloid per Point = cycloidHeight (in physical units) for Sequence A</li>
+	<li>Area per point = tile height * tile width (in physical units^2)<BR>
+	The plugin take into account the |_-points for A and the crossing dashes for C.</li>
+	</ol>
+	<P>
+	<img SRC="images/cycloid_measure.jpg" ALT="[cycloid arc measurement]" ALIGN="MIDDLE" WIDTH="480" HEIGHT="240">
+	</P>
+	<BR>
+	</TD></TR>
+	<!-- Grid Cycloid Arc section ends here -->
+	
+	
+	<!-- Grid Cycloid Arc BATCH section starts here -->
+	<TR vAlign=top>
+      <TD><B>Batch Processor Description:</B></TD>
+      <TD><blockquote>
+		The Batch Processor allows the user to place screens on all images from a sample, 
+ 		saving copies with the screen on them.
+   		The plugin processes all files in a directory, saving them with a new name (e.g. blobs.gif -> cycloids_blobs.tif). 
+ 		The callibration, as well as the settings for the cycloids are maintained between the images.
+ 		Processed images are not expected to be processed again using this plugin.
+ 		They will only be used for the counting.
+		<BR>
+		<BR>
+		<strong>Basic mode of batch operation</strong>:
+		<ol type="1">
+		<li>Run the &quot;Grid Cycloid Arc Batch Processor&quot; plugin.</li>
+		<li>Follow any direcitons on the calibration image sample splash screen.</li>
+		<li>Calibration data is entered in the &quot;Set Scale&quot; dialog
+ 		either by prior measuring of callibration images, 
+ 		or entering the pixel size info directly.
+ 		Global has already been checked (please keep it checked for this batch).</li>
+		<li>Select an input folder (single directory only)
+		Note, the scroll wheel on the mouse is enabled to allow convenient searching for input/output folders.
+		</li>
+		<li> Select a destination folder.
+ 		Note, only directories and folders are displayed (and NOT files).</li>
+		<li>Fill in the Cycloid Batch Processor dialog and press OK.</li>
+		<li>The &quot;matching&quot; files are automatically selected.
+ 		You may select or un-select files at this time.</li>
+		<li>Enter your Grid Cycloid Arc parameters to be applied to the entire
+ 		batch and press OK.</li>
+		<li>Examine your destination folder output image and measurement results.</li>
+		</ol>
+	</blockquote> 
+
+	<strong>About the batch processor</strong>:
+	<ul>
+	<li>All files in the folder will use the same parameters for the grid.</li>
+	<li>Images subdirectories are not processed.</li>
+ 	<li>The cycloid results table should be closed prior to running the batch plugin.</li>
+	<li>Images and their correspoding measurements are saved &quot;as you go&quot; to prevent losing any work (due to a system failure).</li>
+	<li>Image/J does not always seem to reclaim its memory after the run method has returned.
+ 	Also, there maybe possible memory leaks as you go.</li>
+	</ul>
+	
+	<B>User Parameters</B>
+ 	<ul>
+	<li>
+	Input filename to match using Regular Expessions syntax (case sensitive).<BR>
+	As an option to processing an entire folder, the user can choose only some files from a folder
+ 	using standard regular expressions logic (case sensitive).  Matching files are shown as selected.
+ 	This enables processing images from just one sample, 
+ 	even if images from all samples are found in the same folder</li>
+	<li>Ouput base filename forms the &quot;base&quot; name of the output image files (ex. cycloids_blobs.tif).
+	The cycloid arc's measurements results table inserts the corresponding base image filename into each row.
+	Each asssociated processed image corresponds to a row in the measurements table.</li>
+	<li>The output file format {TIFF | JPEG}.
+	The user can set the JPEG image quality factor (one time) via the Edit | Options | JPEG Quality Image/J menu.</li>
+	<li>Output batch experiment name forms the name of the Cycloid Arc Results Table&nbsp;
+	(ex. Cycloid_Arc_Results_Table_batch1.txt).</li>
+	</ul>
+	<img SRC="images/cycloid_batch_dialog.jpg" ALT="[cycloid arc batch dialog]" ALIGN="MIDDLE" WIDTH="600" HEIGHT="207">
+	<BR><BR>
+	</TD>
+	</TR>
+	<!-- Grid Cycloid Arc BATCH section ends here -->
+	
+	<TR vAlign=top>
+      <TD><B>References:</B></TD>
+	  <TD><table  width="95%" border="1" cellspacing="0" cellpadding="4">
+	<tr>
+		<td>Journal of Microscopy</td>
+		<td >Journal of Microscopy, Vol. 142, Pt 3, June 1986, pp. 259-276.&nbsp;
+ 		&quot;Estimation of surface area from vertical sections&quot;, Baddeley, et al.</td>
+	</tr>
+	<tr>
+		<td>APMIS</td>
+		<td >APMIS 96: 379-394, 1988&nbsp;
+ 		Some new, simple and efficient stereological methods and&nbsp;
+		their use in pathological research and diagnosis&quot;&nbsp;
+		H. J. G. GUNDERSEN, T. F. BENDTSEN, L. KORBO N. MARCUSSEN,&nbsp;
+		A. M&Oslash;LLER, K. NIELSEN, J. R. NYENGAARD, B. PAKKENBERG,&nbsp;
+		F. B. S&Oslash;RENSEN, A. VESTERBY and M. J. WEST
+		</td>
+	</tr>
+	<tr>
+		<td>Single Object Stereology (Part 2) By Mike Puddephat</td>
+		<td ><A HREF="http://www.easymeasure.co.uk/sos2.aspx">http://www.easymeasure.co.uk/sos2.aspx</A></td>
+	</tr>
+	<tr>
+		<td>Chapter 7 - Global measurements and stereology</td>
+		<td ><A HREF="http://reindeergraphics.com/tutorial/chap7/global01.html">http://reindeergraphics.com/tutorial/chap7/global01.html</A></td>
+	</tr>
+	<tr>
+		<td>Chapter 7 Section A - Automatic counting with grids</td>
+		<td ><A HREF="http://reindeergraphics.com/tutorial/chap7/global02.html">http://reindeergraphics.com/tutorial/chap7/global02.html</A></td>
+	</tr>
+  	<tr>
+		<td>Googled &quot;cycloid arc&quot;</td>
+		<td ><A HREF="http://www-gap.dcs.st-and.ac.uk/~history/Curves/Cycloid.html">http://www-gap.dcs.st-and.ac.uk/~history/Curves/Cycloid.html</A></td>
+	</tr>
+ 	<tr>
+		<td>The Cycloid</td>
+		<td ><A HREF="http://www.math.unifi.it/archimede/archimede_inglese/curve/visita/cicloide.htm">
+		http://www.math.unifi.it/archimede/archimede_inglese/curve/visita/cicloide.htm</A></td>
+	</tr>
+	</table>
+	</td>
+	</tr>
+	
+	<TR vAlign=top>
+      <TD><B>Legal Notice:</B></TD>
+      <TD>
+	  Grid Cycloid Arc plugins authored by Eric Kischell (keesh)&nbsp;&nbsp;
+	  <A href="MAILTO:keesh@ieee.org?subject='Grid Cycloid Arc plugins Copyright'">keesh@ieee.org</A> and
+	  <BR> 
+	  Tom Einar Andersen &nbsp;&nbsp;
+	  <A href="MAILTO:andersen@microscopica.com?subject='Grid Cycloid Arc plugins Copyright'">andersen@microscopica.com</A>.
+	  <BR>
+	  The Grid Cycloid Arc plugins are released under a <em>variation</em> of a software distribution license<BR>
+	  called <A href="docs/careware2.txt">&quot;careware&quot;</A>.<BR>
+	  Original &quot;careware&quot; model pioneered by <A HREF="http://www.alstevens.com/midifitz/index.html">Al Stevens</A>.<BR>    	
+	  If you publish results that are based on Grid Cycloid Arc plugins, please acknowledge the authors.
+	 </TD>
+	</TR>  
+		
+	</TABLE>
+	</BLOCKQUOTE>       
+</BODY>
+</HTML>
