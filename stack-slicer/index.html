@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>StackSlicer</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../notes.html">news</a> | <a href="../docs/index.html">docs</a>
+ | <a href="../download.html">download</a> | <a href="index.html">plugins</a> | <a href="../developer/index.html">macros/dev</a>
+ | <a href="../list.html">list</a> | <a href="../links.html">links</a></p>
+
+<h1>StackSlicer</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5, width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Dimiter Prodanov (dimiterpp at gmail.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2009/03/24:</u> First version<br>
+<u>2009/03/31:</u> Improved pane visualization; added window rearrangement behavior; bug fixes<br>
+<u>2009/04/29:</u> Added support for arrow keys; fixed a bug in the cross position calculation;
+added FocusListener behavior;
+added support for magnification factors<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="StackSlicer_.java">StackSlicer_.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="StackSlicer_.class">StackSlicer_.class</a> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+<b>Contents</b><br>
+The plugin handles all types of implemented ImageProcessors and
+requires a Point ROI in the active image widow. To improve
+interpretation, the plugin draws non-destructively a cross centered on
+the point selection.
+The output images are calibrated, which allows measurements to be
+performed more easily. Optionally the YZ image can be rotated at 90
+deg.
+<p>
+
+<b>Input</b><br>
+Aspect ratios (ax:ay:az) of the voxels sizes;
+Default values ax=1.0; ay=pixelHeight/pixelWidth; az=pixelDepth/pixelWidth
+Ratio of 1:1:1 assumes cubic voxel geometry.
+<p>
+
+<b>Commands</b><br>
+q - quits the plugin<br>
+? - displays help<br>
+&larr; &rarr; &uarr; &darr; - move selection<br>
+<p>
+
+<b>Output:</b><br>
+-	XZ projection image<br>
+-	YZ projection image<br>
+<p>
+<img src="screen.jpg" width=456 height=521 alt="Screenshot">
+</td></tr>
+
+</table>
+
+</blockquote>
+
+</body>
+</html>
