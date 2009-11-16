@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>Leica TIFF Sequence</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Leica TIFF Sequence</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Tony Collins (tcollins at macbiophotonics.ca)<br>
+ McMaster Biophotonics Facility<br>
+ Hamilton, Ontario, Canada<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<b>2006/02/16:</b>First version<br>
+<b>2006/03/02:</b>Fixed error arising from series with similar names 
+containing spaces; errors arising from images with Gray LUT.<br>
+<b>2006/03/20:</b>Filenames listed in multiple columns (max number of rows 
+per column can be set by running the plugin with the alt-key down.).<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.35m or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Leica_TIFF_sequence.java">Leica_TIFF_sequence.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Save to plugins folder; compile and run plugin. 
+This plugin is also included with the 
+<A HREF="http://www.macbiophotonics.ca/imagej">MBF ImageJ distribution</A>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+ First release. Based on trial and error dissection of TXT file. 
+ A typical series may throw errors. Please contact me with any errors/fixes.
+ </td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin opens multi-TIFF series acquired with Leica SP2 confocal.Ê
+<p>
+Run the plugin; select the TXT file associated with the TIFF series and select the series to be opened. This information is then passed to the native "Import Sequence" function.
+<p>
+Optional ability to split the channels.
+<p>
+The plugin should apply the spatial calibration found in the TXT file.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
