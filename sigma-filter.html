@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Sigma Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Sigma Filter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+ Michael Schmid (schmid at iap.tuwien.ac.at)<br>
+ Tony Collins (tcollins at macbiophotonics.ca)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/10/25: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.38n or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Sigma_Filter_Plus.java">Sigma_Filter_Plus.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Sigma_Filter_Plus.class">Sigma_Filter_Plus.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin-Filter provides a selective mean (averaging) filter.
+In contrast to the standard mean filter, it preserves edges better
+and is less sensitive to outliers.
+Based on Lee's sigma filter algorithm "Digital image noise smoothing and the sigma filter" in
+Computer Vision, Graphics and Image Processing, vol. 24, 255-269 (1983).
+
+<img src="images/sigma-filter.png" width=588 height=225 alt="example">
+
+The filter smooths an image by taking an average over the
+neighboring pixels, but only includes those pixels that have a
+value not deviating from the current pixel by more than a given
+range. The range is defined by the standard deviation of the pixel
+values within the neighborhood ("Use Pixels Within ... Sigmas").
+If the number of pixels in this range is too low (less than "Minimum
+Pixel Fraction"), averaging over all neighboring pixels is performed.
+With the "Outlier Aware" option, averaging over all neighboring
+pixels excludes the center pixel. Thus, outliers having a value
+very different from the surrounding are not included in the average
+and, thus, completely eliminated.
+
+<p><center><img src="images/sigma-filter-dialog.gif" width=324 height=214 alt="dialog"></center>
+
+For preserving the edges, values of "Use Pixels Within" between
+1 and 2 sigmas are recommended. With high values, the filter will behave
+more like a traditional averaging filter, i.e., edges are smoothed.
+Typical values of the minimum pixel fraction are around 0.2, with higher
+values resulting in more noise supression, but smoother edges.
+<p>
+If preserving the edges is not desired, "Use Pixels Within" 2-3 sigmas
+and a minimum pixel fraction around 0.8-0.9, together with the "Outlier
+Aware" option will smoothen the image, similar to a traditional filter,
+but without being influenced by outliers strongly deviating from the
+surrounding pixels (hot pixels, dead pixels etc.).
+
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
