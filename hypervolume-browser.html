@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>HyperVolume Browser</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>HyperVolume Browser</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Patrick Pirrotte & Jerome Mutterer (jerome.mutterer at ibmp-ulp.u-strasbg.fr)<br>
+Jeff Brandenburg, Duke Center for In-Vivo Microscopy (jeffb at orion.duhs.duke.edu)
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/03/28: First version<br>
+2005/08/15: Added "Make new copy for browsing" option; works with 
+<A HREF="virtual-opener.html">Virtual Stack Opener</A> plugin;
+uses Image>Properties settings; fixed macro argument processing<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.34 or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/HyperVolume_Browser.java">HyperVolume_Browser.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/HyperVolume_Browser.java">HyperVolume_Browser.java</A>
+to the plugins folder or subfolder and compile and run 
+using <i>Plugins/Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin  displays 4D datasets (or hypervolumes) in a modified image window using one slider for the 3rd 
+dimension and another one for the 4th dimension.
+If it's called when the active windows is a stack (supposed to 
+represent a hypervolume), it will ask the user the 3rd dimension's depth, 
+and labels for the 3rd and 4th dimension, and then create the new hypervolume 
+window. Labels are only used to display the 3rd and 4th D in the image's 
+textual info bar, next to the absolute slice number of the stack. 
+Also it can be called by some other routine, by just passing over these parameters.
+<p>
+Screenshots and additional useful informations available from:
+
+<blockquote>
+<a href="http://www-ibmp.u-strasbg.fr/sg/microscopie/methods/hvb/hvb.htm">
+http://www-ibmp.u-strasbg.fr/sg/microscopie/methods/hvb/hvb.htm</a>
+<blockquote>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
