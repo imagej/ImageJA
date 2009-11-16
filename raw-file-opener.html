@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Raw File Opener</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Raw File Opener</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (<a href="mailto:wayne@codon.nih.gov">wayne@codon.nih.gov</a>) 
+
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >2001/1/9</td></tr>
+
+<tr valign=top><td ><b>Requirements:</b></td><td >Requires ImageJ 1.21e or later and Java 2 (e.g. JDK 1.2 or JDK 1.3).</td></tr>
+
+<tr valign=top><td ><b>Restrictions:</b></td><td >JFileChooser does not support network volumns or mouse wheels. Multi-file selections may not work with versions of Java before JDK 1.3.</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Raw_File_Opener.java">Raw_File_Opener.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Raw_File_Opener.class">Raw_File_Opener.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin is an alternative version of <i>File/Import/Raw</i> that uses Swing's JFileChooser to provide the ability to import multiple raw images. In the file open dialog, shift-click to select multiple contiguous files and control-click to select more than one individual file. The "Open All Files in Folder" check box in the import dialog is ignored.
+<p>
+This plugin requires that you upgrade to Java 2, version 1.3, available from
+<blockquote>
+<A HREF="http://java.sun.com/j2se/1.3/">http://java.sun.com/j2se/1.3/</A>
+</blockquote>
+and run ImageJ using a command something like
+<blockquote>
+java -mx48m -jar ij.jar
+</blockquote>
+Increase the -mx option value to make more than 48MB of RAM available to ImageJ. On Windows,
+create a shortcut to a batch file containing this command and setup the shortcut to run <i>Minimized</i> and to <i>Close on Exit</i>.
+
+
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
