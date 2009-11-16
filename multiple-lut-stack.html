@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>Multiple LUT Stack</title> 
+</head>
+<body bgcolor = "#ffffff"> 
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Multiple LUT Stack</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2009/03/16: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Multiple_LUT_Stack.java">Multiple_LUT_Stack.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/Multiple_LUT_Stack.java">Multiple_LUT_Stack.java</a> 
+to the plugins folder, or subfolder, then compile and run it using <i>Plugins&gt;Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin demonstrates how to display a stack using multiple lookup tables (LUTs). An n-image stack 
+normally has only one LUT but convert it to an n-channel composite image and
+each image in the stack will have its own LUT.
+<p>
+This is what this plugin looks like when it is converted into a macro:
+<pre>     
+   w=500; h=500; images=10;
+   newImage("Multiple LUT Stack", "32-bit ramp", w, h, images);
+   Stack.setDimensions(images, 1, 1);
+   run("Make Composite", "display=Grayscale");
+   for (i=1; i<=images; i++) {
+      setSlice(i);
+      run("Multiply...", "value=100");
+      run("Add...", "value="+100*i);
+      //run("Macro...", "code=v=x*(z+1)+z*100 slice");
+      resetMinAndMax();
+   }
+   for (i=1; i<=images; i++) {
+      setSlice(i);
+      getMinAndMax(min, max);
+      print(i+": "+min+"-"+max);
+   }
+</pre>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
