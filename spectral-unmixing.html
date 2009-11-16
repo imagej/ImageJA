@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>Spectral Unmixing Plugins</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Spectral Unmixing Plugins</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Walter (walter at biz.uni-muenchen.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/11/03: First version<br>
+2006/04/19 (v1.3): Measure Mixing Matrix works with SyncWindows v1.5<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.37b or later</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Spectral_Unmixing.jar">Spectral_Unmixing.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Have the plugin
+<a HREF="http://rsb.info.nih.gov/ij/plugins/sync-windows.html">Sync_Windows_1.3</a>
+or higher installed. Put 
+<a HREF="download/jars/Spectral_Unmixing.jar">Spectral_Unmixing.jar</a>
+and 
+<a HREF="download/jars/Jama-1.0.1.jar">Jama-1.0.1.jar</a>
+into the ImageJ plugins-folder or a subfolder and restart ImageJ. 
+A submenu "SpectralUnmixing" of the Plugins menu appears, which contains the 
+entries "Display Mixing Matrix", "Measure Mixing Matrix" and "Unmix".
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Spectral unmixing is an algorithm, which is applied to fluorescence images to 
+correct for spectral bleedthrough between different color channels. 
+E.g. the emission spectra of the fluorochromes CFP and YFP partially overlap, 
+and CFP signals also appear in the YFP fluorescence channel. This overlap can 
+be corrected by spectral unmixing.
+ <p>
+Additional documentation in PDF format is 
+<a HREF="docs/SpectralUnmixing.pdf">available</a>.
+<p>
+The public domain
+<a HREF="http://math.nist.gov/javanumerics/jama/">JAMA library</a>,
+a basic linear algebra package for Java,
+is used for matrix inversion.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="sync-windows.html">Sync Windows and Sync Measure 3D</a><br>
+<a href="image5d.html">Image5D</a><br>
+<a href="spectral-unmixing-plugin.html">Spectral Unmixing Plugin</a> by  Seth Gammon<br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
