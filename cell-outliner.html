@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>Cell Outliner</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Cell Outliner</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Mike Castleman (m at mlcastle.net)<br> 
+Based on the original SegmentingAssistant plugin<br>
+by Mike Miller (miller5 at mailaps.org)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/10/08: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.31i or later</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >
+Won't work on single images - a work around is to simply add an empty
+frame into the image. </td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Cell_Outliner.java">Cell_Outliner.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Cell_Outliner.java">Cell_Outliner.java</A>
+to the plugins folder, or subfolder, and compile and run 
+using <i>Plugins/Compile and Run</i>. Restarting ImageJ will add a "Cell Outliner"
+command to the Plugins menu or a submenu of the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+Applies the magic wand to a picture with a specified threshold and at a
+specified point on a stack. Will process an entire stack with specified
+starting frame and ending frame, using the magic wand outline to clear
+inside, than clear outside and then draw a line with graylevel=255. The
+"Preprocess Image" will apply a median filter with radius 1 and apply
+any cuts defined by "Beginning Slice" and "Ending Slice." The plugin
+provides a nifty set of navigation buttons for scanning through the
+stack. It also provides a very nice little feature that has the program
+to compare the size of the current outline with the previous outline and
+to jog the "Vertical Centroid" value in order to find the full outline
+again. This is helpful when dealing with noisy data where the magic wans
+will occasionally find the outline around a patch of above threshold
+noise instead of finding the desired object. 
+ </td></tr>
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+Sometimes draws the graylevel at a number less than 255, probably has to
+do with scale on conversion.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
