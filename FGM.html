@@ -1,0 +1,113 @@
+<html>
+<head>
+<title>Fractal Growth Models</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Fractal Growth Models</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Audrey Karperien (akarpe at sbcglobal.net)<br>
+Charles Sturt University, Australia
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/11/15: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+Java 1.3 or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Fractal_Growth_Models.java">Fractal_Growth_Models.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Fractal_Growth_Models.java">Fractal_Growth_Models.java</A>
+to the plugins folder, or subfolder, and compile and run
+it using <i>Plugins/Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<p>This plugin draws iterated growth models in ImageJ.   
+  These are saveable screen drawings made of points calculated using the
+  basic expressions: <BR>
+  <B>x<sub>n+1</sub> = mx<sub>n</sub><sup>Xxpow</sup>
+  + ny<sub>n</sub><sup>Xypow</sup> + o</B> <BR>and<BR>
+  <B>y<sub>n+1</sub> = fx<sub>n</sub><sup>Yxpow</sup> +
+  gy<sub>n</sub><sup>Yypow</sup> + h</B>.
+  <p>
+  For each model, 
+  each equation's coefficients (m,n,o;f,g,h; Xxpow, Xypow, Yxpow, Yypow) are
+  specified in sets that the user can modify.
+  Each of these sets also contains a probability of using the
+  set.  This is for cases when more than one set of coefficients
+  is used to calculate each point, chosen according to a likelihood
+  that the user sets.  </p>
+ <p>Each particle calculated and drawn is coloured on a black background, and all 
+  are the same size.  Colours are generated randomly, without user input.
+  The user can change the size of the particles
+  in the models, however, using an option in the first popup.
+
+</p 
+
+<h3>Models</h3>
+  <p>There are five default models. The user
+  can change the coefficients to vary the basic pattern, or 
+  change the number of sets to create a new model.
+  <ul><li> The
+  "Henon" model is specified by one set of coefficients (i.e., 
+   the likelihood of using that set is 1).  </li>
+  <li>The Henon Map model is also specified by one set of 
+  coefficients.  It has a (capacity) fractal dimension that is
+  assumed to be around 1.261 (correlation dimension around 1.25).</li>
+  <li>The "Random" model is similar to the Henon models, but uses
+  two sets of coefficients and probabilities.
+  </li><li>The "D. Greene Fern" model uses four sets
+  of coefficients.  It is from an algorithm by
+  David Greene (Charles Sturt University),
+  </li><li> The custom model is
+  essentially the same as the fern, with a few changes in coefficients and probabilities.
+  </li></ul>
+<h3>Using the plugin</h3>
+  <ol><li>To generate a default model, the user selects a model from
+  the dropdown menu on the first popup.  The number
+  of sets for the selected model is automatically determined,
+  and this number will appear in the next popup.  
+  <li>If the user
+  wants to modify a model, the number in this second popup can be changed.
+  <li>  After
+  a number of sets is selected, one popup appears for each set.
+  The popups show each coefficient's
+  name listed beside a textbox for its
+  value.  The values can be left at the defaults,
+  or changed as desired.
+  <li>At the bottom of each of these popups, there is a space for
+  the probability that the coefficients above it
+  will be used in generating each next point.  The total of
+  all probabilities should not be greater than 1; all sets for values
+  that make the cumulative total greater than 1 are ignored.
+  </ol>
+</p>
+<h3>Examples</h3>
+<img src="images/FGM1.gif" width=300 height=300 alt="[FGM1]">
+<img src="images/FGM2.gif" width=300 height=300 alt="[FGM2]"><br>
+<img src="images/FGM3.gif" width=300 height=300 alt="[FGM3]">
+<img src="images/FGM4.gif" width=300 height=300 alt="[FGM4]">
+</td></tr>
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
