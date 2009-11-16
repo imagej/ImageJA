@@ -1,0 +1,59 @@
+<html><head><title>Mixture Modeling</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Mixture Modeling</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Authors:</b></td><td>
+Christopher Mei (christopher.mei at sophia.inria.fr),
+Maxime Dauphin</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2003/12/15 : First version<br>
+</td></tr>
+
+<tr valign="top"><td><b>Requires:</b></td><td>ImageJ 1.31p or later, which adds the ability to 
+package plugins in JAR files</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Mixture_Modeling.jar">Mixture_Modeling.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Mixture_Modeling.jar">Mixture_Modeling.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>Plugins/Filters/Mixture Modeling...</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This algorithm separates the histogram of an image into two classes using a Gaussian model. It then calculates
+the image threshold as the intersection of these two Gaussians. This thresholding technique
+has the advantage of finding a threshold that is in certain cases closer to <i>real world data</i>.
+The Gaussian parameters can also be used to caracterise the two regions obtained.<br>
+The plugin returns a histogram with the two Gaussians, the parameters obtained (average, standard 
+deviation, threshold) and the thresholded image.
+</td></tr>
+</tbody></table>
+
+<hr>
+<p>
+<center>
+<img SRC="images/DEM.gif">
+<img SRC="images/DEM_Histogram.gif">
+<img SRC="images/DEM_Thresholded.gif"><br>
+</center>
+<blockquote>
+<p>
+The image on the left represents trees viewed on a Digital Elevation Model. This data can be quite well modeled by two Gaussians and the obtained threshold is satisfactory.
+</blockquote>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
