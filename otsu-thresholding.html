@@ -1,0 +1,68 @@
+<html><head><title>Otsu Thresholding</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Otsu Thresholding</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Authors:</b></td><td>
+Christopher Mei (christopher.mei at sophia.inria.fr)<br>
+Anthony Joshua (Anthony.Joshua at utoronto.ca)<br>
+Tony Collins (tonyc at uhnresearch.ca)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2003/12/15 : First version<br>
+2005/06/15: Added 16-bit version<br>
+</td></tr>
+
+<tr valign="top"><td><b>Requires:</b></td><td>ImageJ 1.31p or later, which adds the ability to 
+package plugins in JAR files</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Otsu_Thresholding.jar">Otsu_Thresholding.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Otsu_Thresholding.jar">Otsu_Thresholding.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>Plugins/Filters/Otsu Thresholding...</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This algorithm is an implementation of the Otsu thresholding technique [otsu79].
+The histogram is divided in two classes and the inter-class variance is minimized.
+This plugin outputs a thresholded image with the selected threshold.
+<pre>  
+@Article{otsu79,
+  author =       "N. Otsu",
+  title =        "A threshold selection method from gray level
+                 histograms",
+  journal =      "{IEEE} Trans. Systems, Man and Cybernetics",
+  year =         "1979",
+  volume =       "9",
+  pages =        "62--66",
+  month =        mar,
+  keywords =     "threshold selection",
+  note =         "minimize inter class variance",
+}
+ </pre>
+ A 16-bit version of this plugin 
+ (<a href="http://rsb.info.nih.gov/ij/plugins/download/OtsuThresholding_16Bit.java">OtsuThresholding_16Bit.java</a>),
+ contributed by Anthony Joshua and Tony Collins, is also available. They also contributed a macro
+ (<a href="http://rsb.info.nih.gov/ij/macros/FullTelomerecounter.txt">FullTelomerecounter</a>)
+ that uses the 16-bit version.
+</td></tr>
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
