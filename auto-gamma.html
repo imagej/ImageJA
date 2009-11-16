@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Auto Gamma</title>
+</head>
+<body bgcolor =" #ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Auto Gamma</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Remi Cathelin - SIGENAE Team - INRA (cathelin at toulouse.inra.fr) <br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/01/25: First version<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+0 bug(s) listed.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Auto_Gamma.java">Auto_Gamma.java</A> 
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Auto_Gamma.class">Auto_Gamma.class</A>  
+to the plugins folder and restart ImageJ. Use the <I>Auto Gamma</I> command in the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+Auto_Gamma plugin allows to apply a gamma correction to an image.<br>
+Gamma Formula used is:<br>
+<b>y = range* (x/range)^gamma</b><br>
+range = the image pixels range (example: 65535 for 16-bit images)<br>
+x is the pixel value of the image before gamma transformation.<br>
+y is the pixel value of the image after gamma transformation (the image result).<br>
+<br>
+This plugin allows to determine the gamma value according to x and y values.<br>
+ <br>
+Formula used is<br>
+<b>gamma = log(y/range)/ log(x/range)</b><br>
+By default:<br>
+x is the mean value of pixels of the image<br>
+y is the half value of the range (32767 for 16-bit image)<br>
+<br>
+note: unchecks boxes if you want to use your own values<br>
+<br>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
