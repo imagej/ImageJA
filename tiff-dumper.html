@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>TIFF Dumper</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>TIFF Dumper</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Curtis Rueden (ctrueden at wisc.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2009/09/10: First version<br>
+2009/09/16: Better handling of  IFDs with list entries<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats plugin</a>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/TIFF_Dumper.java">TIFF_Dumper.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/TIFF_Dumper.class">TIFF_Dumper.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Uses the Bio-Formats plugin to parse and output all TIFF tags for the current image.
+Note that you have to temporarily remove the "_" from the name of the Bio-Formats plugin ("loci_tools.jar") in
+order to compile this plugin using <i>Plugins&gt;Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<ul>
+<li> The <a href="http://rsbweb.nih.gov/ij/plugins/tiff-tags.html">TIFF Tags</a> plugin
+displays the tags of a specified TIFF file.
+<li> The "Debug mode" option in <i>Edit&gt;Options&gt;Misc</i>, when enabled, causes ImageJ to
+display tags when opening TIFF images.
+<li> The <i>Image&gt;Show Info</i> command and the getMetadata() macro function(), 
+in v1.43g or later, retrieve ASCII tags, such as "DateTime" and "Software".
+<li> <i>Image&gt;Show Info</i> and getMetadata() retrieve the tags of TIFF images opened using the
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats</a> plugin.
+</ul>
+
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
