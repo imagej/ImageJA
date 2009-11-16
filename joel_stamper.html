@@ -1,0 +1,85 @@
+<!-- saved from url=(0022)http://internet.e-mail -->
+<!-- saved from url=(0022)http://internet.e-mail -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Joel Time Stamper</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="MSHTML 5.50.4134.600" name=GENERATOR></HEAD>
+<BODY bgColor=#ffffff><FONT face="Helvetica, Arial" color=#224488 
+size=+1><B>Joel Time Stamper</B> </FONT>
+
+<BLOCKQUOTE>
+  <TABLE cellSpacing=5>
+    <TR vAlign=top>
+      <TD><B>Author:</B></TD>
+      <TD>Eric Kischell (keesh)&nbsp;&nbsp; <A href="MAILTO:keesh@ieee.org?subject='Joel Time Stamper plugin'">keesh@ieee.org</A>
+	  <BR> 
+	  It bastardizes  <A href="http://rsb.info.nih.gov/ij/plugins/list-opener.html"> List Opener</A>,
+ 	 <A href="http://rsb.info.nih.gov/ij/plugins/stamper.html"> Time Stamper</A>, and
+ 	 <A href="http://rsb.info.nih.gov/ij/plugins/batch-converter.html"> Batch Converter</A> plugins by <BR>
+ 	 Wayne Rasband <A href="MAILTO:wayne@codon.nih.gov?subject='sundry ImageJ plugins'">wayne@codon.nih.gov</A>       
+	  </TD></TR>
+	<TR vAlign=top>
+      <TD><B>History:</B></TD>
+      <TD>
+		<P>03/03/2003: First version Requested by Joel B. Sheffield, Ph.D&nbsp;
+		 <A href="MAILTO:jbs@temple.edu?subject='Joel Time Stamper plugin'">jbs@temple.edu</A><BR>
+		  03/12/2003: Additional tweaking, error handling, and command line interface<br>
+          03/22/2003: Additional error handling and cleanup
+		</P>
+		</TD></TR>
+    <TR vAlign=top>
+      <TD><B>Requires:</B></TD>
+      <TD>ImageJ 1.29v or later.</TD></TR>
+    <TR vAlign=top>
+      <TD><B>Source:</B></TD>
+	  <TD><A href="download/Joel_Time_Stamper.java">Joel_Time_Stamper.java</A> 
+      </TD></TR>
+    <TR vAlign=top>
+	
+	  <p><a NAME="INSTALLATION"></a> </p>
+      <TD><B>Installation:</B></TD>
+      <TD>Download 
+	  <A href="download/Joel_Time_Stamper.class">Joel_Time_Stamper.class</A>&nbsp;  
+	    to the plugins folder and restart ImageJ.<br>
+ 		  For more advanced comamnd-line directions see the sample <A href="http://rsb.info.nih.gov/ij/plugins/command-line.html"> Command Line Example.</A><br>
+	</TD></TR>
+    <TR vAlign=top>
+      <TD><B>Description:</B></TD>
+      <TD>This plug-in is a custom jobber for Joel.
+		<ol type="1">
+  		<li>The user generates a simple file list in some desired order (ex. creation order).</li>
+  		<li>The plugin sequentially opens each image file, </li>
+  		<li><strong>destructively</strong> inserts a time annotation into each image (a number of increasing value), </li>
+  		<li>and then saves the file with its original name in a new directory.</li>
+		</ol>
+	<blockquote>
+	<font size="-3">Plan B. i.e. (1) use the antiquated DOS system
+ 	to generate a file list in creation order.  (2) Then, since the file
+ 	comes up with all sorts of info, edit the file in Excell to strip
+ 	out the irrelevant material and leave a simple list of file names.
+	(3) in ImageJ, sequentially open each file, then
+ 	insert a number of increasing value, and then to save the result in
+ 	a new directory.</font>
+	</blockquote> 
+	<P>
+	This plugin opens images from a text file list.<BR> 
+ 	The list can contain full paths or just file names.<BR>
+	The default input directory is the one containing the text file list.<BR>    
+ 	The times are drawn in the current foreground color.<BR>
+ 	X and Y are the image locations where the user wants the time stamp to appear.<BR>
+ 	Supports Tiff, Jpeg, Gif, bmp, DICOM, FITS, raw format images.<BR>
+ 	The default output format is TIF.<BR>
+ 	The destination folder, directory, must exist.<BR>
+	</P>
+	<P>
+	It can also be called from the command line using the command:<BR>
+    <em>java -cp ij.jar;. &nbsp; Joel_Time_Stamper &nbsp; my_filelist &nbsp; output_dir<BR>
+           start_time &nbsp; interval_time &nbsp; x_loc  &nbsp; y_loc &nbsp; font_size &nbsp; decinal_places &nbsp; suffix</em>
+		   <BR>   
+     	Replace &quot;java&quot; with &quot;C:\ImageJ\jrein\java&quot;<BR>
+     	to use the Java distributed with ImageJ.<BR>
+     	On Unix, replace the &quot; ; &quot; with &quot; : &quot;.<BR>
+    </P>
+	</TD></TR></TABLE>
+	</BLOCKQUOTE>       
+</BODY></HTML>
