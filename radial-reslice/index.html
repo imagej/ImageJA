@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Radial Reslice</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Radial Reslice </b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td>
+<td > <p>Julian Cooper (Julian.Cooper[at]uhb.nhs.uk) </p>
+  </td>
+</tr>
+
+<tr valign=top><td ><b>History:</b></td>
+<td >2009/02/22: First version</td>
+</tr>
+
+<tr valign=top><td ><b>Source:</b></td>
+<td >
+<A HREF="download/Radial_Reslice.java">Radial_Reslice.java</A>
+</td>
+</tr>
+
+<tr valign=top><td ><b>Installation:</b></td>
+<td > Download <a href="download/Radial_Reslice.class">Radial_Reslice.class</a> 
+to the plugins folder and restart ImageJ or click <i>Help&gt;Update Menus</i>.
+</td>
+</tr>
+
+<tr valign=top><td ><b>Description:</b></td>
+<td >
+  <p>This plugin, which is based on code from the ImageJ menu command <i>Stacks&gt;Reslice</i>,
+  creates orthogonal reconstructions of an image stack by rotating a line
+  ROI around one end or its centre. This is particularly effective for images with rotational symmetry, for example CT image stacks of the hip joint.</p>
+  <p><img src="images/Dialog-1.jpg" width="242" height="240"></p>
+  <p> <strong>Angle:</strong> angle through which to rotate the line selection (default and maximum 360&deg;).
+  <p><strong>Degrees per slice:</strong> the angle between each output slice (default 1).
+  <p><strong>Direction:</strong> the direction of rotation (default clockwise).
+  <p><strong>Rotate about centre: </strong>rotate around the centre of the line ROI rather than the first end.
+  <p><strong>Suppress reversed duplicates:</strong>when rotating about the centre suppresses the reversed duplicate slices produced when the rotation is above 180&deg;. Ignored if rotation is not about centre.
+  <p><strong>Example:<br>
+    </strong>Line ROI centred on femoral head in CT of acetabular (hip socket) fracture, rotating about centre.
+  <p>In progress:<br>
+    <img src="images/reslice-progress-1.jpg" width="535" height="224">
+  <p>Output (montaged, 18 of 180 slices shown) showing reconstructions in multiple planes:<br>
+    <img src="images/reslice-Montage.jpg" width="630" height="572"> 
+  <p></td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
+
+</body>
+</html>
+
