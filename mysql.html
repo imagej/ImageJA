@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>MySQL to ImageJ Interface</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>MySQL to ImageJ Interface</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Dimiter Prodanov (D.Prodanov at lumc.nl)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2004/03/10:</u> First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/MySQL_PlugIn.java">MySQL_PlugIn.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/MySQL_PlugIn.java">MySQL_PlugIn.java</A>
+to the plugins folder, or subfolder, and compile and
+run using <i>Plugins/Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is an example how to link ImageJ to a RDBMS engine like MySQL <br>
+  you should change the <strong>database</strong>, <strong>dbHost</strong>, <strong>dbTable</strong>, 
+  <strong>dbUser</strong> and <strong>dbPass</strong> <br>
+  to match your system. It simply connects to a MySQL database specified in the 
+  <br>
+  <strong>database</strong> variable loacated at a ceratin host (dbHost), using 
+  a valid user name (dbUser) and password (dbPass), and then tries to read the 
+  records from the table, specified in the dbTable variable.</p>
+<p>In order to get it going besides the access to the RDBMS you need the Connector/J 
+  packages located at the MySQL.com site and put the jar file in the $JAVA_HOME/jre/lib/ext 
+  folder.</p>
+<p>The dowload section is <a href="http://www.mysql.com/downloads/api-jdbc-stable.html">here</a>.</p>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a
+href="../index.html">Home</a> |</b>
+
+</body>
+</html>
