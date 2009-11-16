@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Hybrid Median Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>2d Hybrid Median Filter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Christopher Philip Mauer (cpmauer at northwestern.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/07/22: First version<br>
+2007/05/03: 7x7 kernel bug fix by Morten Larsen (ml at dina.kvl.dk)<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit and 16-bit images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Hybrid_2D_Median_Filter.java">Hybrid_2D_Median_Filter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/Hybrid_2D_Median_Filter.java">Hybrid_2D_Median_Filter.java</A>
+to the plugins folder and compile it with the "Compile and Run" command. 
+<br>Restart ImageJ to add the "Hybrid 2D Median Filter" command to the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+   This plugin consists of 3 versions of the standard hybrid median filter: a 3x3, 
+   5x5, and 7x7 kernel. In these implementations, the median of 1) the median of the NxN PLUS
+   kernel, 2) the median of the NxN X kernel, and 3) the pixel in question replaces
+   the original pixel value.  Multiple repetitions can automatically be run by specifying a repeat 
+   value greater than 1.  The top and bottom edge pixels are reflected outward, and the side
+   edge pixels are wrapped around to complete the edge bound kernels.  This plugin works both 
+   with stacks and individual slices.
+<br><br>
+See <A HREF="hybrid3dmedian.html">3d Hybrid Median Filter</A> for another version which works on
+stacks of data using a three dimensional kernel.
+<br><br>
+<TT>
+Copyright (C) 2004  CHRISTOPHER PHILIP MAUER
+<br>
+Permission to use, copy, modify, and distribute this software for any purpose 
+without fee is hereby granted, provided that this entire notice is included in 
+all copies of any software which is or includes a copy or modification of this 
+software and in all copies of the supporting documentation for such software.
+Any for profit use of this software is expressly forbidden without first
+obtaining the explicit consent of the author.<br>
+THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED WARRANTY. 
+IN PARTICULAR, THE AUTHOR DOES NOT MAKE ANY REPRESENTATION OR WARRANTY 
+OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS SOFTWARE OR ITS FITNESS FOR ANY 
+PARTICULAR PURPOSE</TT>.
+<br><br>
+
+The plugin operates on a previously opened image or stack of images, and
+produces a new image or stack of filtered images.  The output image or stack is 
+generated upon completion of processing for all of the input data.  Be sure to save
+the output if desired.<br><br>
+
+
+<IMG SRC="images/2dhybmeddemo.gif" ALT="images/2dhybmeddemo.gif"><br>
+<blockquote>
+
+</blockquote>
+<br>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
