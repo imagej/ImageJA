@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>Contour Plotter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Contour Plotter</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Walter O'Dell PhD,  wodell at rochester.edu
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2003/05/06:</u> First version<br>
+<u>2004/12/13:</u> Added a small delay in the refresh function to give the system time to 
+      clear the old graphics before inserting new graphics, giving the error that the first few 
+      levels were drawn before the system finished the initial clearing of the screen and thereby 
+      the system immediately erased them, giving the impression that the levels were never drawn.<br>
+<u>2005/07/07:</u> The user now has the option to set the selected contour as the image ROI.
+      Upon setting the contour as the image ROI one can then use the existing 
+      <i>Analyze/Measure</i> to compute the area inside the contour, among other things.  
+      One can also then use the existing <i>Edit/Clear, Fill, Clear Outside</i> 
+      functions to modify the image based on the contour.  If there are multiple contours at a 
+      level, the ROI is generated from the largest contour at that level.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+The source is in <A HREF="download/jars/Contour_Plotter.jar">Contour_Plotter.jar</A>, which can
+opened using a ZIP utility.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Place the 
+<A HREF="download/jars/Contour_Plotter.jar">Contour_Plotter.jar</A>
+file into your plugins directory, or subfolder, restart ImageJ, 
+and there will be a new "Contour Plotter" command in the Plugins menu or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+    Draws contour lines in the user-defined color and at the user-defined levels.  
+   Works on Stacks and color images also.
+   Because it uses the GenericRecallableDialog class, the user interface GUI remains active.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
