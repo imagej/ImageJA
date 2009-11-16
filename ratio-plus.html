@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Ratio Plus</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Ratio Plus</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Paulo Magalhães (pamaga_A_T_bio_DOT_unipd_DOT_it)<br>
+University of Padua, Italy
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2003/12/04:</u> first version<br>
+<u>2003/12/10:</u> added constant background subtraction; implemented 
+"zero divided by zero equals one" feature (any other value divided by
+zero yields infinity)
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Ratio_Plus.java">Ratio_Plus.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Ratio_Plus.class">Ratio_Plus.class</A> to the plugins folder,
+or subfolder, and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+This plugin calculates the ratio between two images (single frames or stacks),
+as used in Fura-2 experiments, for example. The code -- heavily annotated to help
+beginners like myself explore the world of ImageJ -- is largely based on Image
+Calculator Plus. Paulo Magalhães, 10dec03.
+
+The plugin requires two images of the same width and height,
+and of the same type (8-, 16-, or 32-bit); the images must be:
+    i) two single images;
+   ii) two stacks with the same number of frames; or
+  iii) a stack as a first image and a single frame as a second - in this case,
+       the single frame will be applied throughtout the complete stack.
+
+The resulting image (in 32-bit) is calculated as follows:
+
+    intR = (intA - bkgA) / (int B - bkgB) * MF
+
+where intA, intB and intR are the intensities of the first, second and ratio images,
+respectively; bkgA and bkgB are constant background values (entered by the user)
+for the first and second images, respectively; MF is an arbitrary multiplication factor.
+
+If a pixel value becomes negative after background subtraction, it is set to zero
+before ratio calculation.
+
+In addition, the plugin can accept clipping values for either of the images:
+if the pixel intensity (after background subtraction) is lower than the clipping value
+for that image, it is set to zero before ratio calculation; the clipping values for either
+image are set by the user.
+
+NB: if two corresponding pixels in the first and second images are zero, their ratio
+is set to 1 (one); i.e., "zero by zero" division equals one.
+
+Future plans:
+    background correction using a ROI (in one or both images).
+</pre>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
