@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>Calculate Objective Parameters</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+ | <a href="../../list.html">list</a> | <a href="../../links.html">links</a></p>
+
+<h1>Calculate Objective Parameters</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Sebastian Rhode (Sebastian.Rhode at gmx.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2008/09/10: First version<br>
+2008/10/02: Version 1.1<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Calc_Objective.java">Calc_Objective.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="Calc_Objective.class">Calc_Objective.class</a> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin calculates parameters of interest for an objective lens. Required Input Parameters are:
+<ul>
+<li> Objective NA 
+<li> Magnification
+<li> Focal length of Tube Lens [mm]
+<li> Wavelength [nm]
+<li> Refractive index n1 (immersion medium)
+<li> Refractive Index n2 (medium; 1.33 (water) or 1.36 (cytosol))
+<li> Desired Fill factor of back Aperture (Beam Diameter = 1/e2) [mm]
+<li> CCD Pixel Size [µm]
+</ul>
+
+Output parameters are:
+
+<ul>
+<li> Focal length of objective [mm]
+<li> Angle for Total Internal reflection [degrees]
+<li> Maximum working Angle of objective [degrees]
+<li> Rayleigh criterion [nm]
+<li> Spot diameter (1/e) [nm]  ~ 0.78 * lambda / NA
+<li> Spot diameter (1/e) [pixel]
+<li> Effective Pupil diameter of objective lens [mm]
+<li> Required beam diameter (1/e2) for Fill Factor = 1 [mm]
+<li> Required beam diameter (1/e2) for Fill Factor = Desired Fill factor [mm]
+<li> Pixel Size in Object Plane [nm]
+</ul>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+
+</body>
+</html>
