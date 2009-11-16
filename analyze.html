@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Load/save Analyze</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Load and save Analyze format images</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Guy Williams (gbw1000 at wbic.cam.ac.uk) 
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Cannot save RGB images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Analyze_Reader.java">Analyze_Reader.java</A> and <A HREF="download/Analyze_Writer.java">Analyze_Writer.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download 
+<a href="download/jars/Analyze_Reader_Writer.jar">Analyze_Reader_Writer.jar</a>
+to the plugins folder, or subfolder, restart ImageJ, and there
+will be new <i>File&gt;Import&gt;Analyze...</i> and
+<i>File&gt;Save As&gt;Analyze...</i> commands.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+These plugins load and save images in <A HREF="http://www.mayo.edu/bir/">Analyze</A> 
+format, a common multidimensional biomedical imaging format.
+You can open Analyze images 
+using <i>File/Open</i> or drag and drop
+if the <A HREF="http://rsb.info.nih.gov/ij/plugins/file-handler.html">HandleExtraFileTypes</A>
+plugin is in the ImageJ plugins folder.
+<p>
+The <A HREF="nifti.html">NIfTI Input/Output</A>
+plugins are extended versions of these
+plugins that add support NIfTI-1, an
+extension of the Analyze file format, and also add support for hyperstacks.
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2000/11/14:</u> First version<br>
+<u>2002/04/03:</u> Fixed problem opening signed 16-bit images<br>
+<u>2002/06/13:</u> Fixed problem saving signed 16-bit images; removed redundant "file already exists" dialog<br>
+<u>2002/08/27:</u> Opens images with non-zero offset<br>
+<u>2004/08/16:</u> Images are no longer upside down<br>
+<u>2004/09/24:</u> Fixed stack handling bugs introduced in 2004/08/16 version<br>
+<u>2004/01/25:</u> Analyze_Writer updated to be compatible with ImageJ 1.34<br>
+<u>2004/02/15:</u> Open and save from command line now works<br>
+<u>2004/04/14:</u> Error message displayed in "Log" window<br>
+<u>2005/08/11:</u> Analyze_Writer displays an error if image is RGB<br>
+<u>2006/04/07:</u> Fixed bug reading files with upper case extensions<br>
+<u>2007/06/28:</u> Packaged as JAR file<br>
+<u>2008/10/29:</u> Analyze_Reader works with <i>Import&gt;Image Sequence</i> and IJ.openImage()<br>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+The <A HREF="nifti.html">NIfTI Input/Output</A> plugins
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
