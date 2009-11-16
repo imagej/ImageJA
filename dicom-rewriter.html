@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>DICOM Rewriter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>DICOM Rewriter</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Walter O'Dell PhD (wodell at rochester.edu)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/09/23: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Dicom_Rewriter.java">Dicom_Rewriter.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Dicom_Rewriter.java">Dicom_Rewriter.java</A>
+to the plugins folder, or subfolder, and compile and run 
+using <i>Plugins/Compile and Run</i>. Restarting ImageJ will add a "Dicom Anonymizer"
+command to the Plugins menu or a submenu of the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+    This plugin acts to change the DICOM header information to remove identifying
+    info: patient name, patient birth date, patient medical ID number
+    <p>
+    This is known to some as the 'anonymous-ing' operation. 
+    The patient name field will be replaced by the argument passed in by the GUI.
+    This is intended so that you can replace the identifying patient name field with
+    a generic, yet useful value such as 'patient 1', patient 2', ...
+<p>
+  Execution Procedures:
+  <ol>
+	<li>Run ImageJ and you can then directly run the DicomRewriter from the plugins menu.
+    <li> Go to the directory holding your dicom image files and click on any of the files
+        in there that has the correct extension for your dicom images 
+        (note: the EndsWithFilter acts to select from the directory only the files in there 
+            there with the same extension as the one first selected, in case there are
+            other extraneous files that you do not want corrupted or that would give
+            the program a hard time.)
+    <li> A GUI pops up to allow you to change the patient Name, Birth Date, and ID#
+        fields.  I did not bother to make the program be able to add additional bytes to 
+        the Dicom header (nor remove them), thus if the string you enter is longer 
+        than the original string value for the field of interest, the trailing 
+        characters of that string will be truncated to fit the space limits in the 
+        original header.  Thus, if in the original images the field contained no 
+        data, then putting in values into the Gui text field will have no effect. 
+    <li> <b>The corrected files are rewritten over the original image files. I have not had
+        any problems with the test cases I have tried these on, but to be extra cautious,
+        you really want to not loss the data perhaps you should backup the files before
+        writing over them.</b>
+    <li> If you find that you made a mistake/typo in the name, birthdate and id# fields,
+        you can always rerun the program on the same image files. Note that the field
+        sizes were not changed from those of the original fields, thus if the first 
+        time you used a shorter name than the original, then the second time you can go
+        back to a longer name (you are still limited by the original field size though).
+   </ol>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="import-dicom.html">Import Dicom Sequence</A>, <br>
+<A HREF="dicom-sort.html">DICOM Sort</A>,<br>
+<A HREF="query-header.html">Query DICOM Header</A> and<br>
+<A HREF="http://www.iftm.de/dicom/dcmimex.htm">DICOM Import/Export Plugins</A>.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
