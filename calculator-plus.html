@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>Calculator Plus</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Calculator Plus</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) and<br>
+Gabriel Landini (G.Landini at bham.ac.uk)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/03/13: First version <br>
+2002/04/16: Added "Create Window" option; bug fixes<br>
+2003/06/09: Supports operations where <i>i1</i> is a stack and <i>i2</i> is not<br>
+2004/07/17: Does plane-wise calculations on RGB image 
+2009/06/09: Fixed subtract image order bug
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.31q or later is required to run this plugin from a macro.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Calculator_Plus.java">Calculator_Plus.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Calculator_Plus.class">Calculator_Plus.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin will add, subtract, multiply or divide two images or stacks.
+Unlike the built-in <i>Process/Image Calculator</i> command, it allows 
+results to be scaled to prevent clipping when working with 8 and 16 bit 
+images.  Also, unlike the built-in calculator, it works with calibrated 
+images and images do not have to be the same type. Note that if <i>i1</i> 
+is a stack and <i>i2</i> is a single image then i2 will be applied to the
+entire stack.
+<p>
+Adapted to operate on the RGB planes independently by G. Landini 17/July/2004.
+Now colour images can be operated plane by plane.
+The result of the RGB operations are rounded and trimmed to the 8 bit space
+in each plane.
+This is useful to perform background uneven illumination correction in
+brightfield microscopy using colour images:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;image/brightfield * 255<br>
+Before this plugin returned a greyscale result, now it returns an RGB result.
+<p>
+
+<IMG SRC="images/calculator.gif" ALT="calculator.gif">
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
