@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>InstantImager Reader</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>InstantImager Reader</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+  <tr valign=top>
+    <td><b>Author:</b></td>
+    <td>George H. Silva (George_Silva at chemie_bio_uni-giessen_de)<br></td>
+  </tr>
+  <tr valign=top>
+    <td><b>History:</b></td>
+    <td>
+      2005/08/23: v1.00 - initial release<br>
+      2005/08/26: v1.01 - minor fixes and added code for extracting/displaying header information<br>
+      2005/08/29: v1.02 - removed "public" modifiers from class variables<br>
+    </td>
+  </tr>
+  <tr valign=top>
+    <td><b>Source:</b></td>
+    <td><a href="download/InstantImager_Reader.java">InstantImager_Reader.java</a>
+    </td>
+  </tr>
+  <tr valign=top>
+    <td><b>Installation:</b></td>
+    <td>Download <a href="download/InstantImager_Reader.class">InstantImager_Reader.class</a>
+        to the plugins folder, or a subfolder of the plugins folder, and restart ImageJ.
+    </td>
+  </tr>
+  <tr valign=top>
+  <td><b>Description:</b></td>
+  <td>Opens images in the Packard InstantImager format (*.img); also extracts the header 
+      information into a log window. Packard was purchased by PerkinElmer many years 
+      ago and development/support/sales of the InstantImager were terminated. However, 
+      many labs still use these machines today running Windows 3.x/95 (!) with the 
+      default software (running in 256-color mode). The images themselves are 16-bit 
+      data files. After many (many!) web searches, I could not find any information 
+      regarding the file format or updated software for the InstantImager (especially 
+      something that could display/process the images on modern PC systems in something 
+      better than 256-color mode). Using a hex-editor and some guess work, I hacked out 
+      this plugin to open/analyze the data in ImageJ. As such, I would appreciate 
+      comments if things do or do not work.
+      <p>
+      Install the latest <a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">
+	HandleExtraFileTypes</a> plugin and you will be able to open InstantImager using <i>File/Open</i>
+	or by using drag and drop.
+</td></tr>
+
+    </td>
+  </table>
+
+</blockquote>
+<hr>
+
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
