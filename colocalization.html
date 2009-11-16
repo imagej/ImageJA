@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>Colocalization</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Colocalization</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+	Pierre Bourdoncle (bourdoncle@ijm.jussieu.fr)<br>
+	Institut Jacques Monod, Service Imagerie, Paris<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/04/18: First version<br>
+2004/10/24: Recordable<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Colocalization_.java">Colocalization_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Colocalization_.class">Colocalization_.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	This plugin highlights the colocalizated points of two 8-bits 
+	images (or stacks). The two images (or stacks) will be affected 
+	to the two Red and Green channels of an RGB image (or stack).
+	The colocalizated points will appear white by default (Display 
+	value = 255).
+	The plugin initially generates an 8bits image with only the 
+	colocalizated points (image available by validating Colocalizated 
+	points 8-bit), then it combines the three 8-bits images in
+	an RGB image. Two points are considered as colocalizated if 
+	their respective intensities are strictly higher than the threshold of 
+	their channels (which are 50 by default: Threshold
+	channel 1 (0-255)), and if their ratio (of intensity) is strictly 
+	higher than the ratio setting value (which is 50% by defect: ratio 
+	(0-100%)).
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
