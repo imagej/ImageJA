@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Haar Wavelet Filter and Adaptive Median Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Haar Wavelet Filter and Adaptive Median Filter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Olivier Marchal (marchal_olivier at hotmail.fr)<br>
+and Jerome Mutterer (jerome.mutterer at ibmp-ulp.u-strasbg.fr)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/01/20: First version<br>
+2005/02/08: Improved version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Haar_wavelet_filter.java">Haar_wavelet_filter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/Haar_wavelet_filter.java">Haar_wavelet_filter.java</A>
+to the plugins folder and compile it with the "Compile and Run" command. 
+<br>Restart ImageJ to add the "Haar Wavelet Filter" command to the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+   This plugin's purpose is to remove noise from noisy images. It makes use of image reconstruction from 
+   thresholded Haar wavelet transform coefficients. Thresholding factors should be input in the dialog, 
+   and will influence the amount of noise removed. An image with the removed noise can be generated.<br><br>
+   Finding adequate factors is critical to remove sufficient noise without affecting signal, 
+   and these factors may vary from one image type to another. Too small thresholding factors remove too little noise, 
+   too large thresholding factors induce wavelet blocks artifacts. With suitable coefficients, most of the noise is removed, 
+   while the structures are left unaffected, with their details preserved.<br><br>
+   <IMG SRC="images/hwl03.gif"><br>	
+   This filter is macro-recordable, and an example <A href="../macros/Test_Wavelets.txt">macro</a> is provided that helps 
+   finding suitable coefficients for a given image type.<br><br>
+   
+   <br><br>Example :
+   <IMG SRC="images/hwl01.png"><br>GFP-labelled microtubules imaged with low laser power and high PMT gain settings.
+   <br>Image width is 18 microns.
+   <br>The denoised image shows a reduction of noise with preserved details inside the objects.
+   <br><br>
+
+   The wavelet filter is good at removing gaussian-type noise, while it can leave some kind of photon noise
+   (very hot pixels for example). Thus an option is provided in the form of an optionnal adaptive median filter. 
+   This filter will detect pixels that differ from their context by more than a given multiple of the neighborhood's 
+   standard deviation. If marked as outlying, the pixel value is replaced by the median value of the neighborhood. 
+   A suggested default value is 1.6 * sd. The idea behind this filter is that if an adequate sampling
+   was chosen upon acquisition, no such outlying (extreme value) pixels should be found.<br><br>	 
+   
+   The adaptive median filter might be useful alone. You can call it from a macro by something like :<br>
+   <tt>	run("Haar wavelet filter", "k1=0 k2=0 k3=0 non std=1.6")</tt><br><br>	
+   
+   A comparison with a rough median filters and other commonly used noise removing filters is shown below.<br><br>
+   <IMG SRC="images/hwl02.png"><br><br>
+
+ 
+<blockquote>
+
+</blockquote>
+<br>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
+
