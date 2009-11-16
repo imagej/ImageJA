@@ -1,0 +1,64 @@
+<html><head><title>Zeiss ZVI Reader</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Zeiss ZVI Reader</b>
+</font>
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Authors:</b></td><td>
+Curtis Rueden (ctrueden at WISC.EDU)<br>
+Tony Collins (tonyc at uhnresearch.ca)<br>
+Morri Feldman (morrifeldman at gmail.com)<br>
+Ales Kladnik (ales.kladnik at bf.uni-lj.si)<br>
+Michel Boudinot (Michel.boudinot at iaf.cnrs-gif.fr)<br>
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+<u>2005/03/01:</u> First version<br>
+<u>2005/03/24:</u> Splits channels into separate stacks<br>
+<u>2005/05/24:</u> Fixes problem with reading multicolor stacks<br>
+<u>2005/07/11:</u> Opens 48-bit color images<br>
+<u>2006/08/25:</u><br>
+&nbsp;&nbsp;&nbsp;&nbsp;-improved decoding strategy<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-new approach to compute the number of channels<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-new image stack construction from file image slices<br>
+<u>2007/08/02:</u> Replaced by
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats plugin</a><br>
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>
+<a href="http://rsb.info.nih.gov/ij/plugins/download/ZVI_Reader.java">ZVI_Reader.java</a>
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+The LOCI
+<a href="http://www.loci.wisc.edu/ome/formats.html">Bio-Formats plugin</a>
+has superseded this plugin.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+<p>
+Imports images and image stacks from a Zeiss ZVI file. This plugin was
+created through trial and error (i.e., reverse engineering several example
+ZVI files), and most likely does not work with some types of ZVI.
+It opens 8-bit and 16-bit grayscale images and image stacks, and 
+24-bit and 48-bit color images and stacks. 48-bit color images are 
+opened as RGB stack. It opens 12-bit color (36-bit) ZVI images without problems and theoretically, it should work also with
+10-bit and 14-bit images and stacks.
+</p><p>
+Install the <a href="http://rsb.info.nih.gov/ij/plugins/file-handler.html">
+	HandleExtraFileTypes</a> plugin and you will be able to open ZVI files using <i>File/Open</i>
+	or by using drag and drop.
+</p></td></tr>
+
+</tbody></table>
+
+</blockquote>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
