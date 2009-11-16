@@ -1,0 +1,122 @@
+<html>
+<head>
+<title>Straighten Curved Objects</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+2>
+<b>Straighten Curved Objects </b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+
+Eva Kocsis (<a href="mailto:kocsise@mail.nih.gov">kocsise@mail.nih.gov</a>)
+
+
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+
+2000/11/16: Initial version<br>
+2000/12/01: Scrolling (hand) tool works<br>
+2000/12/04: ImageJ menu commands work<br>
+2000/12/20: Automatic Node Refinement<br>
+2001/03/07: Maximum nodes increased from 30 to 500<br>
+2002/07/02: Straighted objects no longer converted to 32-bits<br>
+2002/08/26: Fourier filtration and stack processing<br>
+2008/11/14: Restored ability to process stacks<br>
+
+
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td > Included in
+<A HREF="download/jars/Straighten_.jar">Straighten_.jar</A>
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Straighten_.jar">Straighten_.jar</A> to the plugins 
+folder, restart ImageJ and there will be a new "Straighten" command in the Plugins menu.
+
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This program is used for straightening filamentous particles, or any curved objects in an image. The user selects a set of nodes with the mouse. A non-uniform cubic spline is fitted to these points, and the object is straightened along it. An option of "Automatic Node Refinement" helps to find the best positions of the nodes. In addition, the curvature profile of the fitted cubic spline can be plotted, and diffraction patterns of images can be calculated.
+For helical filaments the phase difference of the symmetrical points along the layer lines can be determined, and Fourier filtration can be employed.
+The program is able to handle stacks, as well. In this case, the nodes, selected in the first image, are propagated to all other images in the stack, and a stack of straightened images will be created.
+<p>
+The algorithm is described in 'Kocsis, E., Trus, B.L., Steer, C.J., Bisher, M.E. and Steven, A.C (1991) J. Struct. Biol. 107, 6-14'.
+Please include a citation of this paper or acknowledgement if you publish or present results that are established by the use of this program.
+
+<blockquote>
+
+<img src="images/straighten.jpg">
+
+</blockquote>
+
+
+The crosshair tool is used for selecting the node points. One click of the mouse adds a point, two clicks on an existing node either deletes that point, or inserts a new node to the right of it depending on whether the "Insert", or "Delete" button is selected under the image. Dragging them can relocate the existing nodes. The nodes are "color coded", every 5th point is drawn in a different color. The width of the straightened image can be changed interactively by typing the width in pixels at the bottom of the panel. The width of spline is shown in yellow with a 0.25 translucency on the original image, and with 0.0 translucency on the straightened image, by default. The colors of the wide line and center line, as well their translucency can be changed by selecting the "Graphics..." button. In the case of the straightened image the "Width of Filament/Wide Line" corresponds only to the "Width of Wide Line". The drawing size of the nodes can be changed here, too. With the "Reset" button one can restore the nodes that the original image had at the time of the last "Straighten" action. Pressing the "New Curve" button one deletes all existing nodes from the image.
+
+<blockquote>
+<img src="images/pili-curv.jpg">&nbsp; &nbsp;
+<img src="images/pili-str.jpg">
+<p>
+Before and after straightening (electron<br>
+microscopic image of negatively stained<br>
+bacterial pili).
+</blockquote>
+
+The straightened image can be visualized in a normal ImageJ window, this is the default option, or in a "Window with Control Panel", similar to the starting window. The latter gives some further options for refining the fit of the curve to the underlying object. The type of window can be selected under the "Options for straightened image...". The positions and number of nodes can be changed on the straightened images, too. In this case the node positions are recalculated on the original image according to these changes, and a new straightened image is calculated from the original image. With the "Reset" button one can restore the nodes that the straightened image had when it was calculated.
+<p>
+<b>Automatic Node Refinement:</b>
+<p>
+Selecting the button of "Automatic Node Refinement" can automatically refine the positions of nodes. There is an option of calculating better positions for all nodes, or only some selected nodes. This can be chosen in the first dialog prompts. In the case of "All Nodes" one has the option of allowing the insertion of further nodes between two adjacent nodes if their distance is at least dx pixels, where dx can be defined in the next dialog box, dx = 60 by default. The refinement is performed on one-dimensional data sets that are extracted at each node, which are the cross sections of the image at the (selected) nodes. There are several options for filtration of the image and/or the 1-D arrays (see below). The program finds the "edges" of the 1-D objects, namely, it finds the first, and last positions where the values of the arrays are > 0.0 after the subtraction of the average values of them, respectively. If the 2 distances, d1, d2, from the edges of the images are different the node will be shifted by (d1-d2/2) pixels. The filtration options are as follows.
+<blockquote>
+1) Smooth the image: This is applied to the whole (2-D) image. This filter replaces each pixel with the average of its 3x3 neighborhood, like the "Smooth" option under the "Process Menu". It can be applied to the image several times after each other, which can be defined in the text field. The default value is 5. 
+<p>
+2) Average several columns around each node. The number of columns is defined in the text field, the default value is 4. This means that at the end points the first 8, and last 8 columns of the image are averaged, respectively, while at the middle nodes 4 columns from the left, and 4 columns from the right to the nodes are averaged. 
+<p>
+3) Low-pass filter: the high-frequency information can be cut off from the 1-dimensional array. The limit is defined in real space (in pixels). Namely, the default "5.0" means that the resolution, the size of the smallest detail, is 5 pixels. (Please note that the highest resolution must be >= 2 pixels, so the given value must be >= 2.0.) The cut has a cosine fall-off.  
+</blockquote>
+The coordinates of nodes can be listed, or saved under "Nodes...". It also allows the user to read in previously saved nodes and displays them on the image. The curvature profile can be listed, plotted, or saved under "Curvature...".
+<p>
+<b>Diffraction Pattern:</b> 
+<p>
+The diffraction pattern can be calculated for images having any size, however, if the dimensions (width and height) are not power of 2, the program will pad the image to the size of the closest power of 2, respectively. The user also has the option of defining the size in a dialog box that is popped up at the selection of "Diffraction Pattern". This size can be smaller than the current image size. In this case the center part of the image will be cut out.
+<p>
+If the filament has helical order, the following tools can be helpful: 
+* Phase difference of the symmetrical points along the layer lines can be determined by selecting the crosshair tool, and clicking on the point of interest on the diffraction pattern. The phase difference will be shown in the "Results" window.
+* The straightened filament can be Fourier-filtered. The "Window Filter" gives the opportunity to specify the number and exact size of windows, so the Fourier coefficients will be 0 everywhere, but in the windows, where they remain unchanged. Since this filter was designed for helical patterns, the program asks for a weighting function of the 0 layer line, and the positions of windows have to be defined only at the right side of the 0 layer line, the opposite side (2-fold rotational symmetrical to this one) is included by the program.  The coordinates of upper left and lower right corners are needed, that can be read out from the "ImageJ" window when one moves the cursor to these points of the diffraction pattern. The "Layer Line Filter" does the same thing, but instead of filtering by windows, it leaves the Fourier coefficients unchanged along the given layer lines. Here, again, only the right side of the diffraction pattern has to be defined, the program will select the other side. The user also has to decide if the upper half, or the lower half of the layer lines, relative to the meridian, has to be included, respectively.  The parameter "maximum distance from meridian" refers to where should the layer lines be cut off to 0, measuring the distance on the diffraction pattern (don't translate it into real-space, it doesn't ask for the corresponding resolution). The positions of layer lines are measured as their distance from the 0 layer line.
+<p>
+<b>Stacks: </b>
+<p>
+If a stack is read in, the first image of the stack will appear in the "Straighten" window. The filament has to be unbent as usual. When the final set of nodes have been selected, the program automatically fits the same set of nodes to each image in the stack by clicking on the button of "Stack" in the "Straighten" window, and a stack of straightened filaments will be created. Please note that this button doesn't appear in the window if only one image is read in, i.e. there is no stack present.
+<p> 
+<b>Original tools of ImageJ:</b>
+<p>
+The tools of different selections (Rectangular, etc.), and text of the ImageJ panel cannot be used on the images visualized in "Window with Control Panel". Other tools and menu options are available.
+
+
+</td></tr>
+
+
+</table>
+
+</blockquote>
+
+
+<b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
