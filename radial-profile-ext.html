@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>Radial Profile Extended</title> 
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> 
+<b>Radial Profile Extended</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Philippe Carl (pcarl at uni-muenster.de)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/08/18: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+the JAR file. To open a JAR file, change the extension
+from ".jar" to ".zip" and double click on it.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download 
+<a href="download/jars/Radial_Profile_Angle_Ext.jar">Radial_Profile_Angle_Ext.jar</a>
+to the plugins folder, or subfolder, restart ImageJ, and there
+will be two new commands (<i>Radial Profile Angle</i> and <i>Radial Profile Height</i>) in the Plugins menu, or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin is an update of the 
+<a href="radial-profile.html">Radial Profile plugin</a> 
+from Paul Baggethun.
+The plugin lets you choose the starting angle and integration angle over
+which the integration on the defined Roi is done.
+The integration will be done over an area defined by :
+starting angle +/- integration angle.
+The size and the position of the Roi can be defined and modified by
+either using the plugin menu or shortkeys on keyboard.
+Additionnally, the integration calculation can be done over a whole stack.
+<p>
+The plugin is implementing the GenericRecallableDialog developed in the
+<a href="contour-plotter.html">Contour Plotter plugin</a>
+from Walter O'Dell as
+well as extending the MultyPlotWindow developed in the 
+<a href="color-profiler.html">Color Profiler plugin</a>
+by Dimiter Prodanov (University of Leiden).
+<p>
+The plugin includes also a routine abling the calculation of the radius
+of the generated Roi and saving the data in a result panel.
+<p>
+
+The keyboard shortcuts of the plugin are the following (active when the picture window is selected)
+<pre>
+    Modify ROI X position by: - 1 pixel -> Left/Right keys
+        -  5 pixels -> ALT + Left/Right keys
+        - 10 pixels -> CTRL + Left/Right keys
+
+    Modify ROI Y position by: - 1 pixel -> Up/Down keys
+        -  5 pixels -> ALT  +  Up/Down keys
+        - 10 pixels -> CTRL + Up/Down keys
+
+    Modify ROI size by : - 1 pixel -> PageUp/PageDown keys
+        -  5 pixels -> ALT   + PageUp/PageDown keys
+        - 10 pixels -> CTRL + PageUp/PageDown keys
+
+    Plot Droplet ROI: t
+    Plot Integration Area: b
+    Calculate ROI Radius: g
+    Calculate Radial Profile: q
+    Calculate Stack Radial Profile: u
+</pre>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
