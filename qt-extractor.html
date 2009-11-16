@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>Quicktime Still Extractor</title>
+</head>
+<body bgcolor =" #ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Quicktime Still Extractor</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+
+Adam Baker (tabaker at u.arizona.edu)
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/12/01: First version<br>
+2004/09/29: Addressed compatibility issue with newer ImageJ versions. Frame rates now accurate for 29.97 fps as well as integer values. Default settings changed.<br>
+2005/10/12: Automatically deinterlaces images. Capacity to extract sequences of frames relative to the specified frame position.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+
+<A HREF="download/QT_Extractor.java">QT_Extractor.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/QT_Extractor.class">QT_Extractor.class</A> to the plugins folder and restart ImageJ.
+For Windows, a special Quicktime installation is required,
+<a href="http://rsb.info.nih.gov/ij/plugins/qt-install.html">described here</a>. ImageJ 1.32 or later is required.
+</td></tr>
+
+<tr valign=top><td ><b>Contributors:</b></td><td >
+Thanks to Wayne Rasband for adding the "Browse" buttons and also fixing a minor bug.
+
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td>
+This plugin extracts stills from a Quicktime movie file. The user specifies the movie's filename,
+the destination directory for the stills, the file format for the stills, as well as whether
+to open the stills in ImageJ. In specifying the frame, there must be a label, a tab, and
+then a period-delimited time reference (min.sec.frame). The label and a number supplied by
+the program determine the still's filename, allowing the same label to be used more than
+once. The output of the following dialog will be fourteen files:<br>
+test1_-3e.jpg<br>
+test1_-3o.jpg<br>
+test1_-2e.jpg<br>
+test1_-2o.jpg<br>
+test1_-1e.jpg<br>
+test1_-1o.jpg<br>
+test1_0e.jpg<br>
+test1_0o.jpg<br>
+test1_1e.jpg<br>
+test1_1o.jpg<br>
+test1_2e.jpg<br>
+test1_2o.jpg<br>
+test1_3e.jpg<br>
+test1_3o.jpg<br>
+<p><center><img src="images/qtex.gif"></center><p>
+This makes the plugin ideal for extracting sequences of images from video. If the above dialog box were set to 0 frames before and 0 frames after, the output would simply be test1_0e.jpg and
+test1_0o.jpg. The deinterlacing is simple linear interpolation.
+<p>
+Time formatting: the plugin can
+handle up to 999 minutes of video; there are sixty seconds to the minute; the number of
+frames must also logically be smaller than the frame rate, but the program does not check
+this, and, excepting that you pass the end of the file, no error message will result.
+The frames per second (FPS) must be accurate; the program uses this information to
+determine the absolute frame position from the time input (min.sec.frame). Leading
+zeros are not necessary (i.e. 001.05.02 = 1.5.2)</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
+
