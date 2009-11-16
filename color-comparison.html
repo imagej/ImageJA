@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>Color Comparison</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Color Comparison</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Bill O'Connell (woc at attbi.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/03/08: First version<br>
+2002/07/31: Added Regression option<br>
+2002/09/23: New features<br>
+2004/03/09: Updated to work with byte masks used in ImageJ 1.32c and later
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.32c or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/ColorComparison_.java">ColorComparison_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/ColorComparison_.java">ColorComparison_.java</A> to the plugins folder and
+compile it using <i>Plugins/Compile and Run</i>. There will be a new "ColorComparison" command
+in the Plugins menu the next time you restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+Color comparison of two 8-bit identically dimensioned gray scale images.
+Each pixel has an intensity in image A and in image B. Plot each point
+on a plain with image A intensity as abcissa and B intensity as ordinate.
+ColorComparison allows the user to compare Image1 with Image2 intensities
+using one of the methods below -
+
+  1) Polar Comparison: In polar coordinates, a pixel's location is given by magnitude and
+  angle. The color image shows pixel magnitude (or image A or image B intensity) as
+  intensity. Polar angle is shown as hue. With positive valued images, pixel angle is 
+  between 0 and 90 degrees. Pixel angles are mapped to any continuous swatch of a color
+  wheel where
+      R=0, G=120, B=240 degrees.
+   
+  2) Percentage: p = 100 * (B intensity) / (A intensity + B intensity)
+  may be used to specify hue. With methods 1) and 2) the mapping is isomorphic -
+  all information in the two gray scale images is retained in the color image. 
+  ColorComparison also generates a histogram of pixel pair angles(0 to
+  90 degrees) or percentages(0 to 100%) sorted into a user specified number of bins.
+
+  3) Regression: A linear regression and standard error of regression are calculated
+  predicting Image2 from Image1 pixel intensities. The hue of each pixel in the color
+  image expresses the residual, the difference between the predicted and actual
+  Image2 intensity divided by the standard error of regression.
+  
+The range of differences mapped by the color image is set by the number of histogram
+bins specified. For instance, sepecifying 10 bins sets a range of -5 to +5 standard
+errors.
+
+The hue of pixels outside this range are clamped to the max or min standard error.
+After the color image is generated, the user is allowed to draw ROIs on Image1.
+The mean residual within the ROI and its probability are displayed in a table.
+If the histogram uses weighted intensities the mean is calculated using weighted
+intensities.
+
+if HighlightPixels is checked, the program highlights all color image pixels with
+values outside regression confidence limits at the specified probability level alpha.
+Percentages of pixels above and below the confidences limits are displayed in the
+Results window. Pixels below the specified Theshold Intensity are excluded, and
+percentages are weighted by Image1 intensities if the weight histogram box is checked. 
+</pre> 
+</td></tr>
+
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
