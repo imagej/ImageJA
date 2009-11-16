@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Calculate 3D Noise</title>  
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> 
+<b>Calculate 3D Noise</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Dwight Urban Bartholomew<br>
+L3 Communications Infrared Products<br>
+dwight.bartholomew at l-3com.com<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2008/02/08: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.39r<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Calculate_3D_Noise.java">Calculate_3D_Noise.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/Calculate_3D_Noise.class">Calculate_3D_Noise.class</a> 
+to the plugins folder, or subfolder, restart ImageJ, 
+and there will be a new "Calculate 3D Noise" command in the Plugins menu,
+or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+This ImageJ plugin calculates the 3D-noise from a sequence
+of images. 3D noise is a technique for describing the noise in
+a video that tries to break down the analysis into various
+components which helps to determine where the noise comes
+from. For example, flicker noise (the t-component) is when
+the average brightness of the image jumps around. Or rain
+noise (the th-component) is like what was used in the Matrix
+movies. Various ratios (say, vh/tvh) are general indicators
+of the niceness of a video system.
+
+The 3D-noise algorithm follows that developed by
+the Night Vision Lab (or Night Vision Electronic 
+Sensor Directorate) at Fort Belvoir, VA.
+
+See: "Infrared Focal Plane Noise Parameter Definitions"
+by J. G. Zeibel & R.T. Littleton at NVESD, October 2003
+
+Usage:
+  1) Open an image sequence or video file and selects an ROI.
+  2) Run this plug-in
+  3) Verify the ROI.
+  4) Input a Signal Transfer function (SiTF).
+  
+  This plugin was developed to analyze the 3D-noise
+  of infrared images.  Thus, the SiTF has units to 
+  convert image signal to degrees-Centigrade.  
+  
+Output in Results window includes:
+  a) Eight 3D-noise components and the temporal noise.
+     If an SiTF is entered, the units are milli-Kelvin.
+  b) The SiTF (if used)
+  c) The mean image signal within the ROI
+  d) Size of the "Data Cube": height, width, # frames
+</pre>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
