@@ -1,0 +1,71 @@
+<html>
+<head>
+<title>Accurate Gaussian Blur</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Accurate Gaussian Blur</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Michael Schmid (schmid at iap.tuwien.ac.at)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+Version 10-Oct-2008 - Based on the built-in Gaussian Blur, but with
+higher default accuracy, accuracy-dependent downscaling and double precision
+kernels (for avoiding rounding errors).
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.38n or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Accurate_Gaussian_Blur.java">Accurate_Gaussian_Blur.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Accurate_Gaussian_Blur.class">Accurate_Gaussian_Blur.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plug-in filter uses convolution with a Gaussian function for smoothing.
+It uses the same algorithm as the ImageJ built-in Process>Filters>Gaussian Blur
+filter, but has higher accuracy, especially for float (32-bit) images
+(leading to longer calculation times, however).
+<p>
+Filter parameters:
+<ul>
+<li><b>Sigma (Radius)</b> means the radius of decay to exp(-0.5) ~ 61%, i.e. the standard
+deviation sigma of the Gaussian.
+<li><b>Scaled Units</b> means that the value of sigma is not in pixels but rather in units
+defined by the x&y image scale (for images with spatial calibration)
+ </ul>
+Notes:
+<ul>
+<li> Like all convolution operations in ImageJ, this filter assumes that
+out-of-image pixels have a value equal to the nearest edge pixel.
+This gives higher weight to edge pixels than pixels inside the image,
+and higher weight to corner pixels than non-corner pixels at the edge.
+Thus, when smoothing with very high blur radius, the output will be
+dominated by the edge pixels and especially the corner pixels. In the
+extreme case of a very high a blur radius, e.g. 1e20, the image will
+be replaced by the average of the four corner pixels.
+<li> For increased speed, except for small blur radii, the lines (rows or
+columns of the image) are downscaled before convolution and upscaled
+to their original length thereafter.
+</ul>
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
