@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>UCSD Confocal Microscopy Plugins </title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+2>
+<b>UCSD Confocal Microscopy Plugins </b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Patrick Kelly  and Harvey J. Karten (<a href="mailto:hjkarten@ucsd.edu">hjkarten@ucsd.edu</a>)
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/11/15: <br>
+2001/02/22: Updated to work with ImageJ 1.21<br>
+2001/10/23: Bug fixes<br>
+2001/02/22: Updated to work with ImageJ 1.26<br>
+2003/02/21: Bug fixes<br>
+2003/11/20: Fixed "Z Projection" option in FVControl<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td > Included in the
+<A HREF="download/ucsd-plugins.zip">ucsd-plugins.zip</A> archive
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Expand the <A HREF="download/ucsd-plugins.zip">ucsd-plugins.zip</A> archive in the plugins folder and restart ImageJ. The plugins will be listed in the "UCSD Plugins" submenu of the Plugins menu. 
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is a set of 10 plugins from the <a href="http://www-cajal.ucsd.edu">University of California at San Diego</a> that are designed to support microscopy work. The individual plugins are described below.
+<p>
+A <A HREF="images/fluoview.tif">sample image</A> from a
+12 bit confocal microscope is available. It is a single plate with
+three channels. Each channel is a separate 16 bit image, with a separate 8 bit LUT for display on the
+screen.
+
+<ol>
+<li> Open the "FV Control" plugin.
+<li> Select "Open Fluoview Image" on the FV controller.
+<li> Select the sample image (fluoview.tif ).
+<li> Play with the FV control to turn various Active channels on and off.
+<li> Play with the ROV adjuster which is called from the FV control.
+<li> Use the "ExtendedInfo" plugin to read the original information on
+collection parameters, as well as to show the various details of the 8
+bit LUT used for the display of each channel.
+<li> Use the Split FV on the FV Control. Notice that each individual slice
+retains the original 8 bit LUT
+<li> Call the "SynchWindows" plugin. Select the original image and all the
+derived slices. Click on Synchronize all.
+<li> When you move a cursor on one image, it will move to the
+corresponding location on all of the of selected images.
+<li> You can directly convert the original file to RGB 24 bit. However,
+in the original format you could change the gray scale image with the
+ROV control without altering the image of of any other channel. After
+converting to RGB you will find that there is no way that you can
+independently modify the gray scales, as it is now represented in the
+R,G and B channels.
+</ol>
+
+
+</td></tr>
+
+</table>
+</blockquote>
+
+
+<a name="Top"></a> 
+
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif" color="#224488"><u><a name="Plugins"></a>General 
+  Purpose Plugins<a name="GeneralPurpose"></a></u></font></h2>
+
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Split Stack</font></h3>
+<p>Splits an image stack into a user specified number of substacks. Each substack 
+  can consist of a single image.</p>
+
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">SyncWindows<p>
+<img src="images/syncWindows.jpg" width="676" height="319" align="top"></font></h3>
+<p>Synchronize mouse motion and input between multiple windows. Thus, an ROI drawn 
+  in one window is replicated in all other synchronized windows in the synchronized 
+  window set. A synchronization cursor (the red box above) indicates the location 
+  of the mouse in all synchronized windows.</p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif" color="#224488"><u>Tiff Related 
+  Plugins<a name="TiffRelated"></a></u></font></h2>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Extended Info</font></h3>
+<h3><img src="images/extendedInfo.jpg" width="720" height="316"></h3>
+<p>Similar to ImageJ's standard Image Info plugin filter, but adds displays additional 
+  information regarding lookup tables. This plugin is most useful for the Extended 
+  Tiff plugin (see below) but will work for standard ImageJ image objects as well. 
+  In this case, this plugin simply displays a lookup table if available. </p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Extended Tiff</font></h3>
+<p>Extends ImagePlus class to read additional information from TIFF image files. 
+  Currently, this reads TIFF ImageDescription field. ExtendedTiff class also provides 
+  a post processing method intended to allow its subclasses to add additional 
+  processing to handle nonstandard TIFF images or standard TIFF images in an application 
+  specific fashion.</p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Extended Tiff Encoder</font></h3>
+<p><font color="#000000">A modified version of standard ImageJ TiffEncoder that 
+  also reads the TIFF image description field.</font></p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Save Extended Tiff</font></h3>
+<p><font color="#000000">A plugin that writes an ExtendedTiff file to disk.</font></p>
+<hr>
+<h2><font face="Arial, Helvetica, sans-serif" color="#224488"><u>Olympus Fluoview 
+  Specific Plugins<a name="OlympusRelated"></a></u></font></h2>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Clamped Color Model</font></h3>
+<p><font color="#000000">This class provides an indexed color model that also 
+  supports upper and lower bounds on the indices. This allows the indices to be 
+  &quot;clamped&quot; to these bounds prior to their use to retrieve color lookup 
+  table data.</font> This class is used in the FluoviewTiff plugin, described 
+  below, and will probably not be of interest to general uses. However, it must 
+  be present to run the FluoviewTiff and related plugins.</p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">Fluoview Tiff</font></h3>
+<h3><img src="images/fv1.jpg" width="488" height="417"></h3>
+<p>Extends ExtendedTiff class to manage additional information associated with 
+  Fluoview Tiff images. This information consists of color table data, intensity 
+  mapping parameters and a collection of acquisition parameters. Thus, we can 
+  display images, such as that shown above, wherein three (grayscale) channels 
+  are colored using the associated color table information and combined into one 
+  24-bit color display. </p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">FV Color Display</font></h3>
+<p>Toggles color display mode on/off. </p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">FV Control</font></h3>
+<p>This plugin collects a variety of operations that are specific to manipulation 
+  of Fluoview images. For instance, users can toggle specific channels on and 
+  off. This plugin also provides an integrated interface to Fluoview specific 
+  versions of some of the above standard plugins, e.g. Z-projection and stack 
+  splitting. </p>
+<h3><font face="Arial, Helvetica, sans-serif" color="#224488">FV Split Stack</font></h3>
+<p>A version of the Split Stack plugin that is specifically designed to handle 
+  Fluoview images. The Fluoview split stack plugin splits a Fluoview stack into 
+  multiple substacks, one for each channel in the original data set. In addition, 
+  the Fluoview split stack plugin ensures that appropriate Fluoview channel information 
+  is propagated to each of the new stacks.</p>
+<hr>
+<table width="75%" border="0">
+  <tr> 
+    <td> 
+      <p><font size="2" face="Arial, Helvetica, sans-serif">
+    </td>
+  </tr>
+  <tr> 
+    <td><font size="2" face="Arial, Helvetica, sans-serif">  </td>
+  </tr>
+  <tr> 
+    <td><font size="2" face="Arial, Helvetica, sans-serif"></td>
+  </tr>
+</table>
+
+
+<b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
