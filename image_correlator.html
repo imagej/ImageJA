@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Image Correlator</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Image Correlator</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Wayne Rasband (wsr at nih.gov) and Kevin (Gali) Baler
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/03/21: First version<br>
+2002/04/10: Lists counts in window<br>
+2003/09/30: Recording now works<br>
+2003/11/19: Works with stacks. Plot is contrast enhanced.<br>
+2003/11/21: Added "Collate Z-Data" option. Supports counts>65535.
+</td></tr>
+
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit images or stacks.</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Image_Correlator.java">Image_Correlator.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Image_Correlator.class">Image_Correlator.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Generates an XY plot indicating how well correlated two images or stacks are.  
+Uses the value of a given pixel in the first image as the x-coordinate and the 
+value of the corresponding pixel in the second image as the y-coordinate.  
+These are plotted into a new window or stack to give a scatter plot. The
+plugin uses <i>Process/Equalize</i> to enhance the contrast of the scatter plot.
+<p>
+Check "Display Counts" in the dialog and the non-zero scatter plot counts will be displayed in a window.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+Gary Chinga's <A HREF="http://home.online.no/~gary.c/IJ/iCorrelationJ.htm">Image CorrelationJ</A> plugin
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
