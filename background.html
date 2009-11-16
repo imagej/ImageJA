@@ -1,0 +1,116 @@
+<html>
+<head>
+<title>Background Correction</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Background Correction</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Terry Wu (javaplugins at yahoo.com)
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/07/17: First verdsion<br>
+2004/03/09: Updated to work with byte masks used in v1.32c and later<br>
+2008/06/27: Updated to work with ImageJ 1.38 and later<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.38 or newer</td></tr>
+
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit images</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Background_Correction_.java">Background_Correction_.java</A>
+</td></tr>
+
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+
+Download <A HREF="download/Background_Correction_.class">Background_Correction_.class</A> to the plugins folder and restart ImageJ.
+
+</td></tr>
+
+
+
+<tr valign=top><td ><b>See Also:</b></td><td >ImageJ's <i>Process/Subtract Background</i> command</td></tr>
+
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This plugin
+
+corrects image defects caused by uneven illumination
+
+in fluorescent microscopy.
+
+<p>
+
+The plugin performs the following steps:
+
+<ol>
+
+	<li>Generates a background image estimated through iterations
+
+                 of the minimum ranking with the number of iterations defined
+
+                 by the user.
+
+	<li>Substracts the background image from the orginal image
+
+         and generates a result image.
+
+	<li>Contrast enhances the result image.
+
+</ol>
+
+
+
+  
+
+<p>
+
+<center>
+
+<IMG SRC="images/bc-before.gif" ALT="bc-before.gif"><br>
+
+Before Background Correction
+
+<p> 
+
+<IMG SRC="images/bc-after.gif" ALT="bc-after.gif"><br>
+
+After Background Correction
+
+<p> 
+
+<IMG SRC="images/bc-plot.gif" ALT="bc-plot.gif"> 
+
+</center>
+
+ </td></tr>
+
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
