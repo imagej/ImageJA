@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>ISAC Manager</title>
+</head>
+<body bgcolor =" #ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>ISAC Manager</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Remi Cathelin - SIGENAE Team - INRA (cathelin at toulouse.inra.fr) <br>
+Christophe Klopp - SIGENAE Team - INRA (klopp at toulouse.inra.fr) <br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2005/03/29:</u> First version<br>
+<u>2005/04/26:</u> Fixed bug of wrong created selection file's name; 
+Fixed bug of empty .inf file creation; 
+Added defaults .inf values if unknown<br>
+<u>2005/05/25:</u> Fixed bug that caused a crash during image 
+opening on Windows OS; Allowed to save no "Fuji BAS 
+Scanners" images at ISAC format<br>
+<u>2005/08/31:</u> Updated to work with 8, 12 and 32 bits unsigned ISAC format images<br>
+ </td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Contained in
+<A HREF="download/jars/ISAC_.jar">ISAC_.jar</A>, 
+which can be opened using a ZIP utility.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/ISAC_.jar">ISAC_.jar</A>
+to the plugins folder, restart ImageJ, then use the commands in the ISAC submenu of the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+These plugins allow to easily open/save and create a new image from a selection.  <br>
+&quot;Image Save and Carry&quot; format (ISAC or IS&amp;C) is a standard format of image developped by the Japanese Industry Radiology Apparatus (JIRA).
+For example, Fuji BAS Scanners (like the BAS5000) use this format.<br>
+In this format, an image is composed of two associated files: ~.img and ~.inf.
+The ~.img file is the raw data of image and the ~.inf file is the information part of image data.
+ <p>
+<img src="images/Manager.jpg">
+ <p>
+You can use the <I>ISAC Manager</I> plugin or call each plugin separately.<br>
+<I>Open ISAC...</I> automatically opens an image (select the ~.inf or the ~.img file).</br>
+<I>Duplicate ISAC</I> allows to create in a new window a new image using the current ROI. Without ROI, a copy of the current image is created.<br>
+<I>Save As ISAC</I> saves an image in ISAC format (~.img and ~.inf files are created).<br>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
