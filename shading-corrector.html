@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>Shading Corrector</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Shading Corrector</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/10/12: First version<br>
+2003/06/27: Fixed stack repeated error message bug<br>
+2003/07/24: Bug fix; supports 16-bit images<br>
+2008/10/21: Supports RGB images, thanks to Joshua Daghlian<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Shading_Corrector.java">Shading_Corrector.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Shading_Corrector.class">Shading_Corrector.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin corrects acquired images for shading due to
+uneven illumination or CCD pixel irregularities. It does
+this using the formula
+<blockquote>
+I = I(M/BF)
+</blockquote>
+where I is the active image, BF is the blank field image, and M is the mean of the blank field image.
+
+For this to work, you must first capture a blank background image and use <i>Image/Rename</i> (v1.24 or newer) or <i>Image/Duplicate</i> to rename it "blank-field".
+You can create a command that renames the active image "blank-field" by using <i>Plugins/Hot Keys/Install Plugin</i> to install this plugin with the argument "rename".
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
