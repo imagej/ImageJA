@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>Oval Profile Plot</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Oval Profile Plot</b>
+</font>
+
+<p>
+
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Bill O'Connell (woc at attbi.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/02/15: First version<br>
+2002/07/31: Added "Radial Sums" option; x-axis labeled in degrees<br>
+2002/09/19: Fixed a bug in the "Along Profile" option<br>
+2003/01/23: Uses 65535 rather than 255 for drawing on 16-bit images<br>
+2005/06/27: Added "EquiCircumference" option. Compiles without errors.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Oval_Profile.java">Oval_Profile.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Oval_Profile.java">Oval_Profile.java</A>
+to the ImageJ plugins folder, or subfolder, and compile and run it using
+<i>Plugins/Compile and Run</i>. Restart ImageJ and there will be
+a new <i>Oval Profile</i> command in the Plugins menu or submenu.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+
+This plugin takes the image region bounded by an oval region and samples the oval
+at N equal angles around the oval. The program can generate three types of profile plots:
+
+<ol>
+
+	<li> Maximum intensity values along N radii from the oval center to oval points.
+      This measure is called the circumferential profile and is used in Nuclear Medicine
+      cardiac blood perfusion studies, in which short axis slices of the left
+      ventricle are roughly doughnut shaped.
+      <p>
+	<li> Radial Sums.
+           Along each radius,from the oval center to periphery, 
+           interpolated pixel intensities
+           are summed and plotted.
+
+	<li> Pixel values along the oval.
+ </ol>
+
+</td></tr>
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
