@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>Twain</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Twain</b>
+</font>
+
+<p>
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/07/15: First Version<br>
+2002/08/23: Updated for Gnome TWAIN 5<br>
+2003/02/13: Fixed bug that could cause ImageJ to crash<br>
+2003/10/07: Displays TWAIN select source dialog; renamed Twain_6<br>
+2004/02/10: Fixed bug that could cause ImageJ to crash<br>
+2004/02/17: Fixed bug that could cause the plugin to fail when called more than once<br>
+2004/09/03: Worked around a bug that could cause "Invalid capability twty returned (1)!" errors<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/twain/Twain_6.java">Twain_6.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+  <br>
+<b>Windows</b><br>
+<ol>
+<li>Download <A HREF="download/twain/Twain_6.class">Twain_6.class</A>
+to the plugins folder. 
+<li>Download the Morena framework for Windows from
+<A HREF="http://www.gnome.sk/">http://www.gnome.sk/</A>
+and extract the files to a temporary folder.
+<li> Copy morena.jar, morena_windows.jar and morena_license.jar to the ImageJ\jre\lib\ext folder.
+<li> Restart ImageJ.
+</ol>
+
+<b>Mac OS X (requires TWAIN compatible scanner)</b><br>
+<ol>
+<li>Download <A HREF="download/twain/Twain_6.class">Twain_6.class</A>
+to the plugins folder. 
+<li>Download the Morena framework for Mac OS X from
+<A HREF="http://www.gnome.sk/">http://www.gnome.sk/</A>
+and extract the files.
+<li> Copy morena.jar, morena_osx.jar and 
+morena_license.jar to /Library/Java/Extensions.
+<li> Restart ImageJ.
+</ol>
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin acquires  images from 
+<A HREF="http://www.twain.org">TWAIN</A> sources such as scanners, 
+digital cameras and frame grabbers. To avoid the TWAIN select source dialog, run from a 
+macro using <i>run("Twain 6", "default")</i> or install with <i>Plugins/Shortcuts/Install Plugins</i>
+using the argument "default". 
+<p>
+The original Twain plugin that worked with version 4 and earlier of the Gnome Java Twain 
+package is available at
+<A HREF="download/twain/Twain_.java">Twain_.java</A>
+ and
+ <A HREF="download/twain/Twain_.class">Twain_.class</A>.
+</td></tr>
+  
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="jtwain.html">JTwain plugin</A><br>
+<A HREF="twain-scan.html">Twain Scan plugin</A><br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
