@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>Background Subtraction and Image Normalization</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Background Subtraction and Image Normalization</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Jeffrey Kuhn (jkuhn at ccwf.cc.utexas.edu)<br>
+The University of Texas at Austin<br>
+Ben Dubin-Thaler (bjd14 at columbia.edu)<br>
+Columbia University<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/08/22: First version<br>
+2006/02/16: Works with stacks<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Currently limited to 16-bit images</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/normalize/Normalize_.java">Normalize_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>API:</b></td><td >
+<A HREF="download/normalize/Normalize_.html">Normalize_.html</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/normalize/Normalize_.class">Normalize_.class</A> 
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin simplifies the task of background subtraction and
+image normalization given a brightfield image and/or a background image.
+This plugin is currently limited to 16-bit images, but could easily be
+extended to 8-bit, 32-bit, or even color images. <p>
+
+	Possible normalization methods: <p>
+
+	If both BRIGHT and DARK images are specified
+	<blockquote>IMAGE = scale * (IMAGE - DARK) / (BRIGHT - DARK) </blockquote>
+           If only BRIGHT image is specified 
+	<blockquote>IMAGE = scale * IMAGE / BRIGHT </blockquote>
+	If only DARK image is specified <p>
+	 <blockquote>IMAGE = IMAGE - DARK</blockquote>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
