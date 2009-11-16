@@ -1,0 +1,168 @@
+<html>
+<head>
+<title>Excel Writer</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Excel Writer</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kurt De Vos (k.devos at sheffield.ac.uk)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2003/11/28: First version<br>
+2004/01/08: Adds GUI<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ 1.31p or later, which adds the ability to 
+package plugins in JAR files
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Excel_Writer.jar">Excel_Writer.jar</A>, which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy the Excel_Writer.jar to the plugins folder.
+<i>Excel_Writer</i> and<br>
+ <i>XY Coordinates to Excel</i> will be installed in the File>Save As menu. <br>
+<i>Excel_Writer_GUI</i> installs in the Plugins menu
+
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+
+Excel_Writer: 
+    Excel_Writer is a IJ PlugIn that saves the IJ ResultsTable directly to a user-specified 
+    Excel file. The plugin will create the Excel file in the specified location and 
+    add the data to a new worksheet. In case that the excel file already exists, 
+    a new worksheet will be added to the existing file - data is never overwritten. 
+    The plugin can also handle other tables instead of the ResultsTable. 
+    You need to modify the source of Excelwriter to do this (look in SaveToExcel.java 
+    for more info). This plugin is recordable and also contains methods that allow 
+    automatization and batch processing via other plugins (look in SaveToExcel.java for
+    more info). 
+
+Excel_Writer_GUI:
+    Excel_Writer_GUI is a graphical interface to Excel_Writer.
+    Upon execution, a toolbar and menu will appear which contains the following functions:
+
+    menuFileNew, Creates a new ExcelFile
+    menuFileOpen, Opens an existing ExcelFile
+    menuFileSave, Saves the current ExcelFile
+    menuFileClose, Closes the current ExcelFile
+    menuFileExit, Exits the plugin
+    menuSheetAdd, Adds a new worksheet to the workbook
+    menuSheetDel, Deletes a worksheet
+    menuSheetRename, Renames a worksheet
+    menuSheetSelect, Selects a worksheet for writin
+    menuWriteRT, Writes the ResultsTable
+    menuWriteRow, Writes the last row of the ResultsTable
+    menuWriteColumn, Writes a column of the ResultsTable
+    menuWriteHeads, Writes the columnheaders of the ResultsTable
+    menuWriteClip, Writes the contents of the ClipBoard
+    menuDeleteLastRow, Deletes the last row written
+    menuDeleteCol, Deletes a column
+
+    In addition, when a file is open, a viewer window will show the contents of the ExcelFile.
+    
+    This function relies on classes written by @author Andrew C. Oliver and @author Jason Height 
+    as a user contribution to the Apache Jakarta POI project. Those classes and source
+    can be found in the HSSFViewer directory and are protected by 
+
+    The Apache Software License, Version 1.1.
+
+    This version of Excel_Writer_GUI still has some bugs...
+
+
+Save_XY_Coordinates_To_Excel:
+
+    This Plugin saves the XY Coordinates of a ROI to an excelfile
+    It is identical to the XYWriter in IJ, but saves to excel instead of to a text file, 
+    and it processes all slices in a stack.
+
+
+The Excel_Writer package includes jakarta-poi-1.5.1-final-20020615.jar (org directory)
+which is software developed by the Apache Software Foundation (http://www.apache.org/) and
+for which the The Apache Software License, Version 1.1 applies:
+
+
+The Excel_Writer package uses/contains classes from the Apache Jakarta POI project available under 
+The Apache Software License, Version 1.1 applies (See below). 
+
+The Excel_Writer package uses the ClipHelper.class by Julian Robichaux ( http://www.nsftools.com ).
+
+/* ====================================================================
+
+ * The Apache Software License, Version 1.1
+ *
+ * Copyright (c) 2002 The Apache Software Foundation.  All rights
+ * reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *        Apache Software Foundation (http://www.apache.org/)."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Apache" and "Apache Software Foundation" and
+ *    "Apache POI" must not be used to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact apache@apache.org.
+ *
+ * 5. Products derived from this software may not be called "Apache",
+ *    "Apache POI", nor may "Apache" appear in their name, without
+ *    prior written permission of the Apache Software Foundation.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * (http://www.apache.org/)
+ */
+ </pre>
+ 
+ </td></tr>
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
