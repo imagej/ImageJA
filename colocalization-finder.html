@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Colocalization_Finder</title>
+</head>
+<body bgcolor="#ffffff">
+
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>Colocalization_Finder</b>
+</font>
+<p>
+
+</p>
+<blockquote>
+
+  <table cellspacing="5">
+
+
+    <tbody>
+      <tr valign="top">
+        <td><b>Authors:</b></td>
+        <td>
+	Christophe Laummonerie, <br>
+
+	Jerome Mutterer, Institut de Biologie Moleculaire des Plantes, Strasbourg, France.<br>
+
+        </td>
+      </tr>
+
+
+
+      <tr valign="top">
+        <td><b>History:</b></td>
+        <td>
+2004/02/02: First version<br>
+
+2005/01/28: Version 1.1 : statistical methods added.<br>
+2006/08/29: Version 1.2 &nbsp;<br>
+- ratio bars non destructively displayed<br>
+- works with any closed ROI <br>
+- Fire LUT better diplayed<br>
+- You now have to click in the ROI to update overaly image(s) and statistics<br>
+
+        </td>
+      </tr>
+
+
+
+      <tr valign="top">
+        <td><b>Source:</b></td>
+        <td>
+Colocalization_Finder.java in the Jar file.
+        </td>
+      </tr>
+
+
+      <tr valign="top">
+        <td><b>Installation:</b></td>
+        <td>
+Download <a href="download/jars/Colocalization_Finder.jar">Colocalization_Finder.jar</a>
+to the plugins folder and restart ImageJ.
+        </td>
+      </tr>
+
+
+      <tr valign="top">
+        <td><b>Description:</b></td>
+        <td> This plugin displays
+a correlation diagram for two images (8bits, same size). Drawing a
+rectangular selection on this diagram allows you to highlight
+corresponding pixels on a RGB overlap of the original images, and if
+selected, on a 3rd image. Analysis can be restricted to pixels having
+values with a minimum ratio. Selection settings are logged to a results
+window. Parts of this code were taken from plugins by W. Rasband, P.
+Bourdoncle, and G. Chinga. 
+        <p>Example results:<br>
+        <img src="images/CF_images.png">
+ </p>
+        <p>The
+results table with computer Pearson's correlation, Overlap coefficient,
+contribution of both channels to OC, Slope and intercept of the linear
+regression,% pixels selected, min and max in both channels. <br>
+        <img src="images/CF_table.png">
+ </p>
+        </td>
+      </tr>
+
+
+    </tbody>
+  </table>
+
+
+</blockquote>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+
+</p>
+</body>
+</html>
