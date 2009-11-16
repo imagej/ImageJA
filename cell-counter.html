@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 TRANSITIONAL//EN">
+<html>
+<head>
+<title>Cell Counter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Cell Counter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kurt De Vos<br>
+University of Sheffield, Academic Neurology<br>
+kurt.devos at iop.kcl.ac.uk
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Included in cell_counter.jar, and is released under the GNU General Public License.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/cell_counter.jar">cell_counter.jar</A> to the plugins folder,
+or subfolder, restart ImageJ, and there will be a new "Cell Counter" command in the Plugins menu or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+May not work correctly after using <b>Load Markers</b> to load more than 8 counter types from an XML file.
+Opens off-screen on 1024 pixel wide and smaller monitors.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin will open a new cell counter GUI.
+On the left are the counter types and counters, on the right the action buttons.<br>
+<br>
+<b>Functions:</b><p>
+
+<ul>
+<li><b>Initialize:</b> Initializes the current image or stack for counting, this will create a duplicate image/stack titled "counter window" - when keep original is checked, the source image remains open
+<li><b>Add:</b> adds a counter type.
+<li><b>Remove:</b> removes the last counter type.
+<li><b>Delete mode:</b> toggles between insert and delete mode. When checked, the marker of the currently selected type closest to the mouse cursor will be deleted when you click.
+<li><b>Delete:</b> delete the last placed marker.
+<li><b>Reset:</b> reset all counters to 0.
+<li><b>Results:</b> Shows the counter results in the ImageJ results table. In case of a stack the counts per slice and the totals are displayed.
+<li><b>Save Markers:</b> Exports the marker data to an XML file - Only available when running java 1.4 or higher
+<li><b>Load Markers:</b> Loads stored marker data from an XML file - - Only available when running java 1.4 or higher
+<li><b>Export Image:</b> Makes a copy of the counter image with the markers written on it (only the current slice is copied in case of a stack)
+<li><b>Measure...:</b> Measures the pixel value at each marker and displays a result window showing: Type - Slice - X coordinate - Y coordinate - Pixel Value
+</ul>
+
+<b>Usage:</b>
+<blockquote>
+Open the Cell Counter plugin and the image/stack you want to count (if the Cell Counter plugin is already open you don't need to open a new instance). Click initialize, now you are ready to count features. <br>
+Note that at any time you can add types or remove them.
+Select the type you want to count, and count by clicking on the feature in the image. A colored number corresponding to the type you are counting will be displayed on the image every time you click, and the corresponding counter is updated.
+<p>
+Add the following macros to <i>ImageJ/macros/StartupMacros.txt</i>, restart ImageJ, and you will be able to change the counter type by pressing "1", "2", "3", etc.
+<pre>
+  macro "Type 1 [1]" {call("CellCounter.setType", "1");}
+  macro "Type 2 [2]" {call("CellCounter.setType", "2");}
+  macro "Type 3 [3]" {call("CellCounter.setType", "3");}
+  macro "Type 4 [4]" {call("CellCounter.setType", "4");}
+  macro "Type 5 [5]" {call("CellCounter.setType", "5");}
+  macro "Type 6 [6]" {call("CellCounter.setType", "6");}
+  macro "Type 7 [7]" {call("CellCounter.setType", "7");}
+  macro "Type 8 [8]" {call("CellCounter.setType", "8");}
+   
+</pre>
+</blockquote>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2001/10/17</u>: first version<br>
+<u>2002/02/01</u>: bug fixes<br>
+<u>2004/06/26</u>: upgraded to work with ImageJ 1.32<br>
+<u>2005/12/27</u>: version 2<br>
+<u>2006/02/02</u>: No longer requires Java 5.0<br>
+<u>2006/02/14</u>: Added "Save Markers" and "Load Markers" buttons<br>
+<u>2006/03/06</u>: Added "Export Image" and "Measure" buttons<br>
+<u>2006/03/12</u>: Add "Show Numbers" checkbox<br>
+<u>2008/02/29</u>: Updated to work with <A HREF="grid.html">Grid</A> plugin<br>
+<u>2008/08/27</u>: Added "Show All" checkbox; works with hyperstacks and composite color images<br>
+<u>2008/09/02</u>: Added setType() method to support macros<br>
+<u>2008/09/22</u>: Out of focus markers displayed as outlines<br>
+<u>2009/07/01</u>: Fixed "Load Markers" bug<br>
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
