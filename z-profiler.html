@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Z Profiler</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Z Profiler</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+ Kevin (Gali) Baler and Wayne
+Rasband (wsr at nih.gov)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2003/10/10:</u> First version<br>
+<u>2003/10/20:</u> Modified to allow displaying, saving and copying profile values. 
+Single clicks generate single point Z Profiles. Fixed
+a bug that failed to remove listeners from the canvas. 
+Plot labels reflect changes in calibration settings.<br>
+<u>2003/10/21:</u> Works with polygonal selections. Single clicks work 
+with calibrated images and 32-bit images.<br>
+<u>2004/03/09:</u> Updated to work with ImageJ 1.32c.<br>
+<u>2004/12/15:</u> Fixed y-axis scaling bug.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >ImageJ
+1.32c or later</td></tr>
+
+<tr valign=top><td ><b>Bugs:</b></td><td >
+On Mac OS X, the plot is not updated when keys are
+pressed.
+On Mac OS 9, the Polygon tool does not work.
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Z_Profiler.java">Z_Profiler.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Z_Profiler.java">Z_Profiler.java</A>
+to the plugins folder, or subfolder, and compile and
+run 
+using <i>Plugins/Compile and Run</i>. Restarting
+ImageJ will add a "Z Profiler"
+command to the Plugins menu or a submenu of the
+Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+      This plugin continuously updates a profile plot
+through the z-axis as a line, rectangular or oval
+      selection is moved or resized.
+      The plot is also updated when the arrow 
+      keys are used to move a selection and "<" or ">"
+are used to move through 
+      a stack. 
+      The y-axis scale in the plot can be fixed using
+<i>Edit>Options>Profile Plot Options</i>.
+      Works best on a fast machine.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="dynamic-profiler.html">Dynamic Profiler plugin</A>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a
+href="../index.html">Home</a> |</b>
+
+</body>
+</html>
