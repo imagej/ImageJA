@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>Packages</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Using Packages for Utility Classes</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/01/09: First version<br>
+2006/07/11: Packaged as JAR file<br>
+2009/04/22: Added second plugin
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Included in <a href="download/jars/Plugin_With_Libraries.jar">Plugin_With_Libraries.jar</a>.
+To open a JAR file, change the extension to ".zip" and double click on it.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<a href="download/jars/Plugin_With_Libraries.jar">Plugin_With_Libraries.jar</a>
+into the plugins folder, or a subfolder,  and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is an example of how to use Java packages for utility classes, avoiding possible class 
+name collision problems. The JAR file contains two 
+plugin ("Plugin_Using_Libraries1" and "Plugin_Using_Libraries2") that call a static method in two classes with the same 
+name in two different packages. 
+<p>
+To compile the plugins, remove the JAR file from
+the plugins folder, extract the files to a folder in the plugins folder, 
+restart ImageJ and compile each plugin using <i>Plugins/Compile and Run</i>. Create
+a new JAR file using
+<pre>
+    jar cvfM Plugin_With_Libraries.jar *
+</pre>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
