@@ -1,0 +1,109 @@
+<html>
+<head>
+<title>Template Matching</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Template Matching</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Walter O'Dell PhD,  wodell at rochester.edu
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/06/30: First version<br>
+2005/07/05: Removes unused image window sliders and fixes window list bug<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Create_Template.jar">Create_Template.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Create_Template.jar">Create_Template.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new "Create Template" command in the <i>Plugins</i> menu or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+   The purpose of this plugin is to perform template matching for detection of objects in an image. 
+   This plugin was created initially as a teaching tool for an image processing class. The idea
+   of template matching is to create a model of an object of interest (the template, or kernel) 
+   and then to search over the image of interest for objects that match the template.  The 
+   underlying math here computes, for each pixel in the image of interest, the normalized 
+   cross-correlation coefficient (NCCC) between the template and the underlying pixels in the image 
+   of interest.  A perfect match would give an NCCC value of +1; comparison with an exact negative 
+   (inverted grayscale values) gives an NCC of -1; while a comparison with a completely unrelated 
+   template gives an NCCC of 0.  The NCCC computation inherently corrects for any background image
+   intensity variations and differences in lighting and overall contrast.  It keys in only on the 
+   relative size and relative intensity contrast of the pixels under the template.
+<p>   
+   <img src="images/hl60cells04.gif" width=256 height=192 alt="[sample image]">
+<ul>
+<li><b>Create Disk Template button:</b>
+   The classic example is detection of cells.  
+   An example image is provided.  Running the plugin 
+   brings up an interface window that allows one to create circular templates of any size. This is 
+   handy if your objects somewhat resemble disks, which they do for these cells.  Here the cells 
+   are ~30 pixels in diameter so I would create a disk that is ~15 pixels in radius.  
+<li><b>Inverty template button:</b>
+   In this example the template image should be inverted so that the template has a bright center
+   with a darker background to match the appearance of the cells. 
+<li><b>Crop Template from Image button</b>
+   If there are many like-objects to be detected then it is useful to draw an ROI around one 
+   representative object and then to use the Crop Template from Image button to apply that ROI as 
+   the template.  This works amazingly well. If you want to use this Cropped ROI for other images 
+   then just save that kernel image to file using the regular ImageJ file saving menu buttons.
+<li><b>Load Template from File button:</b>
+   If there is an ROI image already saved to a file, or if you decided to create a template using 
+   an external program, then you can load that pre-existing template from file and use it as the
+   current tempalte. 
+<li><b>Perform Statistical Correlation:</b>
+   Hitting this button then invokes the computation of the NCCC based on the current template image. 
+   The Correlation image is then shown. The intensity assigned to each pixel represents the NCCC 
+   value computed with the template image centered over that pixel location.  Beware that this is 
+   essentiall an O(n^3) operation so having a very large base image or template image will cause this 
+   computation to take a few minutes. For testing I often shrink my base image by a factor of 2.
+<li><b>set threshold and get particle analyzer results:</b>
+   The particle counter and analyzer functions already in ImageJ are integrated here for convenience. 
+   The threshold levels and particle sizes are those of the built-in particle analyzer and are applied
+   to the correlation image, as evident by the program turning the corresponding pixels 'red'.  The
+   qualifying particles are then outlined with a green box on both the correlation and the original
+   image. The results of the number of counts and their pixel locations are reported in the Results 
+   text window.
+ </ul>
+
+<b>Two things of general interest to developers:</b>
+<ol>
+<li>The ArrayDisplay class is really quite a useful addition. It greatly simplifies the creation and 
+usage of image windows and display of 2 and 3 dimensional data.  The coder no longer has to worry
+about keeping track of the ImagePlus and ImageProcessing classes and their associated windows and 
+graphics and canvas classes, as the ArrayDisplay class makes all these transparent.  It also has 
+so much overloading of functions it can handle just about any type of 2D and 3D dataset. In my
+modified version of ImageJ at home I have an ArrayDisplay that has greater functionality and I have 
+an ArrayColorDisplay to enable overlaying of two images in different colors -- useful for evaluating
+the quality of image regitration.
+
+<li>The ImageTools class is a collection of useful general math as well as image processing routines.
+Even some simple things like the square root function for floats does not exist in basic Java, so 
+this has those and many others. Again I have a more complete version at home but the functions here
+suffice for the Create_A_Template plugin.
+</ol>
+
+</td></tr>
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
