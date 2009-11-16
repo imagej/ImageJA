@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Mean Shift Filter</title>   
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1> 
+<b>Mean Shift Filter</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kai Uwe Barthel (k.barthel at fhtw-berlin.de)<br>
+Internationale Medieninformatik<br>
+Berlin, Germany
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/12/11: First version<br>
+2007/12/13: Works with all image types except 8-bit color<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Mean_Shift.java">Mean_Shift.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/Mean_Shift.class">Mean_Shift.class</a> 
+to the plugins folder, or subfolder, restart ImageJ, 
+and there will be a new "Mean Shift" command in the Plugins menu,
+or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin is a very simple implementation of a mean shift filter
+that can be used for edge-preserving smoothing or for segmentation.
+Important edges of an image might be easier detected after mean shift filtering.
+<p>
+<center>
+<img src="images/mean-shift.gif" width=226 height=170 alt="dialog">
+</center><br>
+
+It uses a circular flat kernel and the color distance is calculated
+in the YIQ-color space. For large spatial radii the plugin might become quite slow.
+<p>
+Mean shift filtering is a data clustering algorithm commonly used in computer
+vision and image processing. For each pixel of an image (having a spatial 
+location and a particular color), the set of neighboring pixels (within a spatial
+radius and a defined color distance) is determined. For this set of neighbor 
+pixels, the new spatial center (spatial mean) and the new color mean value 
+are calculated. These calculated mean values will serve as the new center for
+the next iteration. The described procedure will be iterated until the spatial
+and the color (or grayscale) mean stops changing. At the end of the iteration,
+the final mean color will be assigned to the starting position of that iteration.
+A very good introduction to the mean shift algorithm (in PowerPoint format) can be found
+<a href="http://www.wisdom.weizmann.ac.il/~deniss/vision_spring04/files/mean_shift/mean_shift.ppt">here</a>.
+
+<p>
+<img src="images/mean-shift.png" width=662 height=485 alt="example">
+
+</td></tr>
+
+</table>
+
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
