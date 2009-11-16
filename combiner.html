@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Stack Combiner</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Stack Combiner</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov) 
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2000/11/27: First version<br>
+2001/05/08: Added "Vertical" option<br>
+2004/06/21: Fixed recording/playback bug<br>
+2006/11/14: Fixed macro batch mode bug<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Stack_Combiner.java">Stack_Combiner.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Stack_Combiner.class">Stack_Combiner.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	Combines two stacks (w1xh1xd1 and w2xh2xd2) to create a new
+	w1+w2 x max(h1,h2) x max(d1,d2) stack. For example, a 256x256x40
+	and a 256x256x30 stack would be combined into one 512x256x40 stack.
+	If "Vertical" is checked, create a new max(w1+w2) x (h1+h2) x max(d1,d2) stack.
+	Unused areas in the combined stack are filled with the background color. To set the
+	background color, alt-click in the "Colors" window.
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
