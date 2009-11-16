@@ -1,0 +1,146 @@
+<html>
+<head>
+<title>Combine Images to Create Mosaic</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Combine Images to Create Mosaic</b>
+</font>
+
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+    Kavagiou Zaharoula (Kavagiouzaharoula@yahoo.com)<br>
+    European Molecular Biology Laboratory, Heidelberg<br>
+    Cell Biology and Cell Biophysics Programme<br>
+    Light Microscopy Group
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/09/06: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Patchwork_.java">Patchwork_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/Patchwork_.java">Patchwork_.java</A>
+to the plugins folder, compile it with <i>Plugins/Compile and Run</i>, then restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<pre>
+The program patchwork_ (running under ImageJ version
+1.27z) is able to combine images that are overlapping (mosaic). The
+program was tested on bright transmission images coming from a
+microscope. With this program, the user can combine all the images
+of a mosaic into one. The program can handle 8bit, 16bit and color
+(RGB) images. The option of correcting the flaws of the images is
+also given (See Background Correction). The images should be aligned
+(which means that you don't have to shift them in 2 dimension to
+find the match, but only in one).
+
+A Few Guidelines
+
+The main program is the "patchwork_" one. All the other classes are
+used by this one. Class patchwork_ uses classes: ...correl2_
+...correl3_ ...Final_proc_ ...File Opener_  (downloaded from ImageJ
+PlugIn list)
+
+1. Compile and Run patchwork_ .java
+
+2. The user should provide the number of the images he/she wants to
+combine, in the  beginning.
+
+3. The user should open the images in the correct order (from the
+one in the right bottom to the one on the left top, moving upwards.
+Imagine the mosaic as a matrix of images and start from element
+(n,m), then open (n-1,m)...,(n,m-1),(n-1,m-1)...to (0,0). The File
+Opener plugin is used (as found on the webpage) in order to open the
+images. The user can also open the images before running the program
+and choose <cancel> when the File Opener runs.
+
+4. The user should provide the number of the "rows" of the mosaic,
+the percentage of overlap vertically and the percentage of overlap
+horizontally.
+
+5. The option of eliminating background abnormalities is given. The
+images are divided by a "background image". Click OK to implement
+Background correction (for better results). If you don't want
+background correction, just change the default option and click OK.
+When the user opens the background image, the program starts
+combining the images. 6. Let it run until you are asked to save the
+final image or until an error message about the  input appears.
+
+7. Save the final image otherwise you lose it!
+
+
+Installation and Documentation
+
+In order to run the patchwork_
+program to turn a mosaic into a single image, download the .java
+files of the classes involved (patchwork_.java, correl2_.java,
+correl3.java, Final_proc.java, File Opener.java). Compile each one
+of these files, ignoring the NullPointerException and canceling the
+File Opener_ run. Compile patchwork_ in the end and run it. The
+comments in these programs are written in such a way as to be easy
+to create a documentation file (HTML) by using Doxygen program (run
+the Doxygen wizard and use the above .java files as input).
+(download it from:
+http://www.stack.nl/~dimitri/doxygen/download.html#latestsrc)
+
+
+Detailed explanation of the purpose of  patchwork_  program
+
+When we want to examine an object (e.g. cell) with a microscope, we
+prefer to zoom in in certain areas of this object to get better
+resolution, but we also want to have the whole picture. So we create
+a mosaic by capturing parts of the object and getting images that
+overlap (we need the overlap to reconstruct the object again).
+Reconstructing the whole image from some smaller ones is the purpose
+of this program.
+
+Background Correction
+
+When capturing bright transmission images the
+result is not always satisfying. For example, there may be stains on
+the lenses and, usually, the lighting is not homogenous all over the
+image. These may cause problems when we try to reconstruct the whole
+picture. In this program, there been an effort to correct this by
+taking an image with no object inside (with the microscope), which
+unavoidably has all the flaws described above. We divide this image
+by every other image that is part of the mosaic and we get corrected
+images to combine.
+
+Example
+
+If you want to view a little demonstration of this program,
+you can use the images that are in the following address.
+www.photos.yahoo.com/kavagiouzaharoula    (Image folder) Download
+them and save them in the order they are numbered so that you can
+open them easily when you run the program. The mosaic is created by
+4 8bit grayscale images and you can use the "background image" to
+correct the other 4. The correct answers for the program are:
+
+  number of images -> 4
+  number of rows -> 2 
+  vertical overlap -> 40 (%)
+  horizontal overlap -> 27 (%)
+</pre>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
