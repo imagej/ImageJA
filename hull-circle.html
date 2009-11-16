@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Hull And Circle</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Hull And Circle</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Audrey Karperien, Charles Sturt University (akarpe at sbcglobal.net)<br>
+Thomas R. Roy, University of Albert<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2005/05/24: Version 2.0a<br>
+2005/06/01: Bug fixes<br>
+2005/07/18: Bug fixes<br>
+2005/07/20: Bug fixes<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Contained in
+<A HREF="download/jars/Hull_And_Circle.jar">Hull_And_Circle.jar</A>,
+which can be opened using a ZIP utility.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download
+<A HREF="download/jars/Hull_And_Circle.jar">Hull_And_Circle.jar</A>
+to the plugins folder, or subfolder, restart ImageJ, and there well 
+be a new <i>Plugins/Shape Analysis/Hull And Circle</i> command.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+HullAndCircle is a plugin for ImageJ used for finding the convex hull and bounding circle of 
+patterns in binary digital images.  It is in the public domain.
+<p>
+Values for the hull (e.g., the hull's circularity and its bounding circle's diameter) are returned in the results table. 
+Other values are accessible within the code.
+<p>
+The essential algorithm is:
+<ol>
+	<li> Find the convex hull
+	<li> Choose three points on it
+	<ol>
+	<li> Try the largest span across the hull
+	<li> If that circle does not include all the points, use the triangle having the largest perimeter
+	</ol>
+	<li> Finally, keep the chosen equation of the circle found by solving three equations simultaneously
+</ol>
+This plugin was originally conceived and developed by Audrey Karperien at Charles Sturt University in 2002-2004 
+as a subcomponent of a master's project supervised by Dr. Herbert Jelinek, Neuroscience 
+Department, School of Community Health, Charles Sturt University, Australia. T.R. Roy, 
+Computing Science, University of Alberta, Canada, a coauthor,  provided the modified convex hull algorithms 
+and helped develop the bounding circle algorithm. The algorithm for finding the bounding circle was 
+developed originally in a larger plugin, then developed further using  an idea 
+posted by Xavier Draye to the ImageJ listserver.
+<p>
+The following macro generates a test image and then runs the Hull And Circle plugin:
+<pre>
+      nPoints = 40;
+      blackBackground = false;
+      if (isOpen("Plots")) {
+          selectImage("Plots");
+          close();
+      }
+      if (isOpen("copyPlots")) {
+           selectImage("copyPlots");
+           close();
+       }
+      if (blackBackground) {
+          newImage("Plots", "8-bit Black", 512, 512, 1);
+          for (i=0; i&lt;nPoints; i++)
+             putPixel(random()*300+50,random()*300+50, 255);
+      } else {
+          newImage("Plots", "8-bit White", 512, 512, 1);
+          for (i=0; i&lt;nPoints; i++)
+             putPixel(random()*300+50,random()*300+50, 0);
+      }
+      run( "Hull And Circle");
+</pre>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+Innaconne, Geometry in Biological Systems.<br>
+Costa and Cesar, Shape Analysis and Classification, CRC Press, 2001<br>
+</td></tr>
+
+<tr valign=top><td ><b>Examples:</b></td><td >
+</td></tr>
+
+</table>
+
+<img src="images/tester.gif"><img src="images/tester-after.gif"><p>
+<img src="images/gt.gif"><img src="images/gt-after.gif"><p>
+<img src="images/glia.gif"><img src="images/glia-after.gif"><p>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
