@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Blend Images</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Blend Images</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Michael Schmid (schmid at iap.tuwien.ac.at)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/04/04: First version<br>
+2008/11/24: Added "Preview" option<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.38n or later
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Blend_Images.java">Blend_Images.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Blend_Images.class">Blend_Images.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This sample ImageJ plugin filter blends an image with another one,
+i.e., it adds another image with user-specified weight.
+ <p>  
+A few things to note:
+<ol>
+    <li> Filter plugins must implement the PlugInFilter interface.
+    <li> User plugins do not use the package statement;
+    <li> Plugins residing in the "plugins" folder, and with at
+       least one underscore in their name, are automatically
+       installed in the PlugIns menu.
+    <li> Plugins can be installed in other menus by 
+       packaging them as JAR files.
+    <li> The class name ("Blend_Images") and file name 
+       ("Blend_Images.java") must be the same.
+    <li> An ImagePlus is, roughly speaking, an image or stack that has a name
+       and usually its own window. An ImageProcessor (ip) carries image data
+       for a single image (grayscale or color), e.g. the image displayed in
+       the window of an ImagePlus, or a single slice of a stack. Depending
+       on the image type, an ImageProcesor can be a ByteProcessor (8 bit),
+       ShortProcessor (16 bit), FloatProcessor (32 bit) or ColorProcessor (RGB).
+    <li> This filter works with selections, including non-rectangular
+       selections. It is the programmer's responsibility to modify only
+       the pixels within the ip.getRoi() rectangle; with the flag
+       SUPPORTS_MASKING ImageJ takes care of out-of-roi pixels in that
+       rectangle (for non-rectangular rois).
+    <li> The run method of a PlugInFilter will be called repeatedly to
+       process all the slices in a stack if requested by the user.
+    <li> It supports Undo for single images. ImageJ takes care of this.
+   <li> This filter uses the following methods of the ImageProcessor class:
+       ip.toFloat(i, fp), ip.setPixels(i, fp) and ip.getNChannels(),
+       simplifying code that does float operations on grayscale images of
+       any type or on the channels of color images. See the run(ip) method.
+       These methods were added in ImageJ 1.38n.
+</ol>
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
