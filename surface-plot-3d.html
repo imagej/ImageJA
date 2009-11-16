@@ -1,0 +1,176 @@
+<html>
+<head>
+<title>Interactive 3D Surface Plot</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Interactive 3D Surface Plot</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kai Uwe Barthel (k.barthel at fhtw-berlin.de)<br>
+Internationale Medieninformatik<br>
+Berlin, Germany
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+In <A HREF="download/jars/Interactive_3D_Surface_Plot.jar">Interactive_3D_Surface_Plot.jar</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download 
+<a href="download/jars/Interactive_3D_Surface_Plot.jar">Interactive_3D_Surface_Plot.jar</a>
+to the plugins folder, or subfolder, restart ImageJ, and there
+will be a new "Interactive 3D Surface Plot" command in the Plugins menu, or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin creates interactive surface plots from all image types. 
+Selections, which can be non-rectangular, are supported.
+<p>
+The luminance of an image is interpreted as height for the plot. Internally the image is 
+scaled to a square image using nearest neighbor sampling. For selections the bounding box 
+of the selection is used for the surface plot.
+<p>
+The viewing position of the plot can be adjusted with the mouse. 
+Double click on the plot to show it from the top, triple click on it to show it from the front.
+<p>
+The plugin has several modes for displaying surface plots:
+<ul>
+  <li> Drawing Mode:
+          <ul>
+     <li> Dots: All pixels are drawn as small dots.
+     <li> Lines: All pixels are connected in the x-direction.
+     <li> Mesh: All pixels are connected in the x- and y-direction.
+     <li> Filled: All pixels are connected without leaving holes
+          </ul>
+  <li> Display Colors can be chosen from the original color, grayscale, different LUTs and orange.
+  <li> Axes: If checked, axes and text are shown.
+  <li> Invert: If checked, inverts the luminance of the plot data (the Lum height).
+</ul>
+ The size of the data grid can be adjusted with the "Grid Size" slider (32x32, 64x64 upto 512x512 samples).
+ Best plotting results will be achieved if the image has the same size as the plot grid.
+<p>
+Using the "Load Texture button opens another image that will be used as texture map.
+This feature can be used to warp images.
+<p>
+The "Perspective" and "Scale" sliders allow the 3D-projection and the size of the surface 
+plot to be changed. The plot height may be scaled with the ZRatio slider. The "Min and "Max 
+sliders will limit the height range of the plot data.
+<p>
+Noisy images can be smoothed with the "Smoothing" slider.
+The "Lighting" slider gives the impression that the plot was illuminated and so improves 
+the visibility of small differences.
+The "Save Plot" button generates a new image containing a screenshot of the surface plot.
+<p>
+This plugin can be called from a macro. Here is an example that plots
+an image from 10 different angles:
+<pre>
+  //run with "help" to list options
+  //run("Interactive 3D Surface Plot","help"); 
+  run("Blobs (25K)");
+  run("Invert");
+  img1 = getImageID;
+  stack = 0;
+  setBatchMode(true);
+  n = 10;
+  for (i=0; i&lt;n; i++) {
+    showProgress(i, n);
+    selectImage(img1);
+    angleZ = -i * 4 + 60;
+    run("Interactive 3D Surface Plot",
+      "plotType=3 smooth=11 colorType=3 snapshot=1 rotationZ="+angleZ);
+    run("Copy");
+    w = getWidth; h = getHeight;
+    close();  
+    if (stack==0) {
+     newImage("Plots", "RGB", w, h, 1);
+     stack = getImageID;
+    } else {
+     selectImage(stack);
+     run("Add Slice");
+    }
+    run("Paste");
+  }
+  setSlice(1);
+  run("Select None");
+  setBatchMode(false);
+</pre>
+
+The following macro plots, using the current settings, all the images in a stack
+and saves the plots in another stack. Press the Esc key to abort the macro.
+<pre>
+  n = nSlices;
+  if (n==1) exit("Stack required");
+  stack1 = getImageID;
+  stack2 = 0;
+  setBatchMode(true);
+  for (i=1; i<=n; i++) {
+    showProgress(i, n);
+    selectImage(stack1);
+    setSlice(i);
+    run("Duplicate...", "title=temp");
+    temp = getImageID;
+    run("Interactive 3D Surface Plot", "snapshot=1");
+    run("Copy");
+    w = getWidth; h = getHeight;
+    close;
+    selectImage(temp);
+    close;  
+    if (stack2==0) {
+     newImage("Plots", "RGB", w, h, 1);
+     stack2 = getImageID;
+    } else {
+     selectImage(stack2);
+     run("Add Slice");
+    }
+    run("Paste");
+  }
+  setSlice(1);
+  run("Select None");
+  setBatchMode(false);
+  </pre>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="color-inspector.html">3D Color Inspector plugin</A><br>
+<A HREF="volume-viewer.html">Volume Viewer</A>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<b>2004/11/19 (V1.0):</b> First version<br>
+<b>2004/11/20 (V1.1):</b> 8-Bit Color fixed, Mesh Mode, Fill Mode fixed, better scaling
+Automatic rotation if the mouse is moved after releasing it<br>
+<b>2004/11/21 (V1.2):</b> Only the bounding box of the selection is taken for
+surface plot<br>
+<b>2004/11/26 (V1.3):</b> Smoothing and lighting of the plot, better "filled" mode<br>
+<b>2004/12/02 (V1.4):</b> The surface plot can be converted to an ImageJ image,
+better interpolation for lut-colors, faster filled mode<br>
+<b>2007/01/10 (V2.0):</b> Renamed "Interactive 3D Surface Plot", packaged as JAR file,
+scalable plot window size, adjustable grid sizes, texture mapping and
+several different scaling modes<br>
+<b>2007/01/15 (V2.1):</b> Adds isolines and gradient coloring visualization modes<br>
+<b>2007/08/09 (V2.11):</b> Fixes problem with 16 and 32 bit LUT images<br>
+<b>2007/11/02 (V2.22):</b> Fixes bugs and optionally displays grids and labeled axes<br>
+<b>2008/05/12 (V2.3):</b> Option to show legend, remembers parameters, 
+can be called from macros<br>
+<b>2008/08/17 (V2.31):</b> Adds "snapshot" macro parameter<br>
+<b>2008/10/24 (V2.32):</b> Does not show images when run in batch mode<br>
+</td></tr>
+
+</table>
+
+
+<p><img src="images/surface-plot-3d.jpg" width=670 height=800 alt="[Screen Shot]"><p>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
