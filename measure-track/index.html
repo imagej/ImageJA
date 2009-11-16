@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>Measure Along Track</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Measure Track</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+
+Chris Nicolai (nicolaitanes at gmail dot com)
+
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >2009/5/14</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+
+<A HREF="Measure_Track.java">Measure_Track.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="Measure_Track.class">Measure_Track.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+<P>
+This plugin measures the z-profile of the ROI through a stack.  For each stack frame, it moves the ROI
+by the displacement (x[i], y[i]) - (x[0], y[0]), with x and y taken from selected columns of the Results table.
+To hold x or y constant, leave the column name blank.
+</P><P>
+Intended for use with the output of the <A HREF="http://rsbweb.nih.gov/ij/plugins/tracker.html">Tracker</A> plugin.
+A <A HREF="measure_track_sample.tif">sample stack</A> is provided.  To try it, first
+load this <A HREF="measure_track_thresh.tif">thresholded stack</A> and run the Tracker plugin, then 
+load the sample stack, select an ROI,
+and run Measure_Track.
+</P>
+<IMG src="measure_track_screen.png" />
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
+</body>
+</html>
