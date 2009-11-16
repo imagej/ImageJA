@@ -1,0 +1,110 @@
+<html>
+<head>
+<title>Hough Circles</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Hough Circles</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Hemerson Pistori (pistori at ec.ucdb.br)<br>
+and Eduardo Rocha Costa (eduardo.rocha at poli.usp.br)
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/07/29: First version<br>
+2006/01/18: Can find circles with arbitrary radius<br>
+2008/10/30: Macro compatible<br>
+2009/05/04: Works with rectangular selections, thanks to David Webster<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Hough_Circles.java">Hough_Circles.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/Hough_Circles.class">Hough_Circles.class</A>
+to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin
+applies the Hough Transform for Circles to
+an 8-Bit image, shows the resulting
+Hough Space in a new window and marks
+the centers of the found circles.
+<p>
+   The Algorithm performs better if preceeded
+by Equalization + 8-Bit + Edge Detection +
+Threshold.
+<p>
+The Hough Transform implementation is based on an
+applet by Mark A. Schulze (<a href="http://www.markschulze.net/">http://www.markschulze.net</a>)
+<p>
+
+<table cellspacing=15 width=400>
+
+<tr><td>
+<img src="images/hough-orginal.jpg" width=350 height=288 alt="[original]">
+<p>
+The original RGB image.
+<p>
+</td></tr>
+
+<tr><td>
+<img src="images/hough-preprocessed.gif" width=350 height=288 alt="[preprocessed]">
+<p>
+Image after conversion to 8-bits, smooth,
+ find-edges, binary/threshold, and invert.
+ <p>
+</td></tr>
+
+<tr><td>
+<img src="images/houghspace.jpg" width=350 height=288 alt="[houghspace]">
+<p>
+The hough space. Lighter regions represents
+most probable places for finding centers of circles
+of predefined radius. The "number of circles", X,
+entered by the user, will be used to choose the X most
+lightest points in the hough space.  The user can also 
+enter a threshold for the histogram of the Hough Space,
+instead of the number of circles.
+<p>
+</td></tr>
+
+<tr><td>
+<img src="images/hough-found.gif" width=350 height=288 alt="[circles marked]">
+<p>
+Image with the center of the two iris marked.
+Notice that, in this example, we are looking for a
+predefined number of circles (2) with predefined
+radius (11). (The algorithm tolerate a small error in
+the radius).
+<p>
+</td></tr>
+
+</table>
+
+
+</td></tr>
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
