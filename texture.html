@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>Texture Analyzer</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Texture Analyzer</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Julio E. Cabrera (jcabrera at mail.nih.gov) 
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+<u>2003/06/10 (v0.0):</u> First version<br>
+<u>2005/06/10 (v0.1):</u> The normalization constant (R in Haralick's paper, pixelcounter here)
+now takes in account the fact that for each pair of pixel you take in account there are two entries to the 
+grey level co-ocurrence matrix. Changes were made also in the Correlation parameter. Now this parameter is 
+calculated according to Walker's paper.<br>
+<u>2006/07/07 (v0.4):</u> Works with stacks and with macros.
+<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/GLCM_Texture.java">GLCM_Texture.java</A>
+</td></tr>
+
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/GLCM_Texture.class">GLCM_Texture.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin computes several of the texture parameters described by Haralick (Haralick, R. M., Shanmugam,  
+K., and Dinstein, I. (1973). Texture parameters for image classification, IEEE Trans SMC 3, 610-621). 
+The only parameter computed differently is "Correlation", which is now calculated as described by 
+Walker and col. (Walker, R. F., Jackway, P., and Longstaff, I. D. (1995). Improving Co-occurrence 
+Matrix Feature Discrimination. Paper presented at: Third Conference on Digital Image Computing: 
+Techniques and Applications.). Please note that the computations carried out in this plugin are 
+normalized by area (see also below): two ROIs of different size but the same texture will result i
+n similar results for their texture parameters.
+<p>
+The texture parameters have been used in several areas of the biomedical research, sometimes to 
+diagnose tumors by measuring the textural parameters in the nucleus of cells from biopsies 
+(Murata, S., Herman, P., and Lakowicz, J. R. [2001]. Texture analysis of fluorescence lifetime 
+images of AT- and GC-rich regions in nuclei, J Histochem Cytochem 49, 1443-51)(Murata, S., 
+Herman, P., and Lakowicz, J. R. [2001]. Texture analysis of fluorescence lifetime images of 
+nuclear DNA with effect of fluorescence resonance energy transfer, Cytometry 43, 94-100).
+<p>
+The plug in works with 256 gray level images only. This is because the gray level co-occurrence 
+matrices proposed by Haralick were based in these type of images.
+<p>
+ Corrected/added in version 0.1: 
+ <ul>
+<li>Better area normalization. There was a bug in the original plugin that resulted in a deffective normalization procedure. In this new version, the sum of all the members of the GLCM is close to 1.
+<li>The sum of all the members of the GLCM is displayed in the "Results" window. The value of this sum should be close to 1 and provides a control to ensure that the calculations have proceeded without problems.
+</ul>
+Known issues: 
+ <ul>
+<li>The plug in works computes square ROIs only. Even when it works with multi-shaped ROIs, it always computes a square region based on those ROIs. I'm working on a new version that will support non-rectangular ROIs.
+
+<li>When called within a macro, the plugin doesn't return any calculations. I'm working on a fix for this and will have the updated version ready soon.
+
+<li>When no ROI is selected and the "size of the step in pixels" is greater than 5, the plugin returns texture parameter values but several errors are reported in a separate window. I encourage the users to use ROIs when using the plugin as I work on a solution to this problem.
+ </ul>
+
+Disclaimer: <br>
+Since I am an amateur programmer, I wrote this plug in based in the "programming examples" of the ImageJ website. All through the code, you will find shells and methods that have been borrowed from such examples. I hope this is not a problem.
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+The
+<a href="http://rsb.info.nih.gov/ij/macros/Batch_GLCM_Measure.txt">Batch GLCM Measure</a> macro
+is a wrapper for this plugin that allows batch processing of all the images in a directory.
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
