@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>ROI Brush Tool</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>ROI Brush Tool</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=600>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Johannes Schindelin (Johannes.Schindelin at GMX.DE)<br>
+Tom Larkworthy (tom.larkworthy@GMAIL.COM)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2006/06/27: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.37c or later (1.37k or later to avoid flicker)
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/ROI_Brush.java">ROI_Brush.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+The ROI Brush Tool is built into ImageJ 1.37k or later. Right click on
+the Oval selection tool to activate it.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td > 
+Run this plugin, and a
+new tool will appear: the <i>ROI Brush</i>. It works like a brush, but 
+instead of
+painting circular regions, it <i>selects</i> them (or, if you press alt
+while dragging the mouse, <i>deselects</i> them).
+<p>
+Add the following text to StartupMacros.txt in ImageJ/macros to have the <i>ROI Brush</i> installed 
+automatically when ImageJ  starts up:
+<pre>
+  var roiBrushWidth=10;
+  macro 'Roi Brush Tool - Cf800O11dd' {
+      leftClick=16; alt=9;
+      while (true) {
+          getCursorLoc(x, y, z, flags);
+          if (flags&leftClick==0) exit();
+          if (flags&alt==0) {
+              call('ROI_Brush.label', x,y,z,flags, roiBrushWidth);
+          } else {
+              call('ROI_Brush.unlabel', x,y,z,flags, roiBrushWidth);
+          }
+          wait(10);
+      }
+  }
+  macro 'Roi Brush Tool Options...' {
+      roiBrushWidth = getNumber('Roi Brush Width (pixels):', roiBrushWidth);
+  }
+  </pre>
+  With ImageJ ImageJ 1.37c and earlier, the first line ("var roiBrushWidth=10;") must be moved to the top of StartupMacros.txt.
+
+<p>
+For plugin writers,
+this plugin demonstrates how to add a tool to the tool bar and how to call
+Java code from a macro 
+<p> 
+This plugin was contributed to the ImageJ
+community by Tom Larkworthy. </td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="tool-demo.html">Tool Demo plugin</a><br>
+<a href="roi-adjust.html">ROI Adjust Tool</a><br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
