@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>MultiTracker</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>MultiTracker</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Jeffrey Kuhn (jkuhn at ccwf.cc.utexas.edu)<br>
+The University of Texas at Austin
+</td></tr>
+
+<tr valign=top><td ><b>Versions:</b></td><td >
+2001/2/14: first version<br>
+2001/7/17: shows paths and path lengths
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Requires a binary or thresholded 8-bit stack.</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/MultiTracker_.java">MultiTracker_.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/MultiTracker_.class">MultiTracker_.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+MultiTracker uses ImageJ's particle analyzer to track the movement of
+multiple objects through a binary or thresholded stack. The object
+number and coordinates may be optionally written to the image stack at
+the end for verification. This filter is based on the Object Tracker
+plugin filter by Wayne Rasband.
+A <A HREF="images/termites.zip">test stack</A>, contributed by Ross Lang, is available.
+
+<p>
+Here is a procedure for tracking particles by hand: 
+<p>
+Decrease the brightness of your stack by one value. Run "Click Forward"
+to on your stack (just once) and use the mark tool (with the WHITE
+foreground color) to follow one point through the stack by clicking on
+it repeatedly. Rewind (save a copy first) and track another point
+through your stack. When you have marked as many points as you like,
+save your stack, and threshold it. You will get black dots on a white
+background (the colors get inverted by the threshold). 
+<p>
+Go to the first frame and use the magic wand tool to select a point.
+Then hit "measure" to get the centroid. Repeat for the next point, etc.
+When you have marked all of the points in order, select the background
+(to insure that the ROI encompasses the entire image) and use the new
+multitracker tool to get the coordinates for each point in the stack in
+the requested order. Make sure that there are exactly as many
+measurements as there are particles (i.e. 3 measurements for 3
+particles). If the right number of measurements are found, the
+multitracker plugin will use them for the initial positions and ordering
+of the particles.
+<p>
+Setting the measurement order is particularly crucial if you are marking
+by hand. This allows you to repeat the measurement several times (to
+compensate for measurement error) and keep the marked points in the same
+sorting order every time. This makes averaging and other statistical
+analysis much easier.
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="tracker.html">Object Tracker</A>,
+<A HREF="track/track.html">Manual Tracking</A>,
+<A HREF="http://bigwww.epfl.ch/sage/soft/spottracker/">SpotTracker</A>,
+<A HREF="http://valelab.ucsf.edu/~nico/IJplugins/MTrack2.html">MTrack2</A>,
+<A HREF="http://weeman.inf.ethz.ch/ParticleTracker/">ParticleTracker</A> and
+<A HREF="http://www.imagescience.org/meijering/software/mtrackj/">MTrackJ</A>
+plugins
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
