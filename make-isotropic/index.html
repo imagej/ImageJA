@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>Make Isotropic</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Make Isotropic </b>
+</font>
+
+<p>
+
+<blockquote>
+  <table cellspacing=5 width=700>
+    <tr valign=top>
+      <td ><b>Author:</b></td>
+      <td ><p>Julian Cooper<br>
+        Julian.Cooper[at]uhb.nhs.uk </p></td>
+    </tr>
+    <tr valign=top>
+      <td ><b>History:</b></td>
+      <td >2009/05/22 First version</td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Source:</b></td>
+      <td ><a href="download/Make_Isotropic.java">Make_Isotropic.java</a> </td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Installation:</b></td>
+      <td > Download <a href="download/Make_Isotropic.class">Make_Isotropic.class</a> to the plugins folder and restart ImageJ or click Help &gt; Update Menus. </td>
+    </tr>
+    <tr valign=top>
+      <td ><strong>Dependency:</strong></td>
+      <td >Requires the latest version of <a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ</a> (or at least imagescience.jar) to be installed in the ImageJ plugins folder. </td>
+    </tr>
+    <tr valign=top>
+      <td ><strong>Acknowledgement:</strong></td>
+      <td >Erik Meijering, author of TransformJ </td>
+    </tr>
+    <tr valign=top>
+      <td ><b>Description:</b></td>
+      <td ><p>This plugin is designed to rescale an anisotropically calibrated stack along the z-axis so the the pixel depth is the same as the pixel width. This is useful to prepare a stack for use with plugins that work best with isotropic voxel calibration such as <a href="http://www.imagescience.org/meijering/software/transformj/">TransformJ</a>.</p>
+        <p>The plugin will return with an error message if the current image is not a stack. It implicitly assumes that the pixel height is the same as the pixel width. If the pixel depth is less than the pixel width then there will be fewer slices in the output stack, which may result in information loss. </p></td>
+    </tr>
+  </table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
