@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W30/DTD W3 HTML 2.0//EN">
+<!--||||
+|      |
+| html based on G. D'Alessandro's website  |
+|      |
+|||||-->
+<HTML>
+<HEAD>
+<TITLE>DM3_Reader plugin</TITLE>
+</HEAD>
+<BODY>
+
+<font face="helvetica">
+<FONT COLOR="#FF00FF"></FONT>
+<blockquote>
+<center><font size="+2" color="#FF00FF">DM3_Reader plugin for ImageJ</font></center>
+
+<p><HR><p>
+
+<table>
+ <tr>
+  <td><b>Author:</b></td>
+  <td>Gregory Jefferis (jefferis AT gmail DOT com)
+  </td>
+ </tr>
+ <tr>
+  <td valign=top><b>Date(s):</b></td>
+  <td valign=top>
+   <table>
+	   <tr><td>- 23 June 2003 (Version 1.2.7 Beta) First version posted</td></tr>
+	   <tr><td>- 24 June 2003 (Version 1.2.8 Beta) Fixed setting of min/max brightness according to info in DM3 
+	   file</td></tr>
+	   <tr><td>- 25 June 2003 (Version 1.2.9 Beta) Fixed handling of unsigned 
+	   16-bit images</td></tr>
+	   <tr><td>- 25 June 2003 (Version 1.3.0 Beta) Removed calls to functions 
+	   absent from Java versions <1.2.  Should now run on MacOS 9 machines with 
+	   Apple MRJ >=2.1.4 (Java v1.1.7)</td></tr>
+	   <tr><td>- 25 June 2003 (Version 1.3.1 Beta) Fixed Unicode conversion 
+	   problem on MacOS9/MRJ.  Tested fine with ImageJ 1.30 and MRJ 2.2.3</td></tr>
+	   <tr><td>- 8 August 2003 (Version 1.3.2 Beta) Fixed a bug which meant 
+	   that the last image contained in a DM3 file was always selected for 
+	   opening, regardless of whether this was appropriate.  Also fixed a 
+	   bug handling calibration units - nm didn't work properly.</td></tr>
+	   <tr><td>- 25 August 2003 (Version 1.3.3) Public version - fixed one
+	   remaining bug with image choice uncovered by 8th August changes.</td></tr>
+	   <tr><td>- 7 May 2004 (Version 1.3.4) Fixed a bug preventing 
+	   reading of unsigned 16 bit integer images.</td></tr>
+	   <tr><td>- 13 December 2005 (Version 1.3.5) - Adding handling of DIFFRACTION mode images (ie reciprocal space).
+	.</td></tr>
+	   <tr><td>- 4 September 2006 (Version 1.3.6) Added storing of struct fields to tag list; this means that Digital Micrograph selection rectangles can be seen in Show Info.</td></tr>
+	   <tr><td>- 31 August 2007 (Version 1.3.7) Can now open data type 23 (RGBA_UINT8_3_DATA) images.  Can also get a debug log by turning on Edit ... Options ... Misc ... Debug Mode. 
+	   reading of unsigned 16 bit integer images.</td></tr>
+ 	   <tr><td>- 27 March 2008 (Version 1.3.8) Fixed a bug in which tag hashes were not cleared when reading a new file.
+        Also small speed improvement by converting tags to String via StringBuffer.</td></tr>
+  </table>
+  </td>
+ </tr>
+ <tr>
+  <td><b>Source:</b></td>
+  <td><a href="download/DM3_Reader.java">DM3_Reader.java</a>
+ </td>
+ </tr>
+ <tr>
+  <td valign=top><b>Requires:</b></td>
+  <td valign=top>
+	ImageJ version >=1.29
+  </td>
+ </tr>
+
+ <tr>
+  <td valign=top><b>Installation:</b></td>
+  <td>Download <a href="download/DM3_Reader.class">DM3_Reader.class</a> to
+      the plugins folder and restart ImageJ.
+  </td>
+ </tr>
+ <tr>
+  <td valign=top><b>Description:</b></td>
+  <td valign=top>
+    The DM3_Reader plugin allows <a href="http://rsb.info.nih.gov/ij/">ImageJ</a>
+	to open files produced by Gatan's 
+	<a href="http://www.gatan.com/imaging/dig_micrograph.html">Digital 
+	Micrograph</a> software, which is commonly used with Transmission
+	Electron Microscopes.  It is restricted to version 3 of this 
+    file format (the most recent version).  It correctly reads in images that I 
+    have tested, setting the XY spatial scale.  The minimum and maximum 
+    brightness thresholds are also set according to information in the DM3 file.
+	All the data in DM3 format 
+    images is saved in the form of tags, which must be parsed by the 
+    reader.  After extracting all of these tags they are copied to the 
+    "Info" property which can be accessed in ImageJ by the Image/Show Info 
+    menu command.  Some of these tags may be useful eg sample name, 
+    magnification, exposure time etc.
+  </td>
+ </tr>
+  <tr>
+   <td valign=top><b>Documentation:</b></td>
+   <td valign=top>
+	 None although the source code is quite well commented.  The 
+	 format of the DM3 file is succinctly described <a 
+	 href="DM3Format.gj.html">here</a>.
+   </td>
+  </tr>
+  <tr>
+   <td valign=top><b>Limitations:</b></td>
+   <td valign=top>
+   	 The DM3 reader has now been tested with at least the following kinds 
+   	 of data: 16 bit signed and unsigned integer, 32 bit float.
+   	<p>Limited to the following DM3 data types: UNSIGNED_INT8_DATA, SIGNED_INT16_DATA,
+	UNSIGNED_INT16_DATA, SIGNED_INT32_DATA,
+	UNSIGNED_INT32_DATA, REAL4_DATA, RGB_DATA, BINARY_DATA, RGBA_UINT8_3_DATA</p>
+	<p>Limited to single images since I do not have any stacks to test.</p>
+	<p><FONT COLOR="#FF0000">I welcome any feedback on bugs</FONT></p>  
+   </td>
+  </tr>
+</table>
+
+</font>
+
+</blockquote>
+
+</BODY>
+</HTML>
