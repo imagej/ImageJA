@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>3d Hybrid Median Filter</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>3d Hybrid Median Filter</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Christopher Philip Mauer (cpmauer at northwestern.edu)
+<br>
+Vytas Bindokas (vytas at drugs.bsd.uchicago.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/07/15: First version<br>
+2007/10/26: Fixed batch mode NullPointerException bug<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with 8-bit and 16-bit images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Hybrid_3D_Median_Filter.java">Hybrid_3D_Median_Filter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/Hybrid_3D_Median_Filter.class">Hybrid_3D_Median_Filter.class</A>
+to the plugins folder, restart ImageJ, and there will be a new "Hybrid Median Filter" command in the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+ This plugin consists of a 3D adaptation of the Hybrid Median Filter intended for XYZ or XYT data,
+ which we are calling a 3d Hybrid Median Filter. In this implementation, the median
+ is calculated from the medians of 1) the 3x3 2d PLUS kernel, 2) the 3x3 2d X kernel,
+ 3) the 3x3 3d PLUS kernel, and four 3x3 2d X kernels through the center pixel along
+ Z-axis: 4) the vertical X, 5) the horizontal X, 6) the X from the upper right to the
+ lower left, and 7) the X from the upper left to the lower right, and optionally 
+ 8) the pixel in question.  The 3D median model is experimental, intended for series 
+ (time or finely-spaced z slices) where high noise places little confidence on individual 
+ pixel values per image. The pixel in question receives less weighing in medians (included 
+ in 7 medians calculations) versus checked (7 median ranks plus median of the 7 AND the 
+ pixel). Checking the box retains single pixel data more (see frame numbers or 1-pixel 
+ scratches), and performs less data "restoration". Since the filter samples local 
+ 3x3x3 volumes, data stacks should be oversampled. The top and bottom edge pixels 
+ are reflected outward, and the side edge pixels are wrapped arpund to complete the edge bound kernels.   
+ The pixels of the first and last slice are reflected outward to simulate data for the N-1
+ and N+1 slices (where N is the number of images in the stack) in order to return an output
+ stack which is the same size as the input stack. The filter may be aborted by hitting the escape key.
+<br><br>
+See <A HREF="hybrid2dmedian.html">2d Hybrid Median Filter</A> for a version which works on single images
+and slices of a stack independent of one another.
+
+<br><br>
+<TT>
+Copyright (C) 2004  CHRISTOPHER PHILIP MAUER and VYTAS BINDOKAS
+<br>
+Permission to use, copy, modify, and distribute this software for any purpose 
+without fee is hereby granted, provided that this entire notice is included in 
+all copies of any software which is or includes a copy or modification of this 
+software and in all copies of the supporting documentation for such software.
+Any for profit use of this software is expressly forbidden without first
+obtaining the explicit consent of the author.<br>
+THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED WARRANTY. 
+IN PARTICULAR, THE AUTHOR DOES NOT MAKE ANY REPRESENTATION OR WARRANTY 
+OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS SOFTWARE OR ITS FITNESS FOR ANY 
+PARTICULAR PURPOSE</TT>.
+<br><br>
+
+The plugin operates on a previously opened stack of images, and
+produces a new stack of filtered images.  The output stack is 
+generated upon completion of processing for all of the input data.  Be sure to save
+the output if desired.<br><br>
+
+<center>
+<IMG SRC="images/3DhybridMEdianDemo'.gif" ALT="images/3DhybridMEdianDemo'.gif"><br>
+<blockquote>
+
+<p>Figure 1) 3d Hybrid Median Filter Demo<br>
+The lefthand frame represents the original data, the middle is filtered data excluding the 
+pixel in question in the final median (unchecked option), and the righthand side is the filtered data
+including the pixel in question (checked option).  Playback on key frames is slowed to allow
+appreciation of intended effects and event description. 
+This aniGif is a high speed, low light stream of Fluo-4 in chick cardiomyocytes 
+using a CARV spinning disk confocal and an EMCDD camera. 
+Credits MW Roe and P Schumacker UofC.
+</p>
+</center>
+</blockquote>
+<br>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
