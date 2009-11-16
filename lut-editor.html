@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>LUT Editor</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>LUT Editor</b>
+</font>
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kevin (Gali) Baler
+</td></tr>
+
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/03/3: First version<br>
+2004/04/6: Includes Open/Save/Set/Invert buttons.<br>
+2004/04/6: Built into ImageJ 1.32c.<br>
+</td></tr>
+
+
+<tr valign=top><td ><b>Requires:</b></td><td > ImageJ 1.32c or later. </td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/LUT_Editor.java">LUT_Editor.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Compile and run 
+<A HREF="download/LUT_Editor.java">LUT_Editor.java</A>
+using the <i>Plugins/Compile and Run</i> Command
+or use the built in <i>Image/Color/Edit LUT</i> command.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is a user plugin version of the <i>Image/Color/Edit LUT</i> command.
+It opens a "LUT Editor" which enables Look Up Table editing. The Open... and Save...
+buttons open previously saved LUT's and save currently open LUT's. These buttons
+are equivalent to the <i>File>Import>LUT... </i> and the <i>File>Save As...>LUT...</i> commands. The Invert...
+button inverts the current LUT. This is equivalent to the <i>Edit>Invert</i> command.
+
+
+<p>
+<img SRC="images/LUTFireExample.jpg" ALT="LUTFireExample.jpg">
+<p>
+
+The image above shows the blobs.gif image with the <i>Image>Lookup Tables>Fire</i> lookup table
+and the LUT Editor Plugin displaying the 256 entries. The Set... button resizes the LUT 
+to the number of entries specified. Below, the LUT from the blobs.gif has been reduced to 4 entries.
+
+<p>
+<img SRC="images/Set4FireLUT.jpg" ALT="Set4FireLUT.jpg">
+<p>
+
+The entry colors can be changed by clicking on the entry. A ramp can be created by clicking
+and dragging over multiple entries. Dragging the mouse outside of the entries selects either the first or the last
+entry depending on where the mouse was released. A color chooser will pop up requesting the new color for that entry. 
+In the case of multiple entries, two color choosers will appear. The first will be the 
+initial color at the clicked entry and the second will be the final color to which the 
+entries are ramped to. A simplified way of applying gradients to the LUT is to reduce the
+number of entries using the Set... button. Once the entries have been reduced, the entries can be changed, and then 
+the LUT can then be expanded to ramp the entries. There are three methods that can be used 
+to expand the LUT. The following examples show the expansion of the blobs.gif image LUT using all three methods.
+
+<p>
+<img SRC="images/Set4Example.jpg" ALT="Set4Example.jpg">
+<p>
+
+The 4 entries in the Fire LUT example were changed to obtain the new LUT above.<br><br>
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Replication</b>
+</font>
+
+<p>
+<img SRC="images/ReplicationExample.jpg" ALT="ReplicationExample.jpg">
+<p>
+
+Replication reuses the same RGB colors to expand to the new size. This method does not
+ramp the entry colors with a gradient.<br><br>
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Interpolation</b>
+</font>
+
+<p>
+<img SRC="images/InterpolationExample.jpg" ALT="InterpolationExample.jpg">
+<p>
+
+Interpolation implements a linear gradient for the expansion of each RGB value 
+from entry to entry.<br><br>
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Spline Fitting</b>
+</font>
+
+<p>
+<img SRC="images/SplineFittingExample.jpg" ALT="SplineFittingExample.jpg">
+<p>
+
+Spline Fitting uses a quadratic or higher order function to determine the gradient for each new RGB value.
+The following graphs were obtained with the <i>Image>Color>Show LUT</i> command and they demostrate how the 
+three methods expand the LUT entries.
+
+<p>
+<img SRC="images/RGBexamplegraphs.jpg" ALT="RGBexamplegraphs.jpg">
+<p>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
