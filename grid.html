@@ -1,0 +1,132 @@
+<html>
+<head>
+<title>Grid</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Grid</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.38u or later</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/Grid_.java">Grid_.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Grid_.class">Grid_.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin creates a non-destructive grid of lines , crosses or points on the current image or stack. 
+You can specify the the grid type (lines, crosses or points), 
+the area per point (in pixels or physical units), and the color.
+<p>
+There are at least two ways to save the image with the grid superimposed. One is to click on the 
+"Export Image" button in the
+<a href="http://rsb.info.nih.gov/ij/plugins/cell-counter.html">Cell Counter</a>
+ plugin. Another is to capture the screen by pressing shift-g (<i>Plugins&gt;Utilities&gt;Capture Screen</i>), 
+ selecting the image and cropping by pressing shift-x (<i>Image&gt;Crop</i>).
+<p>
+The "Horizontal Lines" option can be used to implement the stereological method for measuring
+relative length of neurites in culture described in:
+<blockquote><small>
+Ronn, L. C., Ralets, I., Hartz, B. P., Bech, M., Berezin, A., Berezin, V., Moller, A. and Bock, E. (2000).
+A simple procedure for quantification of neurite outgrowth based on stereological principles.
+J. Neurosci. Methods 100, 25-32
+</small></blockquote>
+<p>
+The previous version of this plugin (renamed Grid2) is also available 
+(<a href="download/Grid2_.java">Grid2_.java</a>, <a href="download/Grid2_.class">Grid2_.class</a>).
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2001/04/25: First version<br>
+2002/04/26: Fixed no image open bug<br>
+2004/05/10: Added "Random Offset" checkbox<br>
+2007/07/02: Grid drawn in non-destructive overlay<br>
+2008/10/17: Added "Horizontal Lines" option<br>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="grid-cycloid-arc.html">Grid Cycloid Arc plugin</a><br>
+<a href="graphic-overlay.html">Grid Overlay plugin</a><br>
+<a href="../macros/examples/Grid_Overlay.txt">Grid Overlay macro</a><br>
+<a href="cell-counter.html">Cell Counter plugin</a><br>
+<p>&nbsp;</p>
+</td></tr>
+
+<tr valign=top><td ><b>Resources:</b></td><td >
+
+<table  width="95%" border="1" cellspacing="0" cellpadding="4">
+
+<tr><td >Cavalieri Macros for <A HREF="http://rsb.info.nih.gov/nih-image/">NIH Image</A></td>
+
+<td ><A HREF="ftp://rsbweb.nih.gov/pub/nih-image/user-macros/">
+
+ftp://rsbweb.nih.gov/pub/nih-image/user-macros/</A></td></tr>
+
+
+<tr><td >Stereology plugin for <A HREF="http://rsb.info.nih.gov/nih-image/">NIH Image</A></td>
+<td ><A HREF="ftp://rsbweb.nih.gov/pub/nih-image/plug-ins/Ster__DropIns.hqx">
+ftp://rsbweb.nih.gov/pub/nih-image/plug-ins/<br>Ster__DropIns.hqx</A></td></tr>
+
+<tr><td >OverlayGrid example for Object Image</td>
+<td ><A HREF="http://simon.bio.uva.nl/object-image.html">
+simon.bio.uva.nl/object-image.html</A></td></tr>
+
+<tr><td >Introduction to Stereology</td>
+<td ><A HREF="http://www.liv.ac.uk/fetoxpath/quantoxpath/stereol.htm">
+www.liv.ac.uk/fetoxpath/quantoxpath/stereol.htm</A></td></tr>
+
+<tr><td >Stereologer</td>
+<td ><A HREF="http://www.stereologer.com/Stereo_Exec.html">
+www.stereologer.com/Stereo_Exec.html</A></td></tr>
+
+<tr><td >Steriology Resource Center</td>
+<td ><A HREF="http://www.disector.com/">
+www.disector.com/</A></td></tr>
+
+<tr><td >3D counting</td>
+<td ><A HREF="http://nervenet.org/papers/3DCounting.html">
+nervenet.org/papers/3DCounting.html</A></td></tr>
+
+<tr><td >Unbiased Stereology</td>
+<td ><A HREF="http://www.liv.ac.uk/fetoxpath/quantoxpath/book.htm">
+www.liv.ac.uk/fetoxpath/quantoxpath/book.htm</A> or
+<A HREF="http://www.amazon.com/Unbiased-Stereology-Three-Dimensional-Measurement-Microscopy/dp/B000HWYYQC">
+amazon.com</A></td></tr>
+
+<tr><td >Practical Stereology</td>
+<td ><A HREF="http://drjohnruss.com/books.html">
+drjohnruss.com/books.html</A> or
+<A HREF="http://www.amazon.com/Practical-Stereology-Second-John-Russ/dp/0306464764/ref=pd_sim_b_2/002-5184238-9993653">
+amazon.com</A></td></tr>
+
+<tr><td >Image Processing Toolkit</td>
+<td ><A HREF="http://reindeergraphics.com/">
+reindeergraphics.com/</A></td></tr>
+
+</table>
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
