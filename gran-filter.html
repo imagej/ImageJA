@@ -1,0 +1,67 @@
+<html><head><title>Granulometric Filtering</title></head>
+<body bgcolor="#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b> Granulometric Filtering</b>
+</font>
+
+<p>
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
+Dimiter Prodanov (D.Prodanov at lumc.nl)
+</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td>
+2005/10/21: First version<br>
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td>Contained in
+<a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Gran_Filter.jar">Gran_Filter.jar</a>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/jars/Gran_Filter.jar">Gran_Filter.jar</a>
+to the plugins folder, or subfolder, restart ImageJ,
+then run the plugin using the <i>Plugins/Morphology/Gran filter</i> command.
+</td></tr>
+
+<tr valign="top"><td><b>Description:</b></td><td>
+This plugin performs granulometric filtering of digital images.
+The algorithm is described in Prodanov et al. J. Neurosci. Methods 2005
+doi:10.1016/j.jneumeth.2005.07.011
+More information is at 
+<a href="http://www.diagnosticarea.com">www.diagnosticarea.com</a>.
+<p>
+Perhaps the oldest and most frequently used technique in the empirical sciences to quantify the size of solid particles is to
+ use a series of sieves with increasing mesh openings. To quantify the properties of discrete sets of objects Matheron theorized
+ empirical sieving into the formal concept of mathematical granulometry (Matheron, 1975). Granulometry was later
+ applied in image analysis to both binary and continuous tone images (Serra, 1982). In a way similar to sieving grains, pixels
+ comprising an image are "sieved" according to their connectivity to similar pixels imposed by a certain primitive geometric body
+ termed Structuring Element (SE). An integral characteristic of granulometry is the
+ distribution of pixels with respect to the diameters of the used SE-s. A local maximum in its normalized first derivative,
+ the granulometric size density (G(d)), indicates the presence of a number of objects matching the particular SE. Moreover,
+ granulometry can act as a band-pass filter capable of discriminating grains of a certain size based on their similarity to a SE.
+ By exploiting this property, images can be simplified substantially to successfully isolate various
+ classes of objects.
+<p>
+ About the user interface:
+<ul>
+ <li><b>Type of SE:</b> can be one of circle, diamond, square, hor. line or vert. line
+  <li><b>Radius of SE:</b> the radius or half/length [square, lines] of SE
+  <li><b>Step:</b> the increse from the Radius - Radius2=Radius+step
+ <li><b>Euclicean distance:</b> check to compute the Euclidean distance/area
+ </ul>
+ </td></tr>
+
+</table>
+
+</blockquote>
+
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+</p></body></html>
