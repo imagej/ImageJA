@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>Thumbnail Maker</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Thumbnail Maker</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (<a href="mailto:wayne@codon.nih.gov">wayne@codon.nih.gov</a>) 
+
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/03/07: First version<br>
+2002/03/20: Creates 8-bit indexed color image
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/Thumbnail_Maker.java">Thumbnail_Maker.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Copy <A HREF="download/Thumbnail_Maker.class">Thumbnail_Maker.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin generates a 8-bit thumbnail version of the active image. For RGB images, uses ImageJ's MedianCut class to reduce the number of colors to 256.
+<p>
+It can also be called from the command line using the command:
+
+<blockquote><font size=-1><b>
+java -cp ij.jar;. Thumbnail_Maker srcimage dstimage
+</b></font></blockquote>
+
+The source image can be in any input format supported by ImageJ (TIFF, GIF, JPEG, BMP, DICOM, FITS). It is assumed to be in text format (e.g., a file created by <i>File/Save As/Text Image</i>) if the file name ends in ".txt".
+<p>
+With Java 1.4 and ImageJ 1.27i or later, it can be used on "headless" (no Xserver) Unix servers. This example compiles the plugin and runs it in headless mode:
+<blockquote><font size=-1><b>
+c:\jdk1.4in\javac -classpath ij.jar Thumbnail_Maker.java<br>
+c:\jdk1.4in\java -cp ij.jar;. -Djava.awt.headless=true Thumbnail_Maker c:\images\peppers.jpg c:\images	humbnail.jpg
+</b></font></blockquote>
+
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
