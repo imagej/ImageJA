@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Hamamatsu Orca Camera</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Capture Images with Hamamatsu Orca Camera</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Jeffrey Kuhn (<a href="mailto:jkuhn@ccwf.cc.utexas.edu">jkuhn@ccwf.cc.utexas.edu</a>)<br>
+The University of Texas at Austin
+
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >2000/8/22</td></tr>
+
+<tr valign=top><td ><b>Requirements:</b></td><td >ImageJ 1.18p or later</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only runs on Windows</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/imaq/AcquireIMAQ_.java">AcquireIMAQ_.java</A>
+and
+<A HREF="download/imaq/IMAQPlugin.zip">IMAQPlugin.zip</A>
+
+</td></tr>
+
+<tr valign=top><td ><b>API:</b></td><td >
+<A HREF="download/imaq/AcquireIMAQ_.html">AcquireIMAQ_.html</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/imaq/AcquireIMAQ_.class">AcquireIMAQ_.class</A> 
+to the plugins folder and
+<A HREF="download/imaq/AcquireIMAQ_Native.dll">AcquireIMAQ_Native.dll</A>
+to the ImageJ folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+	Combination of Java and Native Windows C code to capture an
+	image with a <A HREF="http://www.hamamatsu.co.uk/ORCA.htm">Hamamatsu Orca 12-bit camera</A> and a <A HREF="http://www.ni.com">National Instruments</A> Image
+	Acquisition board. This plugin could serve as an example of how ImageJ can
+	communicate with C code through JNI, allowing ImageJ to capture images when
+	there is no Java programming library or Twain driver available for a frame
+	grabber. 
+<p>
+The Makefile is based on an example JNI Makefile from Sun. If you want to
+recompile the acquisition package, edit the beginning of the Makefile (the
+variables JDKDIR, IMAQDIR, IMAGEJDIR, and DLLDIR) to point to your install
+directories. NOTE: Compilation requires that you have the National
+Instruments IMAQ library  installed.
+<p>
+To build everything, type <br>
+  <i>nmake build</i>
+<p>
+To build an executable file to test the C++ acquisition code, type <br>
+  <i>nmake test</i>
+<p>
+If everything compiles without a hitch, install it with <br>
+
+  <i>nmake install</i>
+<p>
+
+</td></tr>
+
+</table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
