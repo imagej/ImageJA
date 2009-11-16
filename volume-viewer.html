@@ -1,0 +1,152 @@
+<html>
+<head>
+<title>Volume Viewer</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Volume Viewer</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Kai Uwe Barthel (k.barthel at fhtw-berlin.de)<br>
+Internationale Medieninformatik<br>
+Berlin, Germany
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+<b>2005/02/16 (V1.05):</b> First version<br>
+<b>2005/03/07 (V1.12):</b> Speedups; planar view indicators; new display mode (projection)<br>
+<b>2005/03/15 (V1.21):</b> New and better volume rendering mode; can be called from macros<br>
+<b>2007/03/08 (V1.31):</b> Works with RGB stacks<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >Contained in
+<A HREF="download/jars/Volume_Viewer.jar">Volume_Viewer.jar</A>, 
+which can be opened using a ZIP utility
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A HREF="download/jars/Volume_Viewer.jar">Volume_Viewer.jar</A>
+to the plugins folder, or subfolder, restart ImageJ,
+and there will be a new <i>Volume Viewer</i> command in the Plugins menu, or submenu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin shows stacks as volumes within a 3D-(xyz)-space.  The viewing angle 
+can be adjusted with the mouse. This plugin can be used  with 8, 16 and 32 bit stacks.
+
+<ul>
+<li><b>Display Modes: </b> 
+<ul>
+  <li><b>Slice Nearest Neighbor:</b> A slice through the volume. 
+  No interpolation is performed.
+  <li><b>Slice Trilinear:</b> A  slice through the volume using trilinear interpolation. 
+  <li><b>Slice and Borders:</b> A slice through the volume generated using trilinear interpolation, 
+in addition the borders of the volume stack are displayed.
+<li><b>Slice and Volume Dots:</b> A slice generated using trilinear interpolation. 
+Only values above the <b>Thr.</b> (threshold) slider value are displayed. 
+Voxels further away than the distance slider are displayed as volume dots.
+<li><b>Volume Dots:</b> Voxels are shown according to their distance, no interpolationis 
+performed (quality is poor).
+<li><b>Volume:</b> A 3D scene with higher visual quality is rendered. The opacity  
+of the voxels is controlled by the <b>Thr. </b> slider. Values below the threshold are interpreted 
+as transparent. <b>Volume II</b> uses direct volume rendering  overlaying voxels from the back. 
+<b>Volume  I</b> uses an overlay of front voxels and can achieve more realistic  3D-views even without 
+illumination. The <b>depth</b>  slider controls the number of voxels that are used for rendering. 
+(Both volume  modes may be very slow for large scales.) 
+ </ul>
+<li>Different <b>LUTs</b> can be used for display.
+<li>The <b>Dist.</b> slider adjusts the distance of the slice. Only voxels 
+further away than this distance are displayed. The lines in the planar views on 
+the left indicate the intersection of the displayed slice and the three 
+orthogonal center planes of the stack.
+
+<li>The <b>z-aspect </b>ratio is read automatically, but it can also be
+set.
+<li><b>Axes:</b> If checked, axes and text are shown.
+<li><b>Markers:</b> If checked, the start and end positions of the lines in the planar views are 
+displayed in the volume.
+<li>The <b>Scale</b> slider sets the viewing distance/volume size.
+</ul>
+
+Additional features: If brightness or contrast settings of the stack are
+adjusted, the data is reread.  The position of the volume
+may be changed by pressing the SHIFT-key and dragging the mouse. If the
+mouse is released while dragging the mouse, the cube keeps rotating.
+<p>
+This plugin can be called from a macro. This example
+macro generates volume views of all the images
+in a stack and stores then in another stack.
+<i>Volume Slicer,</i> an extended version of
+this macro, and a rendered MicroCT stack, are available at
+<a href="http://doube.net/macros.html#volslice">http://doube.net/macros.html#volslice</a>.
+<pre>
+macro "RotatingVolume.txt" {
+  requires("1.33r");
+  saveSettings();
+  stack1 = getImageID;
+  stack2 = 0;
+  if (nSlices==1)
+      exit("Stack required");
+  setBatchMode(true);
+  n = 6;
+  for (i=0; i&lt;n; i++) {
+    showProgress(i, n);
+    selectImage(stack1);
+    gradz = -i * 10;
+    // params for mri-stack.tif
+    run("Volume Viewer", 
+      "display_mode=5 axes=0 markers=0 lut=0 scale=2 z-aspect=4 dist=-300 "
+      + "depth=6 thresh=40 angle_x=110 angle_z="+gradz );
+    run("Copy");
+    w = getWidth; h = getHeight;
+    close();     
+    if (stack2==0) {
+      run("New...", "name=Plots type=RGB Color width="+w+" height="+h+" slices=1");
+      stack2 = getImageID;
+    } else {
+      selectImage(stack2);
+      run("Add Slice");
+    }
+    run("Paste");
+  }
+  setSlice(1);
+  setBatchMode(false);
+  restoreSettings();
+}
+</pre>
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<A HREF="color-inspector.html">3D Color Inspector</A><br>
+<A HREF="surface-plot-3d.html">3D Surface Plot</A><br>
+<A HREF="http://www.med.harvard.edu/JPNM/ij/plugins/Display3TP.html">Orthogonal View Stack Display</A><br>
+<A HREF="http://www.disi.unige.it/person/BerteroM/MedNuc/OrtView/OrtView.html">MedNuc OrtView</A><br>
+<a href="http://132.187.25.13/home/?category=Download&page=Viewer3D">3D Viewer</a> (hardware-accelerated 3D visualization)
+</td></tr>
+
+</table>
+
+<p>&nbsp;</p>
+
+<center>
+<img SRC="images/volviewer.jpg" width=778 height=597 alt="Volume Viewer"><br>
+<p>
+Rendering of a series of 83 CT images downloaded from 
+<A HREF="http://homepage.mac.com/rossetantoine/osirix/Index2.html">
+homepage.mac.com/rossetantoine/osirix/Index2.html</A>.
+</center>
+<p>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
