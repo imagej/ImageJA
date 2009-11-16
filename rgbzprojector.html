@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>RGB Zprojector</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>RGB Zprojector</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Christopher Philip Mauer (cpmauer at northwestern.edu)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2004/07/15: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Limitations:</b></td><td >Only works with RGB images</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<A HREF="download/RGB_Zprojector.java">RGB_Zprojector.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <A href="download/RGB_Zprojector.java">RGB_Zprojector.java</A>
+to the plugins folder and compile it with the "Compile and Run" command. 
+<br>Restart ImageJ to add the "RGB_Zprojector" command to the Plugins menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin allows the user to perform a zprojection on an RGB image, specifying
+which algorithm (avg, power mean, max, min, sum, median, stdev) should be used for each channel 
+seperately, by splitting the image into its component channels, performing the projections,
+and merging to create the resulting RGB image.  The values for the median and stdev are
+rounded during conversion back to 8bit.  The values for the sum method are autoscaled
+as a factor of the max value of each channel to fit in a byte.  All other methods can be followed
+by autoscaling to improve display as well.  Specific Power mean degrees can be specified.
+<br><br>
+<TT>
+Copyright (C) 2004  CHRISTOPHER PHILIP MAUER
+<br>
+Permission to use, copy, modify, and distribute this software for any purpose 
+without fee is hereby granted, provided that this entire notice is included in 
+all copies of any software which is or includes a copy or modification of this 
+software and in all copies of the supporting documentation for such software.
+Any for profit use of this software is expressly forbidden without first
+obtaining the explicit consent of the author.<br>
+THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED WARRANTY. 
+IN PARTICULAR, THE AUTHOR DOES NOT MAKE ANY REPRESENTATION OR WARRANTY 
+OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS SOFTWARE OR ITS FITNESS FOR ANY 
+PARTICULAR PURPOSE</TT>.
+<br><br>
+
+The plugin operates on a previously opened stack of images, and
+produces a new zprojected image.  The output image is 
+generated upon completion of processing for all of the input data.  Be sure to save
+the output if desired.<br><br>
+The user can specify the following:<br>
+<ul>
+    	<li>Which method will be employed to Zproject for each channel:
+	<ul>
+        <li>The Average of the Intensities
+        <li>The Power Mean of the Intensities
+        <li>The Maximum of the Intensities
+        <li>The Minumum of the Intensities
+        <li>The Sum of the Intensities (scaled)
+        <li>The Standard Deviation of the Intensities
+        <li>The Median of the Intensities
+	</ul>
+	as well as<br>
+	<li>Whether auto-scaling should be applied</li> 
+	<li>The degree of the Power Mean</li>
+</ul>
+
+
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
