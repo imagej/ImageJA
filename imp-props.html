@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Get and Set Image Properties</title>  
+</head>
+<body bgcolor = "#ffffff"> 
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Get and Set Image Properties</b>
+</font>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Joachim Wesner (joachim.wesner at leica-microsystems.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2008/03/17: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="download/ImpProps.java">ImpProps.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="download/ImpProps.java">ImpProps.java</a> 
+to the plugins folder and compile it using <i>Plugins/Compile and Run</i>.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin demonstrates how to define Java methods that can be called from a macro
+using the 
+<a href="http://rsbweb.nih.gov/ij/developer/macro/functions.html#call"><i>call</i></a>
+function. It defines two methods that allow macros to
+get and set the (string) properties of the active image (ImagePlus). Note that the macro <i>call</i>
+function can only call static methods with string arguments or no arguments.
+<p>
+<b>call("ImpProps.setProperty", "&lt;key&gt;", "&lt;value&gt;")</b><br>
+Sets property &lt;key&gt; to &lt;value&gt;, returns &lt;value&gt; if successful, 
+"" otherwise (e.g., no active image).
+<p>
+<b>call("ImpProps.getProperty", "&lt;key&gt;")</b><br>
+Returns value of property <key> if set, "" otherwise (not found or no active image).
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="http://rsb.info.nih.gov/ij/plugins/5d-extensions.html">Image5D_Extensions</a> plugin (use MacroExtension interface to add functions to macro language)<br>
+</td></tr>
+
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+
+</body>
+</html>
