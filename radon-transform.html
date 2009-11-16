@@ -1,0 +1,125 @@
+<html><head><title>Radon Transform</title></head><body bgcolor="#ffffff">
+
+<font face="Helvetica, Arial" size="+1" color="#224488">Radon Transform</font><p>
+
+
+</p><blockquote>
+
+<table cellspacing="5">
+
+
+<tbody><tr valign="top"><td><b>Author:</b></td><td colspan="3">
+Damien Farrell</td></tr>
+
+<tr valign="top"><td><b>History:</b></td><td colspan="3">
+2005/12/10: First version<p>2006/1/30: Added blackman filter and filter cutoff 
+option, now accepts 8 bit color images.<p>2006/2/12: Added support for 
+re-projecting stacks and storing stacks of projection data. Changed to use a 
+Swing input dialog.
+<p>2006/2/28: Added ability to import projection data from sinogram images, 
+converted to use jar file.<br>
+</td></tr>
+
+<tr valign="top"><td><b>Source:</b></td><td colspan="3">
+Contained in jar file, can be opened as a zip archive.</td></tr>
+
+
+<tr valign="top"><td><b>Installation:</b></td><td colspan="3">
+Download <a href="download/jars/Radon_Transform.jar">Radon_Transform.jar</a>
+to the ImageJ plugins folder, or subfolder. Restart ImageJ, there will be
+a new RadonTransform command in the Plugins menu or submenu.
+</td></tr>
+
+
+<tr valign="top"><td><b>Description:</b></td><td colspan="3">
+
+This plugin takes an image or image stack and performs a radon transform (by using a back 
+projection algorithm) on it/them. The result is a set of projection data that is 
+displayed as an 8 bit grayscale image (sometimes called a sinogram). The plugin 
+accepts 8, 16 bit grayscale and 8 bit color images as input. (RGB color images must be converted 
+to 8 bit grayscale before back projection).<p>The projection data can 
+preferentially be re-projected using filtered back projection to produce the 
+inverse transform. The result can be output as an 8 or 16-bit image. This may be 
+a processor intensive and lengthy operation for large images, or large number of 
+images in a stack. Therefore, the algorithm for calculations on stacks runs in a 
+seperate thread and the process can be cancelled at any time. </p>
+<p>The dialog for the plugin has the following input parameters and buttons:</p>
+<ul>
+  <li><b>scans</b> - number of data bins to project across image, default is 
+  image width, power of two values give best results</li>
+  <li><b>angular increment</b> (degrees) - increment angle, default is 1. Data 
+  is projected from 0-180 degrees, so a value of 2 here, gives 90 angular views</li>
+  <li><b>Linear Interpolation</b> - use linear interpolation in projection, used 
+  by default, if this is off then simple nearest neighbour interpolation is 
+  used.</li>
+  <li><b>Load Data</b> - Save projection data in a text file</li>
+  <li><b>Import Data </b>- Can import data from an 8 or 16 bit image sinogram, angular 
+  increments must be equally spaced integer values.</li>
+  <li><b>Save Data</b> - Save projection data in a text file</li>
+</ul>
+<p>Options for performing the inverse transform (filtered back projection):</p>
+<ul>
+  <li><b>Filter</b> - smoothing filters applied before back projection of each 
+  view</li>
+  <li><b>Filter Cutoff</b> - set normalized frequency cutoff, range is 0&lt;1&lt;<font face="Times New Roman">&#8734;, 
+  default is 1</font></li>
+  <li><b>Zoom</b> - reconstruction field of view, can be 0&lt;1&lt;<font face="Times New Roman">&#8734;, 
+  default is 1</font></li>
+  <li><b>Image size</b> - output image size, any value allowed, width = height</li>
+  <li><b>Bit depth</b> - output image depth, 8 or 16 bit grayscale, default is 8</li>
+</ul>
+<p>The Radon Transform is used for reconstruction of data in tomographic 
+imaging, eg. CT or PET scanners.</p>
+<p>Reference: Kak &amp; Slaney (1988), Principles of Computerized Tomographic 
+Imaging, IEEE Press, ISBN 0-87942-198-3.</td></tr>
+
+
+<tr valign="top"><td rowspan="6"><b>Figures:</b></td><td colspan="3">
+
+Input Dialog:</td></tr>
+
+
+<tr valign="top"><td colspan="3">
+
+<p align="center"><img border="0" src="images/dialog.png" width="388" height="444"></p>
+<p align="center">&nbsp;</td></tr>
+
+
+<tr valign="top"><td colspan="3">
+
+Sample shows the shepp logan phantom:</td></tr>
+
+
+<tr valign="top"><td align="center">
+
+<img border="0" src="images/shepp256.png" width="256" height="256"><p>Original, 256x256 
+8 bit image</p>
+<p>&nbsp;</td><td align="center">
+
+<img border="0" src="images/Sinogram1.png" width="180" height="256"><p>Sinogram</td>
+  <td align="center">
+
+<img border="0" src="images/Reconstruction_hann_256.png" width="256" height="256"><p>
+Inverse Transform, scans=256, views=180, hann filter, zoom=1</td></tr>
+
+
+<tr valign="top"><td align="center" colspan="3">
+
+<p align="left">This sample uses the same image, with fewer angular views:</td></tr>
+
+
+<tr valign="top"><td align="center">
+
+&nbsp;</td><td align="center">
+
+<img border="0" src="images/Sinogram2.png" width="30" height="256"><p>Sinogram</td>
+  <td align="center">
+
+<img border="0" src="images/Reconstruction_cosine_ang6.png" width="256" height="256"><p>
+Inverse, cosine filter, zoom=1, scans=256, views=45</td></tr>
+
+
+</tbody></table>
+
+</blockquote>
+<p>&nbsp;</p></body></html>
