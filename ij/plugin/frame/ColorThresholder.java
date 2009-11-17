@@ -45,40 +45,40 @@ import ij.plugin.*;
 public class ColorThresholder extends PlugInFrame implements PlugIn, Measurements,
  ActionListener, AdjustmentListener, FocusListener, ItemListener, Runnable{
 
-	protected boolean flag = false;
-	protected int colmode=0; //0 hsb, 1 rgb, 2 lab, 3 yuv
-	protected Thread thread;
-	Frame instance;
+	private boolean flag = false;
+	private int colmode = 0; //0 hsb, 1 rgb, 2 lab, 3 yuv
+	private Thread thread;
+	private static Frame instance;
 
-	BandPlot plot = new BandPlot();
-	BandPlot splot = new BandPlot();
-	BandPlot bplot = new BandPlot();
-	int sliderRange = 256;
-	Panel panelh, panels, panelb, panel, panelt, panelMode;
-	Button  originalB, filteredB, stackB, helpB, sampleB, resetallB, newB, macroB;
-	Checkbox bandPassH, bandStopH, bandPassS, bandStopS,bandPassB, bandStopB, threshold, invert, hsb, rgb, lab, yuv;
-	CheckboxGroup filterTypeH, filterTypeS, filterTypeB, colourMode;
-	int previousImageID = -1;
-	int previousSlice = -1;
-	ImageJ ij;
-	int minHue = 0, minSat = 0, minBri = 0;
-	int maxHue = 255, maxSat = 255, maxBri = 255;
-	Scrollbar minSlider, maxSlider, minSlider2, maxSlider2, minSlider3, maxSlider3;
-	Label label1, label2, label3, label4, label5, label6, labelh, labels, labelb, labelf;
-	boolean done;
-	byte[] hSource, sSource, bSource;
-	byte[] fillMask;
-	ImageProcessor fillMaskIP;
-	int[] restore;
-	ImagePlus imp;
-	ImageProcessor ip;
+	private BandPlot plot = new BandPlot();
+	private BandPlot splot = new BandPlot();
+	private BandPlot bplot = new BandPlot();
+	private int sliderRange = 256;
+	private Panel panelh, panels, panelb, panel, panelt, panelMode;
+	private Button  originalB, filteredB, stackB, helpB, sampleB, resetallB, newB, macroB;
+	private Checkbox bandPassH, bandStopH, bandPassS, bandStopS,bandPassB, bandStopB, threshold, blackBackground, hsb, rgb, lab, yuv;
+	private CheckboxGroup filterTypeH, filterTypeS, filterTypeB, colourMode;
+	private int previousImageID = -1;
+	private int previousSlice = -1;
+	private ImageJ ij;
+	private int minHue = 0, minSat = 0, minBri = 0;
+	private int maxHue = 255, maxSat = 255, maxBri = 255;
+	private Scrollbar minSlider, maxSlider, minSlider2, maxSlider2, minSlider3, maxSlider3;
+	private Label label1, label2, label3, label4, label5, label6, labelh, labels, labelb, labelf;
+	private boolean done;
+	private byte[] hSource, sSource, bSource;
+	private byte[] fillMask;
+	private ImageProcessor fillMaskIP;
+	private int[] restore;
+	private ImagePlus imp;
+	private ImageProcessor ip;
 
-	int numSlices;
-	ImageStack stack;
-	int width, height, numPixels;
+	private int numSlices;
+	private ImageStack stack;
+	private int width, height, numPixels;
 
 	public ColorThresholder() {
-		super("Threshold Color");
+		super("Threshold Color (experimental)");
 		if (instance!=null) {
 			instance.toFront();
 			return;
@@ -339,9 +339,9 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		threshold.addItemListener(this);
 		panelt.add(threshold);
 
-		invert = new Checkbox("Invert");
-		invert.addItemListener(this);
-		panelt.add(invert);
+		blackBackground = new Checkbox("Black background", Prefs.blackBackground);
+		blackBackground.addItemListener(this);
+		panelt.add(blackBackground);
 
 		c.gridx = 0;
 		c.gridy = y++;
@@ -462,7 +462,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 			synchronized(this) {
 				try {wait();}
 				catch(InterruptedException e) {}
-				if(!done){//RPD
+				if(!done) {//RPD
 					reset(imp,ip);//GL
 					apply(imp,ip);//GL
 					imp.updateAndDraw();//GL
@@ -473,13 +473,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 
 	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
-
-		if (!checkImage()){
-			IJ.beep();
-			IJ.showStatus("No Image");
-			return;
-		}
-
+		if (!checkImage()) return;
 		if (e.getSource() == minSlider){
 			adjustMinHue((int) minSlider.getValue());
 		}
@@ -506,8 +500,8 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 	//GL
 	public synchronized void itemStateChanged(ItemEvent e) {
-
-		if (e.getSource()==hsb || e.getSource()==rgb || e.getSource()==lab || e.getSource()==yuv){
+		Object source = e.getSource();
+		if (source==hsb || source==rgb || source==lab || source==yuv){
 			if(e.getSource()==hsb)
 				colmode = 0;
 			if(e.getSource()==rgb)
@@ -516,21 +510,19 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 				colmode = 2;
 			if(e.getSource()==yuv)
 				colmode = 3;
-				
 			flag = true;
 			originalB.setEnabled(false);
 			filteredB.setEnabled(false);
-
 			minHue=minSat=minBri=0;
 			maxHue=maxSat=maxBri=255;
-
 			bandPassH.setState(true);
 			bandPassS.setState(true);
 			bandPassB.setState(true);
-		}
+		} else if (source==blackBackground)
+			Prefs.blackBackground = blackBackground.getState();
 
 		reset(imp,ip);
-		checkImage();//new
+		checkImage(); //new
 		//apply(imp,ip);// not needed
 		updateNames();
 		notify();
@@ -538,10 +530,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 
 	public void focusGained(FocusEvent e){
-		if (!checkImage()){
-			IJ.beep();
-			IJ.showStatus("No Image");
-		}
+		checkImage();
 	}
 
 	public void focusLost(FocusEvent e){}
@@ -566,91 +555,11 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 				applyStack();
 			} else if (b==macroB){
 				//send macro to recorder
-				if (Recorder.record){
-					if (IJ.versionLessThan("1.37k"))
-						IJ.showMessage("This function requires ImageJ 1.37k or newer");
-						else{
-						Recorder.recordString("// Colour Thresholding v1.9-------\n");
+				if (Recorder.record) {
+						Recorder.recordString("// Color Thresholding (v1.43l)\n");
 						Recorder.recordString("// Autogenerated macro, single images only!\n");
-						Recorder.recordString("// G Landini 2/Feb/2008.\n");
-						Recorder.recordString("//\n");
-						Recorder.recordString("// This only works with Black background and White foreground!\n");
-						Recorder.recordString("// You will probably have to uncomment the following 2 lines if\n");
-						Recorder.recordString("// the settings in ImageJ are not so:\n");
-						Recorder.recordString("//\n");
-						Recorder.recordString("//run(\"Colors...\", \"foreground=white background=black selection=yellow\");\n");
-						Recorder.recordString("//run(\"Options...\", \"iterations=1 black count=1\");\n");
-						Recorder.recordString("//\n");
-						Recorder.recordString("min=newArray(3);\n");
-						Recorder.recordString("max=newArray(3);\n");
-						Recorder.recordString("filter=newArray(3);\n");
-
-						Recorder.recordString("a=getTitle();\n");
-						if (colmode == 0){
-							Recorder.recordString("run(\"HSB Stack\");\n");
-							Recorder.recordString("run(\"Convert Stack to Images\");\n");
-							Recorder.recordString("selectWindow(\"Hue\");\n");
-							Recorder.recordString("rename(\"0\");\n");
-							Recorder.recordString("selectWindow(\"Saturation\");\n");
-							Recorder.recordString("rename(\"1\");\n");
-							Recorder.recordString("selectWindow(\"Brightness\");\n");
-							Recorder.recordString("rename(\"2\");\n");
-						}
-						else{
-							if (colmode == 2)
-								Recorder.recordString("run(\"RGBtoLab \");\n");
-							if (colmode == 3)
-								Recorder.recordString("run(\"RGBtoYUV \");\n");
-							Recorder.recordString("run(\"RGB Stack\");\n");
-							Recorder.recordString("run(\"Convert Stack to Images\");\n");
-							Recorder.recordString("selectWindow(\"Red\");\n");
-							Recorder.recordString("rename(\"0\");\n");
-							Recorder.recordString("selectWindow(\"Green\");\n");
-							Recorder.recordString("rename(\"1\");\n");
-							Recorder.recordString("selectWindow(\"Blue\");\n");
-							Recorder.recordString("rename(\"2\");\n");
-						}
-						Recorder.recordString("min[0]="+minSlider.getValue()+";\n");
-						Recorder.recordString("max[0]="+maxSlider.getValue()+";\n");
-						if (bandPassH.getState())
-							Recorder.recordString("filter[0]=\"pass\";\n");
-						else
-							Recorder.recordString("filter[0]=\"stop\";\n");
-
-						Recorder.recordString("min[1]="+minSlider2.getValue()+";\n");
-						Recorder.recordString("max[1]="+maxSlider2.getValue()+";\n");
-						if (bandPassS.getState())
-							Recorder.recordString("filter[1]=\"pass\";\n");
-						else
-							Recorder.recordString("filter[1]=\"stop\";\n");
-
-						Recorder.recordString("min[2]="+minSlider3.getValue()+";\n");
-						Recorder.recordString("max[2]="+maxSlider3.getValue()+";\n");
-						if (bandPassB.getState())
-							Recorder.recordString("filter[2]=\"pass\";\n");
-						else
-							Recorder.recordString("filter[2]=\"stop\";\n");
-
-						Recorder.recordString("for (i=0;i<3;i++){\n");
-						Recorder.recordString("  selectWindow(\"\"+i);\n");
-						Recorder.recordString("  setThreshold(min[i], max[i]);\n");
-						Recorder.recordString("  run(\"Make Binary\", \"thresholded remaining\");\n");
-						Recorder.recordString("  if (filter[i]==\"stop\")  run(\"Invert\");\n");
-						Recorder.recordString("}\n");
-						Recorder.recordString("imageCalculator(\"AND create\", \"0\",\"1\");\n");
-						Recorder.recordString("imageCalculator(\"AND create\", \"Result of 0\",\"2\");\n");
-						Recorder.recordString("for (i=0;i<3;i++){\n");
-						Recorder.recordString("  selectWindow(\"\"+i);\n");
-						Recorder.recordString("  close();\n");
-						Recorder.recordString("}\n");
-						Recorder.recordString("selectWindow(\"Result of 0\");\n");
-						Recorder.recordString("close();\n");
-						Recorder.recordString("selectWindow(\"Result of Result\");\n");
-						if(invert.getState())
-						   Recorder.recordString("run(\"Invert\");\n");
-						Recorder.recordString("rename(a);\n");
-						Recorder.recordString("// Colour Thresholding------------\n");
-					}
+						Recorder.recordString("// <<This feature is not currently working.>>\n");
+						Recorder.recordString("\n");
 				}
 			} else if (b==helpB){
 			IJ.showMessage("Help","Threshold Colour  v1.9\n \n"+
@@ -702,7 +611,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 			return;
 		}
 
-		ImageProcessor mask = roi.getMask(); // v1.32c onwards
+		ImageProcessor mask = roi.getMask(); 
 
 		Rectangle r = roi.getBoundingRect();
 		//new ImagePlus("Mask", ipm).show(); // display the mask
@@ -717,7 +626,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 			snumPixels=0;
 			for (j=0; j<r.height; j++) {
 				for (i=0; i<r.width; i++) {
-					if (mask.getPixel(i,j)!=0) { //v1.32c onwards
+					if (mask.getPixel(i,j)!=0) {
 						snumPixels++;
 					}
 				}
@@ -746,7 +655,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 				}
 			}
 		}
-		IJ.run("Select None");
+		imp.killRoi();
 
 		//Get hsb or rgb from roi.
 		//1pixel wide to fit all pixels of a non-square ROI in a ColorProcessor:
@@ -851,9 +760,9 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 	private boolean checkImage(){
 		imp = WindowManager.getCurrentImage();
-		if (imp==null) {
+		if (imp==null || imp.getBitDepth()!=24) {
 			IJ.beep();
-			IJ.showStatus("No image");
+			IJ.showStatus("No RGB image");
 			return false;
 		}
 		ip = setup(imp);
@@ -1052,17 +961,8 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 	}
 
 	void apply(ImagePlus imp, ImageProcessor ip) {
-		//this.setCursor(wait);
-		//IJ.showStatus("Bandpassing slice "+previousSlice);
-		java.awt.Color col;
-
-		if(invert.getState())
-			col = Toolbar.getForegroundColor();
-		else
-			col = Toolbar.getBackgroundColor();
-
+		Color col = Prefs.blackBackground?Color.black:Color.white;
 		ip.setColor(col);
-
 		byte fill = (byte)255;
 		byte keep = (byte)0;
 
@@ -1157,7 +1057,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 		ip.fill(fillMaskIP);
 
-		if (threshold.getState()){
+		if (threshold.getState()) {
 			ip.invert();
 			for (int j = 0; j < numPixels; j++){
 				if(fillMask[j] == fill)
@@ -1173,11 +1073,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 	void applyStack() {
 		for (int i = 1; i <= numSlices; i++){
 			imp.setSlice(i);
-			if (!checkImage()){
-				IJ.beep();
-				IJ.showStatus("No Image");
-				return;
-			}
+			if (!checkImage()) return;
 			apply(imp,ip);
 		}
 	}
@@ -1190,6 +1086,14 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		int[] pixels = (int[])ip.getPixels();
 		for (int i = 0; i < numPixels; i++)
 			 pixels[i] = restore[i];
+	}
+
+    public void windowActivated(WindowEvent e) {
+    	if (checkImage()) {
+			ip = setup(WindowManager.getCurrentImage());
+			reset(imp,ip);
+			filteredB.setEnabled(true);
+    	}
 	}
 
 	public void windowClosing(WindowEvent e) {
@@ -1447,7 +1351,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 					}
 					osg.dispose();
 				}
-				g.drawImage(os, 0, 0, this);
+				if (os!=null) g.drawImage(os, 0, 0, this);
 			} else {
 				g.setColor(Color.white);
 				g.fillRect(0, 0, WIDTH, HEIGHT);

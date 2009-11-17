@@ -66,7 +66,9 @@ public class Overlay implements PlugIn {
 			RoiProperties rp = new RoiProperties("Add to Overlay", roi);
 			if (!rp.showDialog()) return;
 		}
-		if (list==null) list = new Vector();
+		String name = roi.getName();
+		boolean newOverlay = name!=null && name.equals("new-overlay");
+		if (list==null || newOverlay) list = new Vector();
 		list.addElement(roi);
 		imp.setDisplayList(list);
 		displayList2 = list;
@@ -135,12 +137,16 @@ public class Overlay implements PlugIn {
 			displayList2 = list;
 			imp.setDisplayList(null);
 		}
+		RoiManager rm = RoiManager.getInstance();
+		if (rm!=null) rm.runCommand("show none");
 	}
 
 	void show() {
 		ImagePlus imp = IJ.getImage();
 		if (displayList2!=null)
 			imp.setDisplayList(displayList2);
+		RoiManager rm = RoiManager.getInstance();
+		if (rm!=null) rm.runCommand("show all");
 	}
 
 	void flatten() {
