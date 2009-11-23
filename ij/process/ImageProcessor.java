@@ -297,7 +297,8 @@ public abstract class ImageProcessor extends Object {
 			stdDev = 0.0;
 		boolean isPseudoColor = stdDev<20.0;
 		if ((int)stdDev==67) isPseudoColor = true; // "3-3-2 RGB" LUT
-		//ij.IJ.log("isPseudoColorLut: "+(isPseudoColor) + " " + stdDev);
+		if (ij.IJ.debugMode)
+			ij.IJ.log("isPseudoColorLut: "+(isPseudoColor) + " " + stdDev);
 		return isPseudoColor;
 	}
 	
@@ -331,9 +332,9 @@ public abstract class ImageProcessor extends Object {
 		value closest to the specified color. */
 	public abstract void setColor(Color color);
 
-	/** Obsolete (use setValue) */
+	/** Sets the default fill/draw value. Use setValue() with float images. */
 	public void setColor(int value) {
-		fgColor = value;
+		setValue(value);
 	}
 
 	/** Sets the default fill/draw value. */
