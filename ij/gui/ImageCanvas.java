@@ -1092,7 +1092,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			Rectangle r = roi.getBounds();
 			int type = roi.getType();
 			if (type==Roi.RECTANGLE && r.width==imp.getWidth() && r.height==imp.getHeight()
-			&& roi.getPasteMode()==Roi.NOT_PASTING) {
+			&& roi.getPasteMode()==Roi.NOT_PASTING && !(roi instanceof ImageRoi)) {
 				imp.killRoi();
 				return;
 			}
@@ -1201,6 +1201,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		Vector list = new Vector();
 		list.addElement(roi);
 		setDisplayList(list);
+		labelListItems = false;
+	}
+	
+	public void labelDisplayListItems(boolean b) {
+		labelListItems = b;
 	}
 
 	/** Obsolete; replaced by ImagePlus.getDisplayList(). */

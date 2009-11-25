@@ -2000,6 +2000,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		Vector list = new Vector();
 		list.addElement(roi);
 		ic.setDisplayList(list);
+		ic.labelDisplayListItems(false);
 	}
 
 	/** Returns the current display list, or null if there is no display list. */
