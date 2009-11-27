@@ -362,5 +362,14 @@ public class TextRoi extends Roi {
 	public static void recordSetFont() {
 		recordSetFont = true;
 	}
-
+	
+	/** Returns a copy of this TextRoi. */
+	public synchronized Object clone() {
+		TextRoi tr = (TextRoi)super.clone();
+		tr.theText = new String[MAX_LINES];
+		for (int i=0; i<MAX_LINES; i++)
+			tr.theText[i] = theText[i];
+		return tr;
+	}
+        
 }
