@@ -47,7 +47,7 @@ public class IJ {
 	private static boolean memMessageDisplayed;
 	private static long maxMemory;
 	private static boolean escapePressed;
-	private static boolean redirectErrorMessages;
+	private static boolean redirectErrorMessages, redirectErrorMessages2;
 	private static boolean suppressPluginNotFoundError;
 	private static Dimension screenSize;
 	private static Hashtable commandTable;
@@ -486,7 +486,7 @@ public class IJ {
 	/**	Displays a message in a dialog box with the specified title.
 		Writes the Java console if ImageJ is not present. */
 	public static void showMessage(String title, String msg) {
-		if (redirectErrorMessages) {
+		if (redirectErrorMessages || redirectErrorMessages2) {
 			IJ.log(title + ": " + msg);
 			redirectErrorMessages = false;
 			return;
@@ -1547,9 +1547,14 @@ public class IJ {
 		redirectErrorMessages = true;
 	}
 	
+	/** Set 'true' and IJ.error() and IJ.showMessage() output will be redirected to the "Log" window. */
+	public static void redirectErrorMessages(boolean redirect) {
+		redirectErrorMessages2 = redirect;
+	}
+
 	/** Returns the state of the  'redirectErrorMessages' flag. The File/Import/Image Sequence command sets this flag.*/
 	public static boolean redirectingErrorMessages() {
-		return redirectErrorMessages;
+		return redirectErrorMessages || redirectErrorMessages2;
 	}
 
 	/** Temporarily suppress "plugin not found" errors. */
