@@ -15,15 +15,17 @@
 <table cellspacing=5>
 
 <tr valign=top><td ><b>Author:</b></td><td >
-Ben Tupper (btupper at bigelow.org)
+Ben Tupper (btupper at bigelow.org) and Mike Sieracki (msieracki at bigelow.org)
 </td></tr>
 
 <tr valign=top><td ><b>History:</b></td><td >
 2009-01-08: First version<br>
+2009-12-11: BTT, minor fixes
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
-In <A HREF="RATS_.jar">RATS_.jar</A>
+
+<A HREF="RATS_.jar">RATS_.jar</A>
 </td></tr>
 
 <tr valign=top><td ><b>Installation:</b></td><td >
@@ -36,7 +38,7 @@ RATS establishes regionalized thresholds for a greyscale image
 where the regions are established using recursive quadtree architecture. Within each 
 of the lowest quadtree regions the threshold is calculated as the sum of 
 the orginal pixels weighted by the gradient pixels.
-threshold = SUM(edge*orig)/SUM(edge) for pixels within each region.
+<p><center><img SRC="RATS_Tr2.png"></center><p>for pixels within each region.
 The threshold calculated in each region is required to 
 meet minimum criteria - these criteria are determined by the user as
 a noise estimate (sigma) and a scaling factor (lambda).  The user may also
@@ -44,6 +46,8 @@ select the minimum region size.  The thresholds for all
 region are then interpolated (bilinear) across the entire image.
 In general, the best values for each of three parameters are determined 
 by trial and error for a given suite of images.  See references in source code and below. 
+<p>
+Source 
 <p>
 
 REFERENCE: M.H.F. Wilkinson (1998) Optimizing edge detectors for robust automatic threshold selection.
@@ -71,7 +75,7 @@ The left image shows the dialog in which the user is prompted for... <p>
 1. NOISE THRESHOLD:  An estimate of the noise. Estimate the noise by selecting a "background" portion of the image and using ImageJ to determine the standard deviation of gray values. Oddly, lower values yield smaller particles in general. (see refs, defaults to 25).<p>
 2. LAMBDA FACTOR: A scaling factor.  Higher values yield larger particles. (see refs, defaults to 3) <p>
 3. MIN LEAF SIZE (pixels): The smallest allowed leaflet (defaults to 5 levels of quadtrees so the default value is computed on the fly based upon the input image width and height.<p>
-4. VERBOSE If set then output informational messages in the log window (default is true).
+4. VERBOSE If set then output informational messages in the log window (default is false).
 <p> <p> 
 The center and right images show an example image its edge enhancement with the nested quadtrees for just one quadrant superimposed.
 </p>
@@ -83,7 +87,8 @@ The center and right images show an example image its edge enhancement with the 
 </table>
 
 </blockquote>
-<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
 
 </body>
 </html>
+
