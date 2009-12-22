@@ -675,8 +675,22 @@ public class Functions implements MacroConstants, Measurements {
 	void makeRectangle() {
 		Roi previousRoi = getImage().getRoi();
 		if (shiftKeyDown||altKeyDown) getImage().saveRoi();
-		IJ.makeRectangle((int)Math.round(getFirstArg()), (int)Math.round(getNextArg()),
-			(int)Math.round(getNextArg()), (int)Math.round(getLastArg()));
+		int x = (int)Math.round(getFirstArg());
+		int y = (int)Math.round(getNextArg());
+		int w = (int)Math.round(getNextArg());
+		int h = (int)Math.round(getNextArg());
+		int arcSize = 0;
+		if (interp.nextToken()==',') {
+			interp.getComma();
+			arcSize = (int)interp.getExpression();
+		}
+		interp.getRightParen();
+		if (arcSize<1)
+			IJ.makeRectangle(x, y, w, h);
+		else {
+			ImagePlus imp = getImage();
+			imp.setRoi(new Roi(x,y,w,h,arcSize));
+		}
 		Roi roi = getImage().getRoi();
 		if (previousRoi!=null && roi!=null)
 			updateRoi(roi);
@@ -1472,7 +1486,7 @@ public class Functions implements MacroConstants, Measurements {
 		vy1.setValue(y1);
 		vx2.setValue(x2);
 		vy2.setValue(y2);				
-		lineWidth.setValue(Line.getWidth());				
+		lineWidth.setValue(roi!=null?roi.getStrokeWidth():1);				
 	}
 	
 	void getVoxelSize() {
@@ -4443,8 +4457,10 @@ public class Functions implements MacroConstants, Measurements {
 			{interp.getParens(); return ""+IJ.maxMemory();}
 		else if (name.equals("getToolName"))
 			{interp.getParens(); return ""+IJ.getToolName();}
+		else if (name.equals("redirectErrorMessages"))
+			{interp.getParens(); IJ.redirectErrorMessages(); return null;}
 		else
-			interp.error("Unrecognized function name");
+			interp.error("Unrecognized IJ function name");
 		return null;
 	}
 	
