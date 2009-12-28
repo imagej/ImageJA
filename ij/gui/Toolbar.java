@@ -698,10 +698,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	private static void setRoiColor(Color c) {
-		if (Roi.previousRoi==null) return;
-		int id = Roi.previousRoi.getImageID();
-		if (id>=0) return;
-		ImagePlus imp = WindowManager.getImage(id);
+		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null) return;
 		Roi roi = imp.getRoi();
 		if (roi!=null && (roi.isDrawingTool())) {
@@ -910,7 +907,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					}
 					break;
 				case LINE: case POLYLINE: case FREELINE:
-					IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
+					if (current==LINE && arrowMode) {
+						IJ.doCommand("Arrow Tool...");
+					} else
+						IJ.runPlugIn("ij.plugin.frame.LineWidthAdjuster", "");
 					break;
 				case POINT:
 					if (multiPointMode) {

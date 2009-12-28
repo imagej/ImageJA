@@ -87,12 +87,13 @@ public class PolygonRoi extends Roi {
 	public PolygonRoi(int sx, int sy, ImagePlus imp) {
 		super(sx, sy, imp);
 		int tool = Toolbar.getToolId();
-		if (tool==Toolbar.POLYGON)
-			type = POLYGON;
-		else if (tool==Toolbar.ANGLE)
-			type = ANGLE;
-		else
-			type = POLYLINE;
+		switch (tool) {
+			case Toolbar.POLYGON: type=POLYGON; break;
+			case Toolbar.FREEROI: type=FREEROI; break;
+			case Toolbar.FREELINE: type=FREELINE; break;
+			case Toolbar.ANGLE: type=ANGLE; break;
+			default: type = POLYLINE; break;
+		}
 		xp = new int[maxPoints];
 		yp = new int[maxPoints];
 		xp2 = new int[maxPoints];
@@ -109,7 +110,7 @@ public class PolygonRoi extends Roi {
 		state = CONSTRUCTING;
 		userCreated = true;
 		if (lineWidth>1 && isLine())
-			updateWideLine();
+			updateWideLine(lineWidth);
 	}
 
 	private void drawStartBox(Graphics g) {
@@ -127,16 +128,13 @@ public class PolygonRoi extends Roi {
 		}
 		g.setColor(color);
 		Graphics2D g2d = (Graphics2D)g;
-		Stroke saveStroke = null;
-		if (stroke!=null) {
-			saveStroke = g2d.getStroke();
-			g2d.setStroke(stroke);
-		}
+		if (stroke!=null)
+			g2d.setStroke(getScaledStroke());
         if (xSpline!=null) {
             if (type==POLYLINE || type==FREELINE) {
                 drawSpline(g, xSpline, ySpline, splinePoints, false, fill);
                 if (wideLine) {
-                	g2d.setStroke(new BasicStroke(1));
+                	g2d.setStroke(onePixelWide);
                 	g.setColor(getColor());
                 	drawSpline(g, xSpline, ySpline, splinePoints, false, fill);
                 }
@@ -146,7 +144,7 @@ public class PolygonRoi extends Roi {
             if (type==POLYLINE || type==FREELINE || type==ANGLE || state==CONSTRUCTING) {
                 g.drawPolyline(xp2, yp2, nPoints);
                 if (wideLine) {
-                	g2d.setStroke(new BasicStroke(1));
+                	g2d.setStroke(onePixelWide);
                 	g.setColor(getColor());
                 	g.drawPolyline(xp2, yp2, nPoints);
                 }
@@ -159,7 +157,6 @@ public class PolygonRoi extends Roi {
             if (state==CONSTRUCTING && type!=FREEROI && type!=FREELINE)
                 drawStartBox(g);
         }
-		if (saveStroke!=null) g2d.setStroke(saveStroke);
         if ((xSpline!=null||type==POLYGON||type==POLYLINE||type==ANGLE)
         && state!=CONSTRUCTING && clipboard==null && !overlay) {
             if (ic!=null) mag = ic.getMagnification();
@@ -205,6 +202,9 @@ public class PolygonRoi extends Roi {
 	}
 
 	public void drawPixels(ImageProcessor ip) {
+		int saveWidth = ip.getLineWidth();
+		if (getStrokeWidth()>1f)
+			ip.setLineWidth((int)Math.round(getStrokeWidth()));
 		if (xSpline!=null) {
 			ip.moveTo(x+(int)(Math.floor(xSpline[0])+0.5), y+(int)Math.floor(ySpline[0]+0.5));
 			for (int i=1; i<splinePoints; i++)
@@ -218,8 +218,8 @@ public class PolygonRoi extends Roi {
 			if (type==POLYGON || type==FREEROI || type==TRACED_ROI)
 				ip.lineTo(x+xp[0], y+yp[0]);
 		}
-		if (xSpline!=null)
-			updateFullWindow = true;
+		ip.setLineWidth(saveWidth);
+		updateFullWindow = true;
 	}
 
 	protected void grow(int sx, int sy) {
@@ -306,6 +306,7 @@ public class PolygonRoi extends Roi {
 			double mag = ic.getMagnification();
 			if (mag<1.0) margin = (int)(margin/mag);
 		}
+		margin = (int)(margin+getStrokeWidth());
 		xp[nPoints-1] = ox-x;
 		yp[nPoints-1] = oy-y;
 		imp.draw(xmin-margin, ymin-margin, (xmax-xmin)+margin*2, (ymax-ymin)+margin*2);

@@ -645,8 +645,9 @@ public class Functions implements MacroConstants, Measurements {
 				x[n] = (int)Math.round(interp.getExpression());
 				if (n==2 && interp.nextToken()==')') {
 					interp.getRightParen();
-					Line.setWidth((int)x[n]);
-					IJ.makeLine(x1, y1, x2, y2);
+					Roi line = new Line(x1, y1, x2, y2);
+					line.updateWideLine((float)x[n]);
+					getImage().setRoi(line);
 					return;
 				}
 				interp.getComma();
@@ -780,18 +781,18 @@ public class Functions implements MacroConstants, Measurements {
 	
 	void moveTo() {
 		interp.getLeftParen();
-		int a1 = (int)(interp.getExpression()+0.5);
+		int a1 = (int)Math.round(interp.getExpression());
 		interp.getComma();
-		int a2 = (int)(interp.getExpression()+0.5);
+		int a2 = (int)Math.round(interp.getExpression());
 		interp.getRightParen();
 		getProcessor().moveTo(a1, a2);
 	}
 	
 	void lineTo() {
 		interp.getLeftParen();
-		int a1 = (int)(interp.getExpression()+0.5);
+		int a1 = (int)Math.round(interp.getExpression());
 		interp.getComma();
-		int a2 = (int)(interp.getExpression()+0.5);
+		int a2 = (int)Math.round(interp.getExpression());
 		interp.getRightParen();
 		ImageProcessor ip = getProcessor();
 		if (!colorSet) setForegroundColor(ip);
@@ -801,13 +802,13 @@ public class Functions implements MacroConstants, Measurements {
 
 	void drawLine() {
 		interp.getLeftParen();
-		int x1 = (int)(interp.getExpression()+0.5);
+		int x1 = (int)Math.round(interp.getExpression());
 		interp.getComma();
-		int y1 = (int)(interp.getExpression()+0.5);
+		int y1 = (int)Math.round(interp.getExpression());
 		interp.getComma();
-		int x2 = (int)(interp.getExpression()+0.5);
+		int x2 = (int)Math.round(interp.getExpression());
 		interp.getComma();
-		int y2 = (int)(interp.getExpression()+0.5);
+		int y2 = (int)Math.round(interp.getExpression());
 		interp.getRightParen();
 		ImageProcessor ip = getProcessor();
 		if (!colorSet) setForegroundColor(ip);

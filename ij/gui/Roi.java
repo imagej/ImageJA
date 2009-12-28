@@ -29,6 +29,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	int arcSize;
 	
 	public static Roi previousRoi;
+	public static final BasicStroke onePixelWide = new BasicStroke(1);
 	protected static Color ROIColor = Prefs.getColor(Prefs.ROICOLOR,Color.yellow);
 	protected static int pasteMode = Blitter.COPY;
 	protected static int lineWidth = 1;
@@ -58,6 +59,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected boolean nonScalable;
 	protected boolean overlay;
 	protected boolean wideLine;
+	protected double headSize = 10;  // arrow head size (0-30)
+
 
 
 	/** Creates a new rectangular Roi. */
@@ -710,10 +713,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			if (mag<1.0)
 				m = (int)(4.0/mag);
 		}
-		if (type==POINT || type==LINE) m += 4;
-		m = (int)(m*getStrokeWidth());
+		if (type==POINT) m += 4;
+		if (type==LINE) {
+			m += 4;
+			if (headSize>10.0) m = (int)(m*(headSize/5.0));
+		}
+		m = (int)(m+getStrokeWidth()*2);
 		clipX-=m; clipY-=m;
 		clipWidth+=m*2; clipHeight+=m*2;
+		//if (IJ.debugMode) IJ.log("updateClipRect: "+m+"  "+clipX+" "+clipY+" "+clipWidth+" "+clipHeight);
 	 }
 		
 	protected void handleMouseDrag(int sx, int sy, int flags) {
@@ -759,11 +767,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		int sx3 = sx1+sw;
 		int sy3 = sy1+sh;
 		Graphics2D g2d = (Graphics2D)g;
-		Stroke saveStroke = null;
-		if (stroke!=null) {
-			saveStroke = g2d.getStroke();
-			g2d.setStroke(stroke);
-		}
+		if (stroke!=null)
+			g2d.setStroke(getScaledStroke());
 		if (arcSize>0) {
 			int sArcSize = (int)Math.round(arcSize*mag);
 			if (fillColor!=null)
@@ -776,7 +781,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			else
 				g.drawRect(sx1, sy1, sw, sh);
 		}
-		if (saveStroke!=null) g2d.setStroke(saveStroke);
 		if (state!=CONSTRUCTING && clipboard==null && !overlay) {
 			int size2 = HANDLE_SIZE/2;
 			drawHandle(g, sx1-size2, sy1-size2);
@@ -847,9 +851,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		endPaste();
 		if (arcSize>0)
 			(new ShapeRoi(new RoundRectangle2D.Float(x, y, width, height, arcSize, arcSize))).drawPixels(ip);
-		else
+		else {
+			int saveWidth = ip.getLineWidth();
+			if (getStrokeWidth()>1f)
+				ip.setLineWidth((int)Math.round(getStrokeWidth()));
 			ip.drawRect(x, y, width, height);
-		if (Line.getWidth()>1)
+			ip.setLineWidth(saveWidth);
+		}
+		if (Line.getWidth()>1 || getStrokeWidth()>1)
 			updateFullWindow = true;
 	}
 	
@@ -1159,14 +1168,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		setStrokeWidth(width) ;
 	}
         
-	public void updateWideLine() {
+	public void updateWideLine(float width) {
+		//IJ.log("updateWideLine "+isLine()+"  "+isDrawingTool()+"  "+getType());
 		if (isLine()) {
-			setStrokeWidth(lineWidth);
+			wideLine = true;
+			setStrokeWidth(width);
 			if (getStrokeColor()==null) {
 				Color c = getColor();
 				setStrokeColor(new Color(c.getRed(),c.getGreen(),c.getBlue(), 77));
 			}
-			wideLine = true;
 		}
 	}
 
@@ -1183,7 +1193,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	 */
 	public void setStrokeWidth(float width) {
 		//this.stroke = new BasicStroke(width);
-		this.stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+		if (wideLine)
+			this.stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+		else
+			this.stroke = new BasicStroke(width);
 		if (width>1f) fillColor = null;
 	}
 
@@ -1200,6 +1213,16 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	/** Returns the Stroke used to draw this ROI, or null if no Stroke is used. */
 	public BasicStroke getStroke() {
 		return stroke;
+	}
+	
+	protected BasicStroke getScaledStroke() {
+		if (ic==null) return stroke;
+		float width = stroke.getLineWidth();
+		double mag = ic.getMagnification();
+		if (width>1 && mag!=1.0)
+			return new BasicStroke((float)(width*mag), BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+		else
+			return stroke;
 	}
 
 	/** Returns the name of this ROI, or null. */
