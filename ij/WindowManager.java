@@ -45,10 +45,8 @@ public class WindowManager {
 		}
 		Undo.reset();
 		currentWindow = win;
-		if (!suppressRecording && Recorder.record)
-			Recorder.record("selectWindow", win.getTitle());
 		Menus.updateMenus();
-		if (Recorder.record && !IJ.isMacro())
+		if (!suppressRecording && Recorder.record && !IJ.isMacro())
 			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
 	

@@ -149,7 +149,6 @@ public class Compiler implements PlugIn, FilenameFilter {
          
        }
 
-
 	boolean areErrors(String s) {
 		boolean errors = s!=null && s.length()>0;
 		if(errors && s.indexOf("1 warning")>0 && s.indexOf("[deprecation] show()")>0)

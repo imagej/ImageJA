@@ -37,7 +37,7 @@ import java.awt.image.*;
 			}
 		}
 		if (ip==null) 
-			ip =  new ColorProcessor(0,0);
+			ip =  new ColorProcessor(55,45);
 		ip = ip.resize(ip.getWidth()*4, ip.getHeight()*4);
 		ip.setFont(new Font("SansSerif", Font.PLAIN, LARGE_FONT));
 		ip.setAntialiasedText(true);
@@ -50,7 +50,7 @@ import java.awt.image.*;
 		for (int i=0; i<lines-1; i++) 
 			if (widths[i]>max)
 				max = widths[i];
-		ip.setColor(new Color(0, 0, 0));
+		ip.setColor(new Color(255,255, 140));
 		ip.setFont(new Font("SansSerif", Font.PLAIN, LARGE_FONT));
 		int y  = 45;
 		ip.drawString(text[0], x(text[0],ip,max), y);

@@ -92,6 +92,7 @@ public class RGBStackSplitter implements PlugInFilter {
 			IJ.error(error);
 			return null;
 		}
+
 		int width = imp.getWidth();
 		int height = imp.getHeight();
 		int channels = imp.getNChannels();
@@ -129,4 +130,3 @@ public class RGBStackSplitter implements PlugInFilter {
 	}
 
 }
-

@@ -79,7 +79,7 @@ public class Menus {
 	private static Vector macroFiles;  // Macro files in plugins folder with "_" in their name
 	private static int userPluginsIndex; // First user plugin or submenu in Plugins menu
 	private static boolean addSorted;
-	private static int defaultFontSize = IJ.isWindows()?14:12;
+	private static int defaultFontSize = IJ.isWindows()?14:0;
 	private static int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
 	private static Font menuFont;
 
@@ -219,6 +219,7 @@ public class Menus {
 		addPlugInItem(help, "Plugins...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/plugins\")", 0, false);
 		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
 		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
+		help.addSeparator();
 		addPlugInItem(help, "Update ImageJ...", "ij.plugin.ImageJ_Updater", 0, false);
 		addPlugInItem(help, "Update Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
 		help.addSeparator();
@@ -345,6 +346,7 @@ public class Menus {
  				MenuItem item = new MenuItem(name);
 				submenu.add(item);
 				item.addActionListener(ij);
+				instance.nPlugins++;
 			}
 		}
 	}
@@ -408,7 +410,7 @@ public class Menus {
 				pluginsMenu.addSeparator();
 			else if (firstChar=='>') {
 				String submenu = value.substring(2,value.length()-1);
-				Menu menu = getMenu("Plugins>" + submenu, true);
+				Menu menu = addSubMenu(pluginsMenu, submenu);
 				if (submenu.equals("Shortcuts"))
 					shortcutsMenu = menu;
 				else if (submenu.equals("Utilities"))
@@ -644,7 +646,6 @@ public class Menus {
             addPluginItem(menu, s);
             addSorted = false;
         }
-
 		String menuEntry = s;
 		if (s.startsWith("\"")) {
 			int quote = s.indexOf('"', 1);

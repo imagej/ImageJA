@@ -69,8 +69,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.43n";
-	public static final String BUILD = "";
+	public static final String VERSION = "1.43o";
+	public static final String BUILD = "5";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -555,6 +555,8 @@ public class ImageJ extends Frame implements ActionListener,
 			if (args[i].startsWith("-")) {
 				if (args[i].startsWith("-batch"))
 					noGUI = true;
+				else if (args[i].startsWith("-debug"))
+					IJ.debugMode = true;
 				else if (args[i].startsWith("-ijpath") && i+1<nArgs) {
 					Prefs.setHomeDir(args[i+1]);
 					args[i+1] = null;
@@ -564,8 +566,7 @@ public class ImageJ extends Frame implements ActionListener,
 						mode = EMBEDDED;
 					else if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
-				} else if (args[i].startsWith("-debug"))
-					IJ.debugMode = true;
+				}
 				else if (args[i].startsWith("-title="))
 					title = args[i].substring(7);
 				else if (args[i].startsWith("-icon="))
@@ -609,6 +610,8 @@ public class ImageJ extends Frame implements ActionListener,
 				IJ.open(file.getAbsolutePath());
 			}
 		}
+		if (IJ.debugMode && IJ.getInstance()==null)
+			new JavaProperties().run("");
 		if (noGUI) System.exit(0);
 	}
 	
