@@ -35,8 +35,10 @@ public class Averaging_Reducer implements PlugIn {
         ImagePlus imp2 = new ImagePlus("Reduced "+imp.getShortTitle(), stack2);
         imp2.setCalibration(imp.getCalibration());
         Calibration cal2 = imp2.getCalibration();
-        cal2.pixelWidth *= xshrink;
-        cal2.pixelHeight *= yshrink;
+        if (cal2.scaled()) {
+            cal2.pixelWidth *= xshrink;
+            cal2.pixelHeight *= yshrink;
+        }
         return imp2;
     }
 
