@@ -233,19 +233,17 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	protected void runFromLabel(String listLabel) {
 		String command = (String)listLabelToCommand.get(listLabel);
 		CommandAction ca = (CommandAction)commandsHash.get(command);
-		//if (ca.classCommand != null ) {
-		IJ.showStatus("Running command "+ca.classCommand);
-		IJ.doCommand(command);
-		//} else if (ca.menuItem != null) {
-		//	IJ.showStatus("Clicking menu item "+ca.menuLocation+" > "+command);
-		//	ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
-		//	ActionListener [] als = ca.menuItem.getActionListeners();
-		//	for (int i=0; i<als.length; ++i)
-		//		als[i].actionPerformed(ae);
-		//} else {
-		//	IJ.error("BUG: nothing to run found for '"+listLabel+"'");
-		//	return;
-		//}
+		if (ca.classCommand != null ) {
+		} else if (ca.menuItem != null) {
+			IJ.showStatus("Clicking menu item "+ca.menuLocation+" > "+command);
+			ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
+			ActionListener [] als = ca.menuItem.getActionListeners();
+			for (int i=0; i<als.length; ++i)
+				als[i].actionPerformed(ae);
+		} else {
+			IJ.error("BUG: nothing to run found for '"+listLabel+"'");
+			return;
+		}
 		closeWhenRunning = closeCheckBox.isSelected();
 		if (closeWhenRunning)
 			d.dispose();
