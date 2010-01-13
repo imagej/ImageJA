@@ -234,6 +234,8 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 		String command = (String)listLabelToCommand.get(listLabel);
 		CommandAction ca = (CommandAction)commandsHash.get(command);
 		if (ca.classCommand != null ) {
+			IJ.showStatus("Running command "+ca.classCommand);
+			IJ.doCommand(command);
 		} else if (ca.menuItem != null) {
 			IJ.showStatus("Clicking menu item "+ca.menuLocation+" > "+command);
 			ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
