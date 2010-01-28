@@ -59,7 +59,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected boolean nonScalable;
 	protected boolean overlay;
 	protected boolean wideLine;
-	protected double headSize = 10;  // arrow head size (0-30)
 
 
 
