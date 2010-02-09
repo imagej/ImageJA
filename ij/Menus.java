@@ -772,13 +772,16 @@ public class Menus {
     /** Opens the configuration file ("plugins.txt") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
 		try {
+			JarFile jf;
 			// in case its a regular file
-			if(!jar.startsWith("http"))
-				jar = "file:" + jar;
-			URL url = new URL("jar:" + jar + "!/");
-			JarURLConnection jarcon =
-				(JarURLConnection)url.openConnection();
-			JarFile jf = jarcon.getJarFile();
+			if(jar.startsWith("http")) {
+				URL url = new URL("jar:" + jar + "!/");
+				JarURLConnection jarcon =
+					(JarURLConnection)url.openConnection();
+				jf = jarcon.getJarFile();
+			}
+			else
+				jf = new JarFile(jar);
 			Enumeration entries = jf.entries();
 			while (entries.hasMoreElements()) {
 				JarEntry entry=(JarEntry)entries.nextElement();
