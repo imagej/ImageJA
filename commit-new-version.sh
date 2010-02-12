@@ -80,7 +80,10 @@ cd tmpCommit &&
 unzip $zipfile &&
 cd source &&
 export GIT_WORK_TREE="$(pwd)" &&
-find \( -name .DS_Store -name .FBCIndex -o -name .FBCLockFolder -o -name .gdb_history \) -exec rm {} \; &&
+if !  find \( -name .DS_Store -name .FBCIndex -o -name .FBCLockFolder -o -name .gdb_history \) -exec rm -rf {} \;
+then
+	echo "No temporary files removed" >&2
+fi &&
 find -type f -print0 | xargs -0 perl "$MAC2UNIX" &&
 find -type f -print0 | xargs -0 git update-index --add &&
 tree=$(git write-tree) &&
