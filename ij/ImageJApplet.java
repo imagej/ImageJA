@@ -136,5 +136,12 @@ public class ImageJApplet extends Applet {
 	ImageJ ij = IJ.getInstance();
 	ij.dispose();
     }
-}
 
+    public void open(String url) {
+        IJ.open(url);
+    }
+
+    public void eval(String expression) {
+        IJ.runMacro(expression);
+    }
+}
