@@ -87,6 +87,8 @@ public class CompositeImage extends ImagePlus {
 		} else
 			active[0] = true;
 		//if (!(channels==3&&stackSize==3))
+		setRoi(imp.getRoi());
+		setOverlay(imp.getOverlay());
 		if (channels!=stackSize)
 			setOpenAsHyperStack(true);
 	}
