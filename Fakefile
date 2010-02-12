@@ -7,5 +7,4 @@ ij.jar <- ij/**/*.java com/apple/**/*.java javax/script/*.java \
 	plugins/JavaScriptEvaluator.class plugins/MacAdapter.class \
 	IJ_Props.txt macros/*.txt
 
-JARSIGNEROPTS=-signedjar signed-ij.jar ij.jar dscho
-signed-ij.jar[jarsigner $JARSIGNEROPTS] <- ij.jar
+signed-ij.jar[./make-signed-jar.sh] <- ij.jar
