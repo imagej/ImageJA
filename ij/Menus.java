@@ -107,6 +107,7 @@ public class Menus {
 		Menu importMenu = getMenu("File>Import", true);
 		file.addSeparator();
 		addPlugInItem(file, "Close", "ij.plugin.Commands(\"close\")", KeyEvent.VK_W, false);
+		addPlugInItem(file, "Close All", "ij.plugin.Commands(\"close-all\")", 0, false);
 		addPlugInItem(file, "Save", "ij.plugin.Commands(\"save\")", KeyEvent.VK_S, false);
 		saveAsMenu = getMenu("File>Save As", true);
 		addPlugInItem(file, "Revert", "ij.plugin.Commands(\"revert\")", KeyEvent.VK_R,  false);
@@ -581,7 +582,7 @@ public class Menus {
 			for (int j=0; j<nEntries; j++) {
 				String s = entries[j];
 				//IJ.log(j+"  "+s);
-				if (nEntries2<=3) {
+				if (nEntries2<2) {
 					if (s.startsWith("Plugins>")) {
 						int firstComma = s.indexOf(',');
 						int firstQuote = s.indexOf('"');
@@ -760,7 +761,7 @@ public class Menus {
     	menu.addSeparator();
     }
 
-    /** Opens the configuration file ("plugins.txt") from a JAR file and returns it as an InputStream. */
+    /** Opens the configuration file ("plugins.config") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
 		try {
 			ZipFile jarFile = new ZipFile(jar);

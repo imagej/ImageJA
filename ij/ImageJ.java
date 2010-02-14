@@ -72,8 +72,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.43p";
-	public static final String BUILD = "9";
+	public static final String VERSION = "1.43r";
+	public static final String BUILD = "3";
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -507,6 +507,7 @@ public class ImageJ extends Frame implements ActionListener,
 		Thread thread = new Thread(this, "Quit");
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
+		IJ.wait(10);
 	}
 	
 	/** Returns true if ImageJ is exiting. */
@@ -693,6 +694,7 @@ public class ImageJ extends Frame implements ActionListener,
 			saveWindowLocations();
 			Prefs.savePreferences();
 		}
+		IJ.cleanup();
 		setVisible(false);
 		//IJ.log("dispose");
 		dispose();

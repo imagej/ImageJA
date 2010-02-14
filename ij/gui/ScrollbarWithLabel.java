@@ -5,14 +5,14 @@ import java.awt.event.*;
 import java.awt.geom.*;
 
 
-/** This class, taken from Joachim Walter's Image5D package,
-	 adds "c", "z" or "t" labels to the hyperstack dimension sliders.
+/** This class, based on Joachim Walter's Image5D package, adds "c", "z" labels 
+	 and play-pause icons (T) to the stack and hyperstacks dimension sliders.
  * @author Joachim Walter
  */
 public class ScrollbarWithLabel extends Panel implements Adjustable, AdjustmentListener {
 	private Scrollbar bar;
 	private Label label;
-	private PlayPauseIcon playPauseIcon;
+	private PlayPauseButton playPauseButton;
 	private StackWindow stackWindow;
 	transient AdjustmentListener adjustmentListener;
 	
@@ -26,8 +26,8 @@ public class ScrollbarWithLabel extends Panel implements Adjustable, AdjustmentL
 		if (label != null) {
 			if (label.equals("t")) {
 				label = null;
-				playPauseIcon = new PlayPauseIcon();
-				add(playPauseIcon, BorderLayout.WEST);
+				playPauseButton = new PlayPauseButton();
+				add(playPauseButton, BorderLayout.WEST);
 			} else {
 				this.label = new Label(label);
 				add(this.label, BorderLayout.WEST);
@@ -146,15 +146,15 @@ public class ScrollbarWithLabel extends Panel implements Adjustable, AdjustmentL
 	}
 		
 	public void updatePlayPauseIcon() {
-		playPauseIcon.repaint();
+		playPauseButton.repaint();
 	}
 	
 	
-	class PlayPauseIcon extends Canvas implements MouseListener {
+	class PlayPauseButton extends Canvas implements MouseListener {
 		private static final int WIDTH = 12, HEIGHT=14;
 		private BasicStroke stroke = new BasicStroke(2f);
 
-		public PlayPauseIcon() {
+		public PlayPauseButton() {
 			addMouseListener(this);
 			setSize(WIDTH, HEIGHT);
 		}
@@ -172,25 +172,30 @@ public class ScrollbarWithLabel extends Panel implements Adjustable, AdjustmentL
 			if (g==null) return;
 			g.setColor(Color.white);
 			g.fillRect(0, 0, WIDTH, HEIGHT);
-			g.setColor(Color.black);
 			Graphics2D g2d = (Graphics2D)g;
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			if (stackWindow.getAnimate()) {
+				g.setColor(Color.black);
 				g2d.setStroke(stroke);
 				g.drawLine(3, 3, 3, 11);
 				g.drawLine(8, 3, 8, 11);
 			} else {
+				g.setColor(Color.darkGray);
 				GeneralPath path = new GeneralPath();
-				path.moveTo(4f, 2f);
+				path.moveTo(3f, 2f);
 				path.lineTo(10f, 7f);
-				path.lineTo(4f, 12f);
-				path.lineTo(4f, 2f);
+				path.lineTo(3f, 12f);
+				path.lineTo(3f, 2f);
 				g2d.fill(path);
 			}
 		}
 		
 		public void mousePressed(MouseEvent e) {
-			IJ.doCommand("Start Animation [\\]");
+			int flags = e.getModifiers();
+			if ((flags&(Event.ALT_MASK|Event.META_MASK|Event.CTRL_MASK))!=0)
+				IJ.doCommand("Animation Options...");
+			else
+				IJ.doCommand("Start Animation [\\]");
 		}
 		
 		public void mouseReleased(MouseEvent e) {}
