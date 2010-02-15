@@ -3,6 +3,7 @@ import java.util.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
+import ij.plugin.filter.PlugInFilterRunner;
 import ij.util.Tools;
 
 /**
@@ -426,4 +427,16 @@ public class GenericDialog implements java.awt.event.ActionListener {
 	}
 
 	public void actionPerformed(java.awt.event.ActionEvent ev) {}
+	public void setEchoChar(char echoChar) {}
+	public void addPreviewCheckbox(PlugInFilterRunner pfr) {}
+	public void addPreviewCheckbox(PlugInFilterRunner pfr, String label) {}
+	public void setOKLabel(String label) {}
+	public void enableYesNoCancel() {}
+	public void enableYesNoCancel(String yesLabel, String noLabel) {}
+	public void hideCancelButton() {}
+	public void addDialogListener(DialogListener dl) {}
+	public boolean wasOKed() { return true; }
+	public void previewRunning(boolean isRunning) {}
+	public void centerDialog(boolean b) {}
+	public void addHelp(String url) {}
 }
