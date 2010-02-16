@@ -1696,4 +1696,16 @@ public class IJ {
 		}
 	}
 
+	public static boolean runFijiEditor(String title, String body) {
+		try {
+			Class clazz = IJ.getClassLoader()
+				.loadClass("fiji.scripting.TextEditor");
+			Frame frame = (Frame)clazz.getConstructor(new Class[] {
+					String.class, String.class })
+				.newInstance(new Object[] { title, body });
+			frame.setVisible(true);
+			return true;
+		} catch (Exception e) { IJ.handleException(e); /* ignore */ }
+		return false;
+	}
 }

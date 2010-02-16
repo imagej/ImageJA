@@ -84,8 +84,6 @@ public class NewPlugin implements PlugIn {
 	}
 
 	public void createPlugin(String name, int type, String methods) {
-  		ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
-		if (ed==null) return;
 		String pluginName = name;
 		if (!(name.endsWith(".java") || name.endsWith(".JAVA")))
 			name = SaveDialog.setExtension(name, ".java");
@@ -145,6 +143,12 @@ public class NewPlugin implements PlugIn {
 		}
 		text += "\n";
 		text += "}\n";
+
+		if (IJ.runFijiEditor(pluginName, text))
+			return;
+
+		ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+		if (ed==null) return;
 		ed.create(pluginName, text);
 	}
 	
