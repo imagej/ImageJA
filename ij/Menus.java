@@ -718,8 +718,10 @@ public class Menus {
 				if (readFromProps)
 					result = addSubMenu(parentMenu,
 							menuItemName);
-				else if (parentName.startsWith("Plugins") && menuSeparators != null)
-					addItemSorted(parentMenu, result, parentName.equals("Plugins")?userPluginsIndex:0);
+				else if (parentName.startsWith("Plugins") && menuSeparators != null) {
+					Integer i = (Integer)menuSeparators.get(parentMenu);
+					addItemSorted(parentMenu, result, i.intValue());
+				}
 				else
 					parentMenu.add(result);
 				if (menuName.equals("File>Open Recent"))
