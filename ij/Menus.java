@@ -418,6 +418,7 @@ public class Menus {
 					utilitiesMenu = menu;
 				else if (submenu.equals("Macros"))
 					macrosMenu = menu;
+				menus.put("Plugins>" + submenu, menu);
 			} else
 				addPluginItem(pluginsMenu, value);
 		}
