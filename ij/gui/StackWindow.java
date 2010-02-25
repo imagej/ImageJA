@@ -69,6 +69,7 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 			if (blockIncrement<1) blockIncrement = 1;
 			zSelector.setUnitIncrement(1);
 			zSelector.setBlockIncrement(blockIncrement);
+			sliceSelector = zSelector.bar;
 		}
 		if (nFrames>1) {
 			animationSelector = tSelector = new ScrollbarWithLabel(this, 1, 1, 1, nFrames+1, "t");
@@ -81,8 +82,6 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 			tSelector.setUnitIncrement(1);
 			tSelector.setBlockIncrement(blockIncrement);
 		}
-		if (sliceSelector==null && this.getClass().getName().indexOf("Image5D")!=-1)
-			sliceSelector = new Scrollbar(); // prevents Image5D from crashing
 		//IJ.log(nChannels+" "+nSlices+" "+nFrames);
 		pack();
 		ic = imp.getCanvas();
