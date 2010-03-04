@@ -406,7 +406,7 @@ public class WindowManager {
 		for (int i=0; i<nonImageList.size(); i++) {
 			Frame win = (Frame)nonImageList.elementAt(i);
 			String title = win.getTitle();
-			if (menuItemLabel.equals(title)) {
+			if (item == Menus.window.getItem(i + Menus.WINDOW_MENU_ITEMS) || menuItemLabel.equals(title)) {
 				win.toFront();
 				((CheckboxMenuItem)item).setState(false);
 				if (Recorder.record && !IJ.isMacro())
