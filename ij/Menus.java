@@ -1552,12 +1552,32 @@ public class Menus {
 		}
 		prefs.put(Prefs.MENU_SIZE, Integer.toString(instance.fontSize));
 	}
-	
+
+	MenuItem[] getWindowItems() {
+		Menu menu = getMenu("Window");
+		int count = menu.getItemCount() - WINDOW_MENU_ITEMS;
+		MenuItem[] result = new MenuItem[count];
+		for (int i = 0; i < count; i++)
+			result[i] = menu.getItem(i + WINDOW_MENU_ITEMS);
+		return result;
+	}
+
+	void addWindowItems(MenuItem[] items) {
+		if (items == null)
+			return;
+		Menu menu = getMenu("Window");
+		for (int i = 0; i < items.length; i++)
+			menu.add(items[i]);
+	}
+
 	public static void updateImageJMenus() {
+		MenuItem[] windows = instance == null ? null :
+			instance.getWindowItems();
 		mbar = null;
 		Menus m = new Menus(IJ.getInstance(),
 				(ImageJApplet)IJ.getApplet());
 		String err = m.addMenuBar();
+		m.addWindowItems(windows);
 		if (err!=null) IJ.error(err);
 		IJ.setClassLoader(null);
 		IJ.runPlugIn("ij.plugin.ClassChecker", "");
