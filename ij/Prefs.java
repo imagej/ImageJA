@@ -390,7 +390,7 @@ public class Prefs {
 			+ (multiPointMode?MULTI_POINT_MODE:0);
 		prefs.put(OPTIONS, Integer.toString(options));
 		if (enableRMIListener >= 0)
-			prefs.put(ENABLE_RMI, new Integer(enableRMIListener));
+			prefs.put(ENABLE_RMI, Integer.toString(enableRMIListener));
 	}
 
 	/** Saves the value of the string <code>text</code> in the preferences

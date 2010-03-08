@@ -123,7 +123,7 @@ public class ImageJ extends Frame implements ActionListener,
 			setIcon(new URL("file:" + iconPath));
 		} catch (Exception e) { e.printStackTrace(); }
 		this.applet = applet;
-		String err1 = Prefs.load(this, applet);
+		String err1 = applet == null ? null : Prefs.load(this, applet);
 		if (IJ.isLinux()) {
 			backgroundColor = new Color(240,240,240);
 			setBackground(backgroundColor);
@@ -577,6 +577,10 @@ public class ImageJ extends Frame implements ActionListener,
 					iconPath = args[i].substring(6);
 			} 
 		}
+		// Read prefs before checking for other instance
+		String err1 = Prefs.load(ImageJ.class, null);
+		if (err1!=null)
+			IJ.error(err1);
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
 		if (!noGUI && (mode==STANDALONE) && Prefs.enableRMIListener!=0 &&
