@@ -1,10 +1,19 @@
 package ij.gui;
-import java.util.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.util.Tools;
+
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.LayoutManager;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
+import java.util.*;
 
 /**
  * This class is a customizable modal dialog box. Here is an example
@@ -53,6 +62,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
 	private int topInset, leftInset, bottomInset;
     private boolean customInsets;
     private int[] sliderIndexes;
+	protected String title;
 
 	public java.awt.Label theLabel;
 
@@ -66,6 +76,7 @@ public class GenericDialog implements java.awt.event.ActionListener {
 
     /** Creates a new GenericDialog using the specified title and parent frame. */
     public GenericDialog(String title, java.awt.Frame parentUnused) {
+		this.title = title;
 		numberField = new Vector(5);
 		defaultValues = new Vector(5);
 		defaultText = new Vector(5);
@@ -439,4 +450,17 @@ public class GenericDialog implements java.awt.event.ActionListener {
 	public void previewRunning(boolean isRunning) {}
 	public void centerDialog(boolean b) {}
 	public void addHelp(String url) {}
-}
+	public void setModal(boolean modal) {}
+	public void dispose() {}
+	public void addWindowListener(WindowListener listener) {}
+	public void setCursor(Cursor cursor) {}
+	public void add(Component component) {}
+	public void add(Component component, int index) {}
+	public void add(Component component, Object constraints) {}
+	public void remove(Component component) {}
+	public void repaint() {}
+	public String getTitle() { return title; }
+	public void setTitle(String title) { this.title = title; }
+	public void windowClosing(WindowEvent event) {}
+	public void itemStateChanged(ItemEvent event) {}
+	public LayoutManager getLayout() { return null; }}
