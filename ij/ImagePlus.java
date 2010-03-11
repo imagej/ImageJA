@@ -662,7 +662,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 			ip2.setSnapshotPixels(null);
 		}
 	}
-	
+
+	/* @deprecated */
+	public void killProcessor() { }
+
 	/** For images with irregular ROIs, returns a byte mask, otherwise, returns
 		null. Mask pixels have a non-zero value. */
 	public ImageProcessor getMask() {
@@ -2006,7 +2009,22 @@ public class ImagePlus implements ImageObserver, Measurements {
 		else
 			return overlay;
 	}
-	
+
+	/* @deprecated Use setOverlay() instead */
+	public void setDisplayList(Vector list) {
+		getCanvas().setDisplayList(list);
+	}
+
+	/* @deprecated Use getOverlay() instead */
+	public Vector getDisplayList() {
+		return getCanvas().getDisplayList();
+	}
+
+	/* @deprected Use setOverlay() instead */
+	public void setDisplayList(Roi roi, Color strokeColor, int strokeWidth, Color fillColor) {
+		setOverlay(roi, strokeColor, strokeWidth, fillColor);
+	}
+
 	public void setHideOverlay(boolean hide) {
 		ImageCanvas ic = getCanvas();
 		if (ic!=null && hide!=hideOverlay && ic.getOverlay()!=null)
