@@ -57,7 +57,8 @@ public class Kuwahara_Filter  implements PlugInFilter {
 		float[][] variance = new float[width2][height2];
 		int x1start = roi.x;
 		int y1start = roi.y;
-		int sum, sum2, n, v=0, xbase, ybase;
+		double sum, sum2;
+		int n, v=0, xbase, ybase;
 		for (int y1=y1start-offset; y1<y1start+height; y1++) {
 			if ((y1%20)==0) IJ.showProgress(0.7*(y1-y1start)/height);
 			for (int x1=x1start-offset; x1<x1start+width; x1++) {
@@ -71,7 +72,7 @@ public class Kuwahara_Filter  implements PlugInFilter {
 					}
 				}
 				mean[x1+offset][y1+offset] = (float)(sum/n);
-				variance[x1+offset][y1+offset] = (float)((n*sum2-sum*sum)/n);
+				variance[x1+offset][y1+offset] = (float)(sum2-sum*sum/n);
 			}
 		}
 		//new ImagePlus("Variance", new FloatProcessor(variance)).show(); // ImageJ 1.35b or later
