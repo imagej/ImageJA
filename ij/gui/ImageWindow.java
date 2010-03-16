@@ -535,7 +535,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		if (IJ.debugMode) IJ.log("windowActivated: "+imp.getTitle());
 		ImageJ ij = IJ.getInstance();
 		boolean quitting = ij!=null && ij.quitting();
-		if (IJ.isMacintosh() && ij!=null && !quitting) {
+		if (IJ.isMacintosh() && ij!=null && ij.applet == null && !quitting) {
 			IJ.wait(10); // may be needed for Java 1.4 on OS X
 			setMenuBar(Menus.getMenuBar());
 		}
