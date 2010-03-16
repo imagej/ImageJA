@@ -41,6 +41,7 @@ import javax.swing.JScrollPane;
 
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
+import javax.swing.SwingUtilities;
 
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
@@ -230,18 +231,26 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 		TextWindow tw = new TextWindow("ImageJ Menu Commands", " \tCommand", sb.toString(), 600, 500);
 	}
 
-	protected void runFromLabel(String listLabel) {
-		String command = (String)listLabelToCommand.get(listLabel);
+	// Queue action to the event dispatch thread in a safe manner
+	// to prevent AWT dialogs crashing the JVM when launched from this Swing component
+	protected void runFromLabel(final String listLabel) {
+		final String command = (String)listLabelToCommand.get(listLabel);
 		CommandAction ca = (CommandAction)commandsHash.get(command);
 		if (ca.classCommand != null ) {
 			IJ.showStatus("Running command "+ca.classCommand);
-			IJ.doCommand(command);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() { IJ.doCommand(command); }
+			});
 		} else if (ca.menuItem != null) {
 			IJ.showStatus("Clicking menu item "+ca.menuLocation+" > "+command);
-			ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
-			ActionListener [] als = ca.menuItem.getActionListeners();
-			for (int i=0; i<als.length; ++i)
-				als[i].actionPerformed(ae);
+			final ActionEvent ae = new ActionEvent(ca.menuItem, ActionEvent.ACTION_PERFORMED, command);
+			final ActionListener[] als = ca.menuItem.getActionListeners();
+			for (int i=0; i<als.length; ++i) {
+				final ActionListener al = als[i];
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() { al.actionPerformed(ae); }
+				});
+			}
 		} else {
 			IJ.error("BUG: nothing to run found for '"+listLabel+"'");
 			return;
