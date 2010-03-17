@@ -1,12 +1,19 @@
 package ij;
 
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
 import ij.gui.MenuCanvas;
 import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.MenuBar;
 import java.awt.Panel;
 import java.awt.ScrollPane;
+import java.awt.Scrollbar;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,9 +40,12 @@ import java.net.URL;
 */
 public class ImageJApplet extends Applet {
     ScrollPane imagePane;
+    Scrollbar scrollC, scrollZ, scrollT;
     int heightWithoutImage;
     Panel north;
+    Panel scrollPane;
     MenuCanvas menu;
+    ImagePlus image;
 
     public ImageJApplet() {
 	setLayout(new BorderLayout());
@@ -48,6 +58,39 @@ public class ImageJApplet extends Applet {
 
 	imagePane = new ScrollPane();
 	add(imagePane, BorderLayout.CENTER);
+
+	AdjustmentListener listener = new AdjustmentListener() {
+                public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
+			if (image == null)
+				return;
+			int channel = scrollC.getValue();
+			int slice = scrollZ.getValue();
+			int frame = scrollT.getValue();
+			image.setPosition(channel, slice, frame);
+			imagePane.repaint();
+		}
+	};
+
+	scrollPane = new Panel();
+	scrollPane.setLayout(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
+	scrollC = new Scrollbar(Scrollbar.HORIZONTAL);
+	scrollC.addAdjustmentListener(listener);
+	c.fill = GridBagConstraints.HORIZONTAL;
+	c.weightx = 1;
+	c.gridy = 0;
+	scrollPane.add(scrollC, c);
+	scrollZ = new Scrollbar(Scrollbar.HORIZONTAL);
+	scrollZ.addAdjustmentListener(listener);
+	c.gridy = 1;
+	scrollPane.add(scrollZ, c);
+        scrollPane.validate();
+	scrollT = new Scrollbar(Scrollbar.HORIZONTAL);
+	scrollT.addAdjustmentListener(listener);
+	c.gridy = 2;
+	scrollPane.add(scrollT, c);
+
+	add(scrollPane, BorderLayout.SOUTH);
 }
 
     public Component add(Component c) {
@@ -64,6 +107,8 @@ public class ImageJApplet extends Applet {
 
     public void pack() {
 	north.doLayout();
+	imagePane.doLayout();
+	scrollPane.doLayout();
 	doLayout();
     }
 
@@ -73,6 +118,22 @@ public class ImageJApplet extends Applet {
 		imagePane.add(c);
 		c.requestFocus();
 		imagePane.repaint();
+		if (c instanceof ImageCanvas) {
+			image = ((ImageCanvas)c).getImage();
+
+			scrollC.setMinimum(1);
+			scrollC.setMaximum(image.getNChannels()+1);
+			scrollC.setVisible(image.getNChannels() > 1);
+
+			scrollZ.setMinimum(1);
+			scrollZ.setMaximum(image.getNSlices()+1);
+			scrollZ.setVisible(image.getNSlices() > 1);
+
+			scrollT.setMinimum(1);
+			scrollT.setMaximum(image.getNFrames()+1);
+			scrollT.setVisible(image.getNFrames() > 1);
+			pack();
+		}
 	}
     }
 
