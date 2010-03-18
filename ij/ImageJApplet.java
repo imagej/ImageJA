@@ -127,6 +127,11 @@ public class ImageJApplet extends Applet {
 	scrollZ.addKeyListener(ij);
 	scrollT.addKeyListener(ij);
 
+	ImageJ ij = IJ.getInstance();
+	scrollC.addKeyListener(ij);
+	scrollZ.addKeyListener(ij);
+	scrollT.addKeyListener(ij);
+
 	add(scrollPane, BorderLayout.SOUTH);
 >>>>>>> 7b06135... Add the key listener to the scrollbars
 }
