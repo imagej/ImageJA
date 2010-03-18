@@ -256,4 +256,7 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
     	return running2;
     }
 
+    public ScrollbarWithLabel getCSelector() { return cSelector; }
+    public ScrollbarWithLabel getZSelector() { return zSelector; }
+    public ScrollbarWithLabel getTSelector() { return tSelector; }
 }
