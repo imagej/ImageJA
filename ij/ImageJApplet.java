@@ -3,6 +3,8 @@ package ij;
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 import ij.gui.MenuCanvas;
+import ij.gui.ScrollbarWithLabel;
+import ij.gui.StackWindow;
 import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -147,15 +149,30 @@ public class ImageJApplet extends Applet {
 	doLayout();
     }
 
+    SelectorHelper cSelectorHelper, zSelectorHelper, tSelectorHelper;
+
     public void setImageCanvas(Component c) {
 	if (c != null) {
 		imagePane.removeAll();
 		imagePane.add(c);
 		c.requestFocus();
 		imagePane.repaint();
+
+		if (cSelectorHelper != null) {
+			cSelectorHelper.source.removeAdjustmentListener(cSelectorHelper);
+			cSelectorHelper = null;
+		}
+		if (zSelectorHelper != null) {
+			zSelectorHelper.source.removeAdjustmentListener(zSelectorHelper);
+			zSelectorHelper = null;
+		}
+		if (tSelectorHelper != null) {
+			tSelectorHelper.source.removeAdjustmentListener(tSelectorHelper);
+			tSelectorHelper = null;
+		}
+
 		if (c instanceof ImageCanvas) {
 			image = ((ImageCanvas)c).getImage();
-
 			scrollC.setMinimum(1);
 			scrollC.setMaximum(image.getNChannels()+1);
 			scrollC.setVisible(image.getNChannels() > 1);
@@ -172,7 +189,30 @@ public class ImageJApplet extends Applet {
 			labelT.setVisible(image.getNFrames() > 1);
 
 			pack();
+
+			if (image.getWindow() instanceof StackWindow) {
+				StackWindow stackWindow = (StackWindow)image.getWindow();
+				cSelectorHelper = new SelectorHelper(stackWindow.getCSelector(), scrollC);
+				zSelectorHelper = new SelectorHelper(stackWindow.getZSelector(), scrollZ);
+				tSelectorHelper = new SelectorHelper(stackWindow.getTSelector(), scrollT);
+			}
+
 		}
+	}
+    }
+
+    static class SelectorHelper implements AdjustmentListener {
+	ScrollbarWithLabel source;
+        Scrollbar target;
+
+	SelectorHelper(ScrollbarWithLabel source, Scrollbar target) {
+	    this.source = source;
+	    this.target = target;
+	    source.addAdjustmentListener(this);
+        }
+
+	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
+	    target.setValue(e.getValue());
 	}
     }
 
