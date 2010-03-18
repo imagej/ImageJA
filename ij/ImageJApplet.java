@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Label;
 import java.awt.MenuBar;
 import java.awt.Panel;
 import java.awt.ScrollPane;
@@ -41,9 +42,9 @@ import java.net.URL;
 public class ImageJApplet extends Applet {
     ScrollPane imagePane;
     Scrollbar scrollC, scrollZ, scrollT;
+    Label labelC, labelZ, labelT;
     int heightWithoutImage;
-    Panel north;
-    Panel scrollPane;
+    Panel north, south, east;
     MenuCanvas menu;
     ImagePlus image;
 
@@ -71,26 +72,59 @@ public class ImageJApplet extends Applet {
 		}
 	};
 
-	scrollPane = new Panel();
-	scrollPane.setLayout(new GridBagLayout());
+	east = new Panel();
+	east.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
+
+	south = new Panel();
+	south.setLayout(new GridBagLayout());
+
+	c.gridx = 0;
+	c.weightx = 0;
+	labelC = new Label("C");
+	south.add(labelC, c);
+	
+	c.gridy = 0;
+	labelZ = new Label("Z");
+	east.add(labelZ, c);
+	
+	c.gridy = 2;
+	labelT = new Label("T");
+	south.add(labelT, c);
+	
+
 	scrollC = new Scrollbar(Scrollbar.HORIZONTAL);
 	scrollC.addAdjustmentListener(listener);
 	c.fill = GridBagConstraints.HORIZONTAL;
 	c.weightx = 1;
+	c.gridx = 1;
 	c.gridy = 0;
-	scrollPane.add(scrollC, c);
-	scrollZ = new Scrollbar(Scrollbar.HORIZONTAL);
+	south.add(scrollC, c);
+	scrollZ = new Scrollbar(Scrollbar.VERTICAL);
 	scrollZ.addAdjustmentListener(listener);
+	c.fill = GridBagConstraints.VERTICAL;
+	c.weightx = 0;
+	c.weighty = 1;
+	c.gridx = 0;
 	c.gridy = 1;
-	scrollPane.add(scrollZ, c);
-        scrollPane.validate();
+	east.add(scrollZ, c);
+        east.validate();
 	scrollT = new Scrollbar(Scrollbar.HORIZONTAL);
 	scrollT.addAdjustmentListener(listener);
+	c.fill = GridBagConstraints.HORIZONTAL;
+	c.weightx = 1;
+	c.weighty = 0;
+	c.gridx = 1;
 	c.gridy = 2;
-	scrollPane.add(scrollT, c);
+	south.add(scrollT, c);
 
-	add(scrollPane, BorderLayout.SOUTH);
+	ImageJ ij = IJ.getInstance();
+	scrollC.addKeyListener(ij);
+	scrollZ.addKeyListener(ij);
+	scrollT.addKeyListener(ij);
+
+	add(south, BorderLayout.SOUTH);
+	add(east, BorderLayout.EAST);
 }
 
     public Component add(Component c) {
@@ -108,7 +142,8 @@ public class ImageJApplet extends Applet {
     public void pack() {
 	north.doLayout();
 	imagePane.doLayout();
-	scrollPane.doLayout();
+	south.doLayout();
+	east.doLayout();
 	doLayout();
     }
 
@@ -124,14 +159,18 @@ public class ImageJApplet extends Applet {
 			scrollC.setMinimum(1);
 			scrollC.setMaximum(image.getNChannels()+1);
 			scrollC.setVisible(image.getNChannels() > 1);
+			labelC.setVisible(image.getNChannels() > 1);
 
 			scrollZ.setMinimum(1);
 			scrollZ.setMaximum(image.getNSlices()+1);
+			labelZ.setVisible(image.getNSlices() > 1);
 			scrollZ.setVisible(image.getNSlices() > 1);
 
 			scrollT.setMinimum(1);
 			scrollT.setMaximum(image.getNFrames()+1);
 			scrollT.setVisible(image.getNFrames() > 1);
+			labelT.setVisible(image.getNFrames() > 1);
+
 			pack();
 		}
 	}
