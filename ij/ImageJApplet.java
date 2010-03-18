@@ -90,6 +90,11 @@ public class ImageJApplet extends Applet {
 	c.gridy = 2;
 	scrollPane.add(scrollT, c);
 
+	ImageJ ij = IJ.getInstance();
+	scrollC.addKeyListener(ij);
+	scrollZ.addKeyListener(ij);
+	scrollT.addKeyListener(ij);
+
 	add(scrollPane, BorderLayout.SOUTH);
 }
 
