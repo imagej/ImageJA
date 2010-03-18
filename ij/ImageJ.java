@@ -100,6 +100,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private String lastKeyCommand;
 	private boolean embedded;
 	private boolean windowClosed;
+	private static boolean prefsLoaded;
 	
 	boolean hotkey;
 	
@@ -123,7 +124,7 @@ public class ImageJ extends Frame implements ActionListener,
 			setIcon(new URL("file:" + iconPath));
 		} catch (Exception e) { e.printStackTrace(); }
 		this.applet = applet;
-		String err1 = applet == null ? null : Prefs.load(this, applet);
+		String err1 = loadPrefs(this, applet);
 		if (IJ.isLinux()) {
 			backgroundColor = new Color(240,240,240);
 			setBackground(backgroundColor);
@@ -203,6 +204,15 @@ public class ImageJ extends Frame implements ActionListener,
 		if (applet != null)
 			return applet.add(c);
 		return super.add(c);
+	}
+
+	static String loadPrefs(Object object, ImageJApplet applet) {
+		if (!prefsLoaded) {
+			String error = Prefs.load(object, applet);
+			prefsLoaded = true;
+			return error;
+		}
+		return null;
 	}
     	
 	void configureProxy() {
@@ -578,7 +588,7 @@ public class ImageJ extends Frame implements ActionListener,
 			} 
 		}
 		// Read prefs before checking for other instance
-		String err1 = Prefs.load(ImageJ.class, null);
+		String err1 = loadPrefs(ImageJ.class, null);
 		if (err1!=null)
 			IJ.error(err1);
   		// If ImageJ is already running then isRunning()
