@@ -1214,7 +1214,10 @@ public class IJ {
 		ImagePlus img = WindowManager.getCurrentImage();
 		if (img==null) {
 			IJ.noImage();
-			abort();
+			if (ij==null)
+				System.exit(0);
+			else
+				abort();
 		}
 		return img;
 	}
