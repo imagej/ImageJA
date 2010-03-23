@@ -14,7 +14,6 @@ import java.awt.Label;
 import java.awt.MenuBar;
 import java.awt.Panel;
 import java.awt.ScrollPane;
-import java.awt.Scrollbar;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
@@ -43,10 +42,9 @@ import java.net.URL;
 */
 public class ImageJApplet extends Applet {
     ScrollPane imagePane;
-    Scrollbar scrollC, scrollZ, scrollT;
-    Label labelC, labelZ, labelT;
+    ScrollbarWithLabel scrollC, scrollZ, scrollT;
     int heightWithoutImage;
-    Panel north, south, east;
+    Panel north, south;
     MenuCanvas menu;
     ImagePlus image;
 
@@ -62,71 +60,10 @@ public class ImageJApplet extends Applet {
 	imagePane = new ScrollPane();
 	add(imagePane, BorderLayout.CENTER);
 
-	AdjustmentListener listener = new AdjustmentListener() {
-                public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
-			if (image == null)
-				return;
-			int channel = scrollC.getValue();
-			int slice = scrollZ.getValue();
-			int frame = scrollT.getValue();
-			image.setPosition(channel, slice, frame);
-			imagePane.repaint();
-		}
-	};
-
-	east = new Panel();
-	east.setLayout(new GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-
 	south = new Panel();
 	south.setLayout(new GridBagLayout());
 
-	c.gridx = 0;
-	c.weightx = 0;
-	labelC = new Label("C");
-	south.add(labelC, c);
-	
-	c.gridy = 0;
-	labelZ = new Label("Z");
-	east.add(labelZ, c);
-	
-	c.gridy = 2;
-	labelT = new Label("T");
-	south.add(labelT, c);
-	
-
-	scrollC = new Scrollbar(Scrollbar.HORIZONTAL);
-	scrollC.addAdjustmentListener(listener);
-	c.fill = GridBagConstraints.HORIZONTAL;
-	c.weightx = 1;
-	c.gridx = 1;
-	c.gridy = 0;
-	south.add(scrollC, c);
-	scrollZ = new Scrollbar(Scrollbar.VERTICAL);
-	scrollZ.addAdjustmentListener(listener);
-	c.fill = GridBagConstraints.VERTICAL;
-	c.weightx = 0;
-	c.weighty = 1;
-	c.gridx = 0;
-	c.gridy = 1;
-	east.add(scrollZ, c);
-        east.validate();
-	scrollT = new Scrollbar(Scrollbar.HORIZONTAL);
-	scrollT.addAdjustmentListener(listener);
-	c.fill = GridBagConstraints.HORIZONTAL;
-	c.weightx = 1;
-	c.weighty = 0;
-	c.gridx = 1;
-	c.gridy = 2;
-	south.add(scrollT, c);
-
-	ImageJ ij = IJ.getInstance();
-	scrollC.addKeyListener(ij);
-	scrollZ.addKeyListener(ij);
-	scrollT.addKeyListener(ij);
-
 	add(south, BorderLayout.SOUTH);
-	add(east, BorderLayout.EAST);
 }
 
     public Component add(Component c) {
@@ -134,8 +71,14 @@ public class ImageJApplet extends Applet {
 		north.add(c, BorderLayout.SOUTH);
 	else if (getComponentCount() < 3)
 		add(c, BorderLayout.CENTER);
-	else if (getComponentCount() < 4)
-		add(c, BorderLayout.SOUTH);
+	else if (getComponentCount() < 4){
+		GridBagConstraints b = new GridBagConstraints();
+		b.fill = GridBagConstraints.HORIZONTAL;
+		b.weightx = 1;
+		b.gridx = 0;
+		b.gridy = 0;
+		south.add(c,b);
+	}
 	else
 		IJ.error("Too many components!");
 	return null;
@@ -145,78 +88,65 @@ public class ImageJApplet extends Applet {
 	north.doLayout();
 	imagePane.doLayout();
 	south.doLayout();
-	east.doLayout();
 	doLayout();
     }
-
-    SelectorHelper cSelectorHelper, zSelectorHelper, tSelectorHelper;
 
     public void setImageCanvas(Component c) {
 	if (c != null) {
 		imagePane.removeAll();
 		imagePane.add(c);
 		c.requestFocus();
-		imagePane.repaint();
 
-		if (cSelectorHelper != null) {
-			cSelectorHelper.source.removeAdjustmentListener(cSelectorHelper);
-			cSelectorHelper = null;
-		}
-		if (zSelectorHelper != null) {
-			zSelectorHelper.source.removeAdjustmentListener(zSelectorHelper);
-			zSelectorHelper = null;
-		}
-		if (tSelectorHelper != null) {
-			tSelectorHelper.source.removeAdjustmentListener(tSelectorHelper);
-			tSelectorHelper = null;
-		}
+		if (scrollC != null)
+			south.remove(scrollC);
+
+		if (scrollZ != null)
+			south.remove(scrollZ);
+
+		if (scrollT != null)
+			south.remove(scrollT);
 
 		if (c instanceof ImageCanvas) {
 			image = ((ImageCanvas)c).getImage();
-			scrollC.setMinimum(1);
-			scrollC.setMaximum(image.getNChannels()+1);
-			scrollC.setVisible(image.getNChannels() > 1);
-			labelC.setVisible(image.getNChannels() > 1);
-
-			scrollZ.setMinimum(1);
-			scrollZ.setMaximum(image.getNSlices()+1);
-			labelZ.setVisible(image.getNSlices() > 1);
-			scrollZ.setVisible(image.getNSlices() > 1);
-
-			scrollT.setMinimum(1);
-			scrollT.setMaximum(image.getNFrames()+1);
-			scrollT.setVisible(image.getNFrames() > 1);
-			labelT.setVisible(image.getNFrames() > 1);
-
-			pack();
 
 			if (image.getWindow() instanceof StackWindow) {
 				StackWindow stackWindow = (StackWindow)image.getWindow();
-				cSelectorHelper = new SelectorHelper(stackWindow.getCSelector(), scrollC);
-				zSelectorHelper = new SelectorHelper(stackWindow.getZSelector(), scrollZ);
-				tSelectorHelper = new SelectorHelper(stackWindow.getTSelector(), scrollT);
+				GridBagConstraints b = new GridBagConstraints();
+
+				scrollC = stackWindow.getCSelector();
+				scrollZ = stackWindow.getZSelector();
+				scrollT = stackWindow.getTSelector();
+
+				if (scrollC != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 1;
+					south.add(scrollC, b);
+				}
+					
+				if (scrollZ != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 2;
+					south.add(scrollZ, b);
+				}
+
+				if (scrollT != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 3;
+					south.add(scrollT, b);
+				}
 			}
-
 		}
+		pack();
 	}
     }
 
-    static class SelectorHelper implements AdjustmentListener {
-	ScrollbarWithLabel source;
-        Scrollbar target;
-
-	SelectorHelper(ScrollbarWithLabel source, Scrollbar target) {
-	    this.source = source;
-	    this.target = target;
-	    source.addAdjustmentListener(this);
-        }
-
-	public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
-	    target.setValue(e.getValue());
-	}
-    }
-
-	/** Starts ImageJ if it's not already running. */
+    /** Starts ImageJ if it's not already running. */
     public void init() {
     	ImageJ ij = IJ.getInstance();
      	if (ij==null || (ij!=null && !ij.isShowing()))
