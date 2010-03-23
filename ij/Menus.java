@@ -50,7 +50,7 @@ public class Menus {
 	public static final int MAX_OPEN_RECENT_ITEMS = 15;
 
 	private static Menus instance;
-	private static MenuBar mbar;
+	private MenuBar mbar;
 	private static CheckboxMenuItem gray8Item,gray16Item,gray32Item,
 			color256Item,colorRGBItem,RGBStackItem,HSBStackItem;
 	private PopupMenu popup;
@@ -1577,7 +1577,6 @@ public class Menus {
 	public static void updateImageJMenus() {
 		MenuItem[] windows = instance == null ? null :
 			instance.getWindowItems();
-		mbar = null;
 		Menus m = new Menus(IJ.getInstance(),
 				(ImageJApplet)IJ.getApplet());
 		String err = m.addMenuBar();
