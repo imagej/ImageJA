@@ -53,10 +53,10 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 			cSelector.setBlockIncrement(1);
 		}
 		if (nSlices>1) {
-			char label = nChannels>1||nFrames>1?'z':'t';
-			if (nSlices==dim[2]) label = 'c';
-			zSelector = new ScrollbarWithLabel(this, 1, 1, 1, nSlices+1, label);
-			if (label=='t') animationSelector = zSelector;
+			//char label = nChannels>1||nFrames>1?'z':'t';
+			//if (nSlices==dim[2]) label = 'c';
+			zSelector = new ScrollbarWithLabel(this, 1, 1, 1, nSlices+1, 'z');
+			//if (label=='t') animationSelector = zSelector;
 			add(zSelector);
 			if (ij!=null) zSelector.addKeyListener(ij);
 			zSelector.addAdjustmentListener(this);
