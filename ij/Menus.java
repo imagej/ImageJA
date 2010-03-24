@@ -56,7 +56,7 @@ public class Menus {
 	private PopupMenu popup;
 
 	private static ImageJ ij;
-	private static ImageJApplet applet;
+	private ImageJApplet applet;
 	private Hashtable demoImagesTable = new Hashtable();
 	private String pluginsPath, macrosPath;
 	private Properties menus = new Properties();
@@ -332,7 +332,7 @@ public class Menus {
 		return submenu;
 	}
 	
-	static void addLuts(Menu submenu) {
+	void addLuts(Menu submenu) {
 		String path = IJ.getDirectory("luts");
 		if (path==null) return;
 		File f = new File(path);
