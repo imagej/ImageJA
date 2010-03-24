@@ -137,37 +137,36 @@ public class ImageJApplet extends Applet {
 	}
     }
 
+    public String getURLParameter(String key) {
+	    String url = getParameter(key);
+	    if (url==null)
+			return null;
+	    if (url.indexOf(":/") < 0)
+		    url = getCodeBase().toString() + url;
+	    if (url.indexOf("://") < 0) {
+		    int index = url.indexOf(":/");
+		    if (index > 0)
+			    url = url.substring(0, index) + ":///"
+				    + url.substring(index + 2);
+	    }
+		return url;
+    }
+
 	/** Starts ImageJ if it's not already running. */
     public void init() {
     	ImageJ ij = IJ.getInstance();
      	if (ij==null || (ij!=null && !ij.isShowing()))
 			new ImageJ(this);
 		for (int i=1; i<=9; i++) {
-			String url = getParameter("url"+i);
+			String url = getURLParameter("url"+i);
 			if (url==null) break;
-			if (url.indexOf(":/") < 0)
-				url = getCodeBase().toString() + url;
-			if (url.indexOf("://") < 0) {
-				int index = url.indexOf(":/");
-				if (index > 0)
-					url = url.substring(0, index) + ":///"
-						+ url.substring(index + 2);
-			}
 			ImagePlus imp = new ImagePlus(url);
 			if (imp!=null) imp.show();
 		}
 		/** Also look for up to 9 macros to run. */
 		for (int i=1; i<=9; i++) {
-			String url = getParameter("macro"+i);
+			String url = getURLParameter("macro"+i);
 			if (url==null) break;
-			if (url.indexOf(":/") < 0)
-				url = getCodeBase().toString() + url;
-			if (url.indexOf("://") < 0) {
-				int index = url.indexOf(":/");
-				if (index > 0)
-					url = url.substring(0, index) + ":///"
-						+ url.substring(index + 2);
-			}
 			try {
 				InputStream in = new URL(url).openStream();
 				BufferedReader br = new BufferedReader(new
