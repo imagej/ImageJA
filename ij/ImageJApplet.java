@@ -4,6 +4,8 @@ import ij.ImagePlus;
 
 import ij.gui.ImageCanvas;
 import ij.gui.MenuCanvas;
+import ij.gui.ScrollbarWithLabel;
+import ij.gui.StackWindow;
 
 import ij.io.PluginClassLoader;
 
@@ -12,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Label;
 import java.awt.MenuBar;
 import java.awt.Panel;
 import java.awt.ScrollPane;
@@ -46,10 +49,9 @@ import java.util.Vector;
 */
 public class ImageJApplet extends Applet {
     ScrollPane imagePane;
-    Scrollbar scrollC, scrollZ, scrollT;
+    ScrollbarWithLabel scrollC, scrollZ, scrollT;
     int heightWithoutImage;
-    Panel north;
-    Panel scrollPane;
+    Panel north, south;
     MenuCanvas menu;
     ImagePlus image;
     Vector pluginJarURLs;
@@ -66,38 +68,10 @@ public class ImageJApplet extends Applet {
 	imagePane = new ScrollPane();
 	add(imagePane, BorderLayout.CENTER);
 
-	AdjustmentListener listener = new AdjustmentListener() {
-                public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
-			if (image == null)
-				return;
-			int channel = scrollC.getValue();
-			int slice = scrollZ.getValue();
-			int frame = scrollT.getValue();
-			image.setPosition(channel, slice, frame);
-			imagePane.repaint();
-		}
-	};
+	south = new Panel();
+	south.setLayout(new GridBagLayout());
 
-	scrollPane = new Panel();
-	scrollPane.setLayout(new GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-	scrollC = new Scrollbar(Scrollbar.HORIZONTAL);
-	scrollC.addAdjustmentListener(listener);
-	c.fill = GridBagConstraints.HORIZONTAL;
-	c.weightx = 1;
-	c.gridy = 0;
-	scrollPane.add(scrollC, c);
-	scrollZ = new Scrollbar(Scrollbar.HORIZONTAL);
-	scrollZ.addAdjustmentListener(listener);
-	c.gridy = 1;
-	scrollPane.add(scrollZ, c);
-        scrollPane.validate();
-	scrollT = new Scrollbar(Scrollbar.HORIZONTAL);
-	scrollT.addAdjustmentListener(listener);
-	c.gridy = 2;
-	scrollPane.add(scrollT, c);
-
-	add(scrollPane, BorderLayout.SOUTH);
+	add(south, BorderLayout.SOUTH);
 }
 
     public Component add(Component c) {
@@ -105,8 +79,14 @@ public class ImageJApplet extends Applet {
 		north.add(c, BorderLayout.SOUTH);
 	else if (getComponentCount() < 3)
 		add(c, BorderLayout.CENTER);
-	else if (getComponentCount() < 4)
-		add(c, BorderLayout.SOUTH);
+	else if (getComponentCount() < 4){
+		GridBagConstraints b = new GridBagConstraints();
+		b.fill = GridBagConstraints.HORIZONTAL;
+		b.weightx = 1;
+		b.gridx = 0;
+		b.gridy = 0;
+		south.add(c,b);
+	}
 	else
 		IJ.error("Too many components!");
 	return null;
@@ -115,7 +95,7 @@ public class ImageJApplet extends Applet {
     public void pack() {
 	north.doLayout();
 	imagePane.doLayout();
-	scrollPane.doLayout();
+	south.doLayout();
 	doLayout();
     }
 
@@ -124,23 +104,53 @@ public class ImageJApplet extends Applet {
 		imagePane.removeAll();
 		imagePane.add(c);
 		c.requestFocus();
-		imagePane.repaint();
+
+		if (scrollC != null)
+			south.remove(scrollC);
+
+		if (scrollZ != null)
+			south.remove(scrollZ);
+
+		if (scrollT != null)
+			south.remove(scrollT);
+
 		if (c instanceof ImageCanvas) {
 			image = ((ImageCanvas)c).getImage();
 
-			scrollC.setMinimum(1);
-			scrollC.setMaximum(image.getNChannels()+1);
-			scrollC.setVisible(image.getNChannels() > 1);
+			if (image.getWindow() instanceof StackWindow) {
+				StackWindow stackWindow = (StackWindow)image.getWindow();
+				GridBagConstraints b = new GridBagConstraints();
 
-			scrollZ.setMinimum(1);
-			scrollZ.setMaximum(image.getNSlices()+1);
-			scrollZ.setVisible(image.getNSlices() > 1);
+				scrollC = stackWindow.getCSelector();
+				scrollZ = stackWindow.getZSelector();
+				scrollT = stackWindow.getTSelector();
 
-			scrollT.setMinimum(1);
-			scrollT.setMaximum(image.getNFrames()+1);
-			scrollT.setVisible(image.getNFrames() > 1);
-			pack();
+				if (scrollC != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 1;
+					south.add(scrollC, b);
+				}
+					
+				if (scrollZ != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 2;
+					south.add(scrollZ, b);
+				}
+
+				if (scrollT != null){
+					b.fill = GridBagConstraints.HORIZONTAL;
+					b.weightx = 1;
+					b.gridx = 0;
+					b.gridy = 3;
+					south.add(scrollT, b);
+				}
+			}
 		}
+		pack();
 	}
     }
 

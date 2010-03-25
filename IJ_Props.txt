@@ -323,6 +323,14 @@ plug-in05="Compile and Run...",ij.plugin.Compiler
 plug-in06="Install PlugIn...",ij.plugin.PlugInInstaller
 #plug-in07=-
 #plug-in08=>"User_Plugins"
+plug-in08=>"LOCI"
+plug-in09="Bio-Formats Importer",loci.plugins.LociImporter
+#plug-in11="Bio-Formats Windowless Importer",loci.plugins.LociImporter("location=[Local machine] windowless=true use_virtual_stack=true splitChannels=false splitFocalPlanes=false splitTimepoints=false splitWindows=false mergeChannels=false colorize=false crop=false showMetadata=false customColorize=false firstTime=false autoscale=false stackFormat=Hyperstack Merge_channels_to_RGB=false ")
+plug-in10="Bio-Formats Windowless Importer",loci.plugins.LociImporter("location=[Local machine] windowless=true use_virtual_stack=true split_channels=false split_focal_planes=false split_timepoints=false colorize=false merge_channels=false ")
+plug-in11="Bio-Formats Exporter",loci.plugins.LociExporter("")
+plug-in12="Bio-Formats Data Browser",loci.plugins.LociImporter("location=[Local machine] view=[Data Browser] stack_order=[XYCZT] group_files=true use_virtual_stack=true ")
+plug-in13="Bio-Formats Macro Extensions", loci.plugins.macro.LociFunctions("")
+
 
 # Install user plugins located in ij.jar to Plugins>User Plugins submenu
 #user_plugins01="Red And Blue",RedAndBlue_
