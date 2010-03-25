@@ -528,7 +528,8 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 		int screenWidth = (int)screenSize.getWidth();
 		int screenHeight = (int)screenSize.getHeight();
 
-		Point pos=imageJ.getLocationOnScreen();
+		Point pos=imageJ.getApplet() == null ?
+			imageJ.getLocationOnScreen() : new Point(0, 0);
 
 		/* Generally try to position the dialog slightly
 		   offset from the main ImageJ window, but if that
