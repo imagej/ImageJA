@@ -233,9 +233,9 @@ public class Menus {
 		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBox", 0, false);
 		pluginsTable.put("About ImageJ...", "ij.plugin.AboutBox");
 				
+		menuSeparators = new Properties();
+		installPlugins();
 		if (applet==null) {
-			menuSeparators = new Properties();
-			installPlugins();
 			if (fontSize!=0)
 				mbar.setFont(getFont());
 		}
@@ -764,7 +764,7 @@ public class Menus {
 		try {
 			JarFile jf;
 			// in case its a regular file
-			if(jar.startsWith("http")) {
+			if(jar.startsWith("http") || jar.startsWith("file:")) {
 				URL url = new URL("jar:" + jar + "!/");
 				JarURLConnection jarcon =
 					(JarURLConnection)url.openConnection();

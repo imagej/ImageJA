@@ -151,7 +151,7 @@ public class IJ {
 		if (arg==null) arg = "";
 		// Load using custom classloader if this is a user 
 		// plugin and we are not running as an applet
-		if (!className.startsWith("ij.") && applet==null)
+		if (!className.startsWith("ij."))
 			return runUserPlugIn(commandName, className, arg, false);
 		Object thePlugIn=null;
 		try {
@@ -165,6 +165,8 @@ public class IJ {
 		catch (ClassNotFoundException e) {
 			if (IJ.getApplet()==null)
 				log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
+			else
+				showStatus("Plugin or class not found: '" + className + "' (" + e + ")");
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
@@ -173,8 +175,7 @@ public class IJ {
 	}
         
 	static Object runUserPlugIn(String commandName, String className, String arg, boolean createNewLoader) {
-		if (applet!=null) return null;
-		if (checkForDuplicatePlugins) {
+		if (applet == null && checkForDuplicatePlugins) {
 			// check for duplicate classes and jars in the plugins folder
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 			checkForDuplicatePlugins = false;
