@@ -883,6 +883,10 @@ public class Menus {
 	}
 
 	private synchronized String[] getPluginsList() {
+		if (applet != null) {
+			jarFiles = applet.getPluginJarURLs();
+			return new String[] {};
+		}
 		/*
 		 * Handling java webstart:
 		 * If the jnlp property is set, initialize jarFiles

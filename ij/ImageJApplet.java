@@ -1,8 +1,12 @@
 package ij;
 
 import ij.ImagePlus;
+
 import ij.gui.ImageCanvas;
 import ij.gui.MenuCanvas;
+
+import ij.io.PluginClassLoader;
+
 import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -18,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+
+import java.util.Vector;
 
 /**
 	Runs ImageJ as an applet and optionally opens up to 
@@ -46,6 +52,7 @@ public class ImageJApplet extends Applet {
     Panel scrollPane;
     MenuCanvas menu;
     ImagePlus image;
+    Vector pluginJarURLs;
 
     public ImageJApplet() {
 	setLayout(new BorderLayout());
@@ -152,6 +159,19 @@ public class ImageJApplet extends Applet {
 		return url;
     }
 
+    public Vector getPluginJarURLs() {
+	    if (pluginJarURLs == null) {
+		    pluginJarURLs = new Vector();
+		    for (int i = 1; i < 999; i++) {
+			    String url = getURLParameter("plugin" + i);
+			    if (url == null)
+				    break;
+			    pluginJarURLs.addElement(url);
+		    }
+	    }
+	    return pluginJarURLs;
+    }
+
 	/** Starts ImageJ if it's not already running. */
     public void init() {
     	ImageJ ij = IJ.getInstance();
@@ -187,6 +207,7 @@ public class ImageJApplet extends Applet {
 			if (macroExpression==null) break;
 			IJ.runMacro(macroExpression);
 		}
+	IJ.setClassLoader(new PluginClassLoader(getPluginJarURLs()));
     }
     
     public void destroy() {
