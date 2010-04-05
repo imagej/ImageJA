@@ -4,14 +4,15 @@ import ij.gui.*;
 import ij.plugin.*;
 import ij.text.TextWindow;
 import ij.io.Opener;
+import ij.io.FileInfo;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
 
 /** This plugin shows how files required for plugins can be packaged and
- *  placed in a jar file. It loads and displays a text file, two image and a 
+ *  placed in a jar file. It loads and displays a text file, two image, a LUT and a 
  *  macro from a JAR file which also contains the plugin. Note that
- *  the text file, images and macro are in a directory
+ *  the text file, images, LUT and macro are in a directory
  *  named "demo-resources" inside the jar file.
  * 
  * @author  Daniel Tyreus, CircuSoft Instrumentation LLC
@@ -20,8 +21,10 @@ public class JAR_Resources_Demo implements PlugIn {
     String path = "/demo-resources/";
 
     public void run(String arg) {
+        if (IJ.versionLessThan("1.43t")) return;
         displayJpeg(); 
         displayTiff(); 
+        displayLut();
         displayText();
         runMacro();  	
     }   
@@ -51,6 +54,22 @@ public class JAR_Resources_Demo implements PlugIn {
                 Opener opener = new Opener();
                 ImagePlus imp = opener.openTiff(is, "San Francisco (TIFF)");
                 if (imp!=null) imp.show();
+            }
+    }
+
+    //  Loads a LUT from within a JAR file using getResourceAsStream().
+    // Requires ImageJ 1.43t or later.
+     void displayLut() {
+            String name = "fire.lut";
+            InputStream is = getClass().getResourceAsStream(path+name);
+            if (is!=null) {
+             	try {
+            	   FileInfo fi = LutLoader.open(is);
+            	   ImageProcessor ip = LutLoader.createImage(fi);
+            	   new ImagePlus(name, ip).show();
+            	} catch(IOException e) {
+            	    IJ.error(""+e);
+            	}
             }
     }
 
