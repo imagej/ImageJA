@@ -49,6 +49,13 @@ Macros can retrieve values from the Results Table using the <i>getResult</i> mac
 <pre>
     for (i=0; i&lt;nResults; i++)
        print(getResult("n",i), getResult("Sine(n)",i));
+</pre>Plugins can also display tabular data in a TextWindow:
+<pre>
+    String title = "Sine/Cosine Table";
+    String headings = "n	Sine(n)	Cos(n)";
+    TextWindow tw = new TextWindow(title, headings, "", 400, 500);
+    for (double n=0; n<=2*Math.PI; n += 0.1)
+       tw.append(IJ.d2s(n,2)+"	"+IJ.d2s(Math.sin(n),4)+"	"+IJ.d2s(Math.cos(n),4));
 </pre>
 
 </td></tr>

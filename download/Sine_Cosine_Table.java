@@ -4,6 +4,7 @@ import ij.gui.*;
 import java.awt.*;
 import ij.plugin.*;
 import ij.measure.ResultsTable;
+import ij.text.TextWindow;
 
 /**
 This plugin adds a sine/cosine table to the ImageJ results table
@@ -18,6 +19,14 @@ and displays it in the Results window. It is equivalent to this macro:
             row++;
         }
         updateResults()
+</pre>
+Plugins can also display tables in a TextWindow:
+<pre>
+    String title = "Sine/Cosine Table";
+    String headings = "n\tSine(n)\tCos(n)";
+    TextWindow tw = new TextWindow(title, headings, "", 400, 500);
+    for (double n=0; n<=2*Math.PI; n += 0.1)
+       tw.append(IJ.d2s(n,2)+"\t"+IJ.d2s(Math.sin(n),4)+"\t"+IJ.d2s(Math.cos(n),4));
 </pre>
 */
 public class Sine_Cosine_Table implements PlugIn {
