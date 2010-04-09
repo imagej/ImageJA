@@ -1,3 +1,2 @@
-Class-Path: loci_tools.jar
 Main-Class: ij.ImageJ
 
