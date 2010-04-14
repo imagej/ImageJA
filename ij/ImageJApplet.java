@@ -52,6 +52,10 @@ public class ImageJApplet extends Applet {
     Vector pluginJarURLs;
 
     public ImageJApplet() {
+	// Try to reset the security manager for signed applets
+	try {
+		System.setSecurityManager(null);
+	} catch (SecurityException e) { /* ignore silently */ }
 	setLayout(new BorderLayout());
 
 	menu = new MenuCanvas();
