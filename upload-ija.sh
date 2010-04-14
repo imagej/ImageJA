@@ -49,8 +49,8 @@ git config alias.cvscione \
 	"!sh -c 'git cvsexportcommit -w $CVS -c -p -u \$0^ \$0'"
 
 test "$(git log -1 --pretty=format:%s%n%b cvs)" != \
-		"$(git log -1 --pretty=format:%s%n%b imageja^)" || {
-	git cvscione imageja &&
+		"$(git log -1 --pretty=format:%s%n%b master^)" || {
+	git cvscione master &&
 	(cd $CVS && git cvsimport -a -i -k -p -u,-b,HEAD) &&
 	git fetch cvs || {
 		echo "Could not update CVS"
@@ -59,18 +59,18 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" != \
 }
 
 test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
-		"$(git log -1 --pretty=format:%s%n%b imageja)" || {
+		"$(git log -1 --pretty=format:%s%n%b master)" || {
 	echo "CVS lags behind..."
 	exit 1
 }
 fi
 
-test -z "$NO_TAG" && git tag v"$VERSION" imageja
-git push dumbo imagej imageja fiji
-git push orcz imageja:master imageja imagej v"$VERSION"
+test -z "$NO_TAG" && git tag v"$VERSION" master
+git push dumbo imagej master
+git push orcz master imagej v"$VERSION"
 make signed-ij.jar
 scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
-git archive --format=zip --prefix=ij-src/ imageja > ij-src-$VERSION.jar
+git archive --format=zip --prefix=ij-src/ master > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
 mkdir $VERSION
 mv ij-$VERSION.jar ij-src-$VERSION.jar $VERSION

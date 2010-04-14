@@ -1,7 +1,7 @@
 #!/bin/sh
 
 URL=git://repo.or.cz/imageja.git
-BRANCH=refs/heads/imageja
+BRANCH=refs/heads/master
 
 grep Sync .git/hooks/post-merge >/dev/null 2>/dev/null || {
 	echo "post-merge hook not installed properly!"
