@@ -15,9 +15,11 @@ import ij.plugin.frame.Recorder;
 import ij.plugin.Converter;
 
 /**
-This is an extended image class that supports 8-bit, 16-bit,
-32-bit (real) and RGB images. It also provides support for
-3D image stacks.
+An ImagePlus contain an ImageProcessor (2D image) or an ImageStack (3D, 4D or 5D image).
+It also includes metadata (spatial calibration and possibly the directory/file where Ê
+it was read from). The ImageProcessor contains the pixel data (8-bit, 16-bit, float or RGB) 
+of the 2D image and some basic methods to manipulate it. An ImageStack is essentually 
+a list ImageProcessors of same type and size.
 @see ij.process.ImageProcessor
 @see ij.ImageStack
 @see ij.gui.ImageWindow
@@ -1400,8 +1402,6 @@ public class ImagePlus implements ImageObserver, Measurements {
 		boolean isFileInfo = fi!=null && fi.fileFormat!=FileInfo.UNKNOWN;
 		if (!(isFileInfo || url!=null))
 			return;
-		if (getStackSize()>1 && (fi==null||fi.fileFormat!=FileInfo.TIFF||fi.compression!=FileInfo.COMPRESSION_NONE))
-			return;
 		if (ij!=null && changes && isFileInfo && !Interpreter.isBatchMode() && !IJ.isMacro() && !IJ.altKeyDown()) {
 			if (!IJ.showMessageWithCancel("Revert?", "Revert to saved version of\n\""+getTitle()+"\"?"))
 				return;
@@ -1430,7 +1430,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		if (getProperty("FHT")!=null) {
 			properties.remove("FHT");
 			if (getTitle().startsWith("FFT of "))
-				setTitle(getTitle().substring(6));
+				setTitle(getTitle().substring(7));
 		}
 		ContrastAdjuster.update();
 		if (saveRoi!=null) setRoi(saveRoi);
@@ -1549,6 +1549,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 		stack = null;
 		img = null;
+		win = null;
+		if (roi!=null) roi.setImage(null);
+		roi = null;
+		properties = null;
+		calibration = null;
+		overlay = null;
+		flatteningCanvas = null;
 	}
 	
 	public void setIgnoreFlush(boolean ignoreFlush) {
@@ -1754,7 +1761,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 			return;
 		}
 		boolean batchMode = Interpreter.isBatchMode();
-		String msg = (cut)?"Cut":"Copy";
+		String msg = (cut)?"Cutt":"Copy";
 		if (!batchMode) IJ.showStatus(msg+ "ing...");
 		ImageProcessor ip = getProcessor();
 		ImageProcessor ip2;	
@@ -1789,8 +1796,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 		//Roi roi3 = clipboard.getRoi();
 		//IJ.log("copy: "+clipboard +" "+ "roi3="+(roi3!=null?""+roi3:""));
-		if (!batchMode) 
+		if (!batchMode) {
+			msg = (cut)?"Cut":"Copy";
 			IJ.showStatus(msg + ": " + (clipboard.getWidth()*clipboard.getHeight()*bytesPerPixel)/1024 + "k");
+		}
     }
                 
 
@@ -2020,11 +2029,6 @@ public class ImagePlus implements ImageObserver, Measurements {
 
 	public boolean getHideOverlay() {
 		return hideOverlay;
-	}
-
-	public Object clone() {
-		try {return super.clone();}
-		catch (CloneNotSupportedException e) {return null;}
 	}
 
     public String toString() {

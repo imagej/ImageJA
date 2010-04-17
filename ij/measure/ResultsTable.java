@@ -62,8 +62,16 @@ public class ResultsTable implements Cloneable {
 	public static ResultsTable getResultsTable() {
 		return Analyzer.getResultsTable();
 	}
-	
-	
+		
+	/** Returns the "Results" TextWindow. */
+	public static TextWindow getResultsWindow() {
+		Frame f = WindowManager.getFrame("Results");
+		if (f==null || !(f instanceof TextWindow))
+			return null;
+		else
+			return (TextWindow)f;
+	}
+
 	/** Increments the measurement counter by one. */
 	public synchronized void incrementCounter() {
 		counter++;
@@ -123,6 +131,8 @@ public class ResultsTable implements Cloneable {
 	/** Adds a value to the end of the given column. If the column
 		does not exist, it is created.  Counter must be >0. */
 	public void addValue(String column, double value) {
+		if (column==null)
+			throw new IllegalArgumentException("Column is null");
 		int index = getColumnIndex(column);
 		if (index==COLUMN_NOT_FOUND)
 			index = getFreeColumn(column);
@@ -290,6 +300,8 @@ public class ResultsTable implements Cloneable {
 		<code>show()</code> must be called to update the 
 		window that displays the table.*/
 	public void setValue(String column, int row, double value) {
+		if (column==null)
+			throw new IllegalArgumentException("Column is null");
 		int col = getColumnIndex(column);
 		if (col==COLUMN_NOT_FOUND) {
 			col = getFreeColumn(column);
@@ -464,9 +476,7 @@ public class ResultsTable implements Cloneable {
 
 	/** Deletes the specified row. */
 	public synchronized void deleteRow(int row) {
-		if (counter==0 || row>counter-1) return;
-		//if (counter==1)
-		//	{reset(); return;}
+		if (counter==0 || row<0 || row>counter-1) return;
 		if (rowLabels!=null) {
 			for (int i=row; i<counter-1; i++)
 				rowLabels[i] = rowLabels[i+1];
@@ -688,11 +698,12 @@ public class ResultsTable implements Cloneable {
 		return 2;
 	}
 	
-	/** Saves this ResultsTable as a tab or comma delimited text file. ThnonNumericIne table
+	/** Saves this ResultsTable as a tab or comma delimited text file. The table
 	     is saved as a CSV (comma-separated values) file if 'path' ends with ".csv".
-	     Displays a file save dialog if 'path' is empty or null. */
+	     Displays a file save dialog if 'path' is empty or null. Does nothing if the
+	     table is empty. */
 	public void saveAs(String path) throws IOException {
-		if (getCounter()==0) throw new IOException("Table is empty");
+		if (getCounter()==0 && lastColumn<0) return;
 		if (path==null || path.equals("")) {
 			SaveDialog sd = new SaveDialog("Save Results", "Results", Prefs.get("options.ext", ".xls"));
 			String file = sd.getFileName();

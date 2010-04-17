@@ -235,7 +235,6 @@ public class FileOpener {
 	/** Restores original disk or network version of image. */
 	public void revertToSaved(ImagePlus imp) {
 		Image img;
-		ProgressBar pb = IJ.getInstance().getProgressBar();
 		ImageProcessor ip;
 		String path = fi.directory + fi.fileName;
 		
@@ -475,7 +474,7 @@ public class FileOpener {
 	static boolean validateFileInfo(File f, FileInfo fi) {
 		long offset = fi.getOffset();
 		long length = 0;
-		if (fi.width<=0 || fi.height<0) {
+		if (fi.width<=0 || fi.height<=0) {
 		   error("Width or height <= 0.", fi, offset, length);
 		   return false;
 		}
