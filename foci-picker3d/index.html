@@ -1,0 +1,105 @@
+ÿþ<html>
+
+<title>3D Particle Counter FociPicker3D </title>
+
+
+<body>
+
+<div class=Section1>
+
+<p class=Text><b>FociPicker3D 3D and 2D particle counter</b></p>
+<p><b>Author:</b>   Guanghua Du (gh_du(at)pku.org.cn or gh_du(at)tum.de), Physics Department-E12, TUM, Germany</p>
+<p><b>History:</b>  2010-04-16: First Version (multi-thead)</p>
+<p><b>Source:</b>  <A HREF="Foci_Picker3D.java">Foci_Picker3D.java </A></p>
+<p><b>Installation:</b> Download the two class files <A HREF="Foci_Picker3D.class">Foci_Picker3D</A>
+	and  <A HREF="Foci_Picker3D$PixelCollection3D.class"> PixelCollection3D </A> to the plugins folder or a subfolder, and copy the lookup table <A HREF="FociPicker_256Colors.lut">FociPicker_256Colors.lut </A> to the luts folder of ImageJ, then restart ImageJ or use the menu selection Help > Update Menus. The lookup table is used to render the foci mask in the output image.
+</p>
+
+
+
+<p class=Text><b> I: Description:</b></p>
+<p class=Text>The FociPicker algorithm is based on the following assumptions: a) Each focus is represented
+by one and only one local maximum center; b) a maximum center is one pixel or a
+group of continuous pixels with the same intensity (<b ><i >H<sub>i</sub></i></b>) which is
+are bigger than all the surrounding pixels). The algorithm has two input
+parameters as defined below: <o:p></o:p></span></p>
+
+<p>1)Background <span class=SpellE><b
+><i >t</i></b><i
+><sub>bkg</sub></i></span>   the background
+intensity around a focus. Given the <b 
+normal'><i >t</i></b><i ><sub>bkg</sub></i></span>, the intensity range of the i<sup>th</sup>
+maximum is calculated by <b ><i
+>h</i></b><i ><sub>i</sub></i>
+=<b ><i >
+H<sub>i</sub></i></b> -<b ><i
+> <span class=SpellE>t<sub>bkg</sub></i></b>p>
+
+<p>2)Fraction <b 
+normal'><i >f</i></b>   a threshold in
+percentage that defines the brightest fraction of a focus. This means the i<sup>th</sup>
+focus contains only pixels have intensity between (<b style='mso-bidi-font-weight:
+normal'><i >H<sub>i</sub></i></b> <b
+><i >f</i></b>·<b
+><i >h</i></b><i
+><sub>i</sub></i>) and <b 
+normal'><i >H<sub>i</sub></i></b>, where (<b
+><i >H<sub>i</sub></i></b> <b
+><i >f</i></b>·<b
+><i >h</i></b><i
+><sub>i</sub></i>) is called as a local
+threshold <span class=SpellE><b ><i
+>t</i></b><i ><sub>i</sub></i></span>.<o:p></o:p></span></p>
+
+<p class=Text><span >The background
+level <span class=SpellE><b ><i
+>t</i></b><i ><sub>bkg</sub></i></span>
+can either be given as a uniform background which is used for all objects, or
+be calculated by the program (i.e, the algorithm
+picks up the dark pixels in surrounding of a given radius, which means each
+object has a local background).</span></p>
+
+<p class=Text><span >As shown in Fig.
+1a, the algorithm first searches for the maximum centers, and expand from the
+center until it reaches to the edge of the focus, which is defined by the local
+threshold <span class=SpellE><b ><i
+>t</i></b><i ><sub>i</sub></i></span>
+or minima pixels (valley). The volume, area, intensity and coordinates of these
+recognized objects (foci) are analyzed, and the results are stored in an Excel
+table. At the same time, the objects are shown with different colors in a
+separate image stack.<o:p></o:p></span></p>
+
+<p class=Text align=center style='text-align:center'>
+ <img width=391 height=338
+src="Principle.gif"><![endif]><o:p></o:p></span></p>
+
+<p class=Text><span >After the foci
+are recognized, the results could be filtered by several conditions:<p>
+
+<p> 1) Tolerance <b><i >T</i></b>  defines the minimum
+intensity range of the pixels inside the focus (a focus contains pixels of only
+one intensity value will give a T=0).</p>
+
+<p> 2) Minimum <b><i >V</i></b>  defines the minimum
+volume/area (in pixel number) one focus contains.</p>
+
+<p class=Text><b>II: Interface</b></p>
+
+<p class=Text align=center style='text-align:center'><img width=1000 height=1000
+src="Dialog.gif" ></p>
+
+<p class=Text><b >III: Result</p>
+
+<p class=Text align=center style='text-align:center'><img width=1000 height=400
+src="Result.gif"></p>
+<p><b>IV: Example</p></b><p>download the 3d stacks of a <A HREF="FociStack.tif">foci image (16 bit)</A> (see
+bottom left), open with ImageJ, set the ToleranceSetting to 2000, keep other parameters as default, then run the plugin. after 10 seconds, you will get a mask image of the foci (bottom right), and a resull table. both images here are max-projection.</p>
+
+<p align=center><img width=400 height=200
+src="Example.gif"></p>
+</body>
+
+
+<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
+
+</html>
