@@ -72,8 +72,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.43s";
-	public static final String BUILD = "";
+	public static final String VERSION = "1.43t";
+	public static final String BUILD = ""; //11
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -403,7 +403,7 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 
-		if (!Prefs.requireControlKey || control || meta) {
+		if ((!Prefs.requireControlKey || control || meta) && keyChar!='+') {
 			Hashtable shortcuts = Menus.getShortcuts();
 			if (shift)
 				cmd = (String)shortcuts.get(new Integer(keyCode+200));
@@ -554,8 +554,8 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public static void main(String args[]) {
-		if (System.getProperty("java.version").substring(0,3).compareTo("1.4")<0) {
-			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.4.1 or later.");
+		if (System.getProperty("java.version").substring(0,3).compareTo("1.5")<0) {
+			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
 		boolean noGUI = false;

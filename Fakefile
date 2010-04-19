@@ -1,4 +1,4 @@
-JAVAVERSION=1.4
+javaVersion=1.5
 all <- ij.jar
 
 MAINCLASS(ij.jar)=ij.ImageJ
