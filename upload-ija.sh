@@ -65,10 +65,12 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
 }
 fi
 
+../Build.sh buildDir=build signed-ij.jar
 test -z "$NO_TAG" && git tag v"$VERSION" master
-git push dumbo imagej master
-git push orcz master imagej v"$VERSION"
-make signed-ij.jar
+for remote in orcz github sf imagejdev dumbo
+do
+	git push $remote master imagej v"$VERSION"
+done
 scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ master > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
