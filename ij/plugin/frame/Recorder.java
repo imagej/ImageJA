@@ -518,12 +518,7 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 		}
 		String text2 = new String(sb);
 		text2 = text2.replaceAll("print", "IJ.log");
-		NewPlugin np = (NewPlugin)IJ.runPlugIn("ij.plugin.NewPlugin", text2);
-		Editor ed = np.getEditor();
-		if (ed == null)
-			return;
-		ed.updateClassName(ed.getTitle(), name);
-		ed.setTitle(name);
+		NewPlugin np = (NewPlugin)IJ.runPlugIn("ij.plugin.NewPlugin", "name:" + name + "\n" + text2);
 	}
 
 	/** Temporarily disables path recording. */

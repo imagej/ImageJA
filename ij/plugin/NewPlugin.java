@@ -55,8 +55,15 @@ public class NewPlugin implements PlugIn {
     	if (arg.equals("text+dialog") || type==TABLE) {
 			if (!showDialog()) return;
 		}
-		if (type==-1)
-    		createPlugin("Converted_Macro.java", PLUGIN, arg);
+		if (type==-1) {
+			name = "Converted_Macro.java";
+			if (arg.startsWith("name:")) {
+				int eol = arg.indexOf('\n');
+				name = arg.substring(5, eol);
+				arg = arg.substring(eol + 1);
+			}
+		createPlugin(name, PLUGIN, arg);
+		}
 		else if (type==MACRO || type==TEXT_FILE || type==JAVASCRIPT) {
 			if (type==TEXT_FILE && name.equals("Macro"))
 				name = "Untitled.txt";
