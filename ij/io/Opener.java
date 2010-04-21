@@ -162,7 +162,7 @@ public class Opener {
 						IJ.setKeyUp(KeyEvent.VK_ALT);
 						break;
 					}
-					if (!path.endsWith(".ijm") && !path.endsWith(".txt") && IJ.runPlugIn("fiji.scripting.Script_Editor", path) != null)
+					if (IJ.runPlugIn("fiji.scripting.Script_Editor", path) != null)
 						break;
 					File file = new File(path);
 					int maxSize = 250000;
