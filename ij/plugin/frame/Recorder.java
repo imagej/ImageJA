@@ -490,7 +490,7 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 				name += ".ijm";
 			}
 		}
-		if (scriptMode && IJ.runFijiEditor(name, text))
+		if (IJ.runFijiEditor(name, text))
 			return;
 		Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
 		if (ed==null)

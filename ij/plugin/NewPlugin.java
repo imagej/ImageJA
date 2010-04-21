@@ -76,13 +76,15 @@ public class NewPlugin implements PlugIn {
     
 	public void createMacro(String name) {
 		int options = (monospaced?Editor.MONOSPACED:0)+(menuBar?Editor.MENU_BAR:0);
-		ed = new Editor(rows, columns, 0, options);
 		if (type==MACRO && !name.endsWith(".txt"))
 			name = SaveDialog.setExtension(name, ".txt");
 		else if (type==JAVASCRIPT && !name.endsWith(".js")) {
 			if (name.equals("Macro")) name = "script";
 			name = SaveDialog.setExtension(name, ".js");
 		}
+		if (IJ.runFijiEditor(name, ""))
+			return;
+		ed = new Editor(rows, columns, 0, options);
 		ed.create(name, "");
 	}
 	
