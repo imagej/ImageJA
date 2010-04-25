@@ -291,7 +291,7 @@ public class Menus {
 		if (menu == macrosMenu)
 			nMacros++;
 	}
-
+	
 	void addPlugInItem(Menu menu, String label, String className, int shortcut, boolean shift) {
 		pluginsTable.put(label, className);
 		nPlugins++;
