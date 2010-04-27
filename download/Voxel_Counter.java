@@ -33,14 +33,14 @@ public class Voxel_Counter implements PlugIn {
 
         int nslices = imp.getStackSize();
         Roi roi = imp.getRoi();
-        int roiCount = 0;
+        long roiCount = 0;
         ResultsTable rt;
-        int volumeCount = imp.getWidth()*imp.getHeight()*nslices;
+        long volumeCount = (long)imp.getWidth()*imp.getHeight()*nslices;
         if (roi==null)
             roiCount = volumeCount;
         else if (roi.getType()==Roi.RECTANGLE) {
-            Rectangle r = roi.getBoundingRect();
-            roiCount = r.width*r.height*nslices;           
+            Rectangle r = roi.getBounds();
+            roiCount = (long)r.width*r.height*nslices;           
         } else {
             IJ.run("Clear Results");
             IJ.run("Set Measurements...", "area decimal=2");
@@ -51,7 +51,7 @@ public class Voxel_Counter implements PlugIn {
             rt = Analyzer.getResultsTable();
             roiCount = 0;
             for (int i=0; i<rt.getCounter(); i++)
-                roiCount += rt.getValue(ResultsTable.AREA, i);
+                roiCount += rt.getValue("Area", i);
        }
 
         IJ.run("Clear Results");
@@ -65,9 +65,9 @@ public class Voxel_Counter implements PlugIn {
         rt = Analyzer.getResultsTable();
         double sum = 0;
         for (int i=0; i<rt.getCounter(); i++)
-            sum += rt.getValue(ResultsTable.AREA, i);
+            sum += rt.getValue("Area", i);
         IJ.write("");
-        IJ.write("Thresholded voxels: "+(int)sum);
+        IJ.write("Thresholded voxels: "+(long)sum);
         IJ.write("Average voxels per slice:  "+IJ.d2s(sum/nslices,2));
         IJ.write("Total ROI Voxels: "+roiCount);
         IJ.write("Volume fraction:  "+IJ.d2s((sum*100)/roiCount,2)+"%");

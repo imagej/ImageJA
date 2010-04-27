@@ -18,13 +18,6 @@
 Wayne Rasband (wsr at nih.gov) 
 </td></tr>
 
-<tr valign=top><td ><b>History:</b></td><td >
-2002/01/11: First vesion<br>
-2002/01/28: Works with binary stacks<br>
-2002/08/19: Volume fraction based on ROI<br>
-2006/05/11: Measures volume in real-world units (e.g., mm^3)<br>
-</td></tr>
-
 <tr valign=top><td ><b>Source:</b></td><td >
 <A HREF="download/Voxel_Counter.java">Voxel_Counter.java</A>
 </td></tr>
@@ -34,15 +27,15 @@ Download <A HREF="download/Voxel_Counter.class">Voxel_Counter.class</A> to the p
 </td></tr>
 
 <tr valign=top><td ><b>Limitations:</b></td><td >
-Requires an 8-bit image.
+Requires an 8-bit stack.
 </td></tr>
 
 <tr valign=top><td ><b>Description:</b></td><td >
 This plugin Counts the thresholded voxels in a stack and displays
 the count, the average count per slice and the volume fraction (ratio of thresholded voxels to all voxels).
-If there is an ROI then the voxel counts and volume fraction are based on the substack defined by that ROI.
+If there is an ROI, the voxel counts and volume fraction are based on the substack defined by that ROI.
 Before running, threshold the stack using <i>Image/Adjust/Threshold</i>.
-With binary stacks, it counts black voxels and displays the volume fraction.
+With binary stacks, black voxels are assummed to be thresholded.
 <p>
 The following summary information is provided:
 <ul>
@@ -56,7 +49,8 @@ The following summary information is provided:
 
 Additional information is provided if the stack is spatially calibrated:
 <ul>
-	<li><b>Voxel size</b> - the width, height and depth of a single voxel, as defined in <i>Image&gt;Properties</i>
+	<li><b>Voxel size</b> - the width, height and depth of a single voxel,
+	as defined in the <i>Image&gt;Properties</i> dialog box
 	<li><b>Thresholded volume</b> - thresholded voxels * voxel size
 	<li><b>Average volume per slice</b> - average voxels per slice * voxel size
 	<li><b>Total ROI volume</b> - total ROI voxels * voxel size
@@ -66,6 +60,14 @@ Additional information is provided if the stack is spatially calibrated:
 Note that the <i>Analyze&gt;Histogram</i> command
 also counts thresholded voxels when "Limit to Threshold" is checked
 in <i>Analyze&gt;Set Measurements</i>.
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2002/01/11: First vesion<br>
+2002/01/28: Works with binary stacks<br>
+2002/08/19: Volume fraction based on ROI<br>
+2006/05/11: Measures volume in real-world units (e.g., mm^3)<br>
+2010/04/27: Works with stacks larger than 2 gigapixels<br>
 </td></tr>
 
 </table>
