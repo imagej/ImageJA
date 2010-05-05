@@ -185,12 +185,12 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.error(err2);
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		}
-		if (IJ.isMacintosh()&&applet==null) { 
+		if (IJ.isMacintosh()&&applet==null) try {
 			Object qh = null; 
 			qh = IJ.runPlugIn("MacAdapter", ""); 
 			if (qh==null) 
 				IJ.runPlugIn("QuitHandler", ""); 
-		} 
+		} catch (ExceptionInInitializerError e) { /* ignore */ }
 		if (applet==null)
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		m.installStartupMacroSet();
