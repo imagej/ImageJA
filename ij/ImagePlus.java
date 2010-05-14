@@ -2039,10 +2039,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 
 	public void setHideOverlay(boolean hide) {
-		ImageCanvas ic = getCanvas();
-		if (ic!=null && hide!=hideOverlay && ic.getOverlay()!=null)
-			ic.repaint();
 		hideOverlay = hide;
+		ImageCanvas ic = getCanvas();
+		if (ic!=null && ic.getOverlay()!=null)
+			ic.repaint();
 	}
 
 	public boolean getHideOverlay() {

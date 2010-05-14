@@ -32,7 +32,7 @@ public class PluginClassLoader extends URLClassLoader {
      */
 	public PluginClassLoader(String path) {
 		super(new URL[0], IJ.class.getClassLoader());
-	        init(path);
+		init(path);
 	}
 	
 	/** This version of the constructor is used when ImageJ is launched using Java WebStart. */
