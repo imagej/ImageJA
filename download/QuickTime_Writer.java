@@ -134,6 +134,7 @@ public class QuickTime_Writer implements PlugIn, StdQTConstants {
 		ImageDescription imgDesc = seq.getDescription();
 		int[] pixels2 = null;
 		boolean hyperstack = imp.isHyperStack() || imp.isComposite();
+		boolean overlay = imp.getOverlay()!=null && !imp.getHideOverlay();
 		boolean saveFrames=false, saveSlices=false, saveChannels=false;
 		int channels = imp.getNChannels();
 		int slices = imp.getNSlices();
@@ -158,14 +159,20 @@ public class QuickTime_Writer implements PlugIn, StdQTConstants {
 			IJ.showProgress(image+1, images);
 			IJ.showStatus(image+"/"+images + " (" +IJ.d2s(image*100.0/images,0)+"%)");
 			ImageProcessor ip = null;
-			if (hyperstack) {
+			if (hyperstack || overlay) {
 				if (saveFrames)
 					imp.setPositionWithoutUpdate(c, z, image);
 				else if (saveSlices)
 					imp.setPositionWithoutUpdate(c, image, t);
 				else if (saveChannels)
 					imp.setPositionWithoutUpdate(image, z, t);
-				ip = new ColorProcessor(imp.getImage());
+				ImagePlus imp2 = imp;
+				if (overlay) {
+					if (!(saveFrames||saveSlices||saveChannels))
+						imp.setPositionWithoutUpdate(c, image, t);
+					imp2 = imp.flatten();
+				}
+				ip = new ColorProcessor(imp2.getImage());
 			} else {
 				ip = stack.getProcessor(image);
 				ip = ip.convertToRGB();
