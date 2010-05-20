@@ -14,13 +14,13 @@ public class Grid_Overlay implements PlugIn {
 	int xstart, ystart;
 
 	public void run(String arg) {
-		if (IJ.versionLessThan("1.38u"))
+		if (IJ.versionLessThan("1.43u"))
 			return;
 		ImagePlus imp = IJ.getImage();
 		if (showDialog())
 			drawGrid(imp);
 		else
-			 imp.getCanvas().setDisplayList(null);
+			 imp.setOverlay(null);
 	}
 		
 	void drawGrid(ImagePlus imp) {
@@ -41,12 +41,10 @@ public class Grid_Overlay implements PlugIn {
 			path.lineTo(width, yoff);
 			yoff += tileHeight;
 		}
-		ImageCanvas ic = imp.getCanvas();
-		if (ic==null) return;
 		if (path==null)
-			ic.setDisplayList(null);
+			imp.setOverlay(null);
 		else
-			ic.setDisplayList(path, getColor(), null);
+			imp.setOverlay(path, getColor(), null);
 	}
 
 	boolean showDialog() {
