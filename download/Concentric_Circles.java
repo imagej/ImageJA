@@ -7,13 +7,13 @@ import ij.plugin.*;
 
 public class Concentric_Circles implements PlugIn {
 	static int n = 5;
-	static float lineWidth = 1f;
+	static float lineWidth = 2f;
 	static float xcenter, ycenter;
 	static float innerR, outerR;
 	boolean hide;
 
 	public void run(String arg) {
-		if (IJ.versionLessThan("1.38o"))	 return;
+		if (IJ.versionLessThan("1.43u"))	 return;
 		ImagePlus img = IJ.getImage();
 		Roi roi = img.getRoi();
 		Rectangle b = new Rectangle(0, 0, img.getWidth(), img.getHeight());
@@ -22,13 +22,12 @@ public class Concentric_Circles implements PlugIn {
 		if (isRoi||isLine) b = roi.getBounds();
 		if (outerR==0f || isRoi || isLine) setup(b, isLine);
 		if (!showDialog()) return;
-		ImageCanvas ic = img.getCanvas();
-		if (hide) {ic.setDisplayList(null); return;}
+		if (hide) {img.setOverlay(null); return;}
 		GeneralPath path = new GeneralPath();
 		float inc = (outerR-innerR)/(n-1);
 		for (float r=innerR; r<=outerR+inc/100f; r+=inc)
 			path.append(new Ellipse2D.Float(xcenter-r, ycenter-r, r*2f, r*2f), false);
-		ic.setDisplayList(path, Color.red, new BasicStroke(lineWidth));
+		img.setOverlay(path, Color.red, new BasicStroke(lineWidth));
 	}
 
 	void setup(Rectangle b, boolean isLine) {
