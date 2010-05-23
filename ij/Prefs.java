@@ -135,7 +135,7 @@ public class Prefs {
 		@return	an error message if "IJ_Props.txt" not found.
 	*/
 	public static String load(Object ij, Applet applet) {
-		InputStream f = ij.getClass().getResourceAsStream("/"+PROPS_NAME);
+		InputStream f = (ij instanceof Class ? (Class)ij : ij.getClass()).getResourceAsStream("/"+PROPS_NAME);
 		if (applet!=null)
 			return loadAppletProps(f, applet);
 		if (homeDir==null)
