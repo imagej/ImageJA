@@ -70,6 +70,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	/** Use 4-connected particle tracing. */
 	public static final int FOUR_CONNECTED = 8192;
 
+	/** Replace original image with masks. */
+	public static final int IN_SITU_SHOW = 16384;
+
 	static final String OPTIONS = "ap.options";
 	
 	static final int BYTE=0, SHORT=1, FLOAT=2, RGB=3;
@@ -92,7 +95,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	protected int slice;
 	protected boolean processStack;
 	protected boolean showResults,excludeEdgeParticles,showSizeDistribution,
-		resetCounter,showProgress, recordStarts, displaySummary, floodFill, addToManager;
+		resetCounter,showProgress, recordStarts, displaySummary, floodFill,
+		addToManager, inSituShow;
 		
 	private String summaryHdr = "Slice\tCount\tTotal Area\tAverage Size\tArea Fraction";
 	private double level1, level2;
@@ -132,6 +136,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private boolean hideOutputImage;
 	private int roiType;
 	private int wandMode = Wand.LEGACY_MODE;
+	private Overlay overlay;
 
 			
 	/** Constructs a ParticleAnalyzer.
@@ -275,21 +280,22 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		gd.addStringField("Size ("+units+"):", minStr+"-"+maxStr, 12);
 		if (scaled) {
 			gd.setInsets(0, 40, 5);
-			gd.addCheckbox("Pixel Units", pixelUnits);
+			gd.addCheckbox("Pixel units", pixelUnits);
 		}
 		gd.addStringField("Circularity:", IJ.d2s(minCircularity)+"-"+IJ.d2s(maxCircularity), 12);
 		gd.addChoice("Show:", showStrings, showStrings[showChoice]);
-		String[] labels = new String[7];
-		boolean[] states = new boolean[7];
-		labels[0]="Display Results"; states[0] = (options&SHOW_RESULTS)!=0;
-		labels[1]="Exclude on Edges"; states[1]=(options&EXCLUDE_EDGE_PARTICLES)!=0;
-		labels[2]="Clear Results"; states[2]=(options&CLEAR_WORKSHEET)!=0;
-		labels[3]="Include Holes"; states[3]=(options&INCLUDE_HOLES)!=0;
+		String[] labels = new String[8];
+		boolean[] states = new boolean[8];
+		labels[0]="Display results"; states[0] = (options&SHOW_RESULTS)!=0;
+		labels[1]="Exclude on edges"; states[1]=(options&EXCLUDE_EDGE_PARTICLES)!=0;
+		labels[2]="Clear results"; states[2]=(options&CLEAR_WORKSHEET)!=0;
+		labels[3]="Include holes"; states[3]=(options&INCLUDE_HOLES)!=0;
 		labels[4]="Summarize"; states[4]=(options&DISPLAY_SUMMARY)!=0;
-		labels[5]="Record Starts"; states[5]=(options&RECORD_STARTS)!=0;
+		labels[5]="Record starts"; states[5]=(options&RECORD_STARTS)!=0;
 		labels[6]="Add to Manager"; states[6]=(options&ADD_TO_MANAGER)!=0;
+		labels[7]="In_situ Show"; states[7]=(options&IN_SITU_SHOW)!=0;
 		gd.addCheckboxGroup(4, 2, labels, states);
-
+		gd.addHelp(IJ.URL+"/docs/menus/analyze.html#ap");
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
@@ -340,6 +346,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			options |= RECORD_STARTS; else options &= ~RECORD_STARTS;
 		if (gd.getNextBoolean())
 			options |= ADD_TO_MANAGER; else options &= ~ADD_TO_MANAGER;
+		if (gd.getNextBoolean())
+			options |= IN_SITU_SHOW; else options &= ~IN_SITU_SHOW;
 		staticOptions = options;
 		options |= SHOW_PROGRESS;
 		if ((options&DISPLAY_SUMMARY)!=0)
@@ -392,6 +400,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		recordStarts = (options&RECORD_STARTS)!=0;
 		addToManager = (options&ADD_TO_MANAGER)!=0;
 		displaySummary = (options&DISPLAY_SUMMARY)!=0;
+		inSituShow = (options&IN_SITU_SHOW)!=0;
 		outputImage = null;
 		ip.snapshot();
 		ip.setProgressBar(null);
@@ -853,20 +862,29 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	}
 
 	void drawOutline(ImageProcessor ip, Roi roi, int count) {
-		Rectangle r = roi.getBounds();
-		int nPoints = ((PolygonRoi)roi).getNCoordinates();
-		int[] xp = ((PolygonRoi)roi).getXCoordinates();
-		int[] yp = ((PolygonRoi)roi).getYCoordinates();
-		int x=r.x, y=r.y;
-		ip.setValue(0.0);
-		ip.moveTo(x+xp[0], y+yp[0]);
-		for (int i=1; i<nPoints; i++)
-			ip.lineTo(x+xp[i], y+yp[i]);
-		ip.lineTo(x+xp[0], y+yp[0]);
-		String s = ResultsTable.d2s(count,0);
-		ip.moveTo(r.x+r.width/2-ip.getStringWidth(s)/2, r.y+r.height/2+4);
-		ip.setValue(1.0);
-		ip.drawString(s);
+		if (inSituShow) {
+			if (overlay==null) {
+				overlay = new Overlay();
+				overlay.drawLabels(true);
+			}
+			roi.setStrokeColor(Color.cyan);
+			overlay.add((Roi)roi.clone());
+		} else {
+			Rectangle r = roi.getBounds();
+			int nPoints = ((PolygonRoi)roi).getNCoordinates();
+			int[] xp = ((PolygonRoi)roi).getXCoordinates();
+			int[] yp = ((PolygonRoi)roi).getYCoordinates();
+			int x=r.x, y=r.y;
+			ip.setValue(0.0);
+			ip.moveTo(x+xp[0], y+yp[0]);
+			for (int i=1; i<nPoints; i++)
+				ip.lineTo(x+xp[i], y+yp[i]);
+			ip.lineTo(x+xp[0], y+yp[0]);
+			String s = ResultsTable.d2s(count,0);
+			ip.moveTo(r.x+r.width/2-ip.getStringWidth(s)/2, r.y+r.height/2+4);
+			ip.setValue(1.0);
+			ip.drawString(s);
+		}
 	}
 
 	void drawEllipse(ImageProcessor ip, ImageStatistics stats, int count) {
@@ -896,7 +914,16 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				prefix = "Drawing of ";
 			outlines.update(drawIP);
 			outputImage = new ImagePlus(prefix+title, outlines);
-			if (!hideOutputImage) outputImage.show();
+			if (inSituShow) {
+				if (overlay!=null)
+					imp.setOverlay(overlay);
+				else {
+					if (imp.getStackSize()==1)
+						Undo.setup(Undo.TRANSFORM, imp);
+					imp.setStack(null, outputImage.getStack());
+				}
+			} else if (!hideOutputImage)
+				outputImage.show();
 		}
 		if (showResults && !processStack) {
 			TextPanel tp = IJ.getTextPanel();

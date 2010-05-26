@@ -86,6 +86,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 	private ImageCanvas flatteningCanvas;
 	private Overlay overlay;
 	private boolean hideOverlay;
+	private static int default16bitDisplayRange;
+
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -377,6 +379,8 @@ public class ImagePlus implements ImageObserver, Measurements {
 					}
 				}
 			}
+			if (imageType==GRAY16 && default16bitDisplayRange!=0)
+				resetDisplayRange();
 			notifyListeners(OPENED);
 		}
 	}
@@ -1943,9 +1947,25 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 
 	public void resetDisplayRange() {
-		ip.resetMinAndMax();
+		if (imageType==GRAY16 && default16bitDisplayRange>=8 && default16bitDisplayRange<=16 && !(getCalibration().isSigned16Bit())) {
+			ip.setMinAndMax(0, Math.pow(2,default16bitDisplayRange)-1);
+		} else
+			ip.resetMinAndMax();
 	}
 	
+    /** Set the default 16-bit display range, where 'bitDepth' must be 0 (auto-scaling), 
+    	8 (0-255), 10 (0-1023), 12 (0-4095, 15 (0-32767) or 16 (0-65535). */
+    public static void setDefault16bitRange(int bitDepth) {
+    	if (!(bitDepth==8 || bitDepth==10 || bitDepth==12 || bitDepth==15 || bitDepth==16))
+    		bitDepth = 0;
+    	default16bitDisplayRange = bitDepth;
+    }
+    
+    /** Returns the default 16-bit display range, 0 (auto-scaling), 8, 10, 12, 15 or 16. */
+    public static int getDefault16bitRange() {
+    	return default16bitDisplayRange;
+    }
+
 	public void updatePosition(int c, int z, int t) {
 		//IJ.log("updatePosition: "+c+", "+z+", "+t);
 		position[0] = c;
@@ -1961,7 +1981,18 @@ public class ImagePlus implements ImageObserver, Measurements {
 		imp2.flatteningCanvas = ic2;
 		imp2.setRoi(getRoi());	
 		ImageCanvas ic = getCanvas();
-		ic2.setOverlay(getOverlay());
+		Overlay overlay2 = getOverlay();
+		int n = overlay2.size();
+		int stackSize = getStackSize();
+		boolean stackLabels = n>1 && n>=stackSize && (overlay2.get(0) instanceof TextRoi) && (overlay2.get(stackSize-1) instanceof TextRoi);
+		if (stackLabels) { // created by Image>Stacks>Label
+			int index = getCurrentSlice()-1;
+			if (index<n) {
+				overlay2.hide(0, index-1);
+				overlay2.hide(index+1, stackSize-1);
+			}
+		}
+		ic2.setOverlay(overlay2);
 		if (ic!=null)
 			ic2.setShowAllROIs(ic.getShowAllROIs());
 		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -2038,5 +2069,5 @@ public class ImagePlus implements ImageObserver, Measurements {
     public String toString() {
     	return "imp["+getTitle()+" "+width+"x"+height+"x"+getStackSize()+"]";
     }
-
+    
 }

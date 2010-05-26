@@ -72,11 +72,19 @@ public class Overlay {
     public void drawLabels(boolean b) {
     	label = b;
     }
+    
+    public void hide(int index1, int index2) {
+    	int n = list.size();
+    	if (index1<0 || index2>=n || index2<index1)
+    		return;
+    	for (int i=index1; i<=index2; i++)
+    		get(i).hide();
+    }
 
     boolean getDrawLabels() {return label;}
     
     void setVector(Vector v) {list = v;}
         
     Vector getVector() {return list;}
-
+    
 }
