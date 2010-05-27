@@ -236,6 +236,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	protected void runFromLabel(final String listLabel) {
 		final String command = (String)listLabelToCommand.get(listLabel);
 		CommandAction ca = (CommandAction)commandsHash.get(command);
+		closeWhenRunning = closeCheckBox.isSelected();
 		if (ca.classCommand != null ) {
 			IJ.showStatus("Running command "+ca.classCommand);
 			SwingUtilities.invokeLater(new Runnable() {
