@@ -15,7 +15,7 @@ public class NewPlugin implements PlugIn {
     private static int tableWidth = 350;
     private static int tableHeight = 250;
     private int type = MACRO;
-    private String name = "Macro.txt";
+    private String name = "Macro.ijm";
     private boolean monospaced;
     private boolean menuBar = true;
 	private Editor ed;
@@ -27,7 +27,7 @@ public class NewPlugin implements PlugIn {
     		name = "Untitled.txt";
     	} else if (arg.equals("macro")) {
     		type = MACRO;
-    		name = "Macro.txt";
+		name = "Macro.ijm";
     	} else if (arg.equals("javascript")) {
     		type = JAVASCRIPT;
     		name = "Script.js";
@@ -55,8 +55,15 @@ public class NewPlugin implements PlugIn {
     	if (arg.equals("text+dialog") || type==TABLE) {
 			if (!showDialog()) return;
 		}
-		if (type==-1)
-    		createPlugin("Converted_Macro.java", PLUGIN, arg);
+		if (type==-1) {
+			name = "Converted_Macro.java";
+			if (arg.startsWith("name:")) {
+				int eol = arg.indexOf('\n');
+				name = arg.substring(5, eol);
+				arg = arg.substring(eol + 1);
+			}
+		createPlugin(name, PLUGIN, arg);
+		}
 		else if (type==MACRO || type==TEXT_FILE || type==JAVASCRIPT) {
 			if (type==TEXT_FILE && name.equals("Macro"))
 				name = "Untitled.txt";
@@ -69,13 +76,15 @@ public class NewPlugin implements PlugIn {
     
 	public void createMacro(String name) {
 		int options = (monospaced?Editor.MONOSPACED:0)+(menuBar?Editor.MENU_BAR:0);
-		ed = new Editor(rows, columns, 0, options);
 		if (type==MACRO && !name.endsWith(".txt"))
 			name = SaveDialog.setExtension(name, ".txt");
 		else if (type==JAVASCRIPT && !name.endsWith(".js")) {
 			if (name.equals("Macro")) name = "script";
 			name = SaveDialog.setExtension(name, ".js");
 		}
+		if (IJ.runFijiEditor(name, ""))
+			return;
+		ed = new Editor(rows, columns, 0, options);
 		ed.create(name, "");
 	}
 	

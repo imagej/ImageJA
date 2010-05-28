@@ -5,6 +5,7 @@ import java.awt.image.*;
 import ij.gui.*;
 import ij.util.*;
 import ij.plugin.filter.GaussianBlur;
+import ij.process.AutoThresholder.Method;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.Prefs;
@@ -464,23 +465,32 @@ public abstract class ImageProcessor extends Object {
 		source = null;
 	}
 	
-	public void setAutoThreshold(String method) {
-		if (method==null)
+	@Deprecated
+	public void setAutoThreshold(String mString) {
+		if (mString==null)
 			throw new IllegalArgumentException("Null method");
-		boolean darkBackground = method.indexOf("dark")!=-1;
-		int index = method.indexOf(" ");
+		boolean darkBackground = mString.indexOf("dark")!=-1;
+		int index = mString.indexOf(" ");
 		if (index!=-1)
-			method = method.substring(0, index);
-		setAutoThreshold(method, darkBackground, RED_LUT);
+			mString = mString.substring(0, index);
+		Method m = null;
+		try {
+			m = Method.valueOf(Method.class, mString);
+		} catch(Exception e) {
+			m = null;
+		}
+		if (m==null)
+			throw new IllegalArgumentException("Invalid method (\""+mString+"\")");
+		setAutoThreshold(m, darkBackground, RED_LUT);
 	}
 	
-	public void setAutoThreshold(String method, boolean darkBackground, int lutUpdate) {
+	public void setAutoThreshold(Method method, boolean darkBackground) {
+		setAutoThreshold(method, darkBackground, RED_LUT);
+	}
+
+	public void setAutoThreshold(Method method, boolean darkBackground, int lutUpdate) {
 		if (method==null || (this instanceof ColorProcessor))
 			return;
-		//if (method.equals("Default")) {
-		//	setAutoThreshold(ISODATA2, lutUpdate);
-		//	return;
-		//}
 		double min=0.0, max=0.0;
 		boolean notByteData = !(this instanceof ByteProcessor);
 		ImageProcessor ip2 = this;
@@ -495,7 +505,6 @@ public abstract class ImageProcessor extends Object {
 		}
 		int options = ij.measure.Measurements.AREA+ ij.measure.Measurements.MIN_MAX+ ij.measure.Measurements.MODE;
 		ImageStatistics stats = ImageStatistics.getStatistics(ip2, options, null);
-		int[] histogram = stats.histogram;
 		AutoThresholder thresholder = new AutoThresholder();
 		int threshold = thresholder.getThreshold(method, stats.histogram);
 		double lower, upper;
@@ -518,8 +527,8 @@ public abstract class ImageProcessor extends Object {
 				lower = upper = min;
 		}
 		setThreshold(lower, upper, lutUpdate);
-		if (notByteData && lutUpdate!=NO_LUT_UPDATE)
-			setLutAnimation(true);
+		//if (notByteData && lutUpdate!=NO_LUT_UPDATE)
+		//	setLutAnimation(true);
 	}
 
 	/** Automatically sets the lower and upper threshold levels, where 'method'
@@ -598,8 +607,8 @@ public abstract class ImageProcessor extends Object {
 				lower = upper = min;
 		}
 		setThreshold(lower, upper, lutUpdate);
-		if (notByteData && lutUpdate!=NO_LUT_UPDATE)
-			setLutAnimation(true);
+		//if (notByteData && lutUpdate!=NO_LUT_UPDATE)
+		//	setLutAnimation(true);
 	}
 
 	/** Disables thresholding. */

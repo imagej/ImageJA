@@ -274,20 +274,17 @@ public class OvalRoi extends Roi {
 	}		
 
 	/** Tests if the specified point is inside the boundary of this OvalRoi.
-	@author Michael Schmid
+	* @author Barry DeZonia
+	* @author Michael Schmid
 	*/
-	public boolean contains(int x, int y) {
-		// equation for an ellipse is x^2/a^2 + y^2/b^2 = 1
-		if (!super.contains(x, y))
-			return false;
-		else {
-			double twoDx = 2*x - (2*this.x+width-1);
-			double twoDy = 2*y - (2*this.y+height-1);
-			double twoRx = width;
-			double twoRy = height;
-			return (twoDx*twoDx/(twoRx*twoRx)
-				+ twoDy*twoDy/(twoRy*twoRy)) < 1.0;
-		}
+	public boolean contains(int ox, int oy) {
+		double a = width*0.5;
+		double b = height*0.5;
+		double cx = x + a - 0.5;
+		double cy = y + b - 0.5;
+		double dx = ox - cx;
+		double dy = oy - cy;
+		return ((dx*dx)/(a*a) + (dy*dy)/(b*b)) <= 1.0;
 	}
 		
 	/** Returns a handle number if the specified screen coordinates are  

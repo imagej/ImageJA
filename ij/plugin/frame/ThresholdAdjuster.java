@@ -343,8 +343,12 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 				{minThreshold=0; maxThreshold=threshold;}
 		}
 		if (minThreshold>255) minThreshold = 255;
-		if (Recorder.record)
-			Recorder.record("setAutoThreshold", method+(darkb?" dark":""));
+		if (Recorder.record) {
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.setAutoThreshold(imp, \""+method+(darkb?" dark":"")+"\");");
+			else
+				Recorder.record("setAutoThreshold", method+(darkb?" dark":""));
+		}
 	}
 	
 	/** Scales threshold levels in the range 0-255 to the actual levels. */
@@ -467,8 +471,12 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		ip.resetThreshold();
 		plot.setHistogram(imp, useStackMinAndMax);
 		updateScrollBars();
-		if (Recorder.record)
-			Recorder.record("resetThreshold");
+		if (Recorder.record) {
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.resetThreshold(imp);");
+			else
+				Recorder.record("resetThreshold");
+		}
 	}
 
 	void doSet(ImagePlus imp, ImageProcessor ip) {
@@ -510,16 +518,22 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		//else
 		//	ip.setMinAndMax(minDisplay, maxDisplay);
 		if (Recorder.record) {
-			if (imp.getBitDepth()==32)
-				Recorder.record("setThreshold", ip.getMinThreshold(), ip.getMaxThreshold());
-			else {
+			if (imp.getBitDepth()==32) {
+				if (Recorder.scriptMode())
+					Recorder.recordCall("IJ.setThreshold("+ip.getMinThreshold()+", "+ip.getMaxThreshold()+");");
+				else
+					Recorder.record("setThreshold", ip.getMinThreshold(), ip.getMaxThreshold());
+			} else {
 				int min = (int)ip.getMinThreshold();
 				int max = (int)ip.getMaxThreshold();
 				if (cal.isSigned16Bit()) {
 					min = (int)cal.getCValue(level1);
 					max = (int)cal.getCValue(level2);
 				}
-				Recorder.record("setThreshold", min, max);
+				if (Recorder.scriptMode())
+					Recorder.recordCall("IJ.setThreshold(imp, "+min+", "+max+");");
+				else
+					Recorder.record("setThreshold", min, max);
 			}
 		}
 	}
@@ -666,12 +680,12 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		return ip.getMinThreshold()!=ImageProcessor.NO_THRESHOLD && ip.isColorLut();
 	}
 
-    /** Updates the ThresholdAdjuster when it is in B&W mode. */
+    /** Notifies the ThresholdAdjuster that the image has changed. */
     public static void update() {
 		if (instance!=null) {
 			ThresholdAdjuster ta = ((ThresholdAdjuster)instance);
 			ImagePlus imp = WindowManager.getCurrentImage();
-			if (imp!=null && ta.previousImageID==imp.getID() && mode==BLACK_AND_WHITE) {
+			if (imp!=null && ta.previousImageID==imp.getID()) {
 				ta.previousImageID = 0;
 				ta.setup(imp);
 			}

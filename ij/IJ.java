@@ -58,7 +58,7 @@ public class IJ {
 		isWin = osname.startsWith("Windows");
 		isMac = !isWin && osname.startsWith("Mac");
 		isLinux = osname.startsWith("Linux");
-		isVista = isWin && osname.indexOf("Vista")!=-1;
+		isVista = isWin && (osname.indexOf("Vista")!=-1||osname.indexOf(" 7")!=-1);
 		String version = System.getProperty("java.version").substring(0,3);
 		if (version.compareTo("2.9")<=0) {  // JVM on Sharp Zaurus PDA claims to be "3.1"!
 			isJava2 = version.compareTo("1.1")>0;
@@ -348,7 +348,9 @@ public class IJ {
 
 	/**
 	* @deprecated
-	* replaced by IJ.log()
+	* replaced by IJ.log(), ResultsTable.setResult() and TextWindow.append().
+	* There are examples at
+	*   http://rsbweb.nih.gov/ij/plugins/sine-cosine.html
 	*/
 	public static void write(String s) {
 		if (textPanel==null && ij!=null)
@@ -530,18 +532,18 @@ public class IJ {
 			Macro.abort();
 	}
 	
-	/**	Displays a message in a dialog box with the specified title.
+	/**Displays a message in a dialog box with the specified title.
 		If a macro is running, it is aborted. Writes to the Java  
 		console if ImageJ is not present. */
-	public static synchronized void error(String title, String msg) {
+	public static void error(String title, String msg) {
 		String title2 = title!=null?title:"ImageJA";
 		boolean abortMacro = title!=null;
 		if (redirectErrorMessages || redirectErrorMessages2) {
 			IJ.log(title2 + ": " + msg);
 			if (abortMacro && title.equals("Opener")) abortMacro = false;
-			redirectErrorMessages = false;
 		} else
 			showMessage(title2, msg);
+		redirectErrorMessages = false;
 		if (abortMacro) Macro.abort();
 	}
 
@@ -986,6 +988,17 @@ public class IJ {
 	/** Sets the lower and upper threshold levels and displays the image using
 		the specified <code>displayMode</code> ("Red", "Black & White", "Over/Under" or "No Update"). */
 	public static void setThreshold(double lowerThreshold, double upperThreshold, String displayMode) {
+		setThreshold(getImage(), lowerThreshold, upperThreshold, displayMode);
+	}
+
+	/** Sets the lower and upper threshold levels of the specified image. */
+	public static void setThreshold(ImagePlus img, double lowerThreshold, double upperThreshold) {
+		setThreshold(img, lowerThreshold, upperThreshold, "Red");
+	}
+
+	/** Sets the lower and upper threshold levels of the specified image and updates the display using
+		the specified <code>displayMode</code> ("Red", "Black & White", "Over/Under" or "No Update"). */
+	public static void setThreshold(ImagePlus img, double lowerThreshold, double upperThreshold, String displayMode) {
 		int mode = ImageProcessor.RED_LUT;
 		if (displayMode!=null) {
 			displayMode = displayMode.toLowerCase(Locale.US);
@@ -996,7 +1009,6 @@ public class IJ {
 			else if (displayMode.indexOf("no")!=-1)
 				mode = ImageProcessor.NO_LUT_UPDATE;
 		}
-		ImagePlus img = getImage();
 		Calibration cal = img.getCalibration();
 		lowerThreshold = cal.getRawValue(lowerThreshold); 
 		upperThreshold = cal.getRawValue(upperThreshold); 
@@ -1007,9 +1019,26 @@ public class IJ {
 		}
 	}
 
-	/** Disables thresholding. */
+	public static void setAutoThreshold(ImagePlus img, String method) {
+		ImageProcessor ip = img.getProcessor();
+		if (ip instanceof ColorProcessor)
+			throw new IllegalArgumentException("Non-RGB image required");
+		ip.setRoi(img.getRoi());
+		if (method!=null) {
+			try {ip.setAutoThreshold(method);}
+			catch (Exception e) {IJ.log(e.getMessage());}
+		} else
+			ip.setAutoThreshold(ImageProcessor.ISODATA2, ImageProcessor.RED_LUT);
+		img.updateAndDraw();
+	}
+
+	/** Disables thresholding on the current image. */
 	public static void resetThreshold() {
-		ImagePlus img = getImage();
+		resetThreshold(getImage());
+	}
+	
+	/** Disables thresholding on the specified image. */
+	public static void resetThreshold(ImagePlus img) {
 		ImageProcessor ip = img.getProcessor();
 		ip.resetThreshold();
 		ip.setLutAnimation(true);

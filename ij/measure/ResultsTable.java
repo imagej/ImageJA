@@ -52,6 +52,7 @@ public class ResultsTable implements Cloneable {
 	private String rowLabelHeading = "";
 	private char delimiter = '\t';
 	private boolean headingSet; 
+	private boolean skipRowNumbers;
 
 	/** Constructs an empty ResultsTable with the counter=0 and no columns. */
 	public ResultsTable() {
@@ -366,8 +367,10 @@ public class ResultsTable implements Cloneable {
 			sb = new StringBuffer(200);
 		else
 			sb.setLength(0);
-		sb.append(Integer.toString(row+1));
-		sb.append(delimiter);
+		if (!skipRowNumbers) {
+			sb.append(Integer.toString(row+1));
+			sb.append(delimiter);
+		}
 		if (rowLabels!=null) {
 			if (rowLabels[row]!=null) {
 				String label = rowLabels[row];
@@ -476,9 +479,7 @@ public class ResultsTable implements Cloneable {
 
 	/** Deletes the specified row. */
 	public synchronized void deleteRow(int row) {
-		if (counter==0 || row>counter-1) return;
-		//if (counter==1)
-		//	{reset(); return;}
+		if (counter==0 || row<0 || row>counter-1) return;
 		if (rowLabels!=null) {
 			for (int i=row; i<counter-1; i++)
 				rowLabels[i] = rowLabels[i+1];
@@ -700,11 +701,12 @@ public class ResultsTable implements Cloneable {
 		return 2;
 	}
 	
-	/** Saves this ResultsTable as a tab or comma delimited text file. ThnonNumericIne table
+	/** Saves this ResultsTable as a tab or comma delimited text file. The table
 	     is saved as a CSV (comma-separated values) file if 'path' ends with ".csv".
-	     Displays a file save dialog if 'path' is empty or null. */
+	     Displays a file save dialog if 'path' is empty or null. Does nothing if the
+	     table is empty. */
 	public void saveAs(String path) throws IOException {
-		if (getCounter()==0) throw new IOException("Table is empty");
+		if (getCounter()==0 && lastColumn<0) return;
 		if (path==null || path.equals("")) {
 			SaveDialog sd = new SaveDialog("Save Results", "Results", Prefs.get("options.ext", ".xls"));
 			String file = sd.getFileName();
@@ -716,9 +718,16 @@ public class ResultsTable implements Cloneable {
 		FileOutputStream fos = new FileOutputStream(path);
 		BufferedOutputStream bos = new BufferedOutputStream(fos);
 		pw = new PrintWriter(bos);
-		pw.println(getColumnHeadings());
+		if (!Prefs.dontSaveHeaders) {
+			String headings = getColumnHeadings();
+			if (Prefs.dontSaveRowNumbers)
+				headings = headings.substring(2);
+			pw.println(headings);
+		}
+		skipRowNumbers = Prefs.dontSaveRowNumbers;
 		for (int i=0; i<getCounter(); i++)
 			pw.println(getRowAsString(i));
+		skipRowNumbers = false;
 		pw.close();
 		delimiter = '\t';
 	}

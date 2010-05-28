@@ -1552,6 +1552,13 @@ public class ImagePlus implements ImageObserver, Measurements {
 		}
 		stack = null;
 		img = null;
+		win = null;
+		if (roi!=null) roi.setImage(null);
+		roi = null;
+		properties = null;
+		calibration = null;
+		overlay = null;
+		flatteningCanvas = null;
 	}
 	
 	public void setIgnoreFlush(boolean ignoreFlush) {
@@ -2032,10 +2039,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 	}
 
 	public void setHideOverlay(boolean hide) {
-		ImageCanvas ic = getCanvas();
-		if (ic!=null && hide!=hideOverlay && ic.getOverlay()!=null)
-			ic.repaint();
 		hideOverlay = hide;
+		ImageCanvas ic = getCanvas();
+		if (ic!=null && ic.getOverlay()!=null)
+			ic.repaint();
 	}
 
 	public boolean getHideOverlay() {

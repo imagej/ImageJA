@@ -34,6 +34,7 @@ public class JavaScriptEvaluator implements PlugIn, Runnable  {
 
 	public void run() {
 		try {
+			Thread.currentThread().setContextClassLoader(IJ.getClassLoader());
 			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 			ScriptEngine engine = scriptEngineManager.getEngineByName("ECMAScript");
 			if (engine == null)

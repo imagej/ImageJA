@@ -57,7 +57,10 @@ public class Line extends Roi {
 			updateWideLine(lineWidth);
 	}
 
-	/** @deprecated */
+	/**
+	* @deprecated
+	* replaced by Line(int, int, int, int)
+	*/
 	public Line(int ox1, int oy1, int ox2, int oy2, ImagePlus imp) {
 		this(ox1, oy1, ox2, oy2);
 		setImage(imp);
@@ -397,12 +400,15 @@ public class Line extends Roi {
 		}
 	}
 
-	public boolean contains(int x, int y) {
-		if (getStrokeWidth()>1)
-			return getPolygon().contains(x, y);
+public boolean contains(int x, int y) {
+	if (getStrokeWidth()>1) {
+		if ((x==x1&&y==y1) || (x==x2&&y==y2))
+			return true;
 		else
-			return false;
-	}
+			return getPolygon().contains(x,y);
+	} else
+		return false;
+}
 		
 	/** Returns a handle number if the specified screen coordinates are  
 		inside or near a handle, otherwise returns -1. */
