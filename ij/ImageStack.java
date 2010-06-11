@@ -36,7 +36,9 @@ public class ImageStack {
 		this.height = height;
 		stack = new Object[size];
 		label = new String[size];
-		nSlices = size;
+		// The number of existing slices starts with 0, even if the
+		// allocated space may be larger
+		nSlices = 0;
 	}
 
 	/** Creates a new, empty image stack. */
