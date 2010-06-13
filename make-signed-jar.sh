@@ -10,4 +10,4 @@ then
 	export PATH=$PATH:"$JAVA_HOME"/bin
 fi
 
-jarsigner $(cat .jarsignerrc) -signedjar signed-ij.jar ij.jar dscho
+jarsigner $(cat .git/jarsignerrc) -signedjar signed-ij.jar ij.jar dscho

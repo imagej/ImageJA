@@ -1,6 +1,5 @@
 .DS_Store
 *.jar
 *~
-/.jarsignerrc
 /aboutja.jpg
 /icon.gif
