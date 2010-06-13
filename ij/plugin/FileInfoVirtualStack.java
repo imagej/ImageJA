@@ -45,6 +45,8 @@ public class FileInfoVirtualStack extends VirtualStack implements PlugIn {
 			IJ.error("Virtual Stack", "This does not appear to be a TIFF stack");
 			return;
 		}
+		if (IJ.debugMode)
+			IJ.log(info[0].debugInfo);
 		open();
 	}
 	
