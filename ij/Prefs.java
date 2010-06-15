@@ -141,12 +141,8 @@ public class Prefs {
 		if (homeDir==null)
 			homeDir = System.getProperty("user.dir");
 		String userHome = System.getProperty("user.home");
-		if (IJ.isWindows()) {
-			prefsDir = homeDir; //ImageJ folder on Windows
-			if (prefsDir.endsWith("Desktop"))
-				prefsDir = userHome;
-		} else {
-			prefsDir = userHome; // Mac Preferences folder or Unix home dir
+		prefsDir = userHome;
+		if (!IJ.isWindows()) {
 			if (IJ.isMacOSX())
 				prefsDir += "/Library/Preferences";
 			else
