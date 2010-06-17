@@ -957,7 +957,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	/** Displays this dialog box. */
 	public void showDialog() {
 		if (macro) {
-			dispose();
 			recorderOn = Recorder.record && Recorder.recordInMacros;
 		} else {
 			if (pfr!=null) // prepare preview (not in macro mode): tell the PlugInFilterRunner to listen
