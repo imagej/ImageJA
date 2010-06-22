@@ -8,7 +8,7 @@ import java.awt.*;
 Plugin calculates some parameters of an objective lens
 which might be useful for microscopy.
 
-Version 1.2	2009-03-23
+Version 1.3	2010-06-22
 */
 
 public class Calc_Objective implements PlugIn {
@@ -21,11 +21,12 @@ public class Calc_Objective implements PlugIn {
             double wl	= 491;		// wavelength
             double n1	= 1.518;	// refractive index of immersion medium
             double n2	= 1.330;	// refractive index of medium
-            double NA	= 1.45;   	// numerical aperture of objective lens
+            double NA	= 1.49;   	// numerical aperture of objective lens
             double M	= 60;		// magnification of objective lens
             double pix	= 6.45;		// CCD pixel size
-            double fill = 0.8;      // desired fill factor of back aperture
-									// 0.7 --> best compromise between resolution and intensity loss
+            double fill = 0.85;     // desired fill factor of back aperture
+									// 0.7-0.85 --> best compromise between resolution and intensity loss
+			double NAeff = 0;		// effective objective NA
 
             GenericDialog gd = new GenericDialog("Specify Setup Parameters", IJ.getInstance());
             gd.addNumericField("Numerical Aperture of objective", NA, 2);
@@ -65,13 +66,13 @@ public class Calc_Objective implements PlugIn {
             double peff = fo * NA * 2;
             // collection efficiency
             double fraction = 0;
-            if (NA>=1.330) {	// NA > 1.33 will not improve collection efficiency
-            	fraction = 0.5;}
-            else if (NA<1.330) {
-            	fraction = 0.5-0.5*(Math.sqrt(1-( (NA*NA)/(n2*n2) ))); }// imaginary part can be "ignored"
+            if (NA > n2) {	// NA > n2 will not improve collection efficiency
+				NAeff = n2;}
+            else if (NA <= n2) {
+            	NAeff = NA; }
 
-			//fraction = 0.5-0.5*(Math.sqrt(1-( (NA*NA)/(n2*n2) )));            
-
+			fraction = 0.5 * (1 - Math.sqrt(1-( (NAeff*NAeff)/(n1*n1) )));// imaginary part can be "ignored"      
+			
 			// it does not contribute to the number of collected photons        
             // Rayleigh Criterium
             double d = 0.61 * wl / NA;
@@ -96,16 +97,16 @@ public class Calc_Objective implements PlugIn {
             IJ.write("CCD Pixel Size [microns] : " + pix);
             IJ.write(" ");
             IJ.write("--------------- RESULTS ---------------");
-            IJ.write("Focal Length Objective [mm] : " + fo);
-            IJ.write("TIR Angle [grad] : " + minAngle);
-            IJ.write("Maximum Angle [grad] : " + maxAngle);
-            IJ.write("Collection Efficiency : " + fraction);
-            IJ.write("Rayleigh Criterion [nm] : " + Math.rint(d));
-            IJ.write("Spot Diameter (1/e) [nm] : " + Math.rint(spot));
-            IJ.write("Spot Diameter (1/e) [pixel] : " + Math.rint(spot_pix*100)/100);
-            IJ.write("eff. pupil diameter [mm] : " + Math.rint(peff*100)/100);
-            IJ.write("Beam (1/e2) Fill=1.0 [mm] : " + Math.rint(beamf10*100)/100);
-            IJ.write("Beam (1/e2) Fill=" + fill + " [mm] : " + Math.rint(beam_df*10)/10);
-            IJ.write("Pixel Size Object Plane [nm] : " + Math.rint(psob*100)/100);
+            IJ.write("Focal Length Objective: " + fo + " mm");
+            IJ.write("TIR Angle : " + minAngle + " degree");
+            IJ.write("Maximum Angle : " + maxAngle + " degree");
+			IJ.write("Effective NA : " + NAeff);  
+            IJ.write("Collection Efficiency : " + Math.rint(fraction*100)/100 + " %");
+            IJ.write("Rayleigh Criterion : " + Math.rint(d) + " nm");
+            IJ.write("Spot Diameter (1/e) : " + Math.rint(spot) + " nm");
+            IJ.write("Spot Diameter (1/e) : " + Math.rint(spot_pix*100)/100 + " pixel");
+            IJ.write("eff. pupil diameter : " + Math.rint(peff*100)/100 + " mm");
+            IJ.write("Beam (1/e2) Fill=" + fill + ": " + Math.rint(beam_df*10)/10 + " mm");
+            IJ.write("Pixel Size Object Plane : " + Math.rint(psob*100)/100 + " nm");
     }
 }
