@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 TRANSITIONAL//EN">
+<html>
+<head>
+  <title>Asymmetry plugin</title>
+</head>
+<body bgcolor="#ffffff">
+<font color="#224488" face="Helvetica, Arial" size="+1"> <b>Asymmetry
+analysis</b> </font>
+<p> </p>
+<blockquote>
+  <table cellspacing="5" width="700">
+    <tbody>
+      <tr valign="top">
+        <td><b>Author:</b></td>
+        <td> Michael Mohn and Jannik Meyer<br>
+University of Ulm, Germany<br>
+email at jannikmeyer dot de<br>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Source:</b></td>
+        <td><a href="Asymmetry_.java"> Asymmetry_.java</a><br>
+Released under the GNU General Public License. </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Installation:</b></td>
+        <td> Download <a href="Asymmetry_.class">Asymmetry_.class</a>
+to the plugins folder,
+or subfolder, restart ImageJ, and there will be a new "Asymmetry"
+command in the Plugins menu or submenu. </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Description:</b></td>
+        <td>This plugin allows an automated analysis of variations in
+imaging conditions across the field of view in high-resolution TEM
+images (see http://arxiv.org/abs/1006.0712, section XIV).<br>
+        <br>
+        <span style="text-decoration: underline;">Simple usage:</span><br>
+        <br>
+Open the HRTEM image of choice.&nbsp; For the hexagonal structure,
+hexagons should be dark, the center of the hexagon white (maximum
+intensity).&nbsp; Multiply by -1 if your contrast is reversed. Try with
+the example image:<br>
+        <br>
+        <img style="width: 256px; height: 256px;" alt="Example image"
+ src="webexample.png"><br>
+        <br>
+Convert to 32bit. Up-scale by a factor of 4 to minimize pixelation
+artefacts (atom
+spacing should be at least 12 pixel in our experience). Cut away the
+high-frequency information in a Fourier filter to reduce pixel noise
+(FFT, draw circular mask, Edit-&gt; clear outside, Inverse FFT). Here
+we cut just outside the first lattice reflection:<br>
+        <br>
+        <img style="width: 192px; height: 184px;" alt="Fourier filter"
+ src="clearoutside2_sect.png">&nbsp; <img
+ style="width: 256px; height: 256px;" alt="Low-pass filtered image"
+ src="webexample_fflt.png"><br>
+        <br>
+Measure atomic spacing and angle (of course, measure a multiple of this
+length and divide, for better accuracy).&nbsp; For our example of
+Single-layer hexagonal boron nitride (hBN), we
+chose to define the vector from the center of the hexagon to the
+element
+which forms stable mono-vacancies. In this way, the sign of the
+asymmetry is defined.&nbsp; Run the asymmetry plugin.&nbsp; Enter angle
+and atom spacing as displayed in ImageJ when you draw a line as for the
+yellow arrow of the following image (all defaults should work for the
+example image
+after above steps). Click OK. Input box "Hexagon radius" should usually
+be the same as atomic spacing (default).<br>
+        <br>
+        <img style="width: 194px; height: 194px;"
+ alt="Definition of parameters" title="Definition of parameters"
+ src="definitions.png"><br>
+        <br>
+Now, from each image point, the plugin will search for the nearest
+intensity maximum (within the given mask). It will then measure
+intensity at this maximum point (center of the hexagon) and on
+sub-lattices A and B (away from the center by +- the given
+vector, arrow and dashed line in above illustration).&nbsp; If "use
+mean value of 3 neighbored atoms" is activated,
+it will use the average of the three neighbours for each sublattice
+(red and green circles above).
+Note that, in this case, the result from neighbouring unit cells is not
+statistically independent. The result shows variations in imaging
+conditions across the field of view.&nbsp; The "Rainbow RGB" color map
+is used
+here:<br>
+        <br>
+        <img style="width: 288px; height: 212px;"
+ alt="Result of Asymmetry measurement"
+ src="Asymmetry_result_with_bar.png"><br>
+        <br>
+        <br>
+        <span style="text-decoration: underline;">Advanced usage:</span><br>
+        <br>
+* Activate "show images with min and max" displays images with
+intensities for each sublattice.&nbsp; An image generated as 2*Max
+-Min1-Min2 (e.g.) can be used to asses layer thickness (total
+contrast):<br>
+        <br>
+        <img style="width: 250px; height: 212px;" alt="Layer thickness"
+ src="Layerthickness_grey_sect.png"><br>
+        <br>
+* Separate images can be used for location of intensity maxima and
+actual measurement.&nbsp; In particular for noisy data, it is useful to
+generate a Fourier filtered copy of the image with enhanced periodic
+components
+and select this image for "maxima positions".<br>
+        <br>
+* A stack of images can be used as input, e.g. to monitor variations
+with time in image sequences.<br>
+        <br>
+* Arbitrary user-generated images can be used as unit cell mask (e.g.
+for non-hexagonal structures).&nbsp; The mask must consist of values 0
+and 1 only.<br>
+        <br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a>
+|</b> </p>
+</body>
+</html>
