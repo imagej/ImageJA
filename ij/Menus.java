@@ -223,7 +223,7 @@ public class Menus {
 		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
 		help.addSeparator();
 		addPlugInItem(help, "Update ImageJ...", "ij.plugin.ImageJ_Updater", 0, false);
-		addPlugInItem(help, "Update Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
+		addPlugInItem(help, "Refresh Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
 		help.addSeparator();
 		Menu aboutMenu = getMenu("Help>About Plugins", true);
 		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
@@ -774,6 +774,8 @@ public class Menus {
 				String name = entry.getName();
 				if (name.endsWith(".class") && name.indexOf("_")>0 && name.indexOf("$")==-1
 				&& name.indexOf("/_")==-1 && !name.startsWith("_")) {
+					if (Character.isLowerCase(name.charAt(0))&&name.indexOf("/")!=-1)
+						continue;
 					if (sb==null) sb = new StringBuffer();
 					String className = name.substring(0, name.length()-6);
 					int slashIndex = className.lastIndexOf('/');

@@ -465,7 +465,6 @@ public abstract class ImageProcessor extends Object {
 		source = null;
 	}
 	
-	@Deprecated
 	public void setAutoThreshold(String mString) {
 		if (mString==null)
 			throw new IllegalArgumentException("Null method");
@@ -473,6 +472,10 @@ public abstract class ImageProcessor extends Object {
 		int index = mString.indexOf(" ");
 		if (index!=-1)
 			mString = mString.substring(0, index);
+		setAutoThreshold(mString, darkBackground, RED_LUT);
+	}
+	
+	public void setAutoThreshold(String mString, boolean darkBackground, int lutUpdate) {
 		Method m = null;
 		try {
 			m = Method.valueOf(Method.class, mString);
@@ -481,9 +484,9 @@ public abstract class ImageProcessor extends Object {
 		}
 		if (m==null)
 			throw new IllegalArgumentException("Invalid method (\""+mString+"\")");
-		setAutoThreshold(m, darkBackground, RED_LUT);
+		setAutoThreshold(m, darkBackground, lutUpdate);
 	}
-	
+
 	public void setAutoThreshold(Method method, boolean darkBackground) {
 		setAutoThreshold(method, darkBackground, RED_LUT);
 	}
@@ -512,13 +515,14 @@ public abstract class ImageProcessor extends Object {
 			if (isInvertedLut())
 				{lower=0.0; upper=threshold;}
 			else
-				{lower=threshold; upper=255.0;}
+				{lower=threshold+1; upper=255.0;}
 		} else {
 			if (isInvertedLut())
-				{lower=threshold; upper=255.0;}
+				{lower=threshold+1; upper=255.0;}
 			else
 				{lower=0.0; upper=threshold;}
 		}
+		if (lower>255) lower = 255;
 		if (notByteData) {
 			if (max>min) {
 				lower = min + (lower/255.0)*(max-min);

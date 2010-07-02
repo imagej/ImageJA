@@ -511,28 +511,24 @@ public class Opener {
 		return imp;
 	}
 
-	/** If this image is grayscale, convert it to 8-bits. */
+	/** If the specified image is grayscale, convert it to 8-bits. */
 	public static void convertGrayJpegTo8Bits(ImagePlus imp) {
 		ImageProcessor ip = imp.getProcessor();
 		int width = ip.getWidth();
 		int height = ip.getHeight();
 		int[] pixels = (int[])ip.getPixels();
 		int c,r,g,b,offset;
-		for (int y=0; y<(height-8); y++) {
+		for (int y=0; y<height; y++) {
 			offset = y*width;
-			for (int x=0; x<(width-8); x++) {
+			for (int x=0; x<width; x++) {
 				c = pixels[offset+x];
 				r = (c&0xff0000)>>16;
 				g = (c&0xff00)>>8;
 				b = c&0xff;
-				if (!((r==g)&&(g==b))) {
-					//IJ.write("count: "+count+" "+r+" "+g+" "+b);
-					return;
-				}
+				if (!((r==g)&&(g==b))) return;
 			}
-			//count++;
 		}
-		IJ.showStatus("Converting to 8-bits");
+		IJ.showStatus("Converting to 8-bit grayscale");
 		new ImageConverter(imp).convertToGray8();
 	}
 
@@ -550,10 +546,10 @@ public class Opener {
 		}
 		if (contiguous &&  info[0].fileType!=FileInfo.RGB48)
 			info[0].nImages = info.length;
-		if (IJ.debugMode) {
-			IJ.log("  sameSizeAndType: " + sameSizeAndType);
-			IJ.log("  contiguous: " + contiguous);
-		}
+		//if (IJ.debugMode) {
+		//	IJ.log("sameSizeAndType: " + sameSizeAndType);
+		//	IJ.log("contiguous: " + contiguous);
+		//}
 		return sameSizeAndType;
 	}
 	
@@ -613,7 +609,7 @@ public class Opener {
 						skip = info[i+1].getOffset()-loc;
 						if (info[i+1].compression>=FileInfo.LZW) skip = 0;
 						if (skip<0L) {
-							IJ.error("Image offset out of order");
+							IJ.error("Opener", "Unexpected image offset");
 							break;
 						}
 					}
@@ -629,7 +625,7 @@ public class Opener {
 								stack.addSlice(null, channels[c]);
 						}
 					} else
-						stack.addSlice(null, pixels);					
+						stack.addSlice(null, pixels);
 					IJ.showProgress(i, info.length);
 				}
 				is.close();

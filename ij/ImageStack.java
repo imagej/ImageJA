@@ -30,13 +30,14 @@ public class ImageStack {
 		this(width, height, null);
 	}
 	
-	/** Creates a new, empty image stack with a capacity of 'size'. */
+	/** Creates a new, empty image stack with a capacity of 'size'.  All
+	     'size' slices and labels of this image stack are initially null.*/
 	public ImageStack(int width, int height, int size) {
 		this.width = width;
 		this.height = height;
 		stack = new Object[size];
 		label = new String[size];
-		nSlices = 0;
+		nSlices = size;
 	}
 
 	/** Creates a new, empty image stack using the specified color model. */

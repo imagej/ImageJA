@@ -25,7 +25,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 	private static boolean useOverlay;
 	private int fieldWidth;
 	private Color color;
-	private int firstSlice, lastSlice;
+	private int firstFrame, lastFrame;
 	private Overlay overlay;
 	private boolean previewing; 
 	private boolean virtualStack; 
@@ -38,8 +38,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 				return DONE;
 			}
 			virtualStack = imp.getStack().isVirtual();
-			if (virtualStack || imp.isHyperStack())
-				useOverlay = true;
+			if (virtualStack) useOverlay = true;
 			flags += virtualStack?0:DOES_STACKS;
 		}
 		this.imp = imp;
@@ -130,7 +129,7 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 		double[] range = getRange(gd, 1, imp.getStackSize());
 		useOverlay = gd.getNextBoolean();
 		if (virtualStack) useOverlay = true;
-		firstSlice=(int)range[0]; lastSlice=(int)range[1];
+		firstFrame=(int)range[0]; lastFrame=(int)range[1];
 		int index = str.indexOf(".");
 		if (index!=-1)
 			decimalPlaces = str.length()-index-1;
@@ -153,34 +152,29 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
     }
 	
 	public void run(ImageProcessor ip) {
-		int slice = ip.getSliceNumber();
-		int n = slice - 1;
+		int image = ip.getSliceNumber();
+		int n = image - 1;
 		if (imp.isHyperStack())
 			n = (int)(n*((double)(imp.getNFrames())/imp.getStackSize()));
-		if (useOverlay) {
-			firstSlice = 1;
-			lastSlice = imp.getStackSize();
-		}
-		if (slice<firstSlice||slice>lastSlice) return;
 		if (virtualStack) {
 			int nSlices = imp.getStackSize();
 			if (previewing) nSlices = 1;
 			for (int i=1; i<=nSlices; i++) {
-				slice=i; n=i-1;
+				image=i; n=i-1;
 				if (imp.isHyperStack())
 					n = (int)(n*((double)(imp.getNFrames())/imp.getStackSize()));
-				drawLabel(ip, slice, n);
+				drawLabel(ip, image, n);
 			}
 		} else {
 			if (previewing && overlay!=null) {
 				imp.setOverlay(null);
 				overlay = null;
 			}
-			drawLabel(ip, slice, n);
+			drawLabel(ip, image, n);
 		}
 	}
 	
-	void drawLabel(ImageProcessor ip, int slice, int n) {
+	void drawLabel(ImageProcessor ip, int image, int n) {
 		String s = getString(n, interval, format);
 		ip.setFont(font);
 		int textWidth = ip.getStringWidth(s);
@@ -193,19 +187,27 @@ public class StackLabeler implements ExtendedPlugInFilter, DialogListener {
 				ip.resetRoi();
 			}
 		}
+		int frame = image;
+		if (imp.isHyperStack()) {
+			int[] pos = imp.convertIndexToPosition(image);
+			frame = pos[2];
+		}
 		if (useOverlay) {
-			if (slice==1) {
+			if (image==1) {
 				overlay = new Overlay();
 				Roi roi = imp.getRoi();
 				Rectangle r = roi!=null?roi.getBounds():null;
 				yoffset = r!=null?r.height:fontSize;
 			}
 			Roi roi = new TextRoi(x+maxWidth-textWidth, y-yoffset, s, font);
-			roi.setStrokeColor(color);
+			if (frame>=firstFrame&&frame<=lastFrame)
+				roi.setStrokeColor(color);
+			else
+				roi.setStrokeColor(new Color(0f,0f,0f,0f)); // transparent
 			overlay.add(roi);
-			if (slice==imp.getStackSize() || previewing)
+			if (image==imp.getStackSize()||previewing)
 				imp.setOverlay(overlay);
-		} else {
+		} else if (frame>=firstFrame&&frame<=lastFrame) {
 			ip.setColor(color); 
 			ip.setAntialiasedText(fontSize>=18);
 			ip.moveTo(x+maxWidth-textWidth, y);
