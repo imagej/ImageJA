@@ -6,6 +6,7 @@ import ij.plugin.filter.*;
 /* 	Author: Julian Cooper
 	Contact: Julian.Cooper [at] uhb.nhs.uk
 	First version: 2009/07/01
+	Second version: 2010/07/08 Bugfix for first slice anonymizing and others not in some situations
 	Licence: Public Domain	*/
 
 
@@ -38,12 +39,12 @@ public class Anonymize_IJ_DICOM implements PlugInFilter {
 		ImageStack stack = imp.getStack();
 		int stk_size=stack.getSize();
 		for(int s=1; s<=stk_size; s++) {
-			if(stk_size>1) header = stack.getSliceLabel(imp.getCurrentSlice());
+      if(stk_size>1) header = stack.getSliceLabel(s);
 			else header = (String)imp.getProperty("Info");
 			StringBuffer hdrBuff = new StringBuffer(header);
 			for(int n=0; n<dcmChosen.length; n++){
 				if(dcmChosen[n]) {
-					hdrBuff = anonymiseTag(hdrBuff, dcmTags[n]);
+					hdrBuff = anonymizeTag(hdrBuff, dcmTags[n]);
 				}
 			}			
 			String new_header = new String(hdrBuff);
@@ -68,7 +69,7 @@ public class Anonymize_IJ_DICOM implements PlugInFilter {
 		return true;
 	}
 
-	StringBuffer anonymiseTag(StringBuffer hdrBuff, String tag) {
+	StringBuffer anonymizeTag(StringBuffer hdrBuff, String tag) {
 		int iTag = hdrBuff.indexOf(tag);
 		int iColon = hdrBuff.indexOf(":",iTag);
 		int iNewline = hdrBuff.indexOf("\n",iColon);
