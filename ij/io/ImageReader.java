@@ -5,7 +5,8 @@ import java.io.*;
 import java.net.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.util.zip.*;
+import java.util.zip.Inflater;
+import java.util.zip.DataFormatException;
 
 /** Reads raw 8-bit, 16-bit or 32-bit (float or RGB)
 	images from a stream or URL. */
@@ -78,7 +79,7 @@ public class ImageReader {
 				read += r;
 				left -= r;
 			}
-			byteArray = uncompress(byteArray);
+			byteArray = uncompress(byteArray, nPixels - current);
 			int length = byteArray.length;
 			length = length - (length%fi.width);
 			if (fi.compression == FileInfo.LZW_WITH_DIFFERENCING) {
@@ -847,10 +848,14 @@ public class ImageReader {
 	}
 	
 	byte[] uncompress(byte[] input) {
+		return uncompress(input, -1);
+	}
+
+	byte[] uncompress(byte[] input, int maxSize) {
 		if (fi.compression==FileInfo.PACK_BITS)
 			return packBitsUncompress(input, fi.rowsPerStrip*fi.width*fi.getBytesPerPixel());
 		else if (fi.compression==FileInfo.LZW || fi.compression==FileInfo.LZW_WITH_DIFFERENCING)
-			return lzwUncompress(input);
+			return lzwUncompress(input, maxSize);
 		else if (fi.compression==FileInfo.ZIP)
 			return zipUncompress(input);
 		else
@@ -878,10 +883,14 @@ public class ImageReader {
   /**
  * Utility method for decoding an LZW-compressed image strip. 
  * Adapted from the TIFF 6.0 Specification:
- * http://partners.adobe.com/asn/developer/pdfs/tn/TIFF6.pdf (page 61)
+ * http://partners.adobe.com/asn/developer/PDFS/TN/TIFF6.pdf (page 61)
  * @author Curtis Rueden (ctrueden at wisc.edu)
  */
 	public byte[] lzwUncompress(byte[] input) {
+		return lzwUncompress(input, -1);
+	}
+
+	public byte[] lzwUncompress(byte[] input, int maxSize) {
 		if (input==null || input.length==0)
 			return input;
 		byte[][] symbolTable = new byte[4096][1];
@@ -894,7 +903,8 @@ public class ImageReader {
 		byte[] byteBuffer1 = new byte[16];
 		byte[] byteBuffer2 = new byte[16];
 		
-		while (true) {
+		if (maxSize < 0) maxSize = Integer.MAX_VALUE;
+		while (out.size() < maxSize) {
 			code = bb.getBits(bitsToRead);
 			if (code==EOI_CODE || code==-1)
 				break;
