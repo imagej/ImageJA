@@ -82,7 +82,7 @@ public class NewPlugin implements PlugIn {
 			if (name.equals("Macro")) name = "script";
 			name = SaveDialog.setExtension(name, ".js");
 		}
-		if (IJ.runFijiEditor(name, ""))
+		if (type == MACRO && IJ.runFijiEditor(name, ""))
 			return;
 		ed = new Editor(rows, columns, 0, options);
 		ed.create(name, "");
