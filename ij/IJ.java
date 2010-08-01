@@ -49,7 +49,6 @@ public class IJ {
 	private static boolean escapePressed;
 	private static boolean redirectErrorMessages, redirectErrorMessages2;
 	private static boolean suppressPluginNotFoundError;
-	private static Dimension screenSize;
 	private static Hashtable commandTable;
 	private static Vector eventListeners = new Vector();
 			
@@ -1677,28 +1676,19 @@ public class IJ {
 	
 	/** Returns the size, in pixels, of the primary display. */
 	public static Dimension getScreenSize() {
-		if (screenSize==null) {
-			if (isWindows()) { // GraphicsEnvironment.getConfigurations is *very* slow on Windows
-				screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-				return screenSize;
-			}
-			if (GraphicsEnvironment.isHeadless())
-				screenSize = new Dimension(0, 0);
-			else {
-				// Can't use Toolkit.getScreenSize() on Linux because it returns 
-				// size of all displays rather than just the primary display.
-				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				GraphicsDevice[] gd = ge.getScreenDevices();
-				GraphicsConfiguration[] gc = gd[0].getConfigurations();
-				Rectangle bounds = gc[0].getBounds();
-				//System.out.println("getScreenSize: "+bounds);
-				if (bounds.x==0&&bounds.y==0)
-					screenSize = new Dimension(bounds.width, bounds.height);
-				else
-					screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			}
+		if (isWindows()) { // GraphicsEnvironment.getConfigurations is *very* slow on Windows
+			return Toolkit.getDefaultToolkit().getScreenSize();
 		}
-		return screenSize;
+		if (GraphicsEnvironment.isHeadless())
+			return new Dimension(0, 0);
+		else {
+			// Can't use Toolkit.getScreenSize() on Linux because it returns
+			// size of all displays rather than just the primary display.
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			GraphicsDevice[] gd = ge.getScreenDevices();
+			java.awt.DisplayMode dm = gd[0].getDisplayMode();
+			return new Dimension(dm.getWidth(),dm.getHeight());
+		}
 	}
 	
 	static void abort() {
