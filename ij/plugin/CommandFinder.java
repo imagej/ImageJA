@@ -196,7 +196,11 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	}
 
 	public void itemStateChanged(ItemEvent ie) {
+		int index = ie.getSource() == fullInfoCheckBox ?
+			completions.getSelectedIndex() : -1;
 		populateList(prompt.getText());
+		if (index >= 0)
+			completions.setSelectedIndex(index);
 	}
 
 	public void mouseClicked(MouseEvent e) {
