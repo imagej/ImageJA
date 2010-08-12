@@ -154,12 +154,7 @@ public class IJ {
 			return runUserPlugIn(commandName, className, arg, false);
 		Object thePlugIn=null;
 		try {
-			Class c = Class.forName(className);
- 			thePlugIn = c.newInstance();
- 			if (thePlugIn instanceof PlugIn)
-				((PlugIn)thePlugIn).run(arg);
- 			else
-				new PlugInFilterRunner(thePlugIn, commandName, arg);
+			thePlugIn = runPlugInUnchecked(commandName, className, arg);
 		}
 		catch (ClassNotFoundException e) {
 			if (IJ.getApplet()==null)
@@ -170,6 +165,16 @@ public class IJ {
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
 		redirectErrorMessages = false;
+		return thePlugIn;
+	}
+
+	public static Object runPlugInUnchecked(String commandName, String className, String arg) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+		Class c = Class.forName(className);
+		Object thePlugIn = c.newInstance();
+		if (thePlugIn instanceof PlugIn)
+			((PlugIn)thePlugIn).run(arg);
+		else
+			new PlugInFilterRunner(thePlugIn, commandName, arg);
 		return thePlugIn;
 	}
         
