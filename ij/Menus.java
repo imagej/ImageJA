@@ -1588,6 +1588,11 @@ public class Menus {
 		if (err!=null) IJ.error(err);
 		IJ.setClassLoader(null);
 		IJ.runPlugIn("ij.plugin.ClassChecker", "");
+		try {
+			IJ.runPlugInUnchecked("", "fiji.User_Plugins", "");
+		} catch (Exception e) {
+			/* ignore */
+		}
 		IJ.showStatus("Menus updated: "+m.nPlugins + " commands, " + m.nMacros + " macros");
 	}
 }
