@@ -218,13 +218,11 @@ public class ImageJ_Updater implements PlugIn {
 		IJ.error("ImageJ Updater", msg);
 	}
 	
-	void updateMenus() {
-		if (IJ.debugMode) {
-			long start = System.currentTimeMillis();
-			Menus.updateImageJMenus();
+	public static void updateMenus() {
+		long start = System.currentTimeMillis();
+		Menus.updateImageJMenus();
+		if (IJ.debugMode)
 			IJ.log("Refresh Menus: "+(System.currentTimeMillis()-start)+" ms");
-		} else
-			Menus.updateImageJMenus();
 	}
 
 }
