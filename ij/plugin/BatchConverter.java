@@ -55,8 +55,23 @@ import java.io.*;
 			if (list[i].startsWith(".")||list[i].endsWith(".avi")||list[i].endsWith(".AVI"))
 				continue;
 			IJ.showProgress(i+1, list.length);
+			int count = WindowManager.getImageCount();
 			ImagePlus imp = IJ.openImage(path);
-			if (imp==null) continue;
+			if (imp==null) {
+				// There is a chance that an opener does not extend ImagePlus
+				int newCount = WindowManager.getImageCount();
+				if (newCount == count + 1) {
+					imp = WindowManager.getImage(WindowManager.getNthImageID(newCount));
+					if (imp == null)
+						IJ.error("Problem reading " + list[i] + ": 1 image read, but cannot access");
+				}
+				else {
+					IJ.log("Ignoring " + list[i] + " because it opened " + (newCount - count) + " images.");
+					while (newCount > count)
+						WindowManager.getImage(WindowManager.getNthImageID(newCount--)).close();
+					continue;
+				}
+			}
 			//if (height!=0) {
 			//	double aspectRatio = (double)imp.getWidth()/imp.getHeight();
 			//	int width = (int)(height*aspectRatio);
