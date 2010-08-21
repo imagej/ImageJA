@@ -5,23 +5,26 @@
 </head>
 <body>
 
-<li> <u>1.44e, 30 July 2010</u>
+<li> <u>1.44f, 19 August 2010</u>
 <ul>
-<li> Added the <i>Image&gt;Stacks&gt;Tools&gt;Make Substack</i> command, which is based on the
-Substack Maker plugin by Anthony Padua, Daniel Barboriak and Ved Sharma.
-<li> Added an "AND" option to the ROI Manager.
-<li> The run("Close All") macro function no longer displays a warning message if there are unsaved changes.
-<li> The particle analyzer now displays a blank image when the count is zero and "Show:" not equal "None".
-<li> Added the CompositeImage setChannelsUpdated() and Macro_Runner.runMacroFromJar() methods.
-<li> Fixed a regression that caused the save() macro function to change the image name.
-<li> Fixed a regression that caused <i>File&gt;Import&gt;Text Image</i> to fail if the file contained values
-with a plus sign (e.g., "1.23e+02").
-<li> Fixed macro run() call parsing bug that caused
-"min=234;run("Analyze Particles...", "size=&min");" to fail.
-<li> Fixed a bug that caused an exception if the newImage() macro function
-was called with width or height set to zero.
-<li> Fixed a bug that caused setAutoThreshold("Default") to sometimes not generate
-the expected threshold with images that have a sharp peak in its histogram.
+<li> Added the <i>Image&gt;Stacks&gt;Tools&gt;Grouped Z Project</i> command.
+<li> Thanks to Michael Doube, the Ortho Viewer (<i>Image&gt;Stacks&gt;Orthogonal Views</i>)
+can now be controled by clicking and dragging in the XZ and YZ windows.
+<li> <i>Image&gt;Stacks&gt;Z Project</i> now works with RGB hyperstacks.
+<li> Thanks to Mark Longair, IJ.getScreenSize() now returns the correct 
+size when the screen size is changed after ImageJ has started.
+<li> The perimeter of a composite selection is now calculated by decomposing it into
+individual selections. The composite perimeter and the sum of the
+individual perimeters may be different due to use of different calculation methods.
+<li> Thanks to Michael Doube, added getInstance(), getCrossLoc() and setCrossLoc() methods to the Orthogonal_Views class
+(<a href="http://rsbweb.nih.gov/ij/macros/js/OrthoViewsDemo.js">example</a>).
+<li> SetStack() calls no longer cause a new ImageWindow
+to be constructed when adding a slice to a single image or subtracting a slice
+from a two slice stack. 
+<li> Fixed a regression than caused the particle analyzer to fail with stacks
+when "Display labels" was enabled in <i>Analyze&gt;Set Measurements</i>.
+<li> Fixed bugs in <i>Image&gt;Stacks&gt;Orthogonal Views</i> that caused it
+to not work correctly with anisotropic voxels.
 </ul> 
 
 <a href="http://rsb.info.nih.gov/ij">Home</a>
