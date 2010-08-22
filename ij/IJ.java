@@ -1685,19 +1685,20 @@ public class IJ {
 	
 	/** Returns the size, in pixels, of the primary display. */
 	public static Dimension getScreenSize() {
-		if (isWindows()) { // GraphicsEnvironment.getConfigurations is *very* slow on Windows
+		if (isWindows())  // GraphicsEnvironment.getConfigurations is *very* slow on Windows
 			return Toolkit.getDefaultToolkit().getScreenSize();
-		}
 		if (GraphicsEnvironment.isHeadless())
 			return new Dimension(0, 0);
-		else {
-			// Can't use Toolkit.getScreenSize() on Linux because it returns
-			// size of all displays rather than just the primary display.
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			GraphicsDevice[] gd = ge.getScreenDevices();
-			java.awt.DisplayMode dm = gd[0].getDisplayMode();
-			return new Dimension(dm.getWidth(),dm.getHeight());
-		}
+		// Can't use Toolkit.getScreenSize() on Linux because it returns 
+		// size of all displays rather than just the primary display.
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+		GraphicsConfiguration[] gc = gd[0].getConfigurations();
+		Rectangle bounds = gc[0].getBounds();
+		if (bounds.x==0&&bounds.y==0)
+			return new Dimension(bounds.width, bounds.height);
+		else
+			return Toolkit.getDefaultToolkit().getScreenSize();
 	}
 	
 	static void abort() {

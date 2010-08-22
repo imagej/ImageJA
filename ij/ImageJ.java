@@ -72,7 +72,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.44e";
+	public static final String VERSION = "1.44f";
 	public static final String BUILD = ""; 
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
@@ -185,6 +185,7 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.error(err2);
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		}
+		m.installStartupMacroSet();
 		if (IJ.isMacintosh()&&applet==null) try {
 			Object qh = null; 
 			qh = IJ.runPlugIn("MacAdapter", ""); 
@@ -193,10 +194,8 @@ public class ImageJ extends Frame implements ActionListener,
 		} catch (ExceptionInInitializerError e) { /* ignore */ }
 		if (applet==null)
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
-		m.installStartupMacroSet();
-		String str = m.getMacroCount()==1?" macro)":" macros)";
-		String java = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]":" [32-bit]");
-		IJ.showStatus("ImageJ "+VERSION + "/"+java+" ("+ m.getPluginCount() + " commands, " + m.getMacroCount() + str);
+		String str = m.getMacroCount()==1?" macro":" macros";
+		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
 		configureProxy();
  	}
 
@@ -344,7 +343,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 	
 	private String version() {
-		return "ImageJ "+VERSION+BUILD + "; "+"Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]; ":" [32-bit]; ");
+		return title + " " + VERSION+BUILD + "; Java " + System.getProperty("java.version") + (IJ.is64Bit() ? " [64-bit]; " : " [32-bit]; ");
 	}
 	
 	public void mouseReleased(MouseEvent e) {}
@@ -561,7 +560,7 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public static void main(String args[]) {
 		if (System.getProperty("java.version").substring(0,3).compareTo("1.5")<0) {
-			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
+			javax.swing.JOptionPane.showMessageDialog(null,title+" "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
 		boolean noGUI = false;
