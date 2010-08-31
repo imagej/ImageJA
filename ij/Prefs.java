@@ -140,14 +140,19 @@ public class Prefs {
 			return loadAppletProps(f, applet);
 		if (homeDir==null)
 			homeDir = System.getProperty("user.dir");
-		String userHome = System.getProperty("user.home");
-		prefsDir = userHome;
-		if (!IJ.isWindows()) {
-			if (IJ.isMacOSX())
-				prefsDir += "/Library/Preferences";
-			else
-				prefsDir += "/.imagej";
-		} 
+		String env = System.getenv("IJ_PREFS_DIR");
+		if (env != null && !env.equals(""))
+			prefsDir = env;
+		else {
+			String userHome = System.getProperty("user.home");
+			prefsDir = userHome; // User home directory (not ImageJ home)
+			if (!IJ.isWindows()) {
+				if (IJ.isMacOSX())
+					prefsDir += "/Library/Preferences";
+				else
+					prefsDir += "/.imagej";
+			}
+		}
 		if (f==null) {
 			try {f = new FileInputStream(homeDir+"/"+PROPS_NAME);}
 			catch (FileNotFoundException e) {f=null;}
