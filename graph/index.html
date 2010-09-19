@@ -1,11 +1,11 @@
 <html>
 <head>
-<title>Graph Demo</title>
+<title>Graph Plugin and Demo</title>
 </head>
 <body bgcolor = "#ffffff">
 
 <font color="#224488" face="Helvetica, Arial" size=+1>
-<b>Graph Demo</b>
+<b>Graph Plugin and Demo</b>
 </font>
 <p>
 
@@ -13,28 +13,43 @@
 <table cellspacing=5 width=700>
 
 <tr valign=top><td ><b>Author:</b></td><td >
-Ben Tupper (<a href="mailto:btupper@bigelow.org">btupper@bigelow.org</a>) 
+Ben Tupper (btupper at bigelow.org) 
 </td></tr>
 
 <tr valign=top><td ><b>History:</b></td><td >
-2010/05/01: first version<br>
-2010/05/02: reorganized into package<br>
+2010/05/01: First version<br>
+2010/05/02: Reorganized into package<br>
+2010/08/30: Publish the distance matrix and minor corrections<br>
+2010/08/31: Adapted to stand-alone plugin, added separation distance by "Edges", "Centroids" or "Centers of Mass"
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
-
-Download <A HREF="graph_.jar">graph_.jar</A> and uncompress.
+Download <a href="Graph_.jar">Graph_.jar</A>, change its name to Graph_.zip
+and uncompress to retrieve the source code.
 </td></tr>
 
 <tr valign=top><td ><b>Installation:</b></td><td >
-Download <A HREF="graph_.jar">graph_.jar</A> to the plugins folder and
-use the menu selection <i>Help&gt;Update Menus</i>.
+Drag and drop <a href="Graph_.jar">Graph_.jar</A> to the "ImageJ" window.
 </td></tr>
 
 <tr valign=top><td ><b>Description:</b></td><td >
-Demonstrates the creation of adjacency lists (graphs and subgraphs, aka "connected components") based upon the separation distance among the particles. The image below shows the output where the user has selected a threshold distance of 10.  Particles separated by less than 10 are joined into subgraphs.  Groupings are shown by color coding and connecting lines.
+Graph_Demo demonstrates the creation of adjacency lists (graphs and subgraphs, aka "connected components") based upon the separation distance among particles. 
+The image below shows the output where the user has selected a threshold distance of 10 between Edges.  
+Particles separated by less than 10 are joined into subgraphs.  Groupings are shown by color coding and connecting lines. <br> <br>
+Suggested separation distances to use for the demo: Edges = 10, Centroids = 35 and Centers of Mass = 35
+<br><br>
+Using the plugin Graph_, the user may additionally select the binary image to operate on and the distance computation to use.  
+Separation distances may be computed on "Edges" (as in the demo output shown below), "Centroids or "Centers of Mass".  Note that
+to use the Graph_ plugin there must be a binary mask and there must be a populated Results Table.  Each distance computation
+method depends upon different values being present in the Results Table.  See the "Set Measurements..." and "Analyze Particles..." commands for details.
+<br><br> 
+<li>Edges requires XStart and YStart in the Results Table</li>
+<li>Centroids requires X and Y in the Results Table</li>
+<li>Centers of Mass requires XM and YM in the Results Table</li>
+
 <p><center><img SRC="Adjacencies.png"></center><p>
 The adjacency lists (aka Connected Components) for each subgraph as shown in the log window like that shown below.  Particles are identified (1,2,3,...) by the row number assigned to them in the Results Table.
+
 
 <p>Number of connected components = 22
 <br>CC-1: 1 10 13 17 24 25 
@@ -50,7 +65,7 @@ The adjacency lists (aka Connected Components) for each subgraph as shown in the
 <br>CC-11: 29 31 32 42 
 <br>CC-12: 30 34 40 38 
 <br>CC-13: 35 
-<br>CC-14: 37 43 45
+<br>CC-14: 37 43 45 
 <br>CC-15: 48 52 
 <br>CC-16: 49 
 <br>CC-17: 50 
@@ -65,6 +80,6 @@ The adjacency lists (aka Connected Components) for each subgraph as shown in the
 </table>
 
 </blockquote>
-<p><b>|<a href="../index.html">Plugins</a> | <a href="../../index.html">Home</a> |</b>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
 </body>
 </html>
