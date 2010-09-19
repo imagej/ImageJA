@@ -63,9 +63,10 @@ public class Fractal_Growth_Models implements PlugIn
     ImagePlus img = null;
     String [] Types = {"Henon",
             "D. Greene Fern", "Random", "HenonMap", "Customize"};
-            static boolean showProgress = true;
+            static boolean showProgress = false;
             boolean Fern=false;
             boolean Henon=false,Custom=false, Spiral=false, Map=false;
+	static boolean UseOval=false, FillIt=false;
             static int imageSize = 600;
             static int UserParticleSize = 1;
             double [] m={-0.2f,0,0,0};
@@ -99,14 +100,20 @@ public class Fractal_Growth_Models implements PlugIn
                 GenericDialog gd = new GenericDialog ("Iterator");
                 gd.addNumericField ("Number of Particles:", NumberOfIterations, 0);
                 gd.addNumericField ("Size of Particles:", UserParticleSize, 0);
-                gd.addCheckbox ("Show Progress?", showProgress);
+                gd.addCheckbox ("Fill?", FillIt);
+ 	    gd.addCheckbox ("Oval (uncheck for rectangle)?", UseOval);
+	   // gd.addCheckbox ("Show Progress?", showProgress);
                 //gd.addNumericField ("Number of Sets:", NumberOfSetsToUse, 0);
                 gd.addChoice ("Select type", Types, Types[PatternType]);
                 gd.showDialog ();
                 if (gd.wasCanceled ()) return;
                 NumberOfIterations = (int)gd.getNextNumber ();
-                UserParticleSize=(int)gd.getNextNumber ();                
-                showProgress=gd.getNextBoolean ();
+                UserParticleSize=(int)gd.getNextNumber ();
+	    if(UserParticleSize<1){UserParticleSize=1;}                
+                FillIt=gd.getNextBoolean ();
+	    UseOval=gd.getNextBoolean ();
+	    if(UseOval&&(UserParticleSize<2)){UseOval=false;}
+	   // showProgress=gd.getNextBoolean ();
                 PatternType=gd.getNextChoiceIndex ();
                 NumberOfSetsToUse =
                         (int)IJ.getNumber ("How many probability sets?",
@@ -453,7 +460,9 @@ public class Fractal_Growth_Models implements PlugIn
                     }
                     int X= (int)( over+ grow*x);
                     int Y=(int)(up+ grow*y);
-                    G2.fillOval (X, Y, UserParticleSize, UserParticleSize);
+                   if((UseOval&&FillIt)) {G2.fillOval (X, Y, UserParticleSize, UserParticleSize);}
+		else if((UseOval&&!FillIt)){G2.drawOval (X, Y, UserParticleSize, UserParticleSize);}
+		else if((!UseOval&&!FillIt)){G2.drawRect (X, Y, UserParticleSize, UserParticleSize);}
                     //System.out.println (X+ "and"+Y);
                     if ((i%inc)==0) {
                         IJ.showProgress(i, NumberOfIterations);
