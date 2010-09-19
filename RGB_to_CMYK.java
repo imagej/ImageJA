@@ -6,7 +6,7 @@ import ij.plugin.PlugIn;
 This is a plugin version of the BeanShell script by Stephan Saalfeld at
     http://pacific.mpi-cbg.de/wiki/index.php/RGB_to_CMYK
 which converts an uncalibrated linear RGB image into an
-uncalibrated linear 32-bit CMYK stack.
+uncalibrated  linear 32-bit CMYK stack.
 */
 public class RGB_to_CMYK implements PlugIn {
 
@@ -65,16 +65,16 @@ public class RGB_to_CMYK implements PlugIn {
 		ipK.setMinAndMax( 0.0, 1.0 );
 		
 		ImageStack stack = new ImageStack(width, height);
-		stack.addSlice("C", ipM);
+		stack.addSlice("C", ipC);
 		stack.addSlice("M", ipM);
 		stack.addSlice("Y", ipY);
 		stack.addSlice("K", ipK);
 		ImagePlus cmyk = new ImagePlus("CMYK_"+imp.getTitle(), stack);
 		cmyk = new CompositeImage(cmyk, CompositeImage.COLOR);
-		cmyk.setSlice(1); IJ.run(cmyk,"Cyan",""); IJ.run(cmyk,"Invert LUT","");
-		cmyk.setSlice(2); IJ.run(cmyk,"Magenta",""); IJ.run(cmyk,"Invert LUT","");
-		cmyk.setSlice(3); IJ.run(cmyk,"Yellow",""); IJ.run(cmyk,"Invert LUT","");
-		cmyk.setSlice(4); IJ.run(cmyk,"Invert LUT","");
+		cmyk.setSlice(1); IJ.run(cmyk,"Cyan","");
+		cmyk.setSlice(2); IJ.run(cmyk,"Magenta","");
+		cmyk.setSlice(3); IJ.run(cmyk,"Yellow","");
+		cmyk.setSlice(4);
 		cmyk.setSlice(1);
 		return cmyk;
 	}
