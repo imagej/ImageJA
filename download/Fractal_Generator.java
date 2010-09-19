@@ -262,7 +262,7 @@ public String [] choices = new String[]{
         float [][]XYSize=GetNewOriginsAndRulesForFatFractal();
         int w=(int)(D+x+x);
         BufferedImage B
-                = new BufferedImage(w, w, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, w, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
         DrawFat(g2, x, x, XYSize);
         
@@ -321,7 +321,7 @@ public String [] choices = new String[]{
         int w=(int)(q+scaleForCross*D);
         int h=w;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();   
         
         if (ij.gui.Toolbar.getForegroundColor()==Color.black)
@@ -374,7 +374,7 @@ public String [] choices = new String[]{
         w=w*2;
         h=h*2;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
          if (ij.gui.Toolbar.getForegroundColor()==Color.black)
         {
@@ -419,7 +419,7 @@ public String [] choices = new String[]{
         w=w*2;
         h=w;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
          if (ij.gui.Toolbar.getForegroundColor()==Color.black)
         {
@@ -476,7 +476,7 @@ public String [] choices = new String[]{
         w=w*2;
         h=h*2;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
          if (ij.gui.Toolbar.getForegroundColor()==Color.black)
         {
@@ -527,7 +527,7 @@ public String [] choices = new String[]{
         w=w*3;
         h=h*3;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
          if (ij.gui.Toolbar.getForegroundColor()==Color.black)
         {
@@ -575,7 +575,7 @@ public String [] choices = new String[]{
         w=w*2;
         h=h*2;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
          if (ij.gui.Toolbar.getForegroundColor()==Color.black)
         {
@@ -937,7 +937,7 @@ public void reeIterate32()
         w=w*2;
         h=h*2;
         BufferedImage B
-                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+                = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D)B.getGraphics();
         //float a1=0, a2=90, a3=180, a4=-90;
         float As[]={0, 90, 180, -90};
