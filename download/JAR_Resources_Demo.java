@@ -4,10 +4,10 @@ import ij.gui.*;
 import ij.plugin.*;
 import ij.text.TextWindow;
 import ij.io.Opener;
-import ij.io.FileInfo;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.awt.image.IndexColorModel;
 
 /** This plugin shows how files required for plugins can be packaged and
  *  placed in a jar file. It loads and displays a text file, two image, a LUT and a 
@@ -64,8 +64,8 @@ public class JAR_Resources_Demo implements PlugIn {
             InputStream is = getClass().getResourceAsStream(path+name);
             if (is!=null) {
              	try {
-            	   FileInfo fi = LutLoader.open(is);
-            	   ImageProcessor ip = LutLoader.createImage(fi);
+            	   IndexColorModel cm = LutLoader.open(is);
+            	   ImageProcessor ip = LutLoader.createImage(cm);
             	   new ImagePlus(name, ip).show();
             	} catch(IOException e) {
             	    IJ.error(""+e);
