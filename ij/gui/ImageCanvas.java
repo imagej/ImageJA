@@ -233,7 +233,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		if (IJ.debugMode) IJ.log("paint: drawing "+n+" ROI display list");
 		boolean drawLabels = overlay.getDrawLabels();
 		int stackSize = imp.getStackSize();
-		if (n>1 && n==stackSize && imp.stackLabels(overlay)) { // created by Image>Stacks>Label
+		if (n>1 && n==stackSize && stackLabels(overlay)) { // created by Image>Stacks>Label
 			int index = imp.getCurrentSlice()-1;
 			if (index<n) {
 				overlay.temporarilyHide(0, index-1);
@@ -247,6 +247,15 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		((Graphics2D)g).setStroke(Roi.onePixelWide);
 	}
     
+	/** Was this overlay created by Image/Stacks/Label? */
+	public boolean stackLabels(Overlay o) {
+		Roi roi0 = o.get(0);
+		boolean labels = (roi0 instanceof TextRoi) && (o.get(o.size()-1) instanceof TextRoi);
+		String text = null;
+		try {text = ((TextRoi)roi0).getText();} catch(Exception e) {return false;}
+		return labels && text.length()>0 && (Character.isDigit(text.charAt(0))||text.charAt(0)==' ');
+	}
+	
     void initGraphics(Graphics g) {
 		if (smallFont==null) {
 			smallFont = new Font("SansSerif", Font.PLAIN, 9);

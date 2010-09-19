@@ -56,14 +56,14 @@ public class ImagePlus implements ImageObserver, Measurements {
 	protected int width;
 	protected int height;
 	protected boolean locked = false;
+	protected int nChannels = 1;
+	protected int nSlices = 1;
+	protected int nFrames = 1;
 
 	private ImageJ ij = IJ.getInstance();
 	private String title;
 	private	String url;
 	private FileInfo fileInfo;
-	private int nSlices = 1;
-	private int nChannels = 1;
-	private int nFrames = 1;
 	private int imageType = GRAY8;
 	private ImageStack stack;
 	private static int currentID = -1;
@@ -2008,7 +2008,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 		Overlay overlay2 = getOverlay();
 		int n = overlay2!=null?overlay2.size():0;
 		int stackSize = getStackSize();
-		if (n>1 && n==stackSize && stackLabels(overlay2)) { // created by Image>Stacks>Label
+		if (n>1 && n==stackSize && ic2.stackLabels(overlay2)) { // created by Image>Stacks>Label
 			int index = getCurrentSlice()-1;
 			if (index<n) {
 				overlay2.temporarilyHide(0, index-1);
@@ -2025,14 +2025,6 @@ public class ImagePlus implements ImageObserver, Measurements {
 		imp2.flatteningCanvas = null;
 		if (Recorder.record) Recorder.recordCall("imp = IJ.getImage().flatten();");
 		return new ImagePlus(title, new ColorProcessor(bi));
-	}
-	
-	/** Was this overlay created by Image/Stacks/Label? */
-	public boolean stackLabels(Overlay o) {
-		Roi roi0 = o.get(0);
-		boolean labels = (roi0 instanceof TextRoi) && (o.get(getStackSize()-1) instanceof TextRoi);
-		String text = ((TextRoi)roi0).getText();
-		return labels && text.length()>0 && (Character.isDigit(text.charAt(0))||text.charAt(0)==' ');
 	}
 	
 	/** Installs a list of ROIs that will be drawn on this image as a non-destructive overlay.
