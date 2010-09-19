@@ -20,7 +20,14 @@ import ij.process.*;
 * 				   Thanks to Wayne Raspband for the code that properly handles the image magnification.
 * 		
 * 
-* @version 		1.2 28 April 2009
+* @version 		1.3 9 Sept 2010
+* 					- added support for the ImageJ 1.43
+* 					- bugfix in updateMAgnification
+* 					- added toggling of the debug mode
+* 					- added dynamic update of the projection parameters 
+* 				1.2.5 19 Nov 2009
+* 					- added gap handling
+* 				1.2 28 April 2009
 * 					- added support for arrow keys
 * 					- fixed a bug in the cross position calculation
 * 					- added FocusListener behavior
@@ -51,6 +58,8 @@ import ij.process.*;
 
 * User interaction:
 * 	q - quits the plugin
+* 	d - toggles debug mode 
+* 	u - updates parameters
 * 	? - displays help message
 *
 * @license This library is free software; you can redistribute it and/or
@@ -90,13 +99,14 @@ public class StackSlicer_ implements PlugInFilter,
 	 private ImagePlus imp;
 	 private ImageCanvas canvas;
 	 private static final int H_ROI=0, H_ZOOM=1;
-	 private static final String version="1.2";
+	 private static final String version="1.3";
 	 private ImagePlus xz_image=new ImagePlus(), yz_image=new ImagePlus(); 
 	 private ImageProcessor fp1, fp2;
-	 private static final String AX="AX", AY="AY", AZ="AZ", YROT="YROT", SPANELS="STICKY_PANELS"; 
+	 private static final String AX="AX", AY="AY", AZ="AZ", YROT="YROT", SPANELS="STICKY_PANELS", DELTA="delta"; 
 	 private static float ax=(float)Prefs. getDouble(AX,1.0);
 	 private static float ay=(float)Prefs. getDouble(AY,1.0);
 	 private static float az=(float)Prefs. getDouble(AZ,1.0);
+	 private static float delta=(float)Prefs. getDouble(DELTA,0.0);
 	 private static boolean rotate=(boolean)Prefs. getBoolean(YROT,false);
 	 private static boolean sticky=(boolean)Prefs. getBoolean(SPANELS,false);
 
@@ -104,16 +114,19 @@ public class StackSlicer_ implements PlugInFilter,
 	 private int xyImY = 0;
 	 private Calibration cal=null, cal_xz=new Calibration(), cal_yz=new Calibration();
 	 double magnification=1.0;
-      Color color = Color.red;
+	 
+	 private static boolean debug=IJ.debugMode;
+
 	 
 	 /* (non-Javadoc)
 		 * @see ij.plugin.filter.PlugInFilter#setup(java.lang.String, ij.ImagePlus)
 		 */
 		//@Override
-		public int setup(String arg, ImagePlus imp) {
-			this.imp=imp;
+		public int setup(String arg, ImagePlus aimp) {
+			this.imp=aimp;
 			cal=this.imp.getCalibration();
-			//Log("cal info: "+cal.pixelDepth);
+			Log("cal info: "+delta/cal.pixelDepth);
+			
 			if (cal!=null) {
 				double calx=cal.pixelWidth;
 				double caly=cal.pixelHeight;
@@ -142,11 +155,12 @@ public class StackSlicer_ implements PlugInFilter,
 	                magnification= canvas.getMagnification();
 	       
 	                if (!isProcessibleRoi) {
-	                	//showHelp(H_ROI);
+	                	showHelp(H_ROI);
 	                	//dispose();
 	                	//return DONE;
 	                	imp.setRoi(new PointRoi(imp.getWidth()/2,imp.getHeight()/2));
-	                    Toolbar.getInstance().setTool(Toolbar.POINT);	                }
+	                    Toolbar.getInstance().setTool(Toolbar.POINT);	
+	                }
 	            }
 	            else {
 	            	return DONE;
@@ -162,7 +176,7 @@ public class StackSlicer_ implements PlugInFilter,
 	            return DONE;
 	        }
 	        else {
-	            return DOES_8G+DOES_16+NO_CHANGES+DOES_32+NO_UNDO +STACK_REQUIRED;
+	            return DOES_8G+DOES_16+NO_CHANGES+DOES_32+NO_UNDO +STACK_REQUIRED +ROI_REQUIRED;
 	        }
 	        
 	        
@@ -182,7 +196,11 @@ public class StackSlicer_ implements PlugInFilter,
 		win.addFocusListener(this);
 		Component[] c = win.getComponents();
 		//IJ.log(c[1].toString());
-		((java.awt.Scrollbar) c[1]).addAdjustmentListener ((AdjustmentListener) this);
+		if (IJ.versionLessThan("1.43"))
+			((java.awt.Scrollbar) c[1]).addAdjustmentListener ((AdjustmentListener) this);
+		else 
+			((ij.gui.ScrollbarWithLabel) c[1]).addAdjustmentListener((AdjustmentListener) this);
+		
 		ImagePlus.addImageListener(this);
 	}
 
@@ -192,8 +210,8 @@ public class StackSlicer_ implements PlugInFilter,
 	 */
 	//@Override
 	public void run(ImageProcessor ip) {
+		 IJ.showStatus("Stack Slicer v. "+version);
 		 ImageStack is=imp.getStack();
-		 //Log("cal info: "+cal.pixelDepth);
 		 //cal=imp.getCalibration();
 		 calibrate();
 		 imp.unlock();
@@ -256,55 +274,36 @@ public class StackSlicer_ implements PlugInFilter,
 	/**
 	 * @param magnification
 	 */
-/*	private void updateMagnification(double magnification){
-		if (magnification!=1.0) {
-			ImageCanvas xz_canvas=xz_image.getCanvas();
-		
-			xz_canvas.setMagnification(magnification);
-			Graphics g =xz_canvas.getGraphics();
-			xz_canvas.update(g);
-			xz_image.show();
-			//xz_image.updateAndDraw();
-			//xz_image.updateAndRepaintWindow();
-	
-			ImageCanvas yz_canvas=yz_image.getCanvas();
-	 
-			yz_canvas.setMagnification(magnification); 
-			g =yz_canvas.getGraphics();
-			yz_canvas.update(g);
-			yz_image.show();
-			//yz_image.updateAndRepaintWindow();
-			//yz_image.updateAndDraw();
-			g.dispose();
+	private void updateMagnification(double magnification) {
+		if (xz_image.isVisible() && yz_image.isVisible()) {
+			Dimension screen = IJ.getScreenSize();
+			ImageWindow win = xz_image.getWindow();	 
+			ImageCanvas ic = win.getCanvas();
+			ic.setMagnification(magnification);
+			double w = xz_image.getWidth()*magnification;
+			double h = xz_image.getHeight()*magnification;
+			
+			
+			if (w>screen.width-20) w = screen.width - 20;  // does it fit?
+			if (h>screen.height-50) h = screen.height - 50;
+			// ic.setSourceRect(new Rectangle(0, 0, (int)(w/magnification), (int)(h/magnification)));
+			ic.setDrawingSize((int)w, (int)h);
+			win.pack();
+			ic.repaint();
+
+        	win = yz_image.getWindow();
+        	ic = win.getCanvas();
+			ic.setMagnification(magnification);
+			w = yz_image.getWidth()*magnification;
+			h = yz_image.getHeight()*magnification;
+			if (w>screen.width-20) w = screen.width - 20;  // does it fit?
+			if (h>screen.height-50) h = screen.height - 50;
+			// ic.setSourceRect(new Rectangle(0, 0, (int)(w/magnification), (int)(h/magnification)));
+			ic.setDrawingSize((int)w, (int)h);
+			win.pack();
+			ic.repaint();
 		}
 		
-	}
-	*/
-	private void updateMagnification(double magnification) {
-        ImageWindow win = xz_image.getWindow();
-        ImageCanvas ic = win.getCanvas();
-        ic.setMagnification(magnification);
-        double w = xz_image.getWidth()*magnification;
-        double h = xz_image.getHeight()*magnification;
-        Dimension screen = IJ.getScreenSize();
-        if (w>screen.width-20) w = screen.width - 20;  // does it fit?
-        if (h>screen.height-50) h = screen.height - 50;
-        // ic.setSourceRect(new Rectangle(0, 0, (int)(w/magnification), (int)(h/magnification)));
-        ic.setDrawingSize((int)w, (int)h);
-        win.pack();
-        ic.repaint();
-
-        win = yz_image.getWindow();
-        ic = win.getCanvas();
-        ic.setMagnification(magnification);
-        w = yz_image.getWidth()*magnification;
-        h = yz_image.getHeight()*magnification;
-        if (w>screen.width-20) w = screen.width - 20;  // does it fit?
-        if (h>screen.height-50) h = screen.height - 50;
-       // ic.setSourceRect(new Rectangle(0, 0, (int)(w/magnification), (int)(h/magnification)));
-        ic.setDrawingSize((int)w, (int)h);
-        win.pack();
-        ic.repaint();
 }
 	
 	/**
@@ -378,22 +377,26 @@ public class StackSlicer_ implements PlugInFilter,
 		magnification= win.getCanvas().getMagnification(); 
 			//win.getInitialMagnification();
 		Log("mag info: "+magnification);
+	 	
 		updateMagnification(magnification);
-		
+	 
 		if (!sticky)
 			return;
 		
-		if ((xyImX !=  imp.getWindow().getLocation().x)||(xyImY !=  imp.getWindow().getLocation().y)) {
-			xyImX =  imp.getWindow().getLocation().x;
-			xyImY =  imp.getWindow().getLocation().y;
-			ImageWindow win1 = xz_image.getWindow();
- 
-			win1.setLocation(xyImX,xyImY +imp.getWindow().getHeight());
-	          
-			ImageWindow win2 = yz_image.getWindow();
- 
-			win2.setLocation(xyImX+imp.getWindow().getWidth(),xyImY);
-		}
+		if ((xz_image.isVisible() && yz_image.isVisible()))
+			if ((xyImX !=  imp.getWindow().getLocation().x) ||
+				(xyImY !=  imp.getWindow().getLocation().y))
+				{
+				xyImX =  imp.getWindow().getLocation().x;
+				xyImY =  imp.getWindow().getLocation().y;
+				ImageWindow win1 = xz_image.getWindow();
+	 
+				win1.setLocation(xyImX,xyImY +imp.getWindow().getHeight());
+		          
+				ImageWindow win2 = yz_image.getWindow();
+	 
+				win2.setLocation(xyImX+imp.getWindow().getWidth(),xyImY);
+			}
 		
 		
 	}
@@ -414,7 +417,7 @@ public class StackSlicer_ implements PlugInFilter,
 		// float brat=az/ay;
 		 int za=(int)(ds*arat);
 		 int zb=(int)(ds*brat);
-		 IJ.log("za: "+za +" zb: "+zb);
+		 Log("za: "+za +" zb: "+zb);
 		  
 		if (ip instanceof FloatProcessor) {
 			fp1=new FloatProcessor(width,za);
@@ -474,7 +477,6 @@ public class StackSlicer_ implements PlugInFilter,
 					 
 					 for (int i=0;i<ds; i++) { 
 						 Object pixels=is.getPixels(i+1);
-						 //float[] pixels2=toFloatPixels(pixels);
 						 System.arraycopy(pixels, width*y, newpix, width*(ds-i-1), width);
 								 
 					 }
@@ -488,7 +490,6 @@ public class StackSlicer_ implements PlugInFilter,
 					 
 					 for (int i=0;i<ds; i++) { 
 						 Object pixels=is.getPixels(i+1);
-						 //float[] pixels2=toFloatPixels(pixels);
 						 System.arraycopy(pixels, width*y, newpix, width*(ds-i-1), width);
 								 
 					 }
@@ -502,7 +503,6 @@ public class StackSlicer_ implements PlugInFilter,
 					 
 					 for (int i=0;i<ds; i++) { 
 						 Object pixels=is.getPixels(i+1);
-						 //float[] pixels2=toFloatPixels(pixels);
 						 System.arraycopy(pixels, width*y, newpix, width*(ds-i-1), width);
 								 
 					 }
@@ -791,6 +791,7 @@ public class StackSlicer_ implements PlugInFilter,
         gd.addNumericField("aspect ratio X:", ax, 3);
         gd.addNumericField("aspect ratio Y:", ay, 3);
         gd.addNumericField("aspect ratio Z:", az, 3);
+        gd.addNumericField("gap between Z-planes:", az, 3);
         gd.addCheckbox("rotate YZ", rotate);
                 gd.addCheckbox("sticky panels", sticky);
         gd.showDialog();
@@ -798,6 +799,7 @@ public class StackSlicer_ implements PlugInFilter,
         ax=(float)gd.getNextNumber();
         ay=(float)gd.getNextNumber();
         az=(float)gd.getNextNumber();
+        delta=(float)gd.getNextNumber();
         rotate=gd.getNextBoolean();
         sticky=gd.getNextBoolean();
         if (sticky) rotate = false;
@@ -827,8 +829,7 @@ public class StackSlicer_ implements PlugInFilter,
 	
 	/* general support for debug variables 
      */
-     private static boolean debug=true; //IJ.debugMode;
-
+ 
      public static void Log(String astr) {
      	if (debug) IJ.log(astr);
      }
@@ -893,7 +894,10 @@ public class StackSlicer_ implements PlugInFilter,
     			msg="Point selection required \n";
     			break;}
     		case H_ZOOM:{ 
-    			msg="Press q for quit";
+    			msg="Press 'q' to quit\n"+
+    			  	"'d' to toggles debug mode\n"+ 
+    			    "'u' to updates parameters";
+    	 
     			break;
     		}
     	}
@@ -914,6 +918,7 @@ public class StackSlicer_ implements PlugInFilter,
            prefs.put(AX, Double.toString(ax));
            prefs.put(AY, Double.toString(ay));
            prefs.put(AZ, Double.toString(az));
+           prefs.put(DELTA, Double.toString(delta));
            prefs.put(YROT, Boolean.toString(rotate));
            prefs.put(SPANELS, Boolean.toString(sticky));
    }
@@ -976,14 +981,12 @@ public class StackSlicer_ implements PlugInFilter,
 				GeneralPath path = new GeneralPath();
 				
 				drawCross(imp,p, path);
-				Color col=color;
+				Color col=Toolbar.getForegroundColor();
 				
 				if (col==Color.black) {
-					canvas.setDisplayList(path, color, new BasicStroke(1));
-				}
-				//canvas.setDisplayList(path,Toolbar.getForegroundColor(), new BasicStroke(Toolbar.getBrushSize()));
-				else{
-					canvas.setDisplayList(path, color, new BasicStroke(Toolbar.getBrushSize()));
+					canvas.setDisplayList(path,Color.red, new BasicStroke(1));
+				}	else{
+					canvas.setDisplayList(path,Toolbar.getForegroundColor(), new BasicStroke(Toolbar.getBrushSize()));
 				}
 		
 			}
@@ -1018,7 +1021,7 @@ public class StackSlicer_ implements PlugInFilter,
 			if (y<0) y=0;
 			
 			Point p=new Point (x,y);
-			IJ.log("width: "+width +" height: "+ height +" "+ getCoordString(null, p));
+			Log("width: "+width +" height: "+ height +" "+ getCoordString(null, p));
 			
 			doProjections(p, is);
 
@@ -1028,8 +1031,9 @@ public class StackSlicer_ implements PlugInFilter,
 				
 				drawCross(imp, p, path);
 				
-				canvas.setDisplayList(path, color, new BasicStroke(Toolbar.getBrushSize()));
-			 //canvas.setDisplayList(path, color, new BasicStroke(1));
+				canvas.setDisplayList(path,Toolbar.getForegroundColor(), new BasicStroke(Toolbar.getBrushSize()));
+				
+				//canvas.setDisplayList(path, Color.red, new BasicStroke(1));
 			
 			}
 			
@@ -1064,8 +1068,8 @@ public class StackSlicer_ implements PlugInFilter,
 			
 			drawCross(xz_image, p, path);
 			
-			xz_canvas.setDisplayList(path, color, new BasicStroke(Toolbar.getBrushSize()));
-		 //canvas.setDisplayList(path, color, new BasicStroke(1));
+			xz_canvas.setDisplayList(path,Toolbar.getForegroundColor(), new BasicStroke(Toolbar.getBrushSize()));
+		 //canvas.setDisplayList(path, Color.red, new BasicStroke(1));
 		
 		}
 		
@@ -1087,8 +1091,8 @@ public class StackSlicer_ implements PlugInFilter,
 			
 			drawCross(yz_image, p, path);
 			
-			yz_canvas.setDisplayList(path, color, new BasicStroke(Toolbar.getBrushSize()));
-		 //canvas.setDisplayList(path, color, new BasicStroke(1));
+			yz_canvas.setDisplayList(path,Toolbar.getForegroundColor(), new BasicStroke(Toolbar.getBrushSize()));
+		 //canvas.setDisplayList(path, Color.red, new BasicStroke(1));
 		
 		}
 	}
@@ -1138,6 +1142,13 @@ public class StackSlicer_ implements PlugInFilter,
 			case 'q':{
 	    			dispose();
 	    			break;}
+			case 'd':{
+    		    debug=!debug;
+    			break;}
+			case 'u':{
+				if (showDialog(imp))
+					 exec();
+    			break;}	
 			case '?':{
 					showHelp(H_ZOOM);
 					break;}
