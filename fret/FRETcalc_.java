@@ -9,11 +9,11 @@ import java.lang.Math.*;
 import java.awt.image.*;
 import ij.plugin.filter.Analyzer;
 
-// FRETcalc_ plugin version 3.0
+// FRETcalc_ plugin version 4.0
 // for analysis of FRET by acceptor photobleaching using ImageJ program
 // is suitable for analysis of non-continuos compartments
 // written by David Stepensky (david.stepensky@yale.edu)
-// May 8, 2007
+// September 18, 2010
 
 public class FRETcalc_ extends Dialog
 implements ActionListener, WindowListener, Runnable {
@@ -21,6 +21,8 @@ implements ActionListener, WindowListener, Runnable {
 
 	ImagePlus imp_orig, imp;
 	ImageProcessor ip;
+
+	Roi roi; Polygon p; Rectangle r;
 
 	int  DPre = 2;
 	int  DPost = 1;
@@ -56,7 +58,7 @@ implements ActionListener, WindowListener, Runnable {
 
 	public FRETcalc_ () {
 		
-		super(new Frame(), "FRETcalc v3.0");
+		super(new Frame(), "FRETcalc v4.0");
 		if (IJ.versionLessThan("1.21a"))
 			return;
 
@@ -316,15 +318,12 @@ implements ActionListener, WindowListener, Runnable {
 		ImageStack stack = imp_orig.getStack();
 		String title = imp_orig.getTitle();
 
-		Roi roi = imp_orig.getRoi();
+		roi = imp_orig.getRoi();
 		if(imp_orig.getRoi()==null) 
 			{IJ.showMessage("Error", "No ROI");
 			return;}
-		if(roi.getType() != 0) 
-			{IJ.showMessage("Error", "Rectangular ROI is required");
-			return;}
-
-		Rectangle r = roi.getBounds();
+		p = roi.getPolygon();
+		r = roi.getBounds();
 
 		 GenericDialog gd = new GenericDialog("Bg subtraction");
 		 gd.addNumericField("From slice",1,0 );
@@ -350,22 +349,23 @@ implements ActionListener, WindowListener, Runnable {
 
                 for (int i=r.x; i<r.x+r.width; i++) {	// measure the bg ROI mean
                   for (int j=r.y; j<r.y+r.height; j++) {
-                     Sum = Sum+(int) ip_bg.getPixelValue(i,j);
-		     PxCount++;
-		  }
-		 }
+	       if (p.contains (i,j)==true) {
+                     	Sum = Sum+(int) ip_bg.getPixelValue(i,j);
+		 PxCount++;
+	       }
+	     }
+	   }
 		MeanBg= (int) Math.round((double) Sum/(double)PxCount);
 
-                for (int x=0; x<width; x++) {  // subtract the background
-                  for (int y=0; y<height; y++) {
-
-                     v = (int) ip_bg.getPixelValue(x,y) - MeanBg;
-			  if (v > 255) v=255;
-                          if (v < 0) v=0;
-		     ip_bg.putPixelValue(x, y, v);
-		  }
-		}
-		}
+                for (int i=0; i<width; i++) {  // subtract the background
+                  for (int j=0; j<height; j++) {
+                       v = (int) ip_bg.getPixelValue(i,j) - MeanBg;
+		if (v > 255) v=255;
+                        	if (v < 0) v=0;
+		ip_bg.putPixelValue(i, j, v);
+	     }
+	   }
+	}
 		 imp_bg.updateAndDraw();
 
 
@@ -376,14 +376,13 @@ implements ActionListener, WindowListener, Runnable {
 		ImageStack stack = imp.getStack();
  		String title = imp.getTitle();
 
-		Roi roi = imp.getRoi();
+		roi = imp.getRoi();
 		if(imp.getRoi()==null) 
 			{IJ.showMessage("Error", "No ROI");
 			return;}
-		if(roi.getType() != 0) 
-			{IJ.showMessage("Error", "Rectangular ROI is required");
-			return;}
-		Rectangle r = roi.getBounds();
+
+		p = roi.getPolygon();
+		r = roi.getBounds();
 
 		ImageProcessor ipDPre, ipDPost, ipAPre, ipAPost; 
  		ipDPre = stack.getProcessor(DPre);
@@ -399,8 +398,8 @@ implements ActionListener, WindowListener, Runnable {
 		DonPre_allpix=0; AccPre_allpix=0; DonPost_allpix=0; AccPost_allpix=0;
 
                 for (int i=r.x; i<r.x+r.width; i++) {	 // Check number of pixels (count) above the thresholds
-		  for (int j=r.y; j<r.y+r.height; j++) { // without knowing this count
-							 // the histograms could not be plotted correctly
+		for (int j=r.y; j<r.y+r.height; j++) { // without knowing this count the histograms could not be plotted correctly
+		      if (p.contains (i,j)==true) {
 
 			 DonPre = (int) ipDPre.getPixelValue(i,j);
 			 AccPre = (int) ipAPre.getPixelValue(i,j);
@@ -413,8 +412,9 @@ implements ActionListener, WindowListener, Runnable {
 	  if((DonPost>=Donor_min && DonPost<=Donor_max && AccPre>=Acceptor_min && AccPre<=Acceptor_max) &&
 	  (Choice_Bleach_th == false || (Choice_Bleach_th == true && bleach_v >= Bleach_min && bleach_v <= Bleach_max)) &&
 	  (Choice_FRET_th == false || (Choice_FRET_th == true && FRET_v >= FRET_min && FRET_v <= FRET_max))) {count++;}
-		   }
+		       }  
 		 }
+	  }
 
 		int [][] Data_px = new int[count][2];
 		double [] DPre_px = new double[count];
@@ -429,6 +429,7 @@ implements ActionListener, WindowListener, Runnable {
 
                 for (int i=r.x; i<r.x+r.width; i++) {	// fill the arrays with data
 		  for (int j=r.y; j<r.y+r.height; j++) {
+		        if (p.contains (i,j)==true) {
 
 			 DonPre = (int) ipDPre.getPixelValue(i,j); // data for individual pixels
 			 AccPre = (int) ipAPre.getPixelValue(i,j);
@@ -462,9 +463,10 @@ implements ActionListener, WindowListener, Runnable {
 			 if (FRET_to_plot[count]>255) FRET_to_plot[count]=255;
 			 if (FRET_to_plot[count]<0) FRET_to_plot[count]=0;
 			count++;
-         }
+       	    }
+		      }
 		   }
-		 }
+	  }
 
 
 		//Statistical analysis via histograms
@@ -645,14 +647,14 @@ FRET_DonAcc_PW.draw();
 		}
 		else if (e.getSource() == bnHelp) {
 			IJ.showMessage("Help",
-			"FRETcalc plugin version 3.0\n"+
+			"FRETcalc plugin version 4.0\n"+
 			"for analysis of FRET images obtained by acceptor photobleaching using ImageJ program\n"+
-			"written by David Stepensky (david.stepensky@yale.edu) May 8, 2007\n"+
+			"written by David Stepensky (david.stepensky@yale.edu) September 18, 2010\n"+
 			" \n"+
  			"File (8-bit) is required with 4 slices corresponding to Donor & Acceptor pre & post-bleaching images\n"+
-			"This version of FRETcalc supports rectangular ROIs only for image analysis \n"+
+ 			"Supports all types of regions of interest (polygonal, rectangular, elliptical, and freehand ROIs)\n"+
 			" \n"+
-			"Bg subtraction - subtracts the average intensity of the pre-defined rectangular ROI from each pixel on the selected slice/s\n"+
+			"Bg subtraction - subtracts the average intensity of the pre-defined ROI from each pixel on the selected slice/s\n"+
 			"Smooth - applies 3x3 filter to smooth all the slices of the image, is equivalent to Process->Smooth command\n"+
 			"LUT->Rainbow2 - changes the LUT of each slice to Rainbow2 (requires rainbow2.lut in ImageJ LUT directory)\n"+
 			"Px by Px subtract - subtracts pixel-wise one slice from another and plots the result as a new slice\n"+

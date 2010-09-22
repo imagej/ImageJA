@@ -1,5 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- saved from url=(0054)http://rsb.info.nih.gov/ij/plugins/fret/fret-calc.html -->
 <html xmlns:v="urn:schemas-microsoft-com:vml"
 xmlns:o="urn:schemas-microsoft-com:office:office"
 xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -9,9 +7,9 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
 <meta name=ProgId content=Word.Document>
-<meta name=Generator content="Microsoft Word 10">
-<meta name=Originator content="Microsoft Word 10">
-<link rel=File-List href="FRETcalc_files/filelist.xml">
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="FRETcalc4_files/filelist.xml">
 <title>FRETcalc</title>
 <o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
  name="place"/>
@@ -22,26 +20,33 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <!--[if gte mso 9]><xml>
  <o:DocumentProperties>
   <o:Author>David</o:Author>
-  <o:LastAuthor>David</o:LastAuthor>
-  <o:Revision>4</o:Revision>
-  <o:TotalTime>25</o:TotalTime>
+  <o:LastAuthor>David Stepensky</o:LastAuthor>
+  <o:Revision>6</o:Revision>
+  <o:TotalTime>27</o:TotalTime>
   <o:Created>2007-06-19T20:13:00Z</o:Created>
-  <o:LastSaved>2007-06-19T20:19:00Z</o:LastSaved>
+  <o:LastSaved>2010-09-19T09:32:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>474</o:Words>
-  <o:Characters>2662</o:Characters>
+  <o:Words>522</o:Words>
+  <o:Characters>2613</o:Characters>
   <o:Company>Home</o:Company>
-  <o:Lines>80</o:Lines>
-  <o:Paragraphs>24</o:Paragraphs>
-  <o:CharactersWithSpaces>3112</o:CharactersWithSpaces>
-  <o:Version>10.6830</o:Version>
+  <o:Lines>21</o:Lines>
+  <o:Paragraphs>6</o:Paragraphs>
+  <o:CharactersWithSpaces>3129</o:CharactersWithSpaces>
+  <o:Version>11.9999</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:WordDocument>
   <w:SpellingState>Clean</w:SpellingState>
   <w:GrammarState>Clean</w:GrammarState>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
   <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
  </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
 </xml><![endif]--><!--[if !mso]><object
  classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
 <style>
@@ -56,8 +61,9 @@ st1\:*{behavior:url(#ieooui) }
 	panose-1:2 11 6 4 2 2 2 2 2 4;
 	mso-font-charset:0;
 	mso-generic-font-family:swiss;
+	mso-font-format:other;
 	mso-font-pitch:variable;
-	mso-font-signature:536885895 0 0 0 511 0;}
+	mso-font-signature:3 0 0 0 1 0;}
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{mso-style-parent:"";
@@ -114,10 +120,13 @@ div.Section1
 	mso-para-margin-bottom:.0001pt;
 	mso-pagination:widow-orphan;
 	font-size:10.0pt;
-	font-family:"Times New Roman";}
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="4098"/>
+ <o:shapedefaults v:ext="edit" spidmax="6146"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
   <o:idmap v:ext="edit" data="1"/>
@@ -130,20 +139,20 @@ div.Section1
 
 <p><span class=SpellE><b><span style='font-size:13.5pt;font-family:Helvetica;
 color:#224488'>FRETcalc</span></b></span><b><span style='font-size:13.5pt;
-font-family:Helvetica;color:#224488'> – FRET by acceptor <span class=SpellE>photobleaching</span></span></b></p>
+font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>photobleaching</span></span></b></p>
 
 <p>&nbsp;</p>
 
-<table class=MsoNormalTable border=0 cellspacing=5 cellpadding=0
+<table class=MsoNormalTable border=0 cellspacing=6 cellpadding=0
  style='mso-cellspacing:3.7pt;mso-padding-alt:0cm 0cm 0cm 0cm'>
- <tr style='mso-yfti-irow:0'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
   <td valign=top style='padding:0cm 0cm 0cm 0cm'>
   <p><strong>Author:</strong></p>
   </td>
   <td valign=top style='padding:0cm 0cm 0cm 0cm'>
-  <p>David <span class=SpellE>Stepensky</span> (david.stepensky@yale.edu) from <st1:place><st1:PlaceName>Yale</st1:PlaceName>
-   <st1:PlaceType>University</st1:PlaceType></st1:place><br style='mso-special-character:
-  line-break'>
+  <p>David <span class=SpellE>Stepensky</span> (david.stepensky@yale.edu) from <st1:place
+  w:st="on"><st1:PlaceName w:st="on">Yale</st1:PlaceName> <st1:PlaceType w:st="on">University</st1:PlaceType></st1:place><br
+  style='mso-special-character:line-break'>
   <![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
   <![endif]></p>
   </td>
@@ -207,33 +216,32 @@ font-family:Helvetica;color:#224488'> – FRET by acceptor <span class=SpellE>phot
   <p><strong>Description:</strong></p>
   </td>
   <td valign=top style='padding:0cm 0cm 0cm 0cm'>
-  <p><span class=SpellE>FRETcalc</span> plugin for <span class=SpellE>ImageJ</span>
-  program allows pixel-by-pixel analysis of FRET by acceptor <span
-  class=SpellE>photobleaching</span>. <span class=SpellE>FRETcalc</span> uses <span
-  class=SpellE>thresholding</span> FRET<sub>TH</sub> algorithm to exclude from
-  data analysis pixels that do not match user-defined thresholds of donor
-  and/or acceptor fluorescence intensity, bleaching efficiency, and %FRET.
-  Subsequently, FRET signal-containing pixels on the analyzed images could be
-  separated from the <span class=SpellE>fluorophore</span>-free background
-  pixels, making possible analysis of FRET signal arising from non-continuous
-  intracellular organelles/compartments (e.g., endoplasmic reticulum, <span
-  class=SpellE>endosomal</span> system, etc.). Effect of the threshold-based
-  pixel selection on the estimated FRET values can be determined by comparing
-  FRET<sub>TH</sub> and FRET<sub>ALL</sub> (that is calculated using all the
-  pixels in the selected region of interest (ROI)). The plugin allows easy
-  visualization of the analysis results (as plots and/or histograms), thus
-  helping to estimate the statistical robustness of FRET analysis. <span
-  class=SpellE>FRETcalc</span> plugin, its validation, and application to study
-  protein-protein interactions in the MHC class I loading complex in the
-  endoplasmic reticulum has been described in: <span class=SpellE>Stepensky</span>
-  D. <span class=SpellE>FRETcalc</span> plugin for calculation of FRET in
-  non-continuous intracellular compartments. <span class=SpellE>Biochem</span> <span
-  class=SpellE>Biophys</span> <span class=SpellE>Res</span> <span class=SpellE>Commun</span>
-  2007; 359(3):752-8.</p>
-  <p><a
-  href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v3.0%20manual.pdf"
-  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v3.0%20manual.pdf"
-  title="FRETcalc v3.0 manual.pdf"><span class=SpellE>FRETcalc</span> v3.0 <span
+  <p><span class=SpellE>FRETcalc</span> <span class=SpellE>plugin</span> for <span
+  class=SpellE>ImageJ</span> program allows pixel-by-pixel analysis of FRET by
+  acceptor <span class=SpellE>photobleaching</span>. <span class=SpellE>FRETcalc</span>
+  uses <span class=SpellE>thresholding</span> FRET<sub>TH</sub> algorithm to
+  exclude from data analysis pixels that do not match user-defined thresholds
+  of donor and/or acceptor fluorescence intensity, bleaching efficiency, and
+  %FRET. Subsequently, FRET signal-containing pixels on the analyzed images
+  could be separated from the <span class=SpellE>fluorophore</span>-free
+  background pixels, making possible analysis of FRET signal arising from
+  non-continuous intracellular organelles/compartments (e.g., endoplasmic
+  reticulum, <span class=SpellE>endosomal</span> system, etc.). Effect of the
+  threshold-based pixel selection on the estimated FRET values can be
+  determined by comparing FRET<sub>TH</sub> and FRET<sub>ALL</sub> (that is
+  calculated using all the pixels in the selected region of interest (ROI)).
+  The plugin allows easy visualization of the analysis results (as plots and/or
+  histograms), thus helping to estimate the statistical robustness of FRET
+  analysis. <span class=SpellE>FRETcalc</span> plugin, its validation, and
+  application to study protein-protein interactions in the MHC class I loading
+  complex in the endoplasmic reticulum has been described in: <span
+  class=SpellE>Stepensky</span> D. <span class=SpellE>FRETcalc</span> plugin
+  for calculation of FRET in non-continuous intracellular compartments. <span
+  class=SpellE>Biochem</span> <span class=SpellE>Biophys</span> Res <span
+  class=SpellE>Commun</span> 2007; 359(3):752-8.</p>
+  <p><a href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v4.0%20manual.pdf"
+  target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v4.0%20manual.pdf"
+  title="FRETcalc v4.0 manual.pdf"><span class=SpellE>FRETcalc</span> v4.0 <span
   class=SpellE>manual.pdf</span></a> provides general description of the <span
   class=SpellE>FRETcalc</span> plugin.</p>
   <p><a href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc_sample.tif"
