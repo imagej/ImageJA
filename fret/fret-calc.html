@@ -9,8 +9,12 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <meta name=ProgId content=Word.Document>
 <meta name=Generator content="Microsoft Word 11">
 <meta name=Originator content="Microsoft Word 11">
-<link rel=File-List href="FRETcalc4_files/filelist.xml">
+<link rel=File-List href="FRETcalc_files/filelist.xml">
 <title>FRETcalc</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="country-region"/>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="PersonName"/>
 <o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
  name="place"/>
 <o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
@@ -21,17 +25,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <o:DocumentProperties>
   <o:Author>David</o:Author>
   <o:LastAuthor>David Stepensky</o:LastAuthor>
-  <o:Revision>6</o:Revision>
-  <o:TotalTime>27</o:TotalTime>
+  <o:Revision>7</o:Revision>
+  <o:TotalTime>29</o:TotalTime>
   <o:Created>2007-06-19T20:13:00Z</o:Created>
-  <o:LastSaved>2010-09-19T09:32:00Z</o:LastSaved>
+  <o:LastSaved>2010-09-22T05:44:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>522</o:Words>
-  <o:Characters>2613</o:Characters>
+  <o:Words>538</o:Words>
+  <o:Characters>2692</o:Characters>
   <o:Company>Home</o:Company>
-  <o:Lines>21</o:Lines>
+  <o:Lines>22</o:Lines>
   <o:Paragraphs>6</o:Paragraphs>
-  <o:CharactersWithSpaces>3129</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>3224</o:CharactersWithSpaces>
   <o:Version>11.9999</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
@@ -93,9 +97,6 @@ p
 span.SpellE
 	{mso-style-name:"";
 	mso-spl-e:yes;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
 @page Section1
 	{size:612.0pt 792.0pt;
 	margin:72.0pt 90.0pt 72.0pt 90.0pt;
@@ -126,7 +127,7 @@ div.Section1
 	mso-bidi-language:#0400;}
 </style>
 <![endif]--><!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext="edit" spidmax="6146"/>
+ <o:shapedefaults v:ext="edit" spidmax="7170"/>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <o:shapelayout v:ext="edit">
   <o:idmap v:ext="edit" data="1"/>
@@ -139,7 +140,7 @@ div.Section1
 
 <p><span class=SpellE><b><span style='font-size:13.5pt;font-family:Helvetica;
 color:#224488'>FRETcalc</span></b></span><b><span style='font-size:13.5pt;
-font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>photobleaching</span></span></b></p>
+font-family:Helvetica;color:#224488'> – FRET by acceptor <span class=SpellE>photobleaching</span></span></b></p>
 
 <p>&nbsp;</p>
 
@@ -150,11 +151,10 @@ font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>phot
   <p><strong>Author:</strong></p>
   </td>
   <td valign=top style='padding:0cm 0cm 0cm 0cm'>
-  <p>David <span class=SpellE>Stepensky</span> (david.stepensky@yale.edu) from <st1:place
-  w:st="on"><st1:PlaceName w:st="on">Yale</st1:PlaceName> <st1:PlaceType w:st="on">University</st1:PlaceType></st1:place><br
-  style='mso-special-character:line-break'>
-  <![if !supportLineBreakNewLine]><br style='mso-special-character:line-break'>
-  <![endif]></p>
+  <p>David <span class=SpellE>Stepensky</span> (<st1:PersonName w:st="on"><span
+   class=SpellE>davidst@bgu.ac.il</span></st1:PersonName>) from <st1:PlaceName
+  w:st="on">Ben-Gurion</st1:PlaceName> <st1:PlaceType w:st="on">University</st1:PlaceType>
+  of the Negev, <st1:country-region w:st="on"><st1:place w:st="on">Israel</st1:place></st1:country-region></p>
   </td>
  </tr>
  <tr style='mso-yfti-irow:1'>
@@ -167,6 +167,8 @@ font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>phot
   <p class=MsoNormal>2007/05/08: Version 3.0 - change in the calculation
   algorithm, both FRET<sub>TH</sub> and FRET<sub>ALL</sub> are calculated</p>
   <p class=MsoNormal>2007/06/18: update of the manual</p>
+  <p class=MsoNormal>2010/09/19: Version 4.0 – All types of regions of interest
+  (polygonal, rectangular, elliptical, and freehand ROIs) are accepted</p>
   </td>
  </tr>
  <tr style='mso-yfti-irow:2'>
@@ -182,8 +184,7 @@ font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>phot
   <p><strong>Limitations:</strong> </p>
   </td>
   <td valign=top style='padding:0cm 0cm 0cm 0cm'>
-  <p>Was tested for 8-bit tiff <span class=GramE>images only, analysis is</span>
-  based on ROI of rectangular shape only.</p>
+  <p>Was tested for 8-bit tiff images only</p>
   </td>
  </tr>
  <tr style='mso-yfti-irow:4'>
@@ -239,7 +240,8 @@ font-family:Helvetica;color:#224488'> - FRET by acceptor <span class=SpellE>phot
   for calculation of FRET in non-continuous intracellular compartments. <span
   class=SpellE>Biochem</span> <span class=SpellE>Biophys</span> Res <span
   class=SpellE>Commun</span> 2007; 359(3):752-8.</p>
-  <p><a href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v4.0%20manual.pdf"
+  <p><a
+  href="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v4.0%20manual.pdf"
   target="http://rsb.info.nih.gov/ij/plugins/fret/FRETcalc%20v4.0%20manual.pdf"
   title="FRETcalc v4.0 manual.pdf"><span class=SpellE>FRETcalc</span> v4.0 <span
   class=SpellE>manual.pdf</span></a> provides general description of the <span
