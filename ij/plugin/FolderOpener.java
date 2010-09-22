@@ -270,6 +270,11 @@ public class FolderOpener implements PlugIn {
 		virtualStack = gd.getNextBoolean();
 		if (virtualStack)
 			scale = 100.0;
+
+		if (convertToGrayscale && convertToRGB) {
+			IJ.error("Cannot convert to grayscale and RGB at the same time.");
+			return false;
+		}
 		return true;
 	}
 
