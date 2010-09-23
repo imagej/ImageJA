@@ -40,24 +40,6 @@ TIFF, 8-bit TIFF, JPEG, GIF, PNG, PGM, BMP, FITS, Text Image, ZIP or Raw format.
 three dialogs. In the first, select the source folder. In the second, select the 
 format you want to convert to. In the third, select the destination folder.
 <p>
-This plugin can be run from the command line using commands something like this:
-<p>
-<font size=-1> 
-&nbsp;&nbsp;&nbsp;
-java -cp ij.jar;. Batch_Converter c:\dir1\ c:\dir2\  (Windows)<br>
-&nbsp;&nbsp;&nbsp;
-java -cp ij.jar:. Batch_Converter /dir1 /dir2  (Unix)<br>
-</font>
-<p>
-To use a plugin to open the files (e.g., Analyze_Reader), use the -Dplugins.dir=path option
-to specify the location of the ImageJ directory (requires v1.37n or later):
-<p>
-<font size=-1> 
-&nbsp;&nbsp;&nbsp;
-java -cp ij.jar;. -Dplugins.dir=c:\ImageJ Batch_Converter c:\dir1\ c:\dir2\  (Windows)<br>
-&nbsp;&nbsp;&nbsp;
-java -cp ij.jar:. -Dplugins.dir=/Applications/ImageJ Batch_Converter /dir1 /dir2  (OS X)<br>
-<p>
 Here is what 
 <A HREF="http://rsb.info.nih.gov/ij/macros/BatchConvert.txt">BatchConvert</A>,
 the macro version of this plugin, looks like:
