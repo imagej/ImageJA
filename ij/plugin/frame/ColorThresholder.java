@@ -46,7 +46,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
  ActionListener, AdjustmentListener, FocusListener, ItemListener, Runnable{
 
 	private static final int HSB=0, RGB=1, LAB=2, YUV=3;
-	private static final String[] colorSpaces = {"HSB", "RGB", "CIE Lab", "YUV"};
+	private static final String[] colorSpaces = {"HSB", "RGB", "Lab", "YUV"};
 	private boolean flag = false;
 	private int colorSpace = HSB;
 	private Thread thread;
@@ -56,8 +56,8 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 	private BandPlot splot = new BandPlot();
 	private BandPlot bplot = new BandPlot();
 	private int sliderRange = 256;
-	private Panel panel, panelt, panelMode;
-	private Button  originalB, filteredB, stackB, helpB, sampleB, resetallB, newB, macroB;
+	private Panel panel, panelt;
+	private Button  originalB, filteredB, stackB, helpB, sampleB, resetallB, newB, macroB, selectB;
 	private Checkbox bandPassH, bandPassS, bandPassB, darkBackground;
 	private CheckboxGroup colourMode;
 	private Choice colorSpaceChoice, methodChoice, modeChoice;
@@ -321,24 +321,70 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		label6.setFont(font);
 		add(label6, c);
 
-		// method and display mode choices
+		GridBagLayout gridbag2 = new GridBagLayout();
+		GridBagConstraints c2 = new GridBagConstraints();
+		int y2 = 0;
 		Panel panel = new Panel();
+		panel.setLayout(gridbag2);
+		
+		// threshoding method choice
+		c2.gridx = 0; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.EAST;
+		c2.gridwidth = 1;
+		c2.insets = new Insets(5, 0, 0, 0);
+		Label theLabel = new Label("Thresholding method:");
+		gridbag2.setConstraints(theLabel, c2);
+		panel.add(theLabel);
 		methodChoice = new Choice();
 		for (int i=0; i<methodNames.length; i++)
 			methodChoice.addItem(methodNames[i]);
 		methodChoice.select(method);
 		methodChoice.addItemListener(this);
+		c2.gridx = 1; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.WEST;
+		gridbag2.setConstraints(methodChoice, c2);
 		panel.add(methodChoice);
+		y2++;
+		
+		// display mode choice
+		c2.gridx = 0; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.EAST;
+		c2.insets = new Insets(0, 0, 0, 0);
+		theLabel = new Label("Threshold color:");
+		gridbag2.setConstraints(theLabel, c2);
+		panel.add(theLabel);
 		modeChoice = new Choice();
 		for (int i=0; i<modes.length; i++)
 			modeChoice.addItem(modes[i]);
 		modeChoice.select(mode);
 		modeChoice.addItemListener(this);
+		c2.gridx = 1; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.WEST;
+		gridbag2.setConstraints(modeChoice, c2);
 		panel.add(modeChoice);
+		y2++;
+
+		// color space choice
+		c2.gridx = 0; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.EAST;
+		theLabel = new Label("Color space:");
+		gridbag2.setConstraints(theLabel, c2);
+		panel.add(theLabel);
+		colorSpaceChoice = new Choice();
+		for (int i=0; i<colorSpaces.length; i++)
+			colorSpaceChoice.addItem(colorSpaces[i]);
+		colorSpaceChoice.select(HSB);
+		colorSpaceChoice.addItemListener(this);
+		c2.gridx = 1; c2.gridy = y2;
+		c2.anchor = GridBagConstraints.WEST;
+		gridbag2.setConstraints(colorSpaceChoice, c2);
+		panel.add(colorSpaceChoice);
+		y2++;
+
 		c.gridx = 0;
 		c.gridy = y++;
 		c.gridwidth = 2;
-		c.insets = new Insets(5, 5, 0, 5);
+		c.insets = new Insets(5, 0, 0, 0);
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
 		add(panel, c);
@@ -356,75 +402,52 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		add(panelt, c);
 
 		// buttons
+		int trim = IJ.isMacOSX()?10:0;
 		panel = new Panel();
-		//panel.setLayout(new GridLayout(2, 2, 0, 0));
-		originalB = new Button("Original");
+		panel.setLayout(new GridLayout(0, 4, 0, 0));
+		originalB = new TrimmedButton("Original", trim);
 		//originalB.setEnabled(false);
 		originalB.addActionListener(this);
 		originalB.addKeyListener(ij);
 		panel.add(originalB);
 
-		filteredB = new Button("Filtered");
+		filteredB = new TrimmedButton("Filtered", trim);
 		filteredB.setEnabled(false);
 		filteredB.addActionListener(this);
 		filteredB.addKeyListener(ij);
 		panel.add(filteredB);
 
-		stackB = new Button("Stack");
+		selectB = new TrimmedButton("Select", trim);
+		selectB.addActionListener(this);
+		selectB.addKeyListener(ij);
+		panel.add(selectB);
+
+		sampleB = new TrimmedButton("Sample", trim);
+		sampleB.addActionListener(this);
+		sampleB.addKeyListener(ij);
+		panel.add(sampleB);
+		
+		stackB = new TrimmedButton("Stack", trim);
 		stackB.addActionListener(this);
 		stackB.addKeyListener(ij);
 		panel.add(stackB);
 
-		helpB = new Button("Help");
+		macroB = new TrimmedButton("Macro", trim);
+		macroB.addActionListener(this);
+		macroB.addKeyListener(ij);
+		panel.add(macroB);
+
+		helpB = new TrimmedButton("Help", trim);
 		helpB.addActionListener(this);
 		helpB.addKeyListener(ij);
 		panel.add(helpB);
-
-		c.gridx = 0;
-		c.gridy = y++;
-		c.gridwidth = 2;
-		c.insets = new Insets(0, 0, 0, 0);
-		add(panel, c);
-
-//============================================================
-/*
-		newB = new Button("New");
-		newB.addActionListener(this);
-		newB.addKeyListener(ij);
-		panel.add(newB);
-
-		c.gridx = 0;
-		c.gridy = y++;
-		c.gridwidth = 2;
-		c.insets = new Insets(0, 0, 0, 0);
-		add(panel, c);
-*/
-//============================================================
-
-		panelMode = new Panel();
-
-		sampleB = new Button("Sample");
-		sampleB.addActionListener(this);
-		sampleB.addKeyListener(ij);
-		panelMode.add(sampleB);
-		
-		macroB = new Button("Macro");
-		macroB.addActionListener(this);
-		macroB.addKeyListener(ij);
-		panelMode.add(macroB);
-
-		colorSpaceChoice = new Choice();
-		for (int i=0; i<colorSpaces.length; i++)
-			colorSpaceChoice.addItem(colorSpaces[i]);
-		colorSpaceChoice.select(HSB);
-		colorSpaceChoice.addItemListener(this);
-		panelMode.add(colorSpaceChoice);
 		
 		c.gridx = 0;
 		c.gridy = y++;
 		c.gridwidth = 2;
-		c.insets = new Insets(0, 0, 0, 0);
-		add(panelMode, c);
+		c.insets = new Insets(5, 5, 10, 5);
+		gridbag.setConstraints(panel, c);
+		add(panel);
 
 		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
 		pack();
@@ -524,6 +547,8 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 				reset(imp,ip);
 				sample();
 				apply(imp,ip);
+			} else if (b==selectB) {
+				createSelection();
 			} else if (b==stackB) {
 				applyStack();
 			} else if (b==macroB) {
@@ -541,6 +566,20 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 			IJ.showStatus("No Image");
 		}
 		//notify();
+	}
+	
+	//Select button pressed
+	void createSelection() {
+		imp.killRoi();
+		mode = BLACK_AND_WHITE;
+		apply(imp,ip);
+		IJ.run(imp, "8-bit", "");
+		//if (Prefs.blackBackground)
+		//	IJ.run(imp, "Invert", "");
+		IJ.run(imp, "Create Selection", "");
+		IJ.run(imp, "RGB Color", "");
+		ip = imp.getProcessor();
+		reset(imp,ip);
 	}
 	
 	void generateMacro() {
@@ -1460,7 +1499,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 	
 	class BandPlot extends Canvas implements Measurements, MouseListener {
 	
-		final int WIDTH = 256, HEIGHT=86;
+		final int WIDTH = 256, HEIGHT=64;
 		double minHue = 0, minSat=0, minBri=0;
 		double maxHue = 255, maxSat= 255, maxBri=255;
 		int[] histogram;

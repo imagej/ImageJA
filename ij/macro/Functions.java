@@ -214,6 +214,7 @@ public class Functions implements MacroConstants, Measurements {
 			case GET_STRING_WIDTH: value = getStringWidth(); break;
 			case FIT: value = fit(); break;
 			case OVERLAY: value = overlay(); break;
+			case SELECTION_CONTAINS: value = selectionContains(); break;
 			default:
 				interp.error("Numeric function expected");
 		}
@@ -4449,7 +4450,8 @@ public class Functions implements MacroConstants, Measurements {
 			String[] s = new String[len];
 			for (int i=0; i<len; i++)
 				s[i] = a[i].getString();
-			StringSorter.sort(s);
+			//StringSorter.sort(s);
+			Arrays.sort(s, String.CASE_INSENSITIVE_ORDER);
 			for (int i=0; i<len; i++)
 				a[i].setString(s[i]);
 		} else
@@ -4732,6 +4734,16 @@ public class Functions implements MacroConstants, Measurements {
 		imp.setOverlay(null);
 		offscreenOverlay = null;
 		return Double.NaN;
+	}
+	
+	final double selectionContains() {
+		int x = (int)Math.round(getFirstArg());
+		int y = (int)Math.round(getLastArg());
+		ImagePlus imp = getImage();
+		Roi roi = imp.getRoi();
+		if (roi==null)
+			interp.error("Selection required");
+		return roi.contains(x,y)?1.0:0.0;
 	}
 
 } // class Functions
