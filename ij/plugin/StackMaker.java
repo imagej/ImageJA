@@ -20,7 +20,7 @@ public class StackMaker implements PlugIn {
 			{IJ.error("This command requires a montage"); return;}
 		GenericDialog gd = new GenericDialog("Stack Maker");
 		gd.addNumericField("Images_per_row: ", w, 0);
-		gd.addNumericField("Images_rer_column: ", h, 0);
+		gd.addNumericField("Images_per_column: ", h, 0);
 		gd.addNumericField("Border width: ", b, 0);
 		gd.showDialog();
 		if (gd.wasCanceled())
