@@ -15,6 +15,7 @@ public class CanvasResizer implements PlugIn {
 
 	public void run(String arg) {
 		int wOld, hOld, wNew, hNew;
+		float wPercent, hPercent;
 		boolean fIsStack = false;
 
 		ImagePlus imp = IJ.getImage();
@@ -30,19 +31,31 @@ public class CanvasResizer implements PlugIn {
 			"Center-Left", "Center", "Center-Right",
 			"Bottom-Left", "Bottom-Center", "Bottom-Right"
 		};
+
+		String[] resizeUnit = {
+			"Pixels", "Percent"
+		};
 			
 		String strTitle = fIsStack ? "Resize Stack Canvas" : "Resize Image Canvas";
 		GenericDialog gd = new GenericDialog(strTitle);
-		gd.addNumericField("Width:", wOld, 0, 5, "pixels");
-		gd.addNumericField("Height:", hOld, 0, 5, "pixels");
+		gd.addNumericField("Width:", wOld, 0, 5, "");
+		gd.addNumericField("Height:", hOld, 0, 5, "");
+		gd.addChoice("Unit:", resizeUnit, resizeUnit[0]);
 		gd.addChoice("Position:", sPositions, sPositions[4]);
 		gd.addCheckbox("Zero Fill", zeroFill);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
-			
-		wNew = (int)gd.getNextNumber();
-		hNew = (int)gd.getNextNumber();
+		int iUnit = gd.getNextChoiceIndex();
+		if (iUnit == 1) { // calculate percent
+			wPercent = (float)gd.getNextNumber();
+			hPercent = (float)gd.getNextNumber();
+			wNew = (int)(wPercent * wOld / 100);
+			hNew = (int)(hPercent * hOld / 100);
+		} else { // take dimensions as pixels; default behavior
+			wNew = (int)gd.getNextNumber();
+			hNew = (int)gd.getNextNumber();
+		}
 		int iPos = gd.getNextChoiceIndex();
 		zeroFill = gd.getNextBoolean();
 		Prefs.set("resizer.zero", zeroFill);
