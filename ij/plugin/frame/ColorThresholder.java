@@ -386,7 +386,8 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 
 		//=====
 		panelt = new Panel();
-		darkBackground = new Checkbox("Dark background", true);
+		boolean db = Prefs.get("cthresholder.dark", true);
+		darkBackground = new Checkbox("Dark background", db);
 		darkBackground.addItemListener(this);
 		panelt.add(darkBackground);
 
@@ -1277,6 +1278,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		super.close();
 		instance = null;
 		done = true;
+		Prefs.set("cthresholder.dark", darkBackground.getState());
 		synchronized(this) {
 			notify();
 		}
