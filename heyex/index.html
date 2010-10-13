@@ -27,7 +27,9 @@ layers and total retinal thickness.<br>
 &nbsp;Open_Heyex_Raw now includes Log window with exam information.
 &nbsp;Results table now includes B-Scan quality in dB. &nbsp;Greatly
 improved speed throughout. &nbsp;Added Open_Heyex_Results and
-Open_Heyex_Info. <br>
+Open_Heyex_Info.<br>
+2010/10/13 (v1.3): &nbsp;Now correctly interprets OCT data exported
+from Spectralis v5.0 <br>
         </td>
       </tr>
       <tr valign="top">
@@ -41,13 +43,11 @@ to the&nbsp;plugins folder and restart ImageJ. </td>
       </tr>
       <tr>
         <td valign="top"><span style="font-weight: bold;">Limitations:</span></td>
-        <td>Does not correctly
-open raw files exported from Spectralis v5.0. &nbsp;Fully
-compatible with Spectralis v4.0 raw files. &nbsp;A fix is currently
-being
-developed.&nbsp;Results table with segmented layer values is slow for
-3D-OCT files.&nbsp;This will be addressed in a future update (see
-v1.2). &nbsp;Exam time and Scan Pattern included with
+        <td>Results table with segmented layer values is slow for
+3D-OCT files. &nbsp;Improved in v1.2 but depending on 3D oct size, it
+may still be quite slow. &nbsp;Presently, results&nbsp;seem much faster
+using ImageJ 64-bit on Mac OS X than on Windows XP 64bit. &nbsp;Exam
+time and Scan Pattern included with
 v1.2 Info Log&nbsp;are not correct, working on a fix. <span
  style="font-weight: bold;">Not
 tested for clinical or diagnostic use</span>
@@ -88,12 +88,13 @@ interpret raw binary
 files exported from Heidelberg Spectralis Viewing Software.
 &nbsp;They successfully import both 8-bit SLO and 32-bit SD-OCT
 images, retaining pixel scale (optical and SD-OCT), segmentation data,
-and B-scan position relative to the SLO image (will be included in
-v1.1).&nbsp; In addition to
+and B-scan position relative to the SLO image (included in
+v1.1+).&nbsp; In addition to
 single B-scan SD-OCT images, the plug-in also opens multiple B-scan
 SD-OCT images as a stack, enabling 3-D reconstruction, analysis, and
 modeling.&nbsp; The plug-in is compatible with Spectralis Viewing
-Module exporting raw data in HSF-OCT-101 format.&nbsp; Scan
+Module exporting raw data in HFS-OCT-101 format, (v1.3 compatible with
+HFS-OCT-102).&nbsp; Scan
 patterns of single line, volume in ART mode, and fast volume, were all
 successfully tested. <br>
         <br>
