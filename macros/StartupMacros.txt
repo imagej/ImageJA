@@ -51,7 +51,7 @@ UseHEFT();
 var pmCmds = newMenu("Popup Menu",
 	newArray("Help...", "Rename...", "Duplicate...", "Original Scale",
 	"Paste Control...", "-", "Record...", "Capture Screen ", "Monitor Memory...",
-	"List Commands...", "Control Panel...", "Startup Macros...", "Search..."));
+	"Find Commands...", "Control Panel...", "Startup Macros...", "Search..."));
 
 macro "Popup Menu" {
 	cmd = getArgument();
