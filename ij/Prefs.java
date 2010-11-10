@@ -122,6 +122,8 @@ public class Prefs {
 	public static boolean dontSaveRowNumbers;
 	/** Don't run garbage collector when user clicks in status bar */
 	public static boolean noClickToGC;
+	/** Angle tool measures reflex angle */
+	public static boolean reflexAngle;
 
 
 	static Properties ijPrefs = new Properties();

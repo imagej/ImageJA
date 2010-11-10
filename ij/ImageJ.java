@@ -72,14 +72,20 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.44i";
+	public static final String VERSION = "1.44j";
 	public static final String BUILD = ""; 
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
 	/** Address of socket where Image accepts commands */
 	public static final int DEFAULT_PORT = 57294;
-	public static final int STANDALONE=0, EMBEDDED=1;
+	
+	/** Run as normal application. */
+	public static final int STANDALONE=0;
+	/** Run embedded in another application. */
+	public static final int EMBEDDED=1;
+	/** Run embedded and invisible in another application. */
+	public static final int NO_SHOW=2;
 
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
@@ -109,9 +115,14 @@ public class ImageJ extends Frame implements ActionListener,
 		this(null, STANDALONE);
 	}
 	
+	/** Creates a new ImageJ frame that runs as an application in the specified mode. */
+	public ImageJ(int mode) {
+		this(null, mode);
+	}
+
 	/** Creates a new ImageJ frame that runs as an applet. */
 	public ImageJ(ImageJApplet applet) {
-		this(applet, 0);
+		this(applet, STANDALONE);
 	}
 
 	/** If 'applet' is not null, creates a new ImageJ frame that runs as an applet.
@@ -119,7 +130,7 @@ public class ImageJ extends Frame implements ActionListener,
 		version of ImageJ which does not start the SocketListener. */
 	public ImageJ(ImageJApplet applet, int mode) {
 		super(title);
-		embedded = applet==null && mode==EMBEDDED;
+		embedded = applet==null && (mode==EMBEDDED||mode==NO_SHOW);
 		if (!embedded && iconPath != null) try {
 			setIcon(new URL("file:" + iconPath));
 		} catch (Exception e) { e.printStackTrace(); }
@@ -166,19 +177,15 @@ public class ImageJ extends Frame implements ActionListener,
 		int ijWidth = tbSize.width+10;
 		int ijHeight = 100;
 		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
-		if (IJ.isWindows()) try {setIcon();} catch(Exception e) {}
-		setBounds(loc.x, loc.y, ijWidth, ijHeight); // needed for pack to work
-		setLocation(loc.x, loc.y);
-		pack();
-		setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-		//if (IJ.isJava15()) {
-		//	try {
-		//		Method method = Frame.class.getMethod("setAlwaysOnTop", new Class[] {boolean.class});
-		//		method.invoke(this, new Object[]{Boolean.TRUE});
-		//	} catch(Exception e) {}
-		//}
-		if (applet == null)
-			show();
+		if (mode!=NO_SHOW) {
+			if (IJ.isWindows()) try {setIcon();} catch(Exception e) {}
+			setBounds(loc.x, loc.y, ijWidth, ijHeight); // needed for pack to work
+			setLocation(loc.x, loc.y);
+			pack();
+			setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
+			if (applet == null)
+				show();
+		}
 		if (err1!=null)
 			IJ.error(err1);
 		if (err2!=null) {
@@ -443,9 +450,9 @@ public class ImageJ extends Frame implements ActionListener,
 							cmd="Next Slice [>]";
 					else if (stackKey && keyCode==KeyEvent.VK_LEFT)
 							cmd="Previous Slice [<]";
-					else if (zoomKey && keyCode==KeyEvent.VK_DOWN && !loci(imp))
+					else if (zoomKey && keyCode==KeyEvent.VK_DOWN && !ignoreArrowKeys(imp))
 							cmd="Out";
-					else if (zoomKey && keyCode==KeyEvent.VK_UP && !loci(imp))
+					else if (zoomKey && keyCode==KeyEvent.VK_UP && !ignoreArrowKeys(imp))
 							cmd="In";
 					else if (roi!=null) {
 						if ((flags & KeyEvent.ALT_MASK) != 0)
@@ -476,10 +483,19 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 	}
 	
-	// LOCI Data Browser window?
-	private boolean loci(ImagePlus imp) {
+	private boolean ignoreArrowKeys(ImagePlus imp) {
+		Frame frame = WindowManager.getFrontWindow();
+		String title = frame.getTitle();
+		if (title!=null && title.equals("ROI Manager"))
+			return true;
+		// Control Panel?
+		if (frame!=null && frame instanceof javax.swing.JFrame)
+			return true;
 		ImageWindow win = imp.getWindow();
-		return imp.getStackSize()>1 && win!=null && win.getClass().getName().startsWith("loci");
+		// LOCI Data Browser window?
+		if (imp.getStackSize()>1 && win!=null && win.getClass().getName().startsWith("loci"))
+			return true;
+		return false;
 	}
 	
 	public void keyTyped(KeyEvent e) {
