@@ -9,6 +9,7 @@ import ij.plugin.filter.PlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.util.Tools;
 import ij.macro.*;
+import ij.QuotedStringTokenizer;
 
 
 /**
@@ -41,7 +42,7 @@ public class GenericDialog extends Dialog implements ActionListener, TextListene
 FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	public static final int MAX_SLIDERS = 25;
-	protected Vector numberField, stringField, checkbox, choice, slider;
+	protected Vector numberField, stringField, checkbox, choice, slider, dlgList;
 	protected TextArea textArea1, textArea2;
 	protected Vector defaultValues,defaultText;
 	protected Component theLabel;
@@ -50,7 +51,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private String helpLabel = "Help";
     private boolean wasCanceled, wasOKed;
     private int y;
-    private int nfIndex, sfIndex, cbIndex, choiceIndex, textAreaIndex;
+    private int nfIndex, sfIndex, cbIndex, choiceIndex, textAreaIndex, listIndex;
 	private GridBagLayout grid;
 	private GridBagConstraints c;
 	private boolean firstNumericField=true;
@@ -769,6 +770,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		Recorder.recordOption(label, value);
 	}
 
+	private void recordOption(Component component, String[] values) {
+		String label = (String)labels.get((Object)component);
+		Recorder.recordOption(label, values);
+	}
+
 	private void recordCheckboxOption(Checkbox cb) {
 		String label = (String)labels.get((Object)cb);
 		if (label!=null) {
@@ -1028,6 +1034,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		cbIndex = 0;
 		choiceIndex = 0;
 		textAreaIndex = 0;
+		listIndex = 0;
         invalidNumber = false;
 }
 
@@ -1049,6 +1056,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
   	/** Returns the Vector containing the Choices. */
   	public Vector getChoices() {
   		return choice;
+  	}
+
+  	/** Returns the Vector containing the multiselection listboxes. */
+  	public Vector getLists() {
+  		return dlgList;
   	}
 
   	/** Returns the Vector containing the sliders (Scrollbars). */
@@ -1277,4 +1289,152 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     public void windowDeiconified(WindowEvent e) {}
     public void windowDeactivated(WindowEvent e) {}
 
+    /** Adds a multi-selection list.
+      * @param label	the label
+      * @param items	the menu items
+      * @param depth    the number of rows displayed      
+      * @param multiple true if multiple selection allowed
+      * @param selectedItems  the indices of items selected on creation
+    */
+    public void addList(String label, String[] items, int depth, boolean multiple, int[] selectedItems) {
+   		String label2 = label;
+   		if (label2.indexOf('_')!=-1)
+   			label2 = label2.replace('_', ' ');
+		Label theLabel = makeLabel(label2);
+		c.gridx = 0; c.gridy = y;
+		c.anchor = GridBagConstraints.EAST;
+		c.gridwidth = 1;
+		if (dlgList==null) {
+			dlgList = new Vector(4);
+			c.insets = getInsets(5, 0, 5, 0);
+		} else
+			c.insets = getInsets(0, 0, 5, 0);
+		grid.setConstraints(theLabel, c);
+		add(theLabel);
+		java.awt.List thisList = new java.awt.List(depth,multiple);
+		thisList.addKeyListener(this);
+		thisList.addItemListener(this);
+		for (int i=0; i<items.length; i++)
+			thisList.add(items[i]);
+		if ( null == selectedItems || 0 == selectedItems.length)
+			; //do nothing
+		else if( !multiple ) {		
+			if( selectedItems[0] >= 0 && selectedItems[0] < thisList.getItemCount() )
+				thisList.select(selectedItems[0]);
+		}
+		else for (int i=0; i<selectedItems.length; i++) {
+			if( selectedItems[i] >= 0 && selectedItems[i] < thisList.getItemCount() )
+				thisList.select(selectedItems[i]);
+		}
+		c.gridx = 1; c.gridy = y;
+		c.anchor = GridBagConstraints.WEST;
+		grid.setConstraints(thisList, c);
+		add(thisList);
+		dlgList.addElement(thisList);
+		if (Recorder.record || macro)
+			saveLabel(thisList, label);
+		y++;
+    }
+
+  	/** Returns the set of selected items in the next listbox. */    
+    public String[] getNextList() {
+		if (dlgList==null)
+			return new String[0];
+		java.awt.List thisList = (java.awt.List)(dlgList.elementAt(listIndex));
+		String[] item = thisList.getSelectedItems();
+		if (macro) {
+			String label = (String)labels.get((Object)thisList);
+			String argList = Macro.getValue(macroOptions, label, null);
+			if( null == argList )
+			    ; // use current selection
+			else
+			{
+				// split out strings delimited by single or double quote characters, commas whitespace etc
+				// if written by the recorder, it will actually be space separated single-quoted strings
+				QuotedStringTokenizer qst = new QuotedStringTokenizer();
+				String[] macroArgs = qst.split(argList);
+				for( int i=0; i<macroArgs.length; i++ )
+					if (macroArgs[i].startsWith("&")) // value is macro variable
+						macroArgs[i] = getListVariable(macroArgs[i]);
+				item = macroArgs;
+			}
+		}	
+		if (recorderOn)
+			recordOption(thisList, item);
+		listIndex++;
+		return item;
+    }
+	
+  	/** Returns the indices of the selected items in the next listbox. */
+    public int[] getNextListIndex() {
+		if (dlgList==null)
+			return new int[0];
+		java.awt.List thisList = (java.awt.List)(dlgList.elementAt(listIndex));
+		int[] indexes = thisList.getSelectedIndexes();
+		if (macro) {
+			String label = (String)labels.get((Object)thisList);
+			String argList = Macro.getValue(macroOptions, label, null);
+			if (null == argList)
+				; // use current selection
+			else {
+				String[] oldItems = thisList.getItems();
+				// split out strings delimited by single or double quote characters, commas whitespace etc
+				// if written by the recorder, it will actually be space separated single-quoted strings
+				QuotedStringTokenizer qst = new QuotedStringTokenizer();
+				String[] macroArgs = qst.split(argList);
+				// Now need to match with items in the list box.
+				// First deselect everything, and then reselect new strings
+				if( macroArgs.length > 0 && !thisList.isMultipleMode() )
+					thisList.setMultipleMode(true);					
+				for( int i=0; i<oldItems.length; i++ ) thisList.deselect(i);
+				for( int i=0; i<macroArgs.length; i++ )	{
+					if (macroArgs[i].startsWith("&")) // value is macro variable
+						macroArgs[i] = getListVariable(macroArgs[i]);
+					int j=0;
+					for( ; j<oldItems.length; j++ )	{
+						if( macroArgs[i].equals(oldItems[j]) ) break;
+					}
+					if( j < oldItems.length ) {
+						if (IJ.debugMode ) IJ.log(String.format("List macro item %d found '%s' at index %d", i, macroArgs[i],j));
+						thisList.select(j);
+					}
+					else {
+						// try seeing if it's a numerical index into the listbox.
+						try {
+							j = Integer.decode(macroArgs[i]);
+						}
+						catch (NumberFormatException e) {}
+						if( j >= 0 && j < oldItems.length ) {						
+							thisList.select(j);
+							if (IJ.debugMode ) IJ.log(String.format("List macro at item %d selected numeric index %d='%s'", i, j, macroArgs[i]));
+						}
+
+						// Nothing matched - so we have a problem
+						// Solve by appending anything new to the end of the listbox
+						else {
+							if (IJ.debugMode ) IJ.log(String.format("List failed to find item %d='%s', added as item %d", i, macroArgs[i], thisList.getItemCount()));
+							thisList.add(macroArgs[i]);
+							thisList.select(thisList.getItemCount()-1);
+						}
+					}
+				}
+				indexes = thisList.getSelectedIndexes();
+			}
+		}	
+		if (recorderOn)
+			recordOption(thisList, thisList.getSelectedItems());
+		listIndex++;
+		return indexes;
+    }
+    
+	
+    protected String getListVariable(String item) {
+		item = item.substring(1);
+		Interpreter interp = Interpreter.getInstance();
+		String s = interp!=null?interp.getStringVariable(item):null;
+		if (s!=null) item = s;
+		return item;
+	}
+    
+	
 }

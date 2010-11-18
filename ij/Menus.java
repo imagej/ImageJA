@@ -837,6 +837,7 @@ public class Menus {
 	}
 	
 	void setupPluginsAndMacrosPaths() {
+		if( IJ.debugMode ) IJ.log("Starting setupPluginsAndMacrosPaths");
 		// needed to run plugins when ImageJ launched using Java WebStart
 		if (System.getProperty("jnlp") != null) {
 			System.setSecurityManager(null);
@@ -844,6 +845,7 @@ public class Menus {
 		}
 		pluginsPath = macrosPath = null;
 		String homeDir = Prefs.getHomeDir();
+		if( IJ.debugMode ) IJ.log("Menus: HomeDir = " + homeDir);
 		if (homeDir==null) return;
 		if (homeDir.endsWith("plugins"))
 			pluginsPath = homeDir+Prefs.separator;
@@ -865,6 +867,8 @@ public class Menus {
 				pluginsPath = pluginsDir + Prefs.separator;
 			macrosPath = pluginsDir+Prefs.separator+"macros"+Prefs.separator;
 		}
+		if( IJ.debugMode ) IJ.log("Menus: PluginsPath = " + pluginsPath + ", MacrosPath = " + macrosPath );
+        
 		File f = macrosPath!=null?new File(macrosPath):null;
 		if (f!=null && !f.isDirectory())
 			macrosPath = null;
@@ -877,7 +881,7 @@ public class Menus {
 
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
-		return instance.getPluginsList();
+		return (instance == null) ? null : instance.getPluginsList();
 	}
 
 	private synchronized String[] getPluginsList() {
@@ -994,7 +998,7 @@ public class Menus {
 	}
 
 	public static void forceInstallUserPlugin(String className) {
-		instance.installUserPlugin(className, true);
+		if (instance != null) instance.installUserPlugin(className, true);
 	}
 
 	private void installUserPlugin(String className, boolean force) {
@@ -1048,11 +1052,11 @@ public class Menus {
 	}
 
 	public static MenuBar getMenuBar() {
-		return instance.mbar;
+		return (instance == null) ? null : instance.mbar;
 	}
 		
 	public static Menu getMacrosMenu() {
-		return instance.macrosMenu;
+		return (instance == null) ? null : instance.macrosMenu;
 	}
 
 	public int getMacroCount() {
@@ -1156,32 +1160,37 @@ public class Menus {
 	/** Returns the path to the user plugins directory or
 		null if the plugins directory was not found. */
 	public static String getPlugInsPath() {
-		return instance.pluginsPath;
+		return (instance == null) ? null : instance.pluginsPath;
 	}
 
 	/** Returns the path to the macros directory or
 		null if the macros directory was not found. */
 	public static String getMacrosPath() {
-		return instance.macrosPath;
+		return (instance == null) ? null : instance.macrosPath;
 	}
         
 	/** Returns the hashtable that associates commands with plugins. */
 	public static Hashtable getCommands() {
-		return instance == null ? null : instance.pluginsTable;
+		return (instance == null) ? null : instance.pluginsTable;
 	}
         
 	/** Returns the hashtable that associates shortcuts with commands. The keys
 		in the hashtable are Integer keycodes, or keycode+200 for uppercase. */
 	public static Hashtable getShortcuts() {
-		return instance.shortcuts;
+		return (instance == null) ? null : instance.shortcuts;
 	}
         
 	/** Returns the hashtable that associates keyboard shortcuts with macros. The keys
 		in the hashtable are Integer keycodes, or keycode+200 for uppercase. */
 	public static Hashtable getMacroShortcuts() {
-		if (instance.macroShortcuts==null)
-			instance.macroShortcuts = new Hashtable();
-		return instance.macroShortcuts;
+		Hashtable ret = null;
+		if (instance != null)
+		{
+			if (instance.macroShortcuts==null)
+				instance.macroShortcuts = new Hashtable();
+			ret = instance.macroShortcuts;
+		}
+		return ret;
 	}
         
 	/** Inserts one item (a non-image window) into the Window menu. */
@@ -1255,7 +1264,7 @@ public class Menus {
 
 	/** Changes the name of an item in the Window menu. */
 	public static synchronized void updateWindowMenuItem(String oldLabel, String newLabel) {
-		instance.doUpdateWindowMenuItem(oldLabel, newLabel);
+		if (instance != null) instance.doUpdateWindowMenuItem(oldLabel, newLabel);
 	}
 
 	private void doUpdateWindowMenuItem(String oldLabel, String newLabel) {
@@ -1305,11 +1314,11 @@ public class Menus {
 	}
 
 	public static PopupMenu getPopupMenu() {
-		return instance.popup;
+		return (instance == null) ? null : instance.popup;
 	}
 
 	public static Menu getSaveAsMenu() {
-		return instance.getMenu("File>Save As");
+		return (instance == null) ? null : instance.getMenu("File>Save As");
 	}
 	
 	/** Adds a plugin based command to the end of a specified menu.
@@ -1322,7 +1331,7 @@ public class Menus {
 	* @return				returns an error code(NORMAL_RETURN,COMMAND_IN_USE_ERROR, etc.)
 	*/
 	public static int installPlugin(String plugin, char menuCode, String command, String shortcut, ImageJ ij) {
-		return instance.doInstallPlugin(plugin, menuCode, command, shortcut, ij);
+		return (instance == null) ? 0 : instance.doInstallPlugin(plugin, menuCode, command, shortcut, ij);
 	}
 
 	private int doInstallPlugin(String plugin, char menuCode, String command, String shortcut, ImageJ ij) {
@@ -1384,7 +1393,7 @@ public class Menus {
 	/** Deletes a command installed by installPlugin. */
 	public static int uninstallPlugin(String command) {
 		boolean found = false;
-		for (Enumeration en=instance.pluginsPrefs.elements(); en.hasMoreElements();) {
+		if (instance != null) for (Enumeration en=instance.pluginsPrefs.elements(); en.hasMoreElements();) {
 			String cmd = (String)en.nextElement();
 			if (cmd.indexOf(command)>0) {
 				instance.pluginsPrefs.removeElement((Object)cmd);
@@ -1400,7 +1409,7 @@ public class Menus {
 	}
 	
 	public static boolean commandInUse(String command) {
-		if (instance.pluginsTable.get(command)!=null)
+		if (instance != null && instance.pluginsTable.get(command)!=null)
 			return true;
 		else
 			return false;
@@ -1506,7 +1515,7 @@ public class Menus {
 
 	public static boolean shortcutInUse(String shortcut) {
 		int code = convertShortcutToCode(shortcut);
-		if (instance.shortcuts.get(new Integer(code))!=null)
+		if (instance != null && instance.shortcuts.get(new Integer(code))!=null)
 			return true;
 		else
 			return false;
@@ -1543,6 +1552,7 @@ public class Menus {
 	/** Called once when ImageJ quits. */
 	public static void savePreferences(Properties prefs) {
 		int index = 0;
+		if (instance == null) return;
 		for (Enumeration en=instance.pluginsPrefs.elements(); en.hasMoreElements();) {
 			String key = "plugin" + (index/10)%10 + index%10;
 			String value = (String)en.nextElement();

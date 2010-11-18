@@ -295,6 +295,19 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 			commandOptions += " "+key+"="+value;
 	}
 
+	public static void recordOption(String key, String[] values) {
+		String value = null;
+		if( null == values || 0 == values.length )
+			value = "[]";
+		else for( int i=0; i<values.length; i++ ) {
+			if( 0==i ) 
+				value = "'" + values[i] + "'";
+			else
+				value = value + " '" + values[i] + "'";
+		}
+		recordOption(key, value);
+	}
+
 	public static void recordPath(String key, String path) {
 		if (key==null || !recordPath)
 			{recordPath=true; return;}
