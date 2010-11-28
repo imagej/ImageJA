@@ -67,7 +67,7 @@ fi
 
 ../Build.sh buildDir=build signed-ij.jar
 test -z "$NO_TAG" && git tag v"$VERSION" master
-for remote in orcz github sf dumbo
+for remote in orcz github sf
 do
 	git push $remote master imagej v"$VERSION"
 done
