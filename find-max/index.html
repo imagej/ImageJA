@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Find 3D Max</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Find 3D Max</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Wayne Rasband (wsr at nih.gov)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2010/12/01: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Find_3D_Max.java">Find_3D_Max.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="Find_3D_Max.java">Find_3D_Max.java</a> onto the "ImageJ" window
+and compile and run it by pressing ctrl-r (<i>File&gt;Compile and Run</i>).
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+I developed this plugin to compare the speed of various pixel access methods.
+What it does is find the first pixel in an image, stack or hyperstack that contains the maximum value.
+It then writes to the Log window the maximum value,
+the location of the pixel and the processing rate in million of pixels per second.
+In addition, it creates a point selection at the location of the pixel and positions
+the stack or hyperstack so that the image containing the pixel is displayed.
+<p>
+For comparision,
+Imglib
+(<a href="Imglib_Find_Max.java">Imglib_Find_Max.java</a>) and
+Pixlib (<a href="Pixlib_Find_Max.java">Pixlib_Find_Max.java</a>)
+versions of this plugin are also available. The
+<a href="http://pacific.mpi-cbg.de/wiki/index.php/Imglib">Imglib</a>
+version requires 
+<a href="http://pacific.mpi-cbg.de/wiki/">Fiji</a>
+and the Pixlib version requires Dimiter Prodanov's
+<a href="pixlib.jar">pixlib.jar</a> library.
+<p>
+This plugin runs up to seven times faster on 64-bit versions of Java because the JIT
+compiler is able to inline the getf() method. For best performance, run the plugin
+by selecting it from the Plugins menu. Run it repeatedly by pressing shift-r (<i>Process&gt;Repeat Command</i>)
+for even better performance.
+<p>
+This is the Log window output created by running the plugin from the Plugins menu
+on a 128MB (512x512x512) stack and then repeatedly pressing shift-r: 
+<blockquote>
+255.2 million pixels/second<br>
+258.1 million pixels/second<br>
+762.6 million pixels/second<br>
+762.6 million pixels/second<br>
+758.3 million pixels/second<br>
+767.0 million pixels/second<br>
+767.0 million pixels/second<br>
+</blockquote>
+
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
