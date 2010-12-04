@@ -55,7 +55,8 @@ by selecting it from the Plugins menu. Run it repeatedly by pressing shift-r (<i
 for even better performance.
 <p>
 This is the Log window output created by running the <a href="Find_3D_Max.java">Find_3D_Max</a>
-plugin from the Plugins menu on a 128MB (512x512x512) stack and then repeatedly pressing shift-r: 
+plugin on a 2.26 Ghz Intel Core 2 Duo with Java 1.6.0_22 (64-bit) on a 128MB (512x512x512) stack
+and then repeatedly pressing shift-r: 
 <blockquote>
 270.6 million pixels/second<br>
 272.8 million pixels/second<br>
@@ -65,8 +66,19 @@ plugin from the Plugins menu on a 128MB (512x512x512) stack and then repeatedly 
 771.4 million pixels/second<br>
 </blockquote>
 
-And this is the output created by running the <a href="Byte_Find_Max.java">Byte_Find_Max</a>
-plugin (only works with 8-bit images) on the same stack:
+This is the output created by running the <a href="Imglib_Find_Max.java">Imglib_Find_Max</a>
+plugin on the same stack:
+<blockquote>
+67.8 million pixels/second<br>
+73.3 million pixels/second<br>
+72.9 million pixels/second<br>
+75.7 million pixels/second<br>
+77.2 million pixels/second<br>
+77.2 million pixels/second<br>
+</blockquote>
+
+This is the output created by running the <a href="Byte_Find_Max.java">Byte_Find_Max</a>
+plugin (only works with 8-bit images):
 <blockquote>
 335.5 million pixels/second<br>
 350.4 million pixels/second<br>
@@ -75,6 +87,11 @@ plugin (only works with 8-bit images) on the same stack:
 913.0 million pixels/second<br>
 913.0 million pixels/second<br>
 </blockquote>
+
+&nbsp;<br>
+And here is a plot created using <a href="plot.txt">this</a> ImageJ macro:
+<p>
+<img src="plot.png" width=522 height=248 alt="[Plot]">
 
 </td></tr>
 
