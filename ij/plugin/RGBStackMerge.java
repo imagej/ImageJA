@@ -3,7 +3,11 @@ import ij.*;
 import ij.process.*;
 import ij.gui.*;
 import java.awt.*;
+import java.awt.Graphics;
+
 import java.awt.image.*;
+import java.awt.image.BufferedImage;
+
 
 public class RGBStackMerge implements PlugIn {
 
@@ -166,8 +170,28 @@ public class RGBStackMerge implements PlugIn {
 				}
 			}
 		}
-		if (fourChannelRGB)
-			imp2 = imp2.flatten();
+		if (fourChannelRGB) {
+			if (!createComposite)
+				imp2 = imp2.flatten();
+			else {
+				CompositeImage composite = (CompositeImage)imp2;
+				boolean[] active = composite.getActiveChannels();
+				for (int i = 0; i < active.length; i++)
+					active[i] = true;
+				BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+				Graphics g = bi.getGraphics();
+				ImageStack stack = new ImageStack(width, height);
+				for (int frame = 1; frame <= frames; frame++)
+					for (int slice = 1; slice <= slices; slice++) {
+						composite.setPosition(1, slice, frame);
+						composite.updateImage();
+						g.drawImage(composite.getImage(), 0, 0, null);
+						stack.addSlice("", new ColorProcessor(bi).duplicate());
+					}
+				imp2 = new ImagePlus(composite.getTitle(), stack);
+				imp2.setDimensions(1, slices, frames);
+			}
+		}
 		imp2.show();
 	 }
 	
