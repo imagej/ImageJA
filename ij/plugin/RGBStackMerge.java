@@ -11,7 +11,8 @@ import java.awt.image.BufferedImage;
 
 public class RGBStackMerge implements PlugIn {
 
-	private static boolean createComposite = true;
+	private static boolean staticCreateComposite = true;
+	private static boolean staticKeep;
 	private ImagePlus imp;
 	private byte[] blank;
  
@@ -36,6 +37,11 @@ public class RGBStackMerge implements PlugIn {
 		}
 		String none = "*None*";
 		titles[wList.length] = none;
+		boolean createComposite = staticCreateComposite;
+		boolean keep = staticKeep;
+		String macroOptions = Macro.getOptions();
+		if (macroOptions!=null)
+			createComposite = keep = false;
 
 		GenericDialog gd = new GenericDialog("Color Merge");
 		gd.addChoice("Red:", titles, titles[0]);
@@ -45,7 +51,7 @@ public class RGBStackMerge implements PlugIn {
 		String title4 = titles.length>3&&!IJ.macroRunning()?titles[3]:none;
 		gd.addChoice("Gray:", titles, title4);
 		gd.addCheckbox("Create Composite", createComposite);
-		gd.addCheckbox("Keep Source Images", false);
+		gd.addCheckbox("Keep Source Images", keep);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
@@ -55,7 +61,11 @@ public class RGBStackMerge implements PlugIn {
 		index[2] = gd.getNextChoiceIndex();
 		index[3] = gd.getNextChoiceIndex();
 		createComposite = gd.getNextBoolean();
-		boolean keep = gd.getNextBoolean();
+		keep = gd.getNextBoolean();
+		if (!IJ.isMacro()) {
+			staticCreateComposite = createComposite;
+			staticKeep = keep;
+		}
 
 		ImagePlus[] images = new ImagePlus[4];
 		int stackSize = 0;
@@ -136,9 +146,8 @@ public class RGBStackMerge implements PlugIn {
 		stacks[1]  = images[1]!=null?images[1].getStack():null;
 		stacks[2]  = images[2]!=null?images[2].getStack():null;
 		stacks[3]  = images[3]!=null?images[3].getStack():null;
-		String options = Macro.getOptions();
-		if	(options!=null && options.indexOf("gray=")==-1)
-			stacks[3] = null; // ensure compatibility with old macros
+		if	(macroOptions!=null && macroOptions.indexOf("gray=")==-1)
+				stacks[3] = null; // ensure compatibility with old macros
 		ImagePlus imp2;
 		boolean fourChannelRGB = !createComposite && stacks[3]!=null;
 		if (fourChannelRGB)
@@ -171,25 +180,13 @@ public class RGBStackMerge implements PlugIn {
 			}
 		}
 		if (fourChannelRGB) {
-			if (!createComposite)
+			if (stackSize==1) {
 				imp2 = imp2.flatten();
-			else {
-				CompositeImage composite = (CompositeImage)imp2;
-				boolean[] active = composite.getActiveChannels();
-				for (int i = 0; i < active.length; i++)
-					active[i] = true;
-				BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-				Graphics g = bi.getGraphics();
-				ImageStack stack = new ImageStack(width, height);
-				for (int frame = 1; frame <= frames; frame++)
-					for (int slice = 1; slice <= slices; slice++) {
-						composite.setPosition(1, slice, frame);
-						composite.updateImage();
-						g.drawImage(composite.getImage(), 0, 0, null);
-						stack.addSlice("", new ColorProcessor(bi).duplicate());
-					}
-				imp2 = new ImagePlus(composite.getTitle(), stack);
-				imp2.setDimensions(1, slices, frames);
+				imp2.setTitle("RGB");
+			} else {
+				imp2.setTitle("RGB");
+				IJ.run(imp2, "RGB Color", "slices");
+				return;
 			}
 		}
 		imp2.show();
