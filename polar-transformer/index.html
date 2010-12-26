@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Nonlinear Polar Transformer</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Nonlinear Polar Transformer</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Jan Bonne Aans (j.b.aans at erasmusmc.nl) <br>
+Center for Optical Diagnostics and Therapy<br>
+Erasmus Medical Center<br>
+Rotterdam, The Netherlands<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2010/12/25: First release<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Nonlinear_Polar_Transformer.java">Nonlinear_Polar_Transformer.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="Polar_Transformer.jar">Polar_Transformer.jar</A> to the "ImageJ" window.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+The plugin performs parametric angular and radial polynomial transformations.
+It corrects X-ray image radial and angular distortions originated in image intensifiers
+of the type with electron accellerators.
+It allows for center-symmetrical radial and angular transformation of an image e.g. the radius r=SQRT(x^2+y^2) 
+as well as the the angle theta=arctan(y/x) of each pixel can be changed with respect to a center pixel.
+Both radial and angular transformation are defined by N order polynomials (you could fit an elephant with a 5th order polynomial).
+The center of transformation can be defined by the user as well.
+<p>
+For each pixel it
+transforms Cartesian coordinates to Polar coordinates,
+calculate new polar coordinates using the defined center coordinates and transformation polynomials for r and theta,
+transforms new polar coordinates back to Cartesian coordinates and
+places pixel at new Cartesian coordinates using interpolation.
+It produces a 16-bit grayscale image for 8 or 16-bit grayscale inputs, and an RGB color image
+for RGB inputs.
+<p>
+See Nonlinear_Polar_Transformer.properties for default settings.
+This plugin works with the Tudor DICOM plugin.
+<p>
+This plug-in borrows code from the Polar Transform plug-in written by Edwin F. Donnelly
+It uses the (modified version of) Polynomial class by "O.C. and R.P"
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
