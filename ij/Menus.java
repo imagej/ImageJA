@@ -228,7 +228,7 @@ public class Menus {
 		help.addSeparator();
 		Menu aboutMenu = getMenu("Help>About Plugins", true);
 		help.addSeparator();
-		addPlugInItem(help, "ImageJA Web Site...", "ij.plugin.BrowserLauncher", 0, false);
+		addPlugInItem(help, "ImageJA Web Site...", "ij.plugin.BrowserLauncher(\"http://pacific.mpi-cbg.de/ImageJA\")", 0, false);
 		addPlugInItem(help, "Online Docs...", "ij.plugin.BrowserLauncher(\"online\")", 0, false);
 		addPlugInItem(help, "About ImageJA...", "ij.plugin.AboutBox", 0, false);
 		pluginsTable.put("About ImageJ...", "ij.plugin.AboutBox");
