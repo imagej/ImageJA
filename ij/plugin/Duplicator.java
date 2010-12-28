@@ -254,7 +254,7 @@ public class Duplicator implements PlugIn, TextListener {
 		}
 		imp2 = run(imp, firstC, lastC, firstZ, lastZ, firstT, lastT);
 		if (imp2==null) return;
-		imp2.setTitle(newTitle);
+		imp2.setTitle(title);
 		imp2.show();
 		if (roi!=null && roi.isArea() && roi.getType()!=Roi.RECTANGLE)
 			imp2.restoreRoi();
