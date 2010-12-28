@@ -91,11 +91,11 @@ public class Menus {
 		addPlugInItem("Open...", "ij.plugin.Commands(\"open\")", KeyEvent.VK_O, false);
 		addPlugInItem("Open Next", "ij.plugin.NextImageOpener", KeyEvent.VK_O, true);
 		addPlugInItem("Close", "ij.plugin.Commands(\"close\")", KeyEvent.VK_W, false);
+		addPlugInItem("Close All", "ij.plugin.Commands(\"close-all\")", 0, false);
 		addPlugInItem("Save", "ij.plugin.Commands(\"save\")", KeyEvent.VK_S, false);
 		addPlugInItem("Revert", "ij.plugin.Commands(\"revert\")", KeyEvent.VK_R,  false);
 		addPlugInItem("Page Setup...", "ij.plugin.filter.Printer(\"setup\")", 0, false);
 		addPlugInItem("Print...", "ij.plugin.filter.Printer(\"print\")", KeyEvent.VK_P, false);
-		addPlugInItem("Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 		
 		addPlugInItem("Undo", "ij.plugin.Commands(\"undo\")", KeyEvent.VK_Z, false);
 		addPlugInItem("Cut", "ij.plugin.Clipboard(\"cut\")", KeyEvent.VK_X, false);
@@ -119,14 +119,15 @@ public class Menus {
 			
 		addPlugInItem("Show Info...", "ij.plugin.filter.Info", KeyEvent.VK_I, false);
 		addPlugInItem("Properties...", "ij.plugin.filter.ImageProperties", KeyEvent.VK_P, true);
-		addPlugInItem("Crop", "ij.plugin.filter.Resizer(\"crop\")", KeyEvent.VK_X, true);
-		addPlugInItem("Duplicate...", "ij.plugin.filter.Duplicater", KeyEvent.VK_D, true);
+		addPlugInItem("Crop", "ij.plugin.Resizer(\"crop\")", KeyEvent.VK_X, true);
+		addPlugInItem("Duplicate...", "ij.plugin.Duplicator", KeyEvent.VK_D, true);
 		addPlugInItem("Rename...", "ij.plugin.SimpleCommands(\"rename\")", 0, false);
 		addPlugInItem("Scale...", "ij.plugin.Scaler", KeyEvent.VK_E, false);
 		
 		addPlugInItem("Smooth", "ij.plugin.filter.Filters(\"smooth\")", KeyEvent.VK_S, true);
 		addPlugInItem("Sharpen", "ij.plugin.filter.Filters(\"sharpen\")", 0, false);
 		addPlugInItem("Find Edges", "ij.plugin.filter.Filters(\"edge\")", 0, false);
+		addPlugInItem("Find Maxima...", "ij.plugin.filter.MaximumFinder", 0, false);
 		addPlugInItem("Enhance Contrast", "ij.plugin.ContrastEnhancer", 0, false);
 		addPlugInItem("Image Calculator...", "ij.plugin.ImageCalculator", 0, false);
 		addPlugInItem("Subtract Background...", "ij.plugin.filter.BackgroundSubtracter", 0, false);
@@ -144,15 +145,28 @@ public class Menus {
 		addPlugInItem("Plot Profile", "ij.plugin.filter.Profiler(\"plot\")", KeyEvent.VK_K, false);
 		addPlugInItem("Surface Plot...", "ij.plugin.SurfacePlotter", 0, false);
 
-		addPlugInItem("Show All", "ij.plugin.WindowOrganizer(\"show\")", KeyEvent.VK_F, true);
+		addPlugInItem("Show All", "ij.plugin.WindowOrganizer(\"show\")", KeyEvent.VK_CLOSE_BRACKET, false);
 		addPlugInItem("Put Behind [tab]", "ij.plugin.Commands(\"tab\")", 0, false);
 		addPlugInItem("Cascade", "ij.plugin.WindowOrganizer(\"cascade\")", 0, false);
 		addPlugInItem("Tile", "ij.plugin.WindowOrganizer(\"tile\")", 0, false);
 
-		addPlugInItem("ImageJA Web Site...", "ij.plugin.BrowserLauncher", 0, false);
+		addPlugInItem("ImageJ Website...", "ij.plugin.BrowserLauncher", 0, false);
+		addPlugInItem("ImageJ News...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/notes.html\")", 0, false);
+		addPlugInItem("Documentation...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/docs\")", 0, false);
+		addPlugInItem("Installation...", "ij.plugin.SimpleCommands(\"install\")", 0, false);
+		addPlugInItem("Search Website...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/search.html\")", 0, false);
+		addPlugInItem("List Archives...", "ij.plugin.BrowserLauncher(\"https://list.nih.gov/archives/imagej.html\")", 0, false);
+		addPlugInItem("Dev. Resources...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/index.html\")", 0, false);
+		addPlugInItem("Plugins...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/plugins\")", 0, false);
+		addPlugInItem("Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
+		addPlugInItem("Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
+		addPlugInItem("Update ImageJ...", "ij.plugin.ImageJ_Updater", 0, false);
+		addPlugInItem("Refresh Menus", "ij.plugin.ImageJ_Updater(\"menus\")", 0, false);
+		addPlugInItem("ImageJA Web Site...", "ij.plugin.BrowserLauncher(\"http://pacific.mpi-cbg.de/ImageJA\")", 0, false);
 		addPlugInItem("Online Docs...", "ij.plugin.BrowserLauncher(\"online\")", 0, false);
-		addPlugInItem("About ImageJA...", "ij.plugin.AboutBoxJA", 0, false);
-				
+		addPlugInItem("About ImageJA...", "ij.plugin.AboutBox", 0, false);
+		addPlugInItem("Quit", "ij.plugin.Commands(\"quit\")", 0, false);
+
 		addSubMenu("New");
 		addSubMenu("Open Samples");
 		addSubMenu("Import");
