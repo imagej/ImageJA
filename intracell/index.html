@@ -1,0 +1,116 @@
+<html>
+<head>
+<title>IntraCell</title>
+</head>
+<body bgcolor=white>
+<div>
+<br/><b>IntraCell
+&#8211; Intracellular localization of Nanoparticles in the individual organelles</b>
+<br/> 
+<table class=MsoNormalTable border=0 cellspacing=6 cellpadding=0
+>
+<tr >
+<td valign=top >
+<br/><strong>Author:</strong>
+</td>
+<td valign=top >
+<br/>David Stepensky (davidst@bgu.ac.il)
+from Ben-Gurion University of the Negev, Israel
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>History:</strong>
+</td>
+<td valign=top >
+<br/>2011/01/05: Version 1.0
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Requires:</strong> 
+</td>
+<td valign=top >
+<br/>ImageJ 1.31i or later
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Limitations:</strong> 
+</td>
+<td valign=top >
+<br/>Limited to simultaneous analysis of 2 organelles
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Bugs:</strong>
+</td>
+<td valign=top >
+<br/>1) The "IntraCell_v1" window does not close when you click on
+its close box. Use the "Close" command at the lower part of the
+window to close it. 2) An additional "IntraCell_v1" window is
+opened each time you select the "IntraCell_v1" command in the
+Plugins menu.
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Source:</strong>
+</td>
+<td valign=top >
+<br/><a href="IntraCell_v1.java"
+target="IntraCell_v1.java"
+title="IntraCell_v1.java">IntraCell_v1.java</a>
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Installation:</strong>
+</td>
+<td valign=top >
+<br/>Download <a href="IntraCell_v1.java"
+target="IntraCell_v1.java"
+title="IntraCell_v1.java">IntraCell_v1.java</a> to the plugins folder, or
+subfolder, and compile and run using <em>Plugins/Compile and Run</em>.
+Restarting ImageJ will add a "IntraCell_v1" command to the Plugins
+menu or a submenu of the Plugins menu. 
+</td>
+</tr>
+<tr >
+<td valign=top >
+<br/><strong>Description:</strong>
+</td>
+<td valign=top >
+<br/>IntraCell plugin for ImageJ program allows quantitative assessment of efficiency
+of intracellular drug delivery of nanoparticle-based drug delivery systems.
+The applied analysis algorithm is based on pixel selection and pixel-to-pixel
+analysis of the experimental images. IntraCell uses custom-selected
+thresholds to identify the borders of the studied organelles and to exclude
+background pixels from the analysis. The analysis requires set of images
+taken from the same field of view with individual images representing
+fluorescence of the studied nanoparticle formulation and of the individual
+organelles. In addition, cell borders should be identified using
+membrane-specific dyes, based on the cells' autofluorescence, or from
+differential interference contrast (DIC) image. IntraCell plugin, its
+validation, and application to study intracellular targeting of a novel
+formulation to the endoplasmic reticulum has been described in: Sneh-Edri H.
+and Stepensky D. 'IntraCell' plugin
+for assessment of intracellular localization of nano-delivery systems and
+their targeting to the individual organelles. Biochem Biophys Res
+Commun 2011, in
+press.
+<br/><u><a
+href="SampleImages.zip"
+target="SampleImages.zip"
+title=SampleImages.zip>SampleImages.zip</a></u> file contains the
+images in the required format and could be used for testing and learning the
+IntraCell plugin.
+</td>
+</tr>
+</table>
+<br/><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html" title=Plugins>Plugins</a>
+| <a href="http://rsb.info.nih.gov/ij/index.html" title=Home>Home</a> |</b> 
+</div>
+</body>
+</html>
