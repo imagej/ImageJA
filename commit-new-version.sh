@@ -32,11 +32,11 @@ if [ -z "$1" ]; then
 	}
 	(cat $NOTES | \
 	 sed -n \
-		-e "s/^  • $DOTVERSION, /•&/" \
-		-e "/^•  • $DOTVERSION, /,\$p" |
+		-e "s/^  • $DOTVERSION,\? /•&/" \
+		-e "/^•  • $DOTVERSION,\? /,\$p" |
 	 sed \
 		-e "/^  • /,\$d" \
-		-e "s/^•\(  • $DOTVERSION, \)/\1/" |
+		-e "s/^•\(  • $DOTVERSION,\? \)/\1/" |
 	 sh "$0" $ZIP) || {
 		echo "Could not commit!"
 		exit 1
