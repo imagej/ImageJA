@@ -65,7 +65,7 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
 }
 fi
 
-../Build.sh buildDir=build signed-ij.jar
+../Build.sh buildDir="$(cd "$(dirname "$0")"/.. && pwd)"/build signed-ij.jar
 test -z "$NO_TAG" && git tag v"$VERSION" master
 for remote in orcz github sf
 do
