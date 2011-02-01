@@ -191,7 +191,6 @@ import java.io.*;
 		for (int i = 0; i < result.length; i++)
 			if (!result[i].endsWith(File.separator))
 				result[i] += File.separator;
-for (int i = 0; i < result.length; i++) ij.IJ.write("" + i + ": " + result[i]);
 		return result;
 	}
 }
