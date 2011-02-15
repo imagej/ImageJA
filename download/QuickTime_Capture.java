@@ -19,7 +19,7 @@ import quicktime.std.image.*;
 
 /**
 Previews and captures a single video frame using QuickTime for Java.
-Press the space bar to stop previewing. Press the alt key to 
+Press the space bar to stop previewing. Press the shift or alt key to 
 capture a frame and continue previewing.
 While previewing, type "+" to zoom in, "-" to zoom out,
 and "h" to display a histogram. Captures and
@@ -54,7 +54,9 @@ public class QuickTime_Capture implements PlugIn {
 			arg = "grab";
 		grabMode = arg.equals("grab");
 		showDialog = IJ.altKeyDown() || (options!=null && options.indexOf("dialog")!=-1);
-		if (IJ.altKeyDown()) IJ.setKeyUp(KeyEvent.VK_ALT);
+		if (IJ.altKeyDown())
+			IJ.setKeyUp(KeyEvent.VK_ALT);
+		IJ.resetEscape();
 
 		try {
 			QTSession.open();
@@ -67,6 +69,7 @@ public class QuickTime_Capture implements PlugIn {
 			imp.show();
 			pixelData = new int[intsPerRow*height];
 			IJ.setKeyUp(KeyEvent.VK_ALT);
+			IJ.setKeyUp(KeyEvent.VK_SHIFT);
 			IJ.setKeyUp(KeyEvent.VK_SPACE);
 			if (IJ.debugMode) {
 				IJ.log("Size: "+width+"x"+height);
@@ -90,8 +93,8 @@ public class QuickTime_Capture implements PlugIn {
 		if (showDialog) channel.settingsDialog();
 		cameraSize = channel.getSrcVideoBounds();
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		if (cameraSize.getHeight()>screen.height-40) // iSight camera claims to 1600x1200!
-			cameraSize.resize(640, 480);
+		//if (cameraSize.getHeight()>screen.height-40) // iSight camera claims to 1600x1200!
+		//	cameraSize.resize(640, 480);
 		gWorld =new QDGraphics(cameraSize);
 		grabber.setGWorld(gWorld, null);
 		channel.setBounds(cameraSize);
@@ -125,12 +128,13 @@ public class QuickTime_Capture implements PlugIn {
 		ImageProcessor ip = imp.getProcessor();
 		int[] pixels = ip!=null?(int[])ip.getPixels():null;
 		ImageWindow win = imp.getWindow();
-		if (pixels==null || (win==null&&!Interpreter.isBatchMode())|| IJ.spaceBarDown()) {
+		if (pixels==null || (win==null&&!Interpreter.isBatchMode()) || IJ.spaceBarDown() || IJ.escapePressed()) {
 			grabbing = false; 
 			imp.setTitle("Untitled"); 
 			return;
 		}
-		if (IJ.altKeyDown()) {
+		if (IJ.shiftKeyDown() || IJ.altKeyDown()) {
+			IJ.setKeyUp(KeyEvent.VK_SHIFT);
 			IJ.setKeyUp(KeyEvent.VK_ALT);
 			addSlice();
 		}
