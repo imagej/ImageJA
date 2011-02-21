@@ -65,13 +65,12 @@ test "$(git log -1 --pretty=format:%s%n%b cvs)" = \
 }
 fi
 
-../Build.sh buildDir="$(cd "$(dirname "$0")"/.. && pwd)"/build classpath=../jars/javac.jar signed-ij.jar
+../../Build.sh buildDir="$(cd "$(dirname "$0")"/.. && pwd)"/build classpath=../../jars/javac.jar signed-ij.jar
 test -z "$NO_TAG" && git tag v"$VERSION" master
 for remote in orcz github sf
 do
 	git push $remote master imagej v"$VERSION"
 done
-git push imagejdev master:imageja imagej
 scp signed-ij.jar imageja.sf.net:htdocs/ij.jar
 git archive --format=zip --prefix=ij-src/ master > ij-src-$VERSION.jar
 mv ij.jar ij-$VERSION.jar
