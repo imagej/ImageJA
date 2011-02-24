@@ -10,8 +10,9 @@ import ij.measure.*;
 public class Grid_ implements PlugIn, DialogListener {
 	private static String[] colors = {"Red","Green","Blue","Magenta","Cyan","Yellow","Orange","Black","White"};
 	private static String color = "Cyan";
+	private final static int LINES=0, HLINES=1, CROSSES=2, POINTS=3, NONE=4;
 	private static String[] types = {"Lines","Horizontal Lines", "Crosses", "Points", "None"};
-	private static String type = types[0];
+	private static String type = types[LINES];
 	private static double areaPerPoint;
 	private static boolean randomOffset;
 	private Random random = new Random(System.currentTimeMillis());	
@@ -23,7 +24,7 @@ public class Grid_ implements PlugIn, DialogListener {
 	private String units = "pixels";
 
 	public void run(String arg) {
-		if (IJ.versionLessThan("1.38u"))	 return;
+		if (IJ.versionLessThan("1.43u"))	 		return;
 		imp = IJ.getImage();
 		showDialog();
 	}
@@ -62,12 +63,10 @@ public class Grid_ implements PlugIn, DialogListener {
 	}
 
 	void showGrid(Shape shape) {
-		ImageCanvas ic = imp.getCanvas();
-		if (ic==null) return;
 		if (shape==null)
-			ic.setDisplayList(null);
+			imp.setOverlay(null);
 		else
-			ic.setDisplayList(shape, getColor(), null);
+			imp.setOverlay(shape, getColor(), null);
 	}
 
 	void drawLines() {
@@ -138,7 +137,7 @@ public class Grid_ implements PlugIn, DialogListener {
 		randomOffset = gd.getNextBoolean();
 		
 		double minArea= (width*height)/50000.0;
-		if (type.equals(types[2])&&minArea<144.0)
+		if (type.equals(types[CROSSES])&&minArea<144.0)
 			minArea = 144.0;
 		else if (minArea<16)
 			minArea = 16.0;
@@ -164,13 +163,13 @@ public class Grid_ implements PlugIn, DialogListener {
 		linesH = (int)((height-ystart)/tileHeight)+1;
 		if (gd.invalidNumber())
 			return true;
-		if (type.equals(types[0]))
+		if (type.equals(types[LINES]))
 			drawLines();
-		else if (type.equals(types[1]))
+		else if (type.equals(types[HLINES]))
 			drawHorizontalLines();
-		else if (type.equals(types[2]))
+		else if (type.equals(types[CROSSES]))
 			drawCrosses();
-		else  if (type.equals(types[3]))
+		else  if (type.equals(types[POINTS]))
 			drawPoints();
 		else
 			showGrid(null);
