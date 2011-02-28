@@ -212,6 +212,17 @@ public class ColorProcessor extends ImageProcessor {
 		}
 	}
 
+	/** Swaps the pixel and snapshot (undo) arrays. */
+	public void swapPixelArrays() {
+		if (snapshotPixels==null) return;	
+		int pixel;
+		for (int i=0; i<pixels.length; i++) {
+			pixel = pixels[i];
+			pixels[i] = snapshotPixels[i];
+			snapshotPixels[i] = pixel;
+		}
+	}
+
 	public void setSnapshotPixels(Object pixels) {
 		snapshotPixels = (int[])pixels;
 		snapshotWidth=width;
@@ -283,7 +294,7 @@ public class ColorProcessor extends ImageProcessor {
 	}
 
 	public final float getf(int x, int y) {
-		return pixels[y*width+x];
+		return getf(y*width+x);
 	}
 
 	public final void setf(int x, int y, float value) {
@@ -291,7 +302,11 @@ public class ColorProcessor extends ImageProcessor {
 	}
 
 	public final float getf(int index) {
-		return pixels[index];
+		int c = pixels[index];
+		int r = (c&0xff0000)>>16;
+		int g = (c&0xff00)>>8;
+		int b = c&0xff;
+		return (float)(r*rWeight + g*gWeight + b*bWeight);
 	}
 
 	public final void setf(int index, float value) {

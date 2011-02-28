@@ -212,7 +212,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				debugMenu.add(new MenuItem("Trace", new MenuShortcut(KeyEvent.VK_T)));
 				debugMenu.add(new MenuItem("Fast Trace", new MenuShortcut(KeyEvent.VK_T,true)));
 				debugMenu.add(new MenuItem("Run"));
-				debugMenu.add(new MenuItem("Run to Insertion Point"));
+				debugMenu.add(new MenuItem("Run to Insertion Point", new MenuShortcut(KeyEvent.VK_E, true)));
 				debugMenu.add(new MenuItem("Abort"));
 				debugMenu.addActionListener(this);
 				mb.add(debugMenu);
@@ -698,15 +698,11 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			instance = this;
 	}
 
-	public void windowClosing(WindowEvent e) {
-		close();
-	}
-
 	/** Overrides close() in PlugInFrame. */
 	public void close() {
 		boolean okayToClose = true;
 		ImageJ ij = IJ.getInstance();
-		if (!getTitle().equals("Errors") && changes && !IJ.isMacro() && ij!=null && !ij.quitting()) {
+		if (!getTitle().equals("Errors") && changes && !IJ.isMacro() && ij!=null) {
 			String msg = "Save changes to \"" + getTitle() + "\"?";
 			YesNoCancelDialog d = new YesNoCancelDialog(this, "Editor", msg);
 			if (d.cancelPressed())
@@ -720,6 +716,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			WindowManager.removeWindow(this);
 			nWindows--;
 			instance = null;
+			changes = false;
 		}
 	}
 
@@ -1001,6 +998,10 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		text = text.replaceAll("\r\n", "\n");
 		text = text.replaceAll("\r", "\n");
 		ta.setText(text);
+	}
+	
+	public boolean fileChanged() {
+		return changes;
 	}
 	
 }

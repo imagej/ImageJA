@@ -107,14 +107,22 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		srcRect = r;
 	}
 
+	void setSrcRect(Rectangle srcRect) {
+		this.srcRect = srcRect;
+	}
+		
+	public Rectangle getSrcRect() {
+		return srcRect;
+	}
+	
 	public void setDrawingSize(int width, int height) {
 	    dstWidth = width;
 	    dstHeight = height;
 		setSize(dstWidth, dstHeight);
 	}
 		
-	/** ImagePlus.updateAndDraw calls this method to get paint 
-		to update the image from the ImageProcessor. */
+	/** ImagePlus.updateAndDraw calls this method to force the paint()
+		method to update the image from the ImageProcessor. */
 	public void setImageUpdated() {
 		imageUpdated = true;
 	}
@@ -177,8 +185,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				rm = null;
 		}
 		if (rm==null) {
-			if (showAllList!=null)
-				overlay= showAllList;
+			//if (showAllList!=null)
+			//	overlay = showAllList;
 			showAllROIs = false;
 			repaint();
 			return;
@@ -530,14 +538,6 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		imp.setTitle(imp.getTitle());
 	}
 
-	public Rectangle getSrcRect() {
-		return srcRect;
-	}
-	
-	void setSrcRect(Rectangle srcRect) {
-		this.srcRect = srcRect;
-	}
-		
 	/** Enlarge the canvas if the user enlarges the window. */
 	void resizeCanvas(int width, int height) {
 		ImageWindow win = imp.getWindow();
@@ -1288,6 +1288,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	/** Allows plugins (e.g., Orthogonal_Views) to create a custom ROI using a display list. */
 	public void setCustomRoi(boolean customRoi) {
 		this.customRoi = customRoi;
+	}
+
+	public boolean getCustomRoi() {
+		return customRoi;
 	}
 
 	/** Called by IJ.showStatus() to prevent status bar text from

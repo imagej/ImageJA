@@ -13,10 +13,11 @@ import ij.macro.Interpreter;
 import ij.plugin.frame.ContrastAdjuster;
 import ij.plugin.frame.Recorder;
 import ij.plugin.Converter;
+import ij.plugin.Duplicator;
 
 /**
 An ImagePlus contain an ImageProcessor (2D image) or an ImageStack (3D, 4D or 5D image).
-It also includes metadata (spatial calibration and possibly the directory/file where Ê
+It also includes metadata (spatial calibration and possibly the directory/file where
 it was read from). The ImageProcessor contains the pixel data (8-bit, 16-bit, float or RGB) 
 of the 2D image and some basic methods to manipulate it. An ImageStack is essentually 
 a list ImageProcessors of same type and size.
@@ -674,6 +675,9 @@ public class ImagePlus implements ImageObserver, Measurements {
 		ImageProcessor ip2 = ip;
 		if (!locked && ip2!=null) {
 			if (IJ.debugMode) IJ.log(title + ": trimProcessor");
+			Roi roi2 = getRoi();
+			if (roi2!=null && roi2.getPasteMode()!=Roi.NOT_PASTING)
+				roi2.endPaste();
 			ip2.setSnapshotPixels(null);
 		}
 	}
@@ -926,7 +930,6 @@ public class ImagePlus implements ImageObserver, Measurements {
 		d[4] = nFrames;
 		return d;
 	}
-
 
 	void verifyDimensions() {
 		int stackSize = getImageStackSize();
@@ -1343,7 +1346,10 @@ public class ImagePlus implements ImageObserver, Measurements {
 				roi = new Roi(sx, sy, this, Toolbar.getRoundRectArcSize());
 				break;
 			case Toolbar.OVAL:
-				roi = new OvalRoi(sx, sy, this);
+				if (Toolbar.getOvalToolType()==Toolbar.ELLIPSE_ROI)
+					roi = new EllipseRoi(sx, sy, this);
+				else
+					roi = new OvalRoi(sx, sy, this);
 				break;
 			case Toolbar.POLYGON:
 			case Toolbar.POLYLINE:
@@ -1643,6 +1649,12 @@ public class ImagePlus implements ImageObserver, Measurements {
 		this.ignoreFlush = ignoreFlush;
 	}
 	
+
+	/** Returns a copy (clone) of this ImagePlus. */
+	public ImagePlus duplicate() {
+		return (new Duplicator()).run(this);
+	}
+
 	/** Returns a new ImagePlus with this image's attributes
 		(e.g. spatial scale), but no image. */
 	public ImagePlus createImagePlus() {
@@ -1899,11 +1911,11 @@ public class ImagePlus implements ImageObserver, Measurements {
 		Roi roi = getRoi();
 		if (roi!=null)
 			r = roi.getBounds();
-		if (w==width && h==height && (r==null||w!=r.width||h!=r.height)) {
-			setRoi(0, 0, width, height);
-			roi = getRoi();
-			r = roi.getBounds();
-		}
+		//if (w==width && h==height && (r==null||w!=r.width||h!=r.height)) {
+		//	setRoi(0, 0, width, height);
+		//	roi = getRoi();
+		//	r = roi.getBounds();
+		//}
 		if (r==null || (r!=null && (w!=r.width || h!=r.height))) {
 			// create a new roi centered on visible part of image
 			ImageCanvas ic = null;
@@ -1990,7 +2002,7 @@ public class ImagePlus implements ImageObserver, Measurements {
 	
 	/** Returns true if this is a CompositeImage. */
 	public boolean isComposite() {
-		return compositeImage && getNChannels()>1 && (this instanceof CompositeImage);
+		return compositeImage && getNChannels()>=1 && (this instanceof CompositeImage);
 	}
 
 	/** Sets the display range of the current channel. With non-composite

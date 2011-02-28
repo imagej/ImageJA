@@ -27,7 +27,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 	static boolean fill2 = true;
 	static boolean useBW = true;
 	static boolean backgroundToNaN = true;
-	static Frame instance; 
+	static ThresholdAdjuster instance; 
 	static int mode = RED;	
 	static String[] methodNames = AutoThresholder.getMethods();
 	static String method = methodNames[DEFAULT];
@@ -67,7 +67,8 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 			return;
 		}
 		if (instance!=null) {
-			instance.toFront();
+			instance.firstActivation = true;
+			WindowManager.toFront(instance);
 			return;
 		}
 		
@@ -207,7 +208,6 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 			setLocation(loc);
 		else
 			GUI.center(this);
-		firstActivation = true;
 		if (IJ.isMacOSX()) setResizable(false);
 		show();
 
@@ -293,6 +293,7 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		int id = imp.getID();
 		if (minMaxChange || id!=previousImageID || type!=previousImageType) {
             //IJ.log(minMaxChange +"  "+ (id!=previousImageID)+"  "+(type!=previousImageType));
+            Undo.reset();
             if (not8Bits && minMaxChange && !useExistingTheshold) {
                 ip.resetMinAndMax();
                 imp.updateAndDraw();
@@ -647,18 +648,14 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
 		imp.updateAndDraw();
 	}
 
-    public void windowClosing(WindowEvent e) {
-		Prefs.saveLocation(LOC_KEY, getLocation());
-		Prefs.set(MODE_KEY, mode);
-		Prefs.set(DARK_BACKGROUND, darkBackground.getState());
-    	close();
-	}
-
     /** Overrides close() in PlugInFrame. */
     public void close() {
     	super.close();
 		instance = null;
 		done = true;
+		Prefs.saveLocation(LOC_KEY, getLocation());
+		Prefs.set(MODE_KEY, mode);
+		Prefs.set(DARK_BACKGROUND, darkBackground.getState());
 		synchronized(this) {
 			notify();
 		}
@@ -668,12 +665,10 @@ public class ThresholdAdjuster extends PlugInFrame implements PlugIn, Measuremen
     	super.windowActivated(e);
     	plot.requestFocus();
 		ImagePlus imp = WindowManager.getCurrentImage();
-		if (imp!=null) {
-			if (!firstActivation) {
-				previousImageID = 0;
-				useExistingTheshold = isThresholded(imp);
-				setup(imp);
-			}
+		if (imp!=null && firstActivation) {
+			previousImageID = 0;
+			useExistingTheshold = isThresholded(imp);
+			setup(imp);
 			firstActivation = false;
 		}
 	}

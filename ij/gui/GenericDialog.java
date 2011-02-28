@@ -471,10 +471,12 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = getInsets(text.equals("")?0:10, 20, 0, 0);
+		c.fill = GridBagConstraints.HORIZONTAL;
 		grid.setConstraints(theLabel, c);
 		if (font!=null)
 			theLabel.setFont(font);
 		add(theLabel);
+		c.fill = GridBagConstraints.NONE;
 		y++;
     }
     
@@ -744,7 +746,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				// Is the value a macro variable?
 				if (theText.startsWith("&")) theText = theText.substring(1);
 				Interpreter interp = Interpreter.getInstance();
-				value = interp!=null?interp.getVariable(theText):Double.NaN;
+				value = interp!=null?interp.getVariable2(theText):Double.NaN;
 				if (Double.isNaN(value)) {
 					invalidNumber = true;
 					errorMessage = "\""+theText+"\" is an invalid number";

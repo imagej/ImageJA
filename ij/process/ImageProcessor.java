@@ -13,7 +13,7 @@ import ij.Prefs;
 /**
 This abstract class is the superclass for classes that process
 the four data types (byte, short, float and RGB) supported by ImageJ.
-An ImageProcessor contains the pixel data of a 2D image and Ê
+An ImageProcessor contains the pixel data of a 2D image and
 some basic methods to manipulate it.
 @see ByteProcessor
 @see ShortProcessor
@@ -346,7 +346,7 @@ public abstract class ImageProcessor extends Object {
 	/** Sets the default fill/draw value. */
 	public abstract void setValue(double value);
 
-	/** Sets the background fill value used by the rotate(), scale() and translate() methods. */
+	/** Sets the background fill value used by the rotate() and scale() methods. */
 	public abstract void setBackgroundValue(double value);
 
 	/** Returns the background fill value. */
@@ -506,8 +506,7 @@ public abstract class ImageProcessor extends Object {
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
 		}
-		int options = ij.measure.Measurements.AREA+ ij.measure.Measurements.MIN_MAX+ ij.measure.Measurements.MODE;
-		ImageStatistics stats = ImageStatistics.getStatistics(ip2, options, null);
+		ImageStatistics stats = ip2.getStatistics();
 		AutoThresholder thresholder = new AutoThresholder();
 		int threshold = thresholder.getThreshold(method, stats.histogram);
 		double lower, upper;
@@ -556,8 +555,7 @@ public abstract class ImageProcessor extends Object {
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
 		}
-		int options = ij.measure.Measurements.AREA+ ij.measure.Measurements.MIN_MAX+ ij.measure.Measurements.MODE;
-		ImageStatistics stats = ImageStatistics.getStatistics(ip2, options, null);
+		ImageStatistics stats = ip2.getStatistics();
 		int[] histogram = stats.histogram;
 		int originalModeCount = histogram[stats.mode];
 		if (method==ISODATA2) {
@@ -1732,6 +1730,11 @@ public abstract class ImageProcessor extends Object {
 	/** Adds 'value' to each pixel in the image or ROI. */
 	public void add(double value) {process(ADD, value);}
 	
+	/** Subtracts 'value' from each pixel in the image or ROI. */
+	public void subtract(double value) {
+		add(-value);
+	}
+	
 	/** Multiplies each pixel in the image or ROI by 'value'. */
 	public void multiply(double value) {process(MULT, value);}
 	
@@ -1793,6 +1796,9 @@ public abstract class ImageProcessor extends Object {
 	/** Restores the pixel data from the snapshot (undo) buffer. */
 	public abstract void reset();
 	
+	/** Swaps the pixel and snapshot (undo) buffers. */
+	public abstract void swapPixelArrays();
+
 	/** Restores pixels from the snapshot buffer that are 
 		within the rectangular roi but not part of the mask. */
 	public abstract void reset(ImageProcessor mask);
@@ -1890,6 +1896,7 @@ public abstract class ImageProcessor extends Object {
 	*/
   	public void translate(double xOffset, double yOffset) {
   		ImageProcessor ip2 = this.duplicate();
+  		ip2.setBackgroundValue(0.0);
 		boolean integerOffsets = xOffset==(int)xOffset && yOffset==(int)yOffset;
   		if (integerOffsets || interpolationMethod==NONE) {
 			for (int y=roiY; y<(roiY + roiHeight); y++) {
@@ -2234,8 +2241,10 @@ public abstract class ImageProcessor extends Object {
 		useBicubic = b;
 	}
 	
-	/* Calculates and returns statistics for this image. */
+	/* Calculates and returns statistics (area, mean, std-dev, mode, min, max,
+		centroid, center of mass, 256 bin histogram) for this image or ROI. */
 	public ImageStatistics getStatistics() {
+		// 127 = AREA+MEAN+STD_DEV+MODE+MIN_MAX+CENTROID+CENTER_OF_MASS
 		return ImageStatistics.getStatistics(this, 127, null);
 	}
 	

@@ -46,7 +46,8 @@ public class Prefs {
 		SHOW_ALL_SLICE_ONLY=1<<17, COPY_HEADERS=1<<18, NO_ROW_NUMBERS=1<<19,
 		MOVE_TO_MISC=1<<20, ADD_TO_MANAGER=1<<21, RUN_SOCKET_LISTENER=1<<22,
 		MULTI_POINT_MODE=1<<23, ROTATE_YZ=1<<24, FLIP_XZ=1<<25,
-		DONT_SAVE_HEADERS=1<<26, DONT_SAVE_ROW_NUMBERS=1<<27, NO_CLICK_TO_GC=1<<28; 
+		DONT_SAVE_HEADERS=1<<26, DONT_SAVE_ROW_NUMBERS=1<<27, NO_CLICK_TO_GC=1<<28,
+		AVOID_RESLICE_INTERPOLATION=1<<29, KEEP_UNDO_BUFFERS=1<<30; 
     public static final String OPTIONS = "prefs.options";
     
 	public static final String vistaHint = "\n \nOn Windows Vista, ImageJ must be installed in a directory that\nthe user can write to, such as \"Desktop\" or \"Documents\"";
@@ -121,6 +122,10 @@ public class Prefs {
 	public static boolean noClickToGC;
 	/** Angle tool measures reflex angle */
 	public static boolean reflexAngle;
+	/** Avoid interpolation when re-slicing */
+	public static boolean avoidResliceInterpolation;
+	/** Preserve undo (snapshot) buffers when switching images */
+	public static boolean keepUndoBuffers;
 
 
 	static Properties ijPrefs = new Properties();
@@ -370,7 +375,8 @@ public class Prefs {
 	}
 
 	static void loadOptions() {
-		int options = getInt(OPTIONS, ANTIALIASING);
+		int defaultOptions = ANTIALIASING+(IJ.isWindows()?RUN_SOCKET_LISTENER:0);
+		int options = getInt(OPTIONS, defaultOptions);
 		usePointerCursor = (options&USE_POINTER)!=0;
 		//antialiasedText = (options&ANTIALIASING)!=0;
 		antialiasedText = false;
@@ -403,6 +409,8 @@ public class Prefs {
 		dontSaveHeaders = (options&DONT_SAVE_HEADERS)!=0;
 		dontSaveRowNumbers = (options&DONT_SAVE_ROW_NUMBERS)!=0;
 		noClickToGC = (options&NO_CLICK_TO_GC)!=0;
+		avoidResliceInterpolation = (options&AVOID_RESLICE_INTERPOLATION)!=0;
+		keepUndoBuffers = (options&KEEP_UNDO_BUFFERS)!=0;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -419,7 +427,9 @@ public class Prefs {
 			+ (pointAddToManager?ADD_TO_MANAGER:0) + (runSocketListener?RUN_SOCKET_LISTENER:0)
 			+ (multiPointMode?MULTI_POINT_MODE:0) + (rotateYZ?ROTATE_YZ:0)
 			+ (flipXZ?FLIP_XZ:0) + (dontSaveHeaders?DONT_SAVE_HEADERS:0)
-			+ (dontSaveRowNumbers?DONT_SAVE_ROW_NUMBERS:0) + (noClickToGC?NO_CLICK_TO_GC:0);
+			+ (dontSaveRowNumbers?DONT_SAVE_ROW_NUMBERS:0) + (noClickToGC?NO_CLICK_TO_GC:0)
+			+ (avoidResliceInterpolation?AVOID_RESLICE_INTERPOLATION:0)
+			+ (keepUndoBuffers?KEEP_UNDO_BUFFERS:0);
 		prefs.put(OPTIONS, Integer.toString(options));
 	}
 

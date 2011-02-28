@@ -87,7 +87,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 	public ColorThresholder() {
 		super("Threshold Color (experimental)");
 		if (instance!=null) {
-			instance.toFront();
+			WindowManager.toFront(instance);
 			return;
 		}
 		thread = new Thread(this, "BandAdjuster");
@@ -874,6 +874,7 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 		int id = imp.getID();
 		int slice = imp.getCurrentSlice();
 		if ((id!=previousImageID)||(slice!=previousSlice)||(flag) ) {
+			Undo.reset();
 			flag = false; //if true, flags a change of colour model
 			numSlices = imp.getStackSize();
 			stack = imp.getStack();
@@ -1269,10 +1270,6 @@ public class ColorThresholder extends PlugInFrame implements PlugIn, Measurement
 			reset(imp);
 			filteredB.setEnabled(true);
     	}
-	}
-
-	public void windowClosing(WindowEvent e) {
-		close();
 	}
 
 	public void close() {

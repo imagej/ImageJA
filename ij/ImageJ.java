@@ -72,8 +72,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() to get the version string. */
-	public static final String VERSION = "1.44j";
-	public static final String BUILD = "9"; 
+	public static final String VERSION = "1.45c";
+	public static final String BUILD = "5"; 
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -422,9 +422,9 @@ public class ImageJ extends Frame implements ActionListener,
 							cmd="Next Slice [>]";
 					else if (stackKey && keyCode==KeyEvent.VK_LEFT)
 							cmd="Previous Slice [<]";
-					else if (zoomKey && keyCode==KeyEvent.VK_DOWN && !loci(imp))
+					else if (zoomKey && keyCode==KeyEvent.VK_DOWN && !ignoreArrowKeys(imp))
 							cmd="Out";
-					else if (zoomKey && keyCode==KeyEvent.VK_UP && !loci(imp))
+					else if (zoomKey && keyCode==KeyEvent.VK_UP && !ignoreArrowKeys(imp))
 							cmd="In";
 					else if (roi!=null) {
 						if ((flags & KeyEvent.ALT_MASK) != 0)
@@ -437,7 +437,7 @@ public class ImageJ extends Frame implements ActionListener,
 				case KeyEvent.VK_ESCAPE:
 					abortPluginOrMacro(imp);
 					return;
-				case KeyEvent.VK_ENTER: this.toFront(); return;
+				case KeyEvent.VK_ENTER: WindowManager.toFront(this); return;
 				default: break;
 			}
 		}
@@ -455,10 +455,19 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 	}
 	
-	// LOCI Data Browser window?
-	private boolean loci(ImagePlus imp) {
+	private boolean ignoreArrowKeys(ImagePlus imp) {
+		Frame frame = WindowManager.getFrontWindow();
+		String title = frame.getTitle();
+		if (title!=null && title.equals("ROI Manager"))
+			return true;
+		// Control Panel?
+		if (frame!=null && frame instanceof javax.swing.JFrame)
+			return true;
 		ImageWindow win = imp.getWindow();
-		return imp.getStackSize()>1 && win!=null && win.getClass().getName().startsWith("loci");
+		// LOCI Data Browser window?
+		if (imp.getStackSize()>1 && win!=null && win.getClass().getName().startsWith("loci"))
+			return true;
+		return false;
 	}
 	
 	public void keyTyped(KeyEvent e) {
@@ -543,6 +552,7 @@ public class ImageJ extends Frame implements ActionListener,
 			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
+		//IJ.debugMode = true;
 		boolean noGUI = false;
 		int mode = STANDALONE;
 		arguments = args;
@@ -571,8 +581,8 @@ public class ImageJ extends Frame implements ActionListener,
 		}
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
-		if (nArgs>0 && !noGUI && (mode==STANDALONE) && isRunning(args))
-  				return;
+		if (!noGUI && (mode==STANDALONE) && isRunning(args))
+  			return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
 			ij = new ImageJ(null, mode);
@@ -614,15 +624,17 @@ public class ImageJ extends Frame implements ActionListener,
 	
 	// Is there another instance of ImageJ? If so, send it the arguments and quit.
 	static boolean isRunning(String args[]) {
+		if (IJ.debugMode) IJ.log("isRunning: "+args.length);
 		int macros = 0;
 		int nArgs = args.length;
-		if (nArgs==2 && args[0].startsWith("-ijpath"))
-			return false;
+		//if (nArgs==2 && args[0].startsWith("-ijpath"))
+		//	return false;
 		int nCommands = 0;
 		try {
 			sendArgument("user.dir "+System.getProperty("user.dir"));
 			for (int i=0; i<nArgs; i++) {
 				String arg = args[i];
+				if (IJ.debugMode) IJ.log("isRunning: "+i+" "+arg);
 				if (arg==null) continue;
 				String cmd = null;
 				if (macros==0 && arg.endsWith(".ijm")) {
@@ -648,6 +660,7 @@ public class ImageJ extends Frame implements ActionListener,
 				}
 			} // for
 		} catch (IOException e) {
+			if (IJ.debugMode) IJ.log(""+e);
 			return false;
 		}
 		return true;
@@ -690,6 +703,17 @@ public class ImageJ extends Frame implements ActionListener,
 				if (imp!=null && imp.changes==true) {
 					changes = true;
 					break;
+				}
+			}
+		}
+		Frame[] frames = WindowManager.getNonImageWindows();
+		if (frames!=null) {
+			for (int i=0; i<frames.length; i++) {
+				if (frames[i]!=null && (frames[i] instanceof Editor)) {
+					if (((Editor)frames[i]).fileChanged()) {
+						changes = true;
+						break;
+					}
 				}
 			}
 		}

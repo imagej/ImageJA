@@ -79,7 +79,9 @@ public class Interpreter implements MacroConstants {
 		calledMacro = true;
 		if (IJ.getInstance()==null)
 			setBatchMode(true);
+		Interpreter saveInstance = instance;
 		run(macro);
+		instance = saveInstance;
 		return returnValue;
 	}
 	
@@ -327,13 +329,16 @@ public class Interpreter implements MacroConstants {
 					}
 					args[count] = new Variable(0, value, str, array);
 				} else if (next==WORD && nextPlus=='[' ) {
+					int savePC = pc;
 					getToken();
 					Variable v = lookupVariable();
 					v = getArrayElement(v);
 					if (v.getString()!=null)
 						args[count] = new Variable(0, 0.0, v.getString(), null);
-					else
-						args[count] = new Variable(0, v.getValue(), null);
+					else {
+						pc = savePC;
+						args[count] = new Variable(0, getExpression(), null);
+					}
 				} else
 					args[count] = new Variable(0, getExpression(), null);
 				count++;
@@ -1059,14 +1064,15 @@ public class Interpreter implements MacroConstants {
 		imageTable = null;
 		WindowManager.setTempCurrentImage(null);
 		wasError = true;
-		done = true;
 		if (showMessage) {
 			String line = getErrorLine();
+			done = true;
 			if (line.length()>120)
 				line = line.substring(0,119)+"...";
 			showError("Macro Error", message+" in line "+lineNumber+".\n \n"+line, variables);
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 		}
+		done = true;
 	}
 	
 	void showError(String title, String msg, String[] variables) {
@@ -1605,7 +1611,8 @@ public class Interpreter implements MacroConstants {
 			imageTable = null;
 		}
 		done = true;
-		if (func!=null) func.abortDialog();
+		if (func!=null && !(macroName!=null&&macroName.indexOf(" Tool")!=-1))
+			func.abortDialog();
 		IJ.showStatus("Macro aborted");
 	}
 
@@ -1783,9 +1790,19 @@ public class Interpreter implements MacroConstants {
 		return Double.NaN;
 	}
 
+	public double getVariable2(String name) {
+		int index;
+		for (int i=topOfStack; i>=0; i--) {
+			index = stack[i].symTabIndex;
+			if (pgm.table[index].str.equals(name))
+				return stack[i].getValue();
+		}
+		return Double.NaN;
+	}
+
 	public String getStringVariable(String name) {
 		int index;
-		for (int i=0; i<=topOfStack; i++) {
+		for (int i=topOfStack; i>=0; i--) {
 			index = stack[i].symTabIndex;
 			if (pgm.table[index].str.equals(name))
 				return stack[i].getString();
@@ -1796,7 +1813,7 @@ public class Interpreter implements MacroConstants {
 	public String getVariableAsString(String name) {
 		String s = getStringVariable(name);
 		if (s==null) {
-			double value = getVariable(name);
+			double value = getVariable2(name);
 			if (!Double.isNaN(value)) s=""+value;
 		}
 		return s;

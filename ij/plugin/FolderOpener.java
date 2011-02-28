@@ -8,12 +8,13 @@ import ij.io.*;
 import ij.gui.*;
 import ij.process.*;
 import ij.measure.Calibration;
+import ij.util.DicomTools;
 
 /** Implements the File/Import/Image Sequence command, which
 opens a folder of images as a stack. */
 public class FolderOpener implements PlugIn {
 
-	private static String[] excludedTypes = {".txt", ".lut", ".roi", ".pty", ".hdr", ".java", ".ijm", ".py", ".js", ".bsh"};
+	private static String[] excludedTypes = {".txt", ".lut", ".roi", ".pty", ".hdr", ".java", ".ijm", ".py", ".js", ".bsh", ".xml"};
 	private static boolean convertToRGB;
 	private static boolean sortFileNames = true;
 	private static boolean virtualStack;
@@ -198,8 +199,6 @@ public class FolderOpener implements PlugIn {
 			if (stack!=null) stack.trim();
 		}
 		if (stack!=null && stack.getSize()>0) {
-			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0)
-				stack = (new DICOM_Sorter()).sort(stack);
 			ImagePlus imp2 = new ImagePlus(title, stack);
 			if (imp2.getType()==ImagePlus.GRAY16 || imp2.getType()==ImagePlus.GRAY32)
 				imp2.getProcessor().setMinAndMax(min, max);
@@ -220,6 +219,16 @@ public class FolderOpener implements PlugIn {
 					cal.setUnit("um");
 				}
 				imp2.setCalibration(cal);
+			}
+			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0) {
+				stack = DicomTools.sort(stack);
+				imp2.setStack(stack);
+				double voxelDepth = DicomTools.getVoxelDepth(stack);
+				if (voxelDepth>0.0) {
+					if (IJ.debugMode) IJ.log("DICOM voxel depth set to "+voxelDepth+" ("+cal.pixelDepth+")");
+					cal.pixelDepth = voxelDepth;
+					imp2.setCalibration(cal);
+				}
 			}
 			if (imp2.getStackSize()==1 && info1!=null)
 				imp2.setProperty("Info", info1);

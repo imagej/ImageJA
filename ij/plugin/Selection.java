@@ -11,8 +11,6 @@ import ij.util.Tools;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Vector;
-//import java.awt.image.BufferedImage;
-
 
 
 /** This plugin implements the commands in the Edit/Section submenu. */
@@ -42,8 +40,10 @@ public class Selection implements PlugIn, Measurements {
     		imp.restoreRoi();
     	else if (arg.equals("spline"))
     		fitSpline();
+    	else if (arg.equals("circle"))
+    		fitCircle(imp);
     	else if (arg.equals("ellipse"))
-    		drawEllipse(imp);
+    		createEllipse(imp);
     	else if (arg.equals("hull"))
     		convexHull(imp);
     	else if (arg.equals("mask"))
@@ -92,6 +92,128 @@ public class Selection implements PlugIn, Measurements {
 		}
 	}
 	
+	/*
+	if selection is closed shape, create a circle with the same area and centroid, otherwise use<br>
+	the Pratt method to fit a circle to the points that define the line or multi-point selection.<br>
+	Reference: Pratt V., Direct least-squares fitting of algebraic surfaces", Computer Graphics, Vol. 21, pages 145-152 (1987).<br>
+	Original code: Nikolai Chernov's MATLAB script for Newton-based Pratt fit.<br>
+	(http://www.math.uab.edu/~chernov/cl/MATLABcircle.html)<br>
+	Java version: https://github.com/mdoube/BoneJ/blob/master/src/org/doube/geometry/FitCircle.java<br>
+	@authors Nikolai Chernov, Michael Doube, Ved Sharma
+	*/
+	void fitCircle(ImagePlus imp) {
+		Roi roi = imp.getRoi();
+		if (roi==null) {
+			IJ.error("Fit Circle", "Selection required");
+			return;
+		}
+		
+		if (roi.isArea()) {   //create circle with the same area and centroid
+			ImageProcessor ip = imp.getProcessor();
+			ip.setRoi(roi);
+			ImageStatistics stats = ImageStatistics.getStatistics(ip, Measurements.AREA+Measurements.CENTROID, null);
+			double r = Math.sqrt(stats.pixelCount/Math.PI);
+			imp.killRoi();
+			int d = (int)Math.round(2.0*r);
+			IJ.makeOval((int)Math.round(stats.xCentroid-r), (int)Math.round(stats.yCentroid-r), d, d);
+			return;
+		}
+		
+		Polygon poly = roi.getPolygon();
+		int n=poly.npoints;
+		int[] x = poly.xpoints;
+		int[] y = poly.ypoints;
+		if (n<3) {
+			IJ.error("Fit Circle", "At least 3 points are required to fit a circle.");
+			return;
+		}
+		
+		// calculate point centroid
+		double sumx = 0, sumy = 0;
+		for (int i=0; i<n; i++) {
+			sumx = sumx + poly.xpoints[i];
+			sumy = sumy + poly.ypoints[i];
+		}
+		double meanx = sumx/n;
+		double meany = sumy/n;
+		
+		// calculate moments
+		double[] X = new double[n], Y = new double[n];
+		double Mxx=0, Myy=0, Mxy=0, Mxz=0, Myz=0, Mzz=0;
+		for (int i=0; i<n; i++) {
+			X[i] = x[i] - meanx;
+			Y[i] = y[i] - meany;
+			double Zi = X[i]*X[i] + Y[i]*Y[i];
+			Mxy = Mxy + X[i]*Y[i];
+			Mxx = Mxx + X[i]*X[i];
+			Myy = Myy + Y[i]*Y[i];
+			Mxz = Mxz + X[i]*Zi;
+			Myz = Myz + Y[i]*Zi;
+			Mzz = Mzz + Zi*Zi;
+		}
+		Mxx = Mxx/n;
+		Myy = Myy/n;
+		Mxy = Mxy/n;
+		Mxz = Mxz/n;
+		Myz = Myz/n;
+		Mzz = Mzz/n;
+		
+		// calculate the coefficients of the characteristic polynomial
+		double Mz = Mxx + Myy;
+		double Cov_xy = Mxx*Myy - Mxy*Mxy;
+		double Mxz2 = Mxz*Mxz;
+		double Myz2 = Myz*Myz;
+		double A2 = 4*Cov_xy - 3*Mz*Mz - Mzz;
+		double A1 = Mzz*Mz + 4*Cov_xy*Mz - Mxz2 - Myz2 - Mz*Mz*Mz;
+		double A0 = Mxz2*Myy + Myz2*Mxx - Mzz*Cov_xy - 2*Mxz*Myz*Mxy + Mz*Mz*Cov_xy;
+		double A22 = A2 + A2;
+		double epsilon = 1e-12; 
+		double ynew = 1e+20;
+		int IterMax= 20;
+		double xnew = 0;
+		int iterations = 0;
+		
+		// Newton's method starting at x=0
+		for (int iter=1; iter<=IterMax; iter++) {
+			iterations = iter;
+			double yold = ynew;
+			ynew = A0 + xnew*(A1 + xnew*(A2 + 4.*xnew*xnew));
+			if (Math.abs(ynew)>Math.abs(yold)) {
+				if (IJ.debugMode) IJ.log("Fit Circle: wrong direction: |ynew| > |yold|");
+				xnew = 0;
+				break;
+			}
+			double Dy = A1 + xnew*(A22 + 16*xnew*xnew);
+			double xold = xnew;
+			xnew = xold - ynew/Dy;
+			if (Math.abs((xnew-xold)/xnew) < epsilon)
+				break;
+			if (iter >= IterMax) {
+				if (IJ.debugMode) IJ.log("Fit Circle: will not converge");
+				xnew = 0;
+			}
+			if (xnew<0) {
+				if (IJ.debugMode) IJ.log("Fit Circle: negative root:  x = "+xnew);
+				xnew = 0;
+			}
+		}
+		if (IJ.debugMode) IJ.log("Fit Circle: n="+n+", xnew="+IJ.d2s(xnew,2)+", iterations="+iterations);
+		
+		// calculate the circle parameters
+		double DET = xnew*xnew - xnew*Mz + Cov_xy;
+		double CenterX = (Mxz*(Myy-xnew)-Myz*Mxy)/(2*DET);
+		double CenterY = (Myz*(Mxx-xnew)-Mxz*Mxy)/(2*DET);
+		double radius = Math.sqrt(CenterX*CenterX + CenterY*CenterY + Mz + 2*xnew);
+		if (Double.isNaN(radius)) {
+			IJ.error("Fit Circle", "Points are collinear.");
+			return;
+		}
+		CenterX = CenterX + meanx;
+		CenterY = CenterY + meany;
+		imp.killRoi();
+		IJ.makeOval((int)Math.round(CenterX-radius), (int)Math.round(CenterY-radius), (int)Math.round(2*radius), (int)Math.round(2*radius));
+	}
+
 	void fitSpline() {
 		Roi roi = imp.getRoi();
 		if (roi==null)
@@ -100,9 +222,11 @@ public class Selection implements PlugIn, Measurements {
 		boolean segmentedSelection = type==Roi.POLYGON||type==Roi.POLYLINE;
 		if (!(segmentedSelection||type==Roi.FREEROI||type==Roi.TRACED_ROI||type==Roi.FREELINE))
 			{IJ.error("Spline", "Polygon or polyline selection required"); return;}
+		if (roi instanceof EllipseRoi)
+			return;
 		PolygonRoi p = (PolygonRoi)roi;
 		if (!segmentedSelection)
-			p = trimPolygon(p, getUncalibratedLength(p));
+			p = trimPolygon(p, p.getUncalibratedLength());
 		String options = Macro.getOptions();
 		if (options!=null && options.indexOf("straighten")!=-1)
 			p.fitSplineForStraightening();
@@ -114,15 +238,6 @@ public class Selection implements PlugIn, Measurements {
 		LineWidthAdjuster.update();	
 	}
 	
-	double getUncalibratedLength(PolygonRoi roi) {
-		Calibration cal = imp.getCalibration();
-		double spw=cal.pixelWidth, sph=cal.pixelHeight;
-		cal.pixelWidth=1.0; cal.pixelHeight=1.0;
-		double length = roi.getLength();
-		cal.pixelWidth=spw; cal.pixelHeight=sph;
-		return length;
-	}
-
 	PolygonRoi trimPolygon(PolygonRoi roi, double length) {
 		int[] x = roi.getXCoordinates();
 		int[] y = roi.getYCoordinates();
@@ -203,26 +318,23 @@ public class Selection implements PlugIn, Measurements {
 		return curvature;
 	}
 	
-	void drawEllipse(ImagePlus imp) {
+	void createEllipse(ImagePlus imp) {
 		IJ.showStatus("Fitting ellipse");
 		Roi roi = imp.getRoi();
 		if (roi==null)
 			{IJ.error("Fit Ellipse", "Selection required"); return;}
 		if (roi.isLine())
 			{IJ.error("Fit Ellipse", "\"Fit Ellipse\" does not work with line selections"); return;}
-		ImageProcessor ip = imp.getProcessor();
-		ImageStatistics stats;
-		if (roi.getType()==Roi.COMPOSITE)
-			stats = imp.getStatistics();
-		else {
-			ip.setRoi(roi.getPolygon());
-			stats = ImageStatistics.getStatistics(ip, AREA+MEAN+MODE+MIN_MAX, null);
-		}
-		EllipseFitter ef = new EllipseFitter();
-		ef.fit(ip, stats);
-		ef.makeRoi(ip);
-		imp.setRoi(new PolygonRoi(ef.xCoordinates, ef.yCoordinates, ef.nCoordinates, roi.FREEROI));
-		IJ.showStatus("");
+		ImageStatistics stats = imp.getStatistics(Measurements.CENTROID+Measurements.ELLIPSE);
+		double dx = stats.major*Math.cos(stats.angle/180.0*Math.PI)/2.0;
+		double dy = - stats.major*Math.sin(stats.angle/180.0*Math.PI)/2.0;
+		double x1 = stats.xCentroid - dx;
+		double x2 = stats.xCentroid + dx;
+		double y1 = stats.yCentroid - dy;
+		double y2 = stats.yCentroid + dy;
+		double aspectRatio = stats.minor/stats.major;
+		imp.killRoi();
+		imp.setRoi(new EllipseRoi(x1,y1,x2,y2,aspectRatio));
 	}
 
 	void convexHull(ImagePlus imp) {
@@ -230,6 +342,8 @@ public class Selection implements PlugIn, Measurements {
 		int type = roi!=null?roi.getType():-1;
 		if (!(type==Roi.FREEROI||type==Roi.TRACED_ROI||type==Roi.POLYGON||type==Roi.POINT))
 			{IJ.error("Convex Hull", "Polygonal or point selection required"); return;}
+		if (roi instanceof EllipseRoi)
+			return;
 		Polygon p = roi.getConvexHull();
 		if (p!=null)
 			imp.setRoi(new PolygonRoi(p.xpoints, p.ypoints, p.npoints, roi.POLYGON));
@@ -360,8 +474,6 @@ public class Selection implements PlugIn, Measurements {
 	
 	void toBoundingBox(ImagePlus imp) {
 		Roi roi = imp.getRoi();
-		if (roi==null || roi.getType()==Roi.RECTANGLE)
-			{IJ.error("To Bounding Box", "Non-rectangular selection required"); return;}
 		Rectangle r = roi.getBounds();
 		imp.killRoi();
 		imp.setRoi(new Roi(r.x, r.y, r.width, r.height));
@@ -388,6 +500,9 @@ public class Selection implements PlugIn, Measurements {
 	}
 	
 	boolean setProperties(String title, Roi roi) {
+		Frame f = WindowManager.getFrontWindow();
+		if (f!=null && f.getTitle().indexOf("3D Viewer")!=-1)
+			return false;
 		if (roi==null) {
 			IJ.error("This command requires a selection.");
 			return false;

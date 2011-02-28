@@ -76,7 +76,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 				Prefs.saveLocation(LOC_KEY, ca.getLocation());
 				ca.close();
 			} else {
-				instance.toFront();
+				WindowManager.toFront(instance);
 				return;
 			}
 		}
@@ -314,6 +314,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 
 	void setupNewImage(ImagePlus imp, ImageProcessor ip)  {
 		//IJ.write("setupNewImage");
+		Undo.reset();
 		previousMin = min;
 		previousMax = max;
 	 	if (RGBImage) {
@@ -595,7 +596,12 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 				ip.snapshot();
 				reset(imp, ip);
 				imp.changes = true;
-				if (Recorder.record) Recorder.record("run", "Apply LUT");
+				if (Recorder.record) {
+					if (Recorder.scriptMode())
+						Recorder.recordCall("IJ.run(imp, \"Apply LUT\", \"\");");
+					else
+						Recorder.record("run", "Apply LUT");
+				}
 			}
 			imp.unlock();
 			return;
@@ -656,10 +662,15 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		imp.changes = true;
 		imp.unlock();
 		if (Recorder.record) {
-			if (option!=null)
-				Recorder.record("run", "Apply LUT", option);
-			else
-				Recorder.record("run", "Apply LUT");
+			if (Recorder.scriptMode()) {
+				if (option==null) option = "";
+				Recorder.recordCall("IJ.run(imp, \"Apply LUT\", \""+option+"\");");
+			} else {
+				if (option!=null)
+					Recorder.record("run", "Apply LUT", option);
+				else
+					Recorder.record("run", "Apply LUT");
+			}
 		}
 	}
 
@@ -694,8 +705,12 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		imp.setStack(null, stack);
 		imp.setSlice(current);
 		imp.changes = true;
-		if (Recorder.record)
-			Recorder.record("run", "Apply LUT", "stack");
+		if (Recorder.record) {
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.run(imp, \"Apply LUT\", \"stack\");");
+			else
+				Recorder.record("run", "Apply LUT", "stack");
+		}
 	}
 
 	void setThreshold(ImageProcessor ip) {
@@ -758,8 +773,12 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		//	if (mask!=null)
 		//		ip.reset(mask);
 		//}
-		if (Recorder.record)
-			Recorder.record("run", "Enhance Contrast", "saturated=0.35");
+		if (Recorder.record) {
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.run(imp, \"Enhance Contrast\", \"saturated=0.35\");");
+			else
+				Recorder.record("run", "Enhance Contrast", "saturated=0.35");
+		}
 	}
 	
 	void setMinAndMax(ImagePlus imp, ImageProcessor ip) {
@@ -813,7 +832,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 			}
 			if (Recorder.record) {
 				if (imp.getBitDepth()==32)
-					Recorder.record("setMinAndMax", min, max);
+					recordSetMinAndMax(min, max);
 				else {
 					int imin = (int)min;
 					int imax = (int)max;
@@ -821,7 +840,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 						imin = (int)cal.getCValue(imin);
 						imax = (int)cal.getCValue(imax);
 					}
-					Recorder.record("setMinAndMax", imin, imax);
+					recordSetMinAndMax(imin, imax);
 				}
 				if (Recorder.scriptMode())
 					Recorder.recordCall("ImagePlus.setDefault16bitRange("+range2+");");
@@ -888,7 +907,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 				IJ.runMacroFile("ij.jar:PropagateMinAndMax");
 			if (Recorder.record) {
 				if (imp.getBitDepth()==32)
-					Recorder.record("setMinAndMax", min, max);
+					recordSetMinAndMax(min, max);
 				else {
 					int imin = (int)min;
 					int imax = (int)max;
@@ -896,12 +915,27 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 						imin = (int)cal.getCValue(imin);
 						imax = (int)cal.getCValue(imax);
 					}
-					Recorder.record("setMinAndMax", imin, imax);
+					recordSetMinAndMax(imin, imax);
 				}
 			}
 		}
 	}
 
+	void recordSetMinAndMax(double min, double max) {
+		if ((int)min==min && (int)max==max) {
+			int imin=(int)min, imax = (int)max;
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.setMinAndMax(imp, "+imin+", "+imax+");");
+			else
+				Recorder.record("setMinAndMax", imin, imax);
+		} else {
+			if (Recorder.scriptMode())
+				Recorder.recordCall("IJ.setMinAndMax(imp, "+min+", "+max+");");
+			else
+				Recorder.record("setMinAndMax", min, max);
+		}
+	}
+	
 	static final int RESET=0, AUTO=1, SET=2, APPLY=3, THRESHOLD=4, MIN=5, MAX=6, 
 		BRIGHTNESS=7, CONTRAST=8, UPDATE=9;
 
@@ -948,7 +982,12 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		switch (action) {
 			case RESET:
 				reset(imp, ip);
-				if (Recorder.record) Recorder.record("resetMinAndMax");
+				if (Recorder.record) {
+						if (Recorder.scriptMode())
+							Recorder.recordCall("IJ.resetMinAndMax(imp);");
+						else
+							Recorder.record("resetMinAndMax");
+				}
 				break;
 			case AUTO: autoAdjust(imp, ip); break;
 			case SET: if (windowLevel) setWindowLevel(imp, ip); else setMinAndMax(imp, ip); break;
@@ -960,17 +999,12 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
 		}
 		updatePlot();
 		updateLabels(imp);
-		if ((IJ.shiftKeyDown()||(balance&&channels==7)) && imp.isComposite()) {
+		if ((IJ.shiftKeyDown()||(balance&&channels==7)) && imp.isComposite())
 			((CompositeImage)imp).updateAllChannelsAndDraw();
-		} else
+		else
 			imp.updateChannelAndDraw();
 		if (RGBImage)
 			imp.unlock();
-	}
-
-	public void windowClosing(WindowEvent e) {
-	 	close();
-		Prefs.saveLocation(LOC_KEY, getLocation());
 	}
 
     /** Overrides close() in PlugInFrame. */
@@ -978,6 +1012,7 @@ public class ContrastAdjuster extends PlugInFrame implements Runnable,
     	super.close();
 		instance = null;
 		done = true;
+		Prefs.saveLocation(LOC_KEY, getLocation());
 		synchronized(this) {
 			notify();
 		}

@@ -275,6 +275,9 @@ public class IJ {
 			commandTable.put("New... ", "Table...");
 			commandTable.put("Arbitrarily...", "Rotate... ");
 			commandTable.put("Measurements...", "Results... ");
+			commandTable.put("List Commands...", "Find Commands...");
+			commandTable.put("Capture Screen ", "Capture Screen");
+			commandTable.put("Add to Manager ", "Add to Manager");
 		}
 		String command2 = (String)commandTable.get(command);
 		if (command2!=null)
@@ -349,8 +352,6 @@ public class IJ {
 		TextWindow resultsWindow = new TextWindow("Results", "", 400, 250);
 		textPanel = resultsWindow.getTextPanel();
 		textPanel.setResultsTable(Analyzer.getResultsTable());
-		if (ij!=null)
-			textPanel.addKeyListener(ij);
 	}
 
 	public static synchronized void log(String s) {
@@ -394,13 +395,25 @@ public class IJ {
 			}
 			String s2 = s.substring(cindex+1, s.length());
 			logPanel.setLine(line, s2);
-		} else if (s.equals("\\Clear"))
+		} else if (s.equals("\\Clear")) {
 			logPanel.clear();
-		else
+		} else if (s.equals("\\Close")) {
+			Frame f = WindowManager.getFrame("Log");
+			if (f!=null && (f instanceof TextWindow))
+				((TextWindow)f).close();
+		} else
 			logPanel.append(s);
 	}
 	
-	/** Clears the "Results" window and sets the column headings to
+	/** Returns the contents of the Log window or null if the Log window is not open. */
+	public static synchronized String getLog() { 
+		if (logPanel==null || ij==null)
+			return null;
+		else
+			return logPanel.getText(); 
+	} 
+
+/** Clears the "Results" window and sets the column headings to
 		those in the tab-delimited 'headings' String. Writes to
 		System.out.println if the "ImageJ" frame is not present.*/
 	public static void setColumnHeadings(String headings) {
@@ -541,7 +554,8 @@ public class IJ {
 		boolean abortMacro = title!=null;
 		if (redirectErrorMessages || redirectErrorMessages2) {
 			IJ.log(title2 + ": " + msg);
-			if (abortMacro && title.equals("Opener")) abortMacro = false;
+			if (abortMacro && (title.equals("Opener")||title.equals("DicomDecoder")))
+				abortMacro = false;
 		} else
 			showMessage(title2, msg);
 		redirectErrorMessages = false;
@@ -638,20 +652,28 @@ public class IJ {
 	
 	public static void showTime(ImagePlus imp, long start, String str, int nslices) {
 		if (Interpreter.isBatchMode()) return;
-	    long elapsedTime = System.currentTimeMillis() - start;
-		double seconds = elapsedTime / 1000.0;
-		long pixels = imp.getWidth() * imp.getHeight();
-		int rate = (int)((double)pixels*nslices/seconds);
+	    double seconds = (System.currentTimeMillis()-start)/1000.0;
+		double pixels = (double)imp.getWidth() * imp.getHeight();
+		double rate = pixels*nslices/seconds;
 		String str2;
-		if (rate>1000000000)
+		if (rate>1000000000.0)
 			str2 = "";
-		else if (rate<1000000)
-			str2 = ", "+rate+" pixels/second";
+		else if (rate<1000000.0)
+			str2 = ", "+d2s(rate,0)+" pixels/second";
 		else
 			str2 = ", "+d2s(rate/1000000.0,1)+" million pixels/second";
 		showStatus(str+seconds+" seconds"+str2);
 	}
-
+	
+	/** Experimental */
+	public static  String time(ImagePlus imp, long startNanoTime) {
+		double planes = imp.getStackSize();
+		double seconds = (System.nanoTime()-startNanoTime)/1000000000.0;
+		double mpixels = imp.getWidth()*imp.getHeight()*planes/1000000.0;
+		String time = seconds<1.0?d2s(seconds*1000.0,0)+" ms":d2s(seconds,1)+" seconds";
+		return time+", "+d2s(mpixels/seconds,1)+" million pixels/second";
+	}
+		
 	/** Converts a number to a formatted string using
 		2 digits to the right of the decimal point. */
 	public static String d2s(double n) {
@@ -667,8 +689,8 @@ public class IJ {
 		digits to the right of the decimal point (0-9). Uses
 		scientific notation if 'decimalPlaces is negative. */
 	public static String d2s(double n, int decimalPlaces) {
-		if (Double.isNaN(n))
-			return "NaN";
+		if (Double.isNaN(n)||Double.isInfinite(n))
+			return ""+n;
 		if (n==Float.MAX_VALUE) // divide by 0 in FloatProcessor
 			return "3.4e38";
 		double np = n;
@@ -702,10 +724,7 @@ public class IJ {
 				sf[8] = new DecimalFormat("0.00000000E0",dfs);
 				sf[9] = new DecimalFormat("0.000000000E0",dfs);
 			}
-			if (Double.isInfinite(n))
-				return ""+n;
-			else
-				return sf[decimalPlaces].format(n); // use scientific notation
+			return sf[decimalPlaces].format(n); // use scientific notation
 		}
 		if (decimalPlaces<0) decimalPlaces = 0;
 		if (decimalPlaces>9) decimalPlaces = 9;
@@ -888,7 +907,7 @@ public class IJ {
 		    		int size = (stackSize*imp.getWidth()*imp.getHeight()*imp.getBytesPerPixel()+524288)/1048576;
 		    		String msg =
 						"Use the Process>Batch>Virtual Stack command\n"+
-						"to process a virtual stacks like this one or convert\n"+
+						"to process a virtual stack ike this one or convert\n"+
 						"it to a normal stack using Image>Duplicate, which\n"+
 						"will require "+size+"MB of additional memory.";
 		    		error(msg);
@@ -918,7 +937,7 @@ public class IJ {
 		}
 	}
 	
-	/** Creates an elliptical selection. Removes any existing 
+	/** Creates an oval selection. Removes any existing 
 		selection if width or height are less than 1. */
 	public static void makeOval(int x, int y, int width, int height) {
 		if (width<=0 || height<0)
@@ -951,15 +970,23 @@ public class IJ {
 		getImage().setRoi(new Line(x1, y1, x2, y2));
 	}
 
-	/** Sets the minimum and maximum displayed pixel values. */
+	/** Sets the display range (minimum and maximum displayed pixel values) of the current image. */
 	public static void setMinAndMax(double min, double max) {
-		setMinAndMax(min, max, 7);
+		setMinAndMax(getImage(), min, max, 7);
+	}
+
+	/** Sets the display range (minimum and maximum displayed pixel values) of the specified image. */
+	public static void setMinAndMax(ImagePlus img, double min, double max) {
+		setMinAndMax(img, min, max, 7);
 	}
 
 	/** Sets the minimum and maximum displayed pixel values on the specified RGB
 	channels, where 4=red, 2=green and 1=blue. */
 	public static void setMinAndMax(double min, double max, int channels) {
-		ImagePlus img = getImage();
+		setMinAndMax(getImage(), min, max, channels);
+	}
+
+	private static void setMinAndMax(ImagePlus img, double min, double max, int channels) {
 		Calibration cal = img.getCalibration();
 		min = cal.getRawValue(min); 
 		max = cal.getRawValue(max);
@@ -970,10 +997,15 @@ public class IJ {
 		img.updateAndDraw();
 	}
 
-	/** Resets the minimum and maximum displayed pixel values
-		to be the same as the min and max pixel values. */
+	/** Resets the minimum and maximum displayed pixel values of the
+		current image to be the same as the min and max pixel values. */
 	public static void resetMinAndMax() {
-		ImagePlus img = getImage();
+		resetMinAndMax(getImage());
+	}
+
+	/** Resets the minimum and maximum displayed pixel values of the
+		specified image to be the same as the min and max pixel values. */
+	public static void resetMinAndMax(ImagePlus img) {
 		img.resetDisplayRange();
 		img.updateAndDraw();
 	}
@@ -1403,7 +1435,8 @@ public class IJ {
 	}
 
 	/** Saves the specified image, lookup table or selection to the specified file path. 
-		The path must end in ".tif", ".jpg", ".gif", ".zip", ".raw", ".avi", ".bmp", ".fits", ".pgm", ".png", ".lut", ".roi" or ".txt".  */
+		The file path must end with ".tif", ".jpg", ".gif", ".zip", ".raw", ".avi", ".bmp", 
+		".fits", ".pgm", ".png", ".lut", ".roi" or ".txt". */
 	public static void save(ImagePlus imp, String path) {
 		int dotLoc = path.lastIndexOf('.');
 		if (dotLoc!=-1) {
@@ -1413,7 +1446,7 @@ public class IJ {
 			saveAs(imp, path.substring(dotLoc+1), path);
 			if (title!=null) imp2.setTitle(title);
 		} else
-			error("The save() macro function requires a file name extension.\n \n"+path);
+			error("The file path passed to IJ.save() method or save()\nmacro function is missing the required extension.\n \n\""+path+"\"");
 	}
 
 	/* Saves the active image, lookup table, selection, measurement results, selection XY 
@@ -1433,7 +1466,8 @@ public class IJ {
 		if (path!=null && path.length()==0) path = null;
 		format = format.toLowerCase(Locale.US);
 		if (format.indexOf("tif")!=-1) {
-			path = updateExtension(path, ".tif");
+			if (path!=null&&!path.endsWith(".tiff"))
+				path = updateExtension(path, ".tif");
 			format = "Tiff...";
 		} else if (format.indexOf("jpeg")!=-1  || format.indexOf("jpg")!=-1) {
 			path = updateExtension(path, ".jpg");
@@ -1481,7 +1515,7 @@ public class IJ {
 			path = updateExtension(path, ".txt");
 			format = "XY Coordinates...";
 		} else
-			error("Unrecognized format: "+format);
+			error("Unsupported save() or saveAs() file format: \""+format+"\"\n \n\""+path+"\"");
 		if (path==null)
 			run(format);
 		else

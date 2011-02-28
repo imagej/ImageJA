@@ -1,6 +1,7 @@
 package ij;
 import ij.plugin.Converter;
 import ij.plugin.frame.Recorder;
+import ij.plugin.frame.Editor;
 import ij.macro.Interpreter;
 import ij.text.TextWindow;
 import ij.plugin.frame.PlugInFrame;
@@ -34,7 +35,8 @@ public class WindowManager {
 			// free up pixel buffers used by current window
 			ImagePlus imp = currentWindow.getImagePlus();
 			if (imp!=null ) {
-				imp.trimProcessor();
+				if (!Prefs.keepUndoBuffers)
+					imp.trimProcessor();
 				imp.saveRoi();
 			}
 		}
@@ -320,20 +322,29 @@ public class WindowManager {
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
     }
 
-	/** Closes all windows. Stops and returns false if any image "save changes" dialog is canceled. */
+	/** Closes all windows. Stops and returns false if an image or Editor "save changes" dialog is canceled. */
 	public synchronized static boolean closeAllWindows() {
 		while (imageList.size()>0) {
 			if (!((ImageWindow)imageList.elementAt(0)).close())
 				return false;
 			IJ.wait(100);
 		}
+		Frame[] nonImages = getNonImageWindows();
+		for (int i=0; i<nonImages.length; i++) {
+			Frame frame = nonImages[i];
+			if (frame!=null && (frame instanceof Editor)) {
+				((Editor)frame).close();
+				if (((Editor)frame).fileChanged())
+					return false;
+				IJ.wait(100);
+			}
+		}
 		ImageJ ij = IJ.getInstance();
 		if (ij!=null && ij.quitting() && IJ.getApplet()==null)
 			return true;
-		Frame[] list = getNonImageWindows();
-		for (int i=0; i<list.length; i++) {
-			Frame frame = list[i];
-			if (frame instanceof PlugInFrame)
+		for (int i=0; i<nonImages.length; i++) {
+			Frame frame = nonImages[i];
+			if ((frame instanceof PlugInFrame) && !(frame instanceof Editor))
 				((PlugInFrame)frame).close();
 			else if (frame instanceof TextWindow)
 				((TextWindow)frame).close();
@@ -360,7 +371,7 @@ public class WindowManager {
 			if (++count==imageList.size()) return;
 		} while (win instanceof HistogramWindow || win instanceof PlotWindow);
 		setCurrentWindow(win);
-		win.toFront();
+		toFront(win);
 		Menus.updateMenus();
     }
 
@@ -396,7 +407,7 @@ public class WindowManager {
 			Frame win = (Frame)nonImageList.elementAt(i);
 			String title = win.getTitle();
 			if (menuItemLabel.equals(title)) {
-				win.toFront();
+				toFront(win);
 				((CheckboxMenuItem)item).setState(false);
 				if (Recorder.record && !IJ.isMacro())
 					Recorder.record("selectWindow", title);
@@ -411,7 +422,7 @@ public class WindowManager {
 			String title = win.getImagePlus().getTitle();
 			if (menuItemLabel.equals(title)) {
 				setCurrentWindow(win);
-				win.toFront();
+				toFront(win);
 				int index = imageList.indexOf(win);
 				int n = Menus.window.getItemCount();
 				int start = Menus.WINDOW_MENU_ITEMS+Menus.windowMenuItems2;
@@ -448,5 +459,12 @@ public class WindowManager {
 			IJ.log(" ");
 		}
     }
+    
+    public static void toFront(Frame frame) {
+		if (frame==null) return;
+		if (frame.getState()==Frame.ICONIFIED)
+			frame.setState(Frame.NORMAL);
+		frame.toFront();
+	}
     
 }

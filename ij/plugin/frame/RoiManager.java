@@ -52,7 +52,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	public RoiManager() {
 		super("ROI Manager");
 		if (instance!=null) {
-			instance.toFront();
+			WindowManager.toFront(instance);
 			return;
 		}
 		instance = this;
@@ -139,6 +139,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		addPopupItem("Draw");
 		addPopupItem("AND");
 		addPopupItem("OR (Combine)");
+		addPopupItem("XOR");
 		addPopupItem("Split");
 		addPopupItem("Add Particles");
 		addPopupItem("Multi Measure");
@@ -200,6 +201,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			split();
 		else if (command.equals("AND"))
 			and();
+		else if (command.equals("XOR"))
+			xor();
 		else if (command.equals("Add Particles"))
 			addParticles();
 		else if (command.equals("Multi Measure"))
@@ -230,7 +233,14 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (source==labelsCheckbox) {
 			if (firstTime)
 				showAllCheckbox.setState(true);
-			showAll(labelsCheckbox.getState()?LABELS:NO_LABELS);
+			boolean editState = labelsCheckbox.getState();
+			boolean showAllState = showAllCheckbox.getState();
+			if (!showAllState && !editState)
+				showAll(SHOW_NONE);
+			else {
+				showAll(editState?LABELS:NO_LABELS);
+				if (editState) showAllCheckbox.setState(true);
+			}
 			firstTime = false;
 			return;
 		}
@@ -340,7 +350,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				roiCopy.setLocation(r.x-(int)cal.xOrigin, r.y-(int)cal.yOrigin);
 			}
 		}
-		roiCopy.setStrokeWidth(lineWidth);
+		if (lineWidth>1)
+			roiCopy.setStrokeWidth(lineWidth);
 		if (color!=null)
 			roiCopy.setStrokeColor(color);
 		rois.put(label, roiCopy);
@@ -924,7 +935,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
             }
  			switch (mode) {
 				case DRAW: roi.drawPixels(ip); break;
-				case FILL: ip.fillPolygon(roi.getPolygon()); break;
+				case FILL: ip.fill(roi); break;
 				case LABEL:
 					roi.drawPixels(ip);
 					filler.drawLabel(imp, ip, i+1, roi.getBounds());
@@ -974,7 +985,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				opacity = ((ImageRoi)rpRoi).getOpacity();
 		}
 		ImagePlus imp = WindowManager.getCurrentImage();
-		if (n==list.getItemCount() && !IJ.isMacro()) {
+		if (n==list.getItemCount() && n>1 && !IJ.isMacro()) {
 			GenericDialog gd = new GenericDialog("ROI Manager");
 			gd.addMessage("Apply changes to all "+n+" selections?");
 			gd.showDialog();
@@ -985,7 +996,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			Roi roi = (Roi)rois.get(label);
 			//IJ.log("set "+color+"  "+lineWidth+"  "+fillColor);
 			if (color!=null) roi.setStrokeColor(color);
-			if (lineWidth>0) roi.setStrokeWidth(lineWidth);
+			if (lineWidth>1) roi.setStrokeWidth(lineWidth);
 			roi.setFillColor(fillColor);
 			if (roi!=null && (roi instanceof TextRoi)) {
 				roi.setImage(imp);
@@ -1001,7 +1012,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		Roi roi = imp!=null?imp.getRoi():null;
 		boolean showingAll = ic!=null &&  ic.getShowAllROIs();
 		if (roi!=null && (n==1||!showingAll)) {
-			if (lineWidth!=0) roi.setStrokeWidth(lineWidth);
+			if (lineWidth>1) roi.setStrokeWidth(lineWidth);
 			if (color!=null) roi.setStrokeColor(color);
 			if (fillColor!=null) roi.setFillColor(fillColor);
 			if (roi!=null && (roi instanceof TextRoi))
@@ -1150,6 +1161,39 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 		if (s1!=null) imp.setRoi(s1);
 		if (record()) Recorder.record("roiManager", "AND");
+	}
+
+	void xor() {
+		ImagePlus imp = getImage();
+		if (imp==null) return;
+		int[] indexes = list.getSelectedIndexes();
+		if (indexes.length==1) {
+			error("More than one item must be selected, or none");
+			return;
+		}
+		if (indexes.length==0)
+			indexes = getAllIndexes();
+		ShapeRoi s1=null, s2=null;
+		for (int i=0; i<indexes.length; i++) {
+			Roi roi = (Roi)rois.get(list.getItem(indexes[i]));
+			if (!roi.isArea()) continue;
+			if (s1==null) {
+				if (roi instanceof ShapeRoi)
+					s1 = (ShapeRoi)roi.clone();
+				else
+					s1 = new ShapeRoi(roi);
+				if (s1==null) return;
+			} else {
+				if (roi instanceof ShapeRoi)
+					s2 = (ShapeRoi)roi.clone();
+				else
+					s2 = new ShapeRoi(roi);
+				if (s2==null) continue;
+				s1.xor(s2);
+			}
+		}
+		if (s1!=null) imp.setRoi(s1);
+		if (record()) Recorder.record("roiManager", "XOR");
 	}
 
 	void addParticles() {
@@ -1389,7 +1433,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	}
 
 	/** Executes the ROI Manager "Add", "Add & Draw", "Update", "Delete", "Measure", "Draw",
-		"Show All", Show None", "Fill", "Deselect", "Select All", "Combine", "AND", "Split",
+		"Show All", Show None", "Fill", "Deselect", "Select All", "Combine", "AND", "XOR", "Split",
 		"Sort" or "Multi Measure" command.  Returns false if <code>cmd</code>
 		is not one of these strings. */
 	public boolean runCommand(String cmd) {
@@ -1424,6 +1468,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			and();
 		else if (cmd.equals("or") || cmd.equals("combine"))
 			combine();
+		else if (cmd.equals("xor"))
+			xor();
 		else if (cmd.equals("split"))
 			split();
 		else if (cmd.equals("sort"))
@@ -1457,6 +1503,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				ignoreInterrupts = true;
 			list.removeAll();
 			rois.clear();
+			updateShowAll();
 		} else if (cmd.equals("debug")) {
 			//IJ.log("Debug: "+debugCount);
 			//for (int i=0; i<debugCount; i++)
