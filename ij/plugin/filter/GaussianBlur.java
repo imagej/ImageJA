@@ -2,6 +2,7 @@ package ij.plugin.filter;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Macro;
+import ij.Prefs;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.process.ByteProcessor;
@@ -15,8 +16,8 @@ import java.awt.Rectangle;
 /** This plug-in filter uses convolution with a Gaussian function for smoothing.
  * 'Radius' means the radius of decay to exp(-0.5) ~ 61%, i.e. the standard
  * deviation sigma of the Gaussian (this is the same as in Photoshop, but
- * different from the previous ImageJ function 'Gaussian Blur', where a value
- * 2.5 times as much has to be entered.
+ * different from the 'Gaussian Blur' in ImageJ versions before 1.38u, where
+ * a value 2.5 times as much had to be entered.
  * - Like all convolution operations in ImageJ, it assumes that out-of-image
  * pixels have a value equal to the nearest edge pixel. This gives higher
  * weight to edge pixels than pixels inside the image, and higher weight
@@ -43,17 +44,13 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
     /** whether sigma is given in units corresponding to the pixel scale (not pixels)*/
     private static boolean sigmaScaled = false;
     /** The flags specifying the capabilities and needs */
-    private int flags = DOES_ALL|SUPPORTS_MASKING|PARALLELIZE_STACKS|KEEP_PREVIEW;
+    private int flags = DOES_ALL|SUPPORTS_MASKING|KEEP_PREVIEW;
     private ImagePlus imp;              // The ImagePlus of the setup call, needed to get the spatial calibration
     private boolean hasScale = false;   // whether the image has an x&y scale
     private int nPasses = 1;            // The number of passes (filter directions * color channels * stack slices)
-	private int nChannels = 1;        // The number of color channels
+    private int nChannels = 1;        // The number of color channels
     private int pass;                   // Current pass
     
-    /** Default constructor */
-    public GaussianBlur() {
-    }
-
     /** Method to return types supported
      * @param arg unused
      * @param imp The ImagePlus, used to get the spatial calibration
@@ -75,7 +72,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
     public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
         String options = Macro.getOptions();
         boolean oldMacro = false;
-		nChannels = imp.getProcessor().getNChannels();
+        nChannels = imp.getProcessor().getNChannels();
         if  (options!=null) {
             if (options.indexOf("radius=") >= 0) {  // ensure compatibility with old macros
                 oldMacro = true;                    // specifying "radius=", not "sigma=
@@ -153,8 +150,8 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
      *                 accuracy needs slightly more computing time.
      */
     public void blurGaussian(ImageProcessor ip, double sigmaX, double sigmaY, double accuracy) {
-    	if (nPasses<=1)
-    		nPasses = ip.getNChannels() * (sigmaX>0 && sigmaY>0 ? 2 : 1);
+        if (nPasses<=1)
+            nPasses = ip.getNChannels() * (sigmaX>0 && sigmaY>0 ? 2 : 1);
         FloatProcessor fp = null;
         for (int i=0; i<ip.getNChannels(); i++) {
             fp = ip.toFloat(i, fp);
@@ -197,16 +194,16 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
      */
     public void blur1Direction( final FloatProcessor ip, final double sigma, final double accuracy,
             final boolean xDirection, final int extraLines) {
-    	
-    	final int UPSCALE_K_RADIUS = 2;             //number of pixels to add for upscaling
-        final double MIN_DOWNSCALED_SIGMA = 4.;     //minimum standard deviation in the downscaled image
+        
+        final int UPSCALE_K_RADIUS = 2;                     //number of pixels to add for upscaling
+        final double MIN_DOWNSCALED_SIGMA = 4.;             //minimum standard deviation in the downscaled image
         final float[] pixels = (float[])ip.getPixels();
         final int width = ip.getWidth();
         final int height = ip.getHeight();
         final Rectangle roi = ip.getRoi();
-        final int length = xDirection ? width : height;   //number of points per line (line can be a row or column)
-        final int pointInc = xDirection ? 1 : width;      //increment of the pixels array index to the next point in a line
-        final int lineInc = xDirection ? width : 1;       //increment of the pixels array index to the next line
+        final int length = xDirection ? width : height;     //number of points per line (line can be a row or column)
+        final int pointInc = xDirection ? 1 : width;        //increment of the pixels array index to the next point in a line
+        final int lineInc = xDirection ? width : 1;         //increment of the pixels array index to the next line
         final int lineFromA = (xDirection ? roi.y : roi.x) - extraLines;  //the first line to process
         final int lineFrom;
         if (lineFromA < 0) lineFrom = 0;
@@ -215,123 +212,97 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
         final int lineTo;
         if (lineToA > (xDirection ? height:width)) lineTo = (xDirection ? height:width);
         else lineTo = lineToA;
-        final int writeFrom = xDirection? roi.x : roi.y;  //first point of a line that needs to be written
+        final int writeFrom = xDirection? roi.x : roi.y;    //first point of a line that needs to be written
         final int writeTo = xDirection ? roi.x+roi.width : roi.y+roi.height;
-        final int inc = Math.max((lineTo-lineFrom)/(100/(nPasses>0?nPasses:1)+1),20);
+/**/        final int inc = Math.max((lineTo-lineFrom)/(100/(nPasses>0?nPasses:1)+1),20);
         pass++;
         if (pass>nPasses) pass =1;
         
-        final int numThreads = Runtime.getRuntime().availableProcessors();
-        final Thread[] lineThreads = new Thread[ numThreads ];
-        
-        if (sigma > 2*MIN_DOWNSCALED_SIGMA + 0.5) {
-             /* large radius (sigma): scale down, then convolve, then scale up */
-            final int reduceByA = (int)Math.floor(sigma/MIN_DOWNSCALED_SIGMA); //downscale by this factor
-            final int reduceBy;
-            if (reduceByA > length) reduceBy = length;
-            else reduceBy = reduceByA;
-            /* Downscale gives std devation sigma = 1/sqrt(3); upscale gives sigma = 1/2. (in downscaled pixels) */
-            /* All sigma^2 values add to full sigma^2  */
-            final double sigmaGauss = Math.sqrt(sigma*sigma/(reduceBy*reduceBy) - 1./3. - 1./4.);
-            final int maxLength = (length+reduceBy-1)/reduceBy + 2*(UPSCALE_K_RADIUS + 1); //downscaled line can't be longer
-            final float[][] gaussKernel = makeGaussianKernel(sigmaGauss, accuracy, maxLength);
-            final int kRadius = gaussKernel[0].length*reduceBy; //Gaussian kernel radius after upscaling
-            final int readFrom = (writeFrom-kRadius < 0) ? 0 : writeFrom-kRadius; //not including broadening by downscale&upscale
-            final int readTo = (writeTo+kRadius > length) ? length : writeTo+kRadius;
-            final int newLength = (readTo-readFrom+reduceBy-1)/reduceBy + 2*(UPSCALE_K_RADIUS + 1);
-            final int unscaled0 = readFrom - (UPSCALE_K_RADIUS + 1)*reduceBy; //input point corresponding to cache index 0
-            //IJ.log("reduce="+reduceBy+", newLength="+newLength+", unscaled0="+unscaled0+", sigmaG="+(float)sigmaGauss+", kRadius="+gaussKernel[0].length);
-            final float[] downscaleKernel = makeDownscaleKernel(reduceBy);
-            final float[] upscaleKernel = makeUpscaleKernel(reduceBy);
+        final int numThreads = Math.min(Prefs.getThreads(), lineTo-lineFrom);
+        final Thread[] lineThreads = new Thread[numThreads];
+
+        /* large radius (sigma): scale down, then convolve, then scale up */
+        final boolean doDownscaling = sigma > 2*MIN_DOWNSCALED_SIGMA + 0.5;
+        final int reduceBy = doDownscaling ?                //downscale by this factor
+                Math.min((int)Math.floor(sigma/MIN_DOWNSCALED_SIGMA), length)
+                : 1;
+        /* Downscaling and upscaling blur the image a bit - we have to correct the standard
+         * deviation for this:
+         * Downscaling gives std devation sigma = 1/sqrt(3); upscale gives sigma = 1/2 (in downscaled pixels).
+         * All sigma^2 values add to full sigma^2, which should be the desired value  */
+        final double sigmaGauss = doDownscaling ?
+                Math.sqrt(sigma*sigma/(reduceBy*reduceBy) - 1./3. - 1./4.)
+                : sigma;
+        final int maxLength = doDownscaling ?
+                (length+reduceBy-1)/reduceBy + 2*(UPSCALE_K_RADIUS + 1) //downscaled line can't be longer
+                : length;
+        final float[][] gaussKernel = makeGaussianKernel(sigmaGauss, accuracy, maxLength);
+        final int kRadius = gaussKernel[0].length*reduceBy;             //Gaussian kernel radius after upscaling
+        final int readFrom = (writeFrom-kRadius < 0) ? 0 : writeFrom-kRadius; //not including broadening by downscale&upscale
+        final int readTo = (writeTo+kRadius > length) ? length : writeTo+kRadius;
+        final int newLength = doDownscaling ?                           //line length for convolution
+                (readTo-readFrom+reduceBy-1)/reduceBy + 2*(UPSCALE_K_RADIUS + 1)
+                : length;
+        final int unscaled0 = readFrom - (UPSCALE_K_RADIUS + 1)*reduceBy; //input point corresponding to cache index 0
+        //the following is relevant for upscaling only
+        //IJ.log("reduce="+reduceBy+", newLength="+newLength+", unscaled0="+unscaled0+", sigmaG="+(float)sigmaGauss+", kRadius="+gaussKernel[0].length);
+        final float[] downscaleKernel = doDownscaling ? makeDownscaleKernel(reduceBy) : null;
+        final float[] upscaleKernel = doDownscaling ? makeUpscaleKernel(reduceBy) : null;
+           
+        for ( int t = 0; t < numThreads; ++t ) {
+            final int ti = t;
+            final float[] cache1 = new float[newLength];  //holds data before convolution (after downscaling, if any)
+            final float[] cache2 = doDownscaling ? new float[newLength] : null;  //holds data after convolution
             
-            for ( int t = 0; t < numThreads; ++t ) {
-            	final int ti = t;
-	            final float[] cache1 = new float[newLength];  //holds data after downscaling
-	            final float[] cache2 = new float[newLength];  //holds data after convolution
-	            
-	            final Thread thread = new Thread(
-	            		new Runnable() {
-	            			final public void run() {
-	            				int pixel0 = (lineFrom+ti)*lineInc;
-	            				for (int line=lineFrom + ti; line<lineTo; line += numThreads, pixel0+=numThreads*lineInc) {
-					                if (line%inc==0) {
-					                    showProgress((double)(line-lineFrom)/(lineTo-lineFrom));
-					                    if (Thread.currentThread().isInterrupted()) return; // interruption for new parameters during preview?
-					                }
-					                downscaleLine(pixels, cache1, downscaleKernel, reduceBy, pixel0, unscaled0, length, pointInc, newLength);
-					                convolveLine(cache1, cache2, gaussKernel, 0, newLength, 1, newLength-1, 0, 1);
-					                upscaleLine(cache2, pixels, upscaleKernel, reduceBy, pixel0, unscaled0, writeFrom, writeTo, pointInc);
-					            }
-	            			}
-	            		} );
-	            
-	            thread.setPriority( Thread.currentThread().getPriority() );
-	            lineThreads[ ti ] = thread;
-	            thread.start();
-            }
-            try {
-            	for ( final Thread thread : lineThreads )
-            		if ( thread != null ) thread.join();
-            }
-            catch ( InterruptedException e ) {
-            	for ( final Thread thread : lineThreads )
-            		thread.interrupt();
-            	try {
-            		for ( final Thread thread : lineThreads )
-            			thread.join();
-            	}
-            	catch ( InterruptedException f ) {}
-            	Thread.currentThread().interrupt();
-            }
+            final Thread thread = new Thread(
+                    new Runnable() {
+                        final public void run() { /*try{*/
+                            long lastTime = System.currentTimeMillis();
+                            boolean canShowProgress = Thread.currentThread() == lineThreads[0];
+                            int pixel0 = (lineFrom+ti)*lineInc;
+                            for (int line=lineFrom + ti; line<lineTo; line += numThreads, pixel0+=numThreads*lineInc) {
+                                long time = System.currentTimeMillis();
+                                if (time - lastTime >110) {
+                                    if (canShowProgress)
+                                        showProgress((double)(line-lineFrom)/(lineTo-lineFrom));
+                                    if (Thread.currentThread().isInterrupted()) return; // interruption for new parameters during preview?
+                                    lastTime = time;
+                                }
+                                if (doDownscaling) {
+                                    downscaleLine(pixels, cache1, downscaleKernel, reduceBy, pixel0, unscaled0, length, pointInc, newLength);
+                                    convolveLine(cache1, cache2, gaussKernel, 0, newLength, 1, newLength-1, 0, 1);
+                                    upscaleLine(cache2, pixels, upscaleKernel, reduceBy, pixel0, unscaled0, writeFrom, writeTo, pointInc);
+                                } else {
+                                    int p = pixel0 + readFrom*pointInc;
+                                    for (int i=readFrom; i<readTo; i++ ,p+=pointInc)
+                                        cache1[i] = pixels[p];
+                                    convolveLine(cache1, pixels, gaussKernel, readFrom, readTo, writeFrom, writeTo, pixel0, pointInc);
+                                }
+                                    
+                            }
+                        } /*catch(Exception ex) {IJ.handleException(ex);} }*/
+                    },
+                    "GaussianBlur-"+t);
             
-            	
-        } else {
-            /* small radius: normal convolution */
-            final float[][] gaussKernel = makeGaussianKernel(sigma, accuracy, length);
-            final int kRadius = gaussKernel[0].length;
-            final int readFrom = (writeFrom-kRadius < 0) ? 0 : writeFrom-kRadius;
-            final int readTo = (writeTo+kRadius > length) ? length : writeTo+kRadius;
-            
-            for ( int t = 0; t < numThreads; ++t )
-            {
-            	final int ti = t;
-	            final float[] cache = new float[length];          //input for convolution, hopefully in CPU cache
-	            
-	            final Thread thread = new Thread(
-	            		new Runnable() {
-	            			final public void run() {
-	            				int pixel0 = (lineFrom+ti)*lineInc;
-	            				for (int line=lineFrom + ti; line<lineTo; line += numThreads, pixel0+=numThreads*lineInc) {
-	            					if (line%inc==0) {
-	            						showProgress((double)(line-lineFrom)/(lineTo-lineFrom));
-	            						if (Thread.currentThread().isInterrupted()) return;
-	            					}
-	            					int p = pixel0 + readFrom*pointInc;
-	            					for (int i=readFrom; i<readTo; i++ ,p+=pointInc)
-	            						cache[i] = pixels[p];
-	            					convolveLine(cache, pixels, gaussKernel, readFrom, readTo, writeFrom, writeTo, pixel0, pointInc);
-	            				}
-	            			}
-	            		} );
-	            thread.setPriority( Thread.currentThread().getPriority() );
-	            lineThreads[ t ] = thread;
-	            thread.start();
-            }
-            try {
-            	for ( final Thread thread : lineThreads )
-            		if ( thread != null ) thread.join();
-            }
-            catch ( InterruptedException e ) {
-            	for ( final Thread thread : lineThreads )
-            		thread.interrupt();
-            	try {
-            		for ( final Thread thread : lineThreads )
-            			thread.join();
-            	}
-            	catch ( InterruptedException f ) {}
-            	Thread.currentThread().interrupt();
-            }
+            thread.setPriority( Thread.currentThread().getPriority() );
+            lineThreads[ ti ] = thread;
+            thread.start();
         }
+        try {
+            for ( final Thread thread : lineThreads )
+                if ( thread != null ) thread.join();
+        }
+        catch ( InterruptedException e ) {
+            for ( final Thread thread : lineThreads )
+                thread.interrupt();
+            try {
+                for ( final Thread thread : lineThreads )
+                    thread.join();
+            }
+            catch ( InterruptedException f ) {}
+            Thread.currentThread().interrupt();
+        }
+            
         showProgress(1.0);
         return;
     }
@@ -342,23 +313,53 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
      * Input line pixel # <code>unscaled0</code> will correspond to output
      * line pixel # 0. <code>unscaled0</code> may be negative. Out-of-line
      * pixels of the input are replaced by the edge pixels.
+     * @param pixels    input array
+     * @param cache     output array
+     * @param kernel    downscale kernel, runs form -1.5 to +1.5 in downscaled coordinates
+     * @param reduceBy  downscaling factor
+     * @param pixel0    index in pixels array corresponding to start of line or column
+     * @param unscaled0 index in input line corresponding to output line index 0, May be negative.
+     * @param length    length of full input line or column
+     * @param pointInc  spacing of values in input array (1 for lines, image width for columns)
+     * @param newLength length of downscaled data
      */
-    final static private void downscaleLine( final float[] pixels, final float[] cache, final float[] kernel,
+    final static private void downscaleLine(final float[] pixels, final float[] cache, final float[] kernel,
             final int reduceBy, final int pixel0, final int unscaled0, final int length, final int pointInc, final int newLength) {
-        final float first = pixels[pixel0];
-        final float last = pixels[pixel0 + pointInc*(length-1)];
-        int xin = unscaled0 - reduceBy/2;
+        int p = pixel0 + pointInc*(unscaled0-reduceBy*3/2);  //pointer in pixels array
+        final int pLast = pixel0 + pointInc*(length-1);
+        for (int xout=-1; xout<=newLength; xout++) {
+            float sum0 = 0, sum1 = 0, sum2 = 0;
+            for (int x=0; x<reduceBy; x++, p+=pointInc) {
+                float v = pixels[p<pixel0 ? pixel0 : (p>pLast ? pLast : p)];
+                sum0 += v * kernel[x+2*reduceBy];
+                sum1 += v * kernel[x+reduceBy];
+                sum2 += v * kernel[x];
+            }
+            if (xout>0) cache[xout-1] += sum0;
+            if (xout>=0 && xout<newLength) cache[xout] += sum1;
+            if (xout+1<newLength) cache[xout+1] = sum2;
+        }
+    }
+    /** the above code is equivalent to the following one; but the above code is faster
+     *  - above: accesses each pixel in the pixels array only once
+     *  - below: accesses each pixel in the pixels array 3 times, more cache misses */
+    /*final static private void downscaleLine(final float[] pixels, final float[] cache, final float[] kernel,
+            final int reduceBy, final int pixel0, final int unscaled0, final int length, final int pointInc, final int newLength) {
+        final int xin = unscaled0 - reduceBy/2;
         int p = pixel0 + pointInc*xin;
+        final int pLast = pixel0 + pointInc*(length-1);
         for (int xout=0; xout<newLength; xout++) {
             float v = 0;
-            for (int x=0; x<reduceBy; x++, xin++, p+=pointInc) {
-                v += kernel[x] * ((xin-reduceBy < 0) ? first : ((xin-reduceBy >= length) ? last : pixels[p-pointInc*reduceBy]));
-                v += kernel[x+reduceBy] * ((xin < 0) ? first : ((xin >= length) ? last : pixels[p]));
-                v += kernel[x+2*reduceBy] * ((xin+reduceBy < 0) ? first : ((xin+reduceBy >= length) ? last : pixels[p+pointInc*reduceBy]));
+            for (int x=0; x<reduceBy; x++, p+=pointInc) {
+                int pp = p-pointInc*reduceBy;
+                v += kernel[x] * pixels[pp<pixel0 ? pixel0 : (pp>pLast ? pLast : pp)];
+                v += kernel[x+reduceBy] * pixels[p<pixel0 ? pixel0 : (p>pLast ? pLast : p)];
+                pp = p+pointInc*reduceBy;
+                v += kernel[x+2*reduceBy] * pixels[pp<pixel0 ? pixel0 : (pp>pLast ? pLast : pp)];
             }
             cache[xout] = v;
         }
-    }
+    }*/
 
     /* Create a kernel for downscaling. The kernel function preserves
      * norm and 1st moment (i.e., position) and has fixed 2nd moment,
@@ -391,10 +392,10 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
      */
     final static private void upscaleLine (final float[] cache, final float[] pixels, final float[] kernel,
             final int reduceBy, final int pixel0, final int unscaled0, final int writeFrom, final int writeTo, final int pointInc) {
-    	int p = pixel0 + pointInc*writeFrom;
+        int p = pixel0 + pointInc*writeFrom;
         for (int xout = writeFrom; xout < writeTo; xout++, p+=pointInc) {
-        	final int xin = (xout-unscaled0+reduceBy-1)/reduceBy; //the corresponding point in the cache (if exact) or the one above
-        	final int x = reduceBy - 1 - (xout-unscaled0+reduceBy-1)%reduceBy;
+            final int xin = (xout-unscaled0+reduceBy-1)/reduceBy; //the corresponding point in the cache (if exact) or the one above
+            final int x = reduceBy - 1 - (xout-unscaled0+reduceBy-1)%reduceBy;
             pixels[p] = cache[xin-2]*kernel[x]
                     + cache[xin-1]*kernel[x+reduceBy]
                     + cache[xin]*kernel[x+2*reduceBy]
@@ -415,14 +416,14 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
         final int mid = 2*unitLength;
         kernel[0] = 0;
         for (int i=0; i<unitLength; i++) {
-        	final double x = i/(double)unitLength;
-        	final float v = (float)((2./3. -x*x*(1-0.5*x)));
+            final double x = i/(double)unitLength;
+            final float v = (float)((2./3. -x*x*(1-0.5*x)));
             kernel[mid+i] = v;
             kernel[mid-i] = v;
         }
         for (int i=unitLength; i<2*unitLength; i++) {
-        	final double x = i/(double)unitLength;
-        	final float v = (float)((2.-x)*(2.-x)*(2.-x)/6.);
+            final double x = i/(double)unitLength;
+            final float v = (float)((2.-x)*(2.-x)*(2.-x)/6.);
             kernel[mid+i] = v;
             kernel[mid-i] = v;
         }
@@ -585,7 +586,7 @@ public class GaussianBlur implements ExtendedPlugInFilter, DialogListener {
     }
     
     void showProgress(double percent) {
-    	percent = (double)(pass-1)/nPasses + percent/nPasses;
-    	IJ.showProgress(percent);
+        percent = (double)(pass-1)/nPasses + percent/nPasses;
+        IJ.showProgress(percent);
     }
 }
