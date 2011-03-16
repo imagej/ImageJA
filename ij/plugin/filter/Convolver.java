@@ -28,6 +28,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 	private boolean kernelError;
 	private PlugInFilterRunner pfr;
 	private Thread mainThread;
+	private int pass;
 
 	
 	static String kernelText = "-1 -1 -1 -1 -1\n-1 -1 -1 -1 -1\n-1 -1 24 -1 -1\n-1 -1 -1 -1 -1\n-1 -1 -1 -1 -1\n";
@@ -60,7 +61,6 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 		if (isLineRoi) ip.resetRoi();
 		if (!kernelError)
 			convolve(ip, kernel, kw, kh);
-		if (canceled) Undo.undo();
 	}
 	
 	public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
@@ -228,6 +228,7 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 		double scale = getScale(kernel);
         Thread thread = Thread.currentThread();
         boolean isMainThread = thread==mainThread || thread.getName().indexOf("Preview")!=-1;
+        if (isMainThread) pass++;
 		double sum;
 		int offset, i;
 		boolean edgePixel;
@@ -235,21 +236,24 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 		int yedge = height-vc;
 		long lastTime = System.currentTimeMillis();
 		for(int y=y1; y<y2; y++) {
-			if (isMainThread) {
-				long time = System.currentTimeMillis();
-				if (time-lastTime>100) {
-					lastTime = time;
-					if (thread.isInterrupted()) return false;
+			long time = System.currentTimeMillis();
+			if (time-lastTime>100) {
+				lastTime = time;
+				if (thread.isInterrupted()) return false;
+				if (isMainThread) {
 					if (IJ.escapePressed()) {
-						IJ.beep();
 						canceled = true;
 						ip.reset();
+						ImageProcessor originalIp = imp.getProcessor();
+						if (originalIp.getNChannels() > 1)
+							originalIp.reset();
 						return false;
 					}
 					showProgress((y-y1)/(double)(y2-y1));
 				}
 			}
 			for(int x=x1; x<x2; x++) {
+				if (canceled) return false;
 				sum = 0.0;
 				i = 0;
 				edgePixel = y<vc || y>=yedge || x<uc || x>=xedge;
@@ -418,10 +422,11 @@ public class Convolver implements ExtendedPlugInFilter, DialogListener, ActionLi
 	
 	public void setNPasses(int nPasses) {
 		this.nPasses = nPasses;
+		pass = 0;
 	}
 
     private void showProgress(double percent) {
-        percent = (double)((pfr!=null?pfr.passesDone():0))/nPasses + percent/nPasses;
+        percent = (double)(pass-1)/nPasses + percent/nPasses;
         IJ.showProgress(percent);
     }
 
