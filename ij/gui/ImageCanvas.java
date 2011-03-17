@@ -213,17 +213,13 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if (i<200 && drawLabels && imp!=null && roi==imp.getRoi())
 				currentRoi = roi;
 			if (Prefs.showAllSliceOnly && imp.getStackSize()>1) {
-				int slice = roi.getSlice();
+				int slice = roi.getPosition();
 				if (slice==0)
 					getSliceNumber(roi.getName());
 				if (slice==-1 || slice==imp.getCurrentSlice())
 					drawRoi(g, roi, drawLabels?i:-1);
-			} else {
-				int slice = roi.getSlice();
-				roi.setSlice(0);
+			} else
 				drawRoi(g, roi, drawLabels?i:-1);
-				roi.setSlice(1);
-			}
 		}
 		((Graphics2D)g).setStroke(Roi.onePixelWide);
     }
