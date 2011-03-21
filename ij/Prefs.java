@@ -51,6 +51,9 @@ public class Prefs {
 		AVOID_RESLICE_INTERPOLATION=1<<29, KEEP_UNDO_BUFFERS=1<<30; 
     public static final String OPTIONS = "prefs.options";
     
+	private static final int DISABLE_DIRECTDRAW=1<<0;
+    public static final String OPTIONS2 = "prefs.options2";
+    
 	public static final String vistaHint = "\n \nOn Windows Vista, ImageJ must be installed in a directory that\nthe user can write to, such as \"Desktop\" or \"Documents\"";
 
 	/** file.separator system property */
@@ -129,6 +132,8 @@ public class Prefs {
 	public static boolean avoidResliceInterpolation;
 	/** Preserve undo (snapshot) buffers when switching images */
 	public static boolean keepUndoBuffers;
+	/** Disable DirectDraw (Windows only) */
+	public static boolean disableDirectDraw;
 
 
 	static Properties ijPrefs = new Properties();
@@ -403,6 +408,9 @@ public class Prefs {
 		noClickToGC = (options&NO_CLICK_TO_GC)!=0;
 		avoidResliceInterpolation = (options&AVOID_RESLICE_INTERPOLATION)!=0;
 		keepUndoBuffers = (options&KEEP_UNDO_BUFFERS)!=0;
+		
+		int options2 = getInt(OPTIONS2, 0);
+		disableDirectDraw = (options2&DISABLE_DIRECTDRAW)!=0;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -423,6 +431,8 @@ public class Prefs {
 			+ (avoidResliceInterpolation?AVOID_RESLICE_INTERPOLATION:0)
 			+ (keepUndoBuffers?KEEP_UNDO_BUFFERS:0);
 		prefs.put(OPTIONS, Integer.toString(options));
+		int options2 = (disableDirectDraw?DISABLE_DIRECTDRAW:0);
+		prefs.put(OPTIONS2, Integer.toString(options2));
 		if (enableRMIListener >= 0)
 			prefs.put(ENABLE_RMI, Integer.toString(enableRMIListener));
 	}
@@ -568,6 +578,6 @@ public class Prefs {
 	public static Properties getControlPanelProperties() {
 		return ijPrefs;
 	}
-
+	
 }
 
