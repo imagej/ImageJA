@@ -203,6 +203,8 @@ public class Dynamic_Profiler
             double[] a = Tools.getMinMax(x);
             plot.setLimits(a[0],a[1], fixedMin, fixedMax);
         }
+        if (IJ.getVersion().compareTo("1.45e")>=0)
+            plot.setBitDepth(imp!=null?imp.getBitDepth():0);
         return plot.getProcessor();
     }
 
