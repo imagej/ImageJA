@@ -76,7 +76,7 @@ public class NewPlugin implements PlugIn {
     
 	public void createMacro(String name) {
 		int options = (monospaced?Editor.MONOSPACED:0)+(menuBar?Editor.MENU_BAR:0);
-		if (type==MACRO && !name.endsWith(".txt"))
+		if (type==MACRO && !name.endsWith(".txt") && !name.endsWith(".ijm"))
 			name = SaveDialog.setExtension(name, ".txt");
 		else if (type==JAVASCRIPT && !name.endsWith(".js")) {
 			if (name.equals("Macro")) name = "script";
