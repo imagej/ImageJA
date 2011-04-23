@@ -5,6 +5,8 @@ import java.io.*;
 import java.net.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import java.util.zip.Inflater;
+import java.util.zip.DataFormatException;
 
 /** Reads raw 8-bit, 16-bit or 32-bit (float or RGB)
 	images from a stream or URL. */
@@ -849,6 +851,8 @@ public class ImageReader {
 			return packBitsUncompress(input, fi.rowsPerStrip*fi.width*fi.getBytesPerPixel());
 		else if (fi.compression==FileInfo.LZW || fi.compression==FileInfo.LZW_WITH_DIFFERENCING)
 			return lzwUncompress(input, maxSize);
+		else if (fi.compression==FileInfo.ZIP)
+			return zipUncompress(input);
 		else
 			return input;
 	}
@@ -921,7 +925,24 @@ public class ImageReader {
 		}
 		return out.toByteArray();
 	}
-	 
+
+	public byte[] zipUncompress(byte[] input) {
+		ByteArrayOutputStream imageBuffer = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		Inflater decompressor = new Inflater();
+		decompressor.setInput(input);
+		try {
+			while (!decompressor.finished()) {
+				int rlen = decompressor.inflate(buffer);
+				imageBuffer.write(buffer, 0, rlen);
+			}
+		} catch(DataFormatException e) {
+			IJ.log(e.toString());
+		}
+		decompressor.end();
+		return imageBuffer.toByteArray();
+	}
+
 	/** Based on the Bio-Formats PackbitsCodec written by Melissa Linkert. */
 	public byte[] packBitsUncompress(byte[] input, int expected) {
 		if (expected==0) expected = Integer.MAX_VALUE;
