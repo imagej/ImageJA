@@ -79,7 +79,6 @@ public class Opener {
 		that ImageJ's File/Open command uses to open files if
 		"Open/Save Using JFileChooser" is checked in EditOptions/Misc. */
 	public void openMultiple() {
-		Java2.setSystemLookAndFeel();
 		// run JFileChooser in a separate thread to avoid possible thread deadlocks
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
