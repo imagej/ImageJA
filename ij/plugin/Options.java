@@ -63,7 +63,6 @@ public class Options implements PlugIn {
 		Prefs.requireControlKey = gd.getNextBoolean();
 		Prefs.moveToMisc = gd.getNextBoolean();
 		Prefs.enableRMIListener = gd.getNextBoolean() ? 1 : 0;
-		Prefs.runSocketListener = gd.getNextBoolean();
 		IJ.debugMode = gd.getNextBoolean();
 	}
 
