@@ -5,6 +5,7 @@ import ij.measure.*;
 import ij.text.*;
 import imagescience.image.Image;
 import imagescience.transform.Affine;
+import imagescience.transform.Transform;
 import java.awt.*;
 import java.awt.geom.*;
 import ij.plugin.filter.*;
@@ -12,6 +13,7 @@ import ij.plugin.filter.*;
 /* 	Author: Julian Cooper
 	Contact: Julian.Cooper [at] uhb.nhs.uk
 	First version: 2009/05/22
+	Updated 2011: 2011/04/30 to use latest version of imagescience library
 	Licence: Public Domain	*/
 
 /*  Acknowledgements: Erik Meijering, author of TransformJ*/
@@ -174,7 +176,8 @@ public class Untilt_Stack implements PlugInFilter {
 	ImagePlus affine_TJ(ImagePlus imp, double[][]matrix ) {
         Image img = Image.wrap(imp);
         Affine affiner = new Affine();
-        Image newimg = affiner.run(img, matrix, Affine.LINEAR, true, false);
+        Transform tfm_matrix = new Transform(matrix);
+        Image newimg = affiner.run(img, tfm_matrix, Affine.LINEAR, true, false);
         ImagePlus newimp = newimg.imageplus();
         return newimp;
     }
