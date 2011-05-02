@@ -72,7 +72,7 @@ public class YesNoCancelDialog extends Dialog implements ActionListener, KeyList
 	}
 	
 	void closeDialog() {
-		setVisible(false);
+		// useless, and raises a bug with openjdk 6: setVisible(false);
 		dispose();
 	}
 
