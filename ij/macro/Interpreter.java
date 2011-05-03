@@ -1255,7 +1255,9 @@ public class Interpreter implements MacroConstants {
 			case STRING_FUNCTION:
 				String str = func.getStringFunction(pgm.table[tokenAddress].type);
 				value = Tools.parseDouble(str);
-				if (Double.isNaN(value))
+				if ("NaN".equals(str))
+					value = Double.NaN;
+				else if (Double.isNaN(value))
 					error("Numeric value expected");
 				break;
 			case USER_FUNCTION:

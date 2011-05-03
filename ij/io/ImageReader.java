@@ -857,6 +857,24 @@ public class ImageReader {
 			return input;
 	}
 
+	/** TIFF Adobe ZIP support contributed by Jason Newton. */
+	public byte[] zipUncompress(byte[] input) {
+		ByteArrayOutputStream imageBuffer = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		Inflater decompressor = new Inflater();
+		decompressor.setInput(input);
+		try {
+			while(!decompressor.finished()) {
+				int rlen = decompressor.inflate(buffer);
+				imageBuffer.write(buffer, 0, rlen);
+			}
+		} catch(DataFormatException e){
+			IJ.log(e.toString());
+		}
+		decompressor.end();
+		return imageBuffer.toByteArray();
+	}
+
   /**
  * Utility method for decoding an LZW-compressed image strip. 
  * Adapted from the TIFF 6.0 Specification:
@@ -924,23 +942,6 @@ public class ImageReader {
 			}
 		}
 		return out.toByteArray();
-	}
-
-	public byte[] zipUncompress(byte[] input) {
-		ByteArrayOutputStream imageBuffer = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		Inflater decompressor = new Inflater();
-		decompressor.setInput(input);
-		try {
-			while (!decompressor.finished()) {
-				int rlen = decompressor.inflate(buffer);
-				imageBuffer.write(buffer, 0, rlen);
-			}
-		} catch(DataFormatException e) {
-			IJ.log(e.toString());
-		}
-		decompressor.end();
-		return imageBuffer.toByteArray();
 	}
 
 	/** Based on the Bio-Formats PackbitsCodec written by Melissa Linkert. */

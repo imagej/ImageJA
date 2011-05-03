@@ -361,7 +361,7 @@ public class WindowManager {
 			else if (frame instanceof TextWindow)
 				((TextWindow)frame).close();
 			else {
-				frame.setVisible(false);
+				//frame.setVisible(false);
 				frame.dispose();
 			}
 		}
