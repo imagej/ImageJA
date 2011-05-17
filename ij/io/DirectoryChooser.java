@@ -33,6 +33,7 @@ import javax.swing.filechooser.*;
  	
 	// runs JFileChooser on event dispatch thread to avoid possible thread deadlocks
  	void getDirectoryUsingJFileChooser(final String title) {
+		Java2.setSystemLookAndFeel();
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
@@ -61,6 +62,7 @@ import javax.swing.filechooser.*;
  
 	// Choose a directory using JFileChooser on the current thread
  	void getDirectoryUsingJFileChooserOnThisThread(final String title) {
+		Java2.setSystemLookAndFeel();
 		try {
 			JFileChooser chooser = new JFileChooser();
 			chooser.setDialogTitle(title);

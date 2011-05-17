@@ -28,7 +28,7 @@ public class HTMLDialog extends JDialog implements ActionListener {
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		setVisible(false);
+		//setVisible(false);
 		dispose();
 	}
 }
