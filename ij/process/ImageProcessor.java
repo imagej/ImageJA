@@ -1227,7 +1227,7 @@ public abstract class ImageProcessor implements Cloneable {
 	}
 	
 	/** Specifies whether or not text is drawn using antialiasing. Antialiased
-		test requires Java 2 and an 8 bit or RGB image. Antialiasing does not
+		test requires an 8 bit or RGB image. Antialiasing does not
 		work with 8-bit images that are not using 0-255 display range. */
 	public void setAntialiasedText(boolean antialiasedText) {
 		if (antialiasedText && (((this instanceof ByteProcessor)&&getMin()==0.0&&getMax()==255.0) || (this instanceof ColorProcessor)))
@@ -1235,7 +1235,7 @@ public abstract class ImageProcessor implements Cloneable {
 		else
 			this.antialiasedText = false;
 	}
-
+	
 	/** Returns the width in pixels of the specified string. */
 	public int getStringWidth(String s) {
 		setupFontMetrics();
