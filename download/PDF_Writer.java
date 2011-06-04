@@ -18,7 +18,6 @@ import com.lowagie.text.pdf.PdfWriter;
 public class PDF_Writer implements PlugIn {
 
 	static String PREF_KEY = "PDF_Writer.";
-	static boolean canUsePrefs = false;
 
 	static boolean showName=true,			// show the name of the image
 					showSize=true,			// show the size in pixels of the image
@@ -28,23 +27,12 @@ public class PDF_Writer implements PlugIn {
 					isLetter=true;			// output format is US Letter or A4
 
 	public PDF_Writer() {
-		// This following trickery is necessary to outsmart the Java compiler.
-		// Since ImageJ.VERSION is final, its value would normally be inserted
-		// into the code, so we need to get it dynamically via reflection.
-		try {
-			Class ImageJClass = Class.forName("ij.ImageJ");
-			String vers = (String) ImageJClass.getField("VERSION").get(null);
-			canUsePrefs = (vers.compareTo("1.32c") >= 0);
-		} catch (Exception ex) { }
-
-		if (canUsePrefs) {
-			showName = Prefs.get(PREF_KEY+"showName", true);
-			showSize = Prefs.get(PREF_KEY+"showSize", true);
-			scaleToFit = Prefs.get(PREF_KEY+"scaleToFit", true);
-			saveAllImages = Prefs.get(PREF_KEY+"saveAllImages", false);
-			singleImage = Prefs.get(PREF_KEY+"singleImage", false);
-			isLetter = Prefs.get(PREF_KEY+"isLetter", true);
-		}
+		showName = Prefs.get(PREF_KEY+"showName", true);
+		showSize = Prefs.get(PREF_KEY+"showSize", true);
+		scaleToFit = Prefs.get(PREF_KEY+"scaleToFit", true);
+		saveAllImages = Prefs.get(PREF_KEY+"saveAllImages", false);
+		singleImage = Prefs.get(PREF_KEY+"singleImage", false);
+		isLetter = Prefs.get(PREF_KEY+"isLetter", true);
 	}
 
 	public void run (String arg) {
@@ -70,14 +58,12 @@ public class PDF_Writer implements PlugIn {
 		singleImage = gd.getNextBoolean();
 		isLetter = gd.getNextBoolean();
 
-		if (canUsePrefs) {
-			Prefs.set(PREF_KEY+"showName", showName);
-			Prefs.set(PREF_KEY+"showSize", showSize);
-			Prefs.set(PREF_KEY+"scaleToFit", scaleToFit);
-			Prefs.set(PREF_KEY+"saveAllImages", saveAllImages);
-			Prefs.set(PREF_KEY+"singleImage", singleImage);
-			Prefs.set(PREF_KEY+"isLetter", isLetter);
-		}
+		Prefs.set(PREF_KEY+"showName", showName);
+		Prefs.set(PREF_KEY+"showSize", showSize);
+		Prefs.set(PREF_KEY+"scaleToFit", scaleToFit);
+		Prefs.set(PREF_KEY+"saveAllImages", saveAllImages);
+		Prefs.set(PREF_KEY+"singleImage", singleImage);
+		Prefs.set(PREF_KEY+"isLetter", isLetter);
 
         String name = IJ.getImage().getTitle();
         SaveDialog sd = new SaveDialog("Save as PDF", name, ".pdf");
@@ -107,11 +93,11 @@ public class PDF_Writer implements PlugIn {
 						PdfContentByte cb = writer.getDirectContent();
 						cb.setLineWidth(1f);
 						if (isLetter) {
-							cb.moveTo(PageSize.LETTER.left(50), vertPos);
-							cb.lineTo(PageSize.LETTER.right(50), vertPos);
+							cb.moveTo(PageSize.LETTER.getLeft(50), vertPos);
+							cb.lineTo(PageSize.LETTER.getRight(50), vertPos);
 						} else {
-							cb.moveTo(PageSize.A4.left(50), vertPos);
-							cb.lineTo(PageSize.A4.right(50), vertPos);
+							cb.moveTo(PageSize.A4.getLeft(50), vertPos);
+							cb.lineTo(PageSize.A4.getRight(50), vertPos);
 						}
 						cb.stroke();
 					}
@@ -137,12 +123,11 @@ public class PDF_Writer implements PlugIn {
 				}
 
 				image = Image.getInstance(awtImage, null);
-//				if (scaleToFit && (awtImage.getWidth(null) > 520) || (awtImage.getHeight(null) > 720))
 				if (scaleToFit) {
 					if (isLetter)
-						image.scaleToFit(PageSize.LETTER.right(50), PageSize.LETTER.top(50));
+						image.scaleToFit(PageSize.LETTER.getRight(50), PageSize.LETTER.getTop(50));
 					else
-						image.scaleToFit(PageSize.A4.right(50), PageSize.A4.top(50));
+						image.scaleToFit(PageSize.A4.getRight(50), PageSize.A4.getTop(50));
 				}
 				image.setAlignment(image.ALIGN_CENTER);
 				document.add(image);
