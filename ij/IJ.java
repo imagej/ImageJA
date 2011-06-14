@@ -1064,17 +1064,56 @@ public class IJ {
 		}
 	}
 
-	public static void setAutoThreshold(ImagePlus img, String method) {
-		ImageProcessor ip = img.getProcessor();
+	public static void setAutoThreshold(ImagePlus imp, String method) {
+		ImageProcessor ip = imp.getProcessor();
 		if (ip instanceof ColorProcessor)
 			throw new IllegalArgumentException("Non-RGB image required");
-		ip.setRoi(img.getRoi());
+		ip.setRoi(imp.getRoi());
 		if (method!=null) {
-			try {ip.setAutoThreshold(method);}
-			catch (Exception e) {IJ.log(e.getMessage());}
+			try {
+				if (method.indexOf("stack")!=-1)
+					setStackThreshold(imp, ip, method);
+				else
+					ip.setAutoThreshold(method);
+			} catch (Exception e) {
+				log(e.getMessage());
+			}
 		} else
 			ip.setAutoThreshold(ImageProcessor.ISODATA2, ImageProcessor.RED_LUT);
-		img.updateAndDraw();
+		imp.updateAndDraw();
+	}
+	
+	private static void setStackThreshold(ImagePlus imp, ImageProcessor ip, String method) {
+		boolean darkBackground = method.indexOf("dark")!=-1;
+		ImageStatistics stats = new StackStatistics(imp);
+		AutoThresholder thresholder = new AutoThresholder();
+		double min=0.0, max=255.0;
+		if (imp.getBitDepth()!=8) {
+			min = stats.min;
+			max = stats.max;
+		}
+		int threshold = thresholder.getThreshold(method, stats.histogram);
+		double lower, upper;
+		if (darkBackground) {
+			if (ip.isInvertedLut())
+				{lower=0.0; upper=threshold;}
+			else
+				{lower=threshold+1; upper=255.0;}
+		} else {
+			if (ip.isInvertedLut())
+				{lower=threshold+1; upper=255.0;}
+			else
+				{lower=0.0; upper=threshold;}
+		}
+		if (lower>255) lower = 255;
+		if (max>min) {
+			lower = min + (lower/255.0)*(max-min);
+			upper = min + (upper/255.0)*(max-min);
+		} else
+			lower = upper = min;
+		ip.setMinAndMax(min, max);
+		ip.setThreshold(lower, upper, ImageProcessor.RED_LUT);
+		imp.updateAndDraw();
 	}
 
 	/** Disables thresholding on the current image. */
@@ -1208,7 +1247,7 @@ public class IJ {
 	/** Equivalent to clicking on the current image at (x,y) with the
 		wand tool. Returns the number of points in the resulting ROI. */
 	public static int doWand(int x, int y) {
-		return doWand(x, y, 0, null);
+		return doWand(getImage(), x, y, 0, null);
 	}
 
 	/** Traces the boundary of the area with pixel values within
@@ -1219,7 +1258,11 @@ public class IJ {
 	* it is ignored if 'tolerance' > 0.
 	*/
 	public static int doWand(int x, int y, double tolerance, String mode) {
-		ImagePlus img = getImage();
+		return doWand(getImage(), x, y, tolerance, mode);
+	}
+
+	/** This version of doWand adds an ImagePlus argument. */
+	public static int doWand(ImagePlus img, int x, int y, double tolerance, String mode) {
 		ImageProcessor ip = img.getProcessor();
 		if ((img.getType()==ImagePlus.GRAY32) && Double.isNaN(ip.getPixelValue(x,y)))
 			return 0;
@@ -1748,7 +1791,7 @@ public class IJ {
 		e.printStackTrace(pw);
 		String s = caw.toString();
 		if (getInstance()!=null)
-			new TextWindow("Exception", s, 350, 250);
+			new TextWindow("Exception", s, 500, 300);
 		else
 			log(s);
 	}

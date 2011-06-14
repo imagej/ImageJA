@@ -14,6 +14,8 @@ import ij.plugin.frame.ContrastAdjuster;
 import ij.plugin.frame.Recorder;
 import ij.plugin.Converter;
 import ij.plugin.Duplicator;
+import ij.plugin.RectToolOptions;
+
 
 /**
 An ImagePlus contain an ImageProcessor (2D image) or an ImageStack (3D, 4D or 5D image).
@@ -479,6 +481,18 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			else
 				repaintWindow();
 		}
+	}
+	
+	/** Replaces this image with the specified ImagePlus. May
+		not work as expected if 'imp' is a CompositeImage
+		and this image is not. */
+	public void setImage(ImagePlus imp) {
+		if (imp.getWindow()!=null)
+			imp = imp.duplicate();
+		ImageStack stack2 = imp.getStack();
+		if (imp.isHyperStack())
+			setOpenAsHyperStack(true);
+		setStack(stack2, imp.getNChannels(), imp.getNSlices(), imp.getNFrames());
 	}
 	
 	/** Replaces the ImageProcessor with the one specified and updates the display. */
@@ -1354,7 +1368,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		killRoi();
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
-				roi = new Roi(sx, sy, this, Toolbar.getRoundRectArcSize());
+				int cornerDiameter = Toolbar.getRoundRectArcSize();
+				roi = new Roi(sx, sy, this, cornerDiameter);
+				if (cornerDiameter>0) {
+					roi.setStrokeColor(Toolbar.getForegroundColor());
+					roi.setStrokeWidth(RectToolOptions.getDefaultStrokeWidth());
+				}
 				break;
 			case Toolbar.OVAL:
 				if (Toolbar.getOvalToolType()==Toolbar.ELLIPSE_ROI)
@@ -2013,7 +2032,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	
 	/** Returns true if this is a CompositeImage. */
 	public boolean isComposite() {
-		return compositeImage && getNChannels()>=1 && (this instanceof CompositeImage);
+		return compositeImage && nChannels>=1 && (this instanceof CompositeImage);
 	}
 
 	/** Sets the display range of the current channel. With non-composite
