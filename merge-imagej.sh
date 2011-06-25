@@ -6,7 +6,7 @@ BRANCH=refs/heads/master
 grep Sync .git/hooks/post-merge >/dev/null 2>/dev/null || {
 	echo "post-merge hook not installed properly!"
 	PWD="$(cd "$(dirname "$0")"; pwd)"
-	echo "Try 'ln -s $PWD/post-merge .git/hooks/post-merge"
+	echo "Try 'ln -s $PWD/post-merge .git/hooks/post-merge'"
 	exit 1
 }
 
