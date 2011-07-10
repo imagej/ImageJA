@@ -39,6 +39,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	private boolean showAllROIs;
 	private static Color zoomIndicatorColor;
 	private static Font smallFont, largeFont;
+	private Font font;
 	private Rectangle[] labelRects;
     private boolean maxBoundsReset;
     private Overlay overlay, showAllList;
@@ -341,7 +342,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		int width = (int)(r.width*mag);
 		int height = (int)(r.height*mag);
 		int size = width>40 && height>40?12:9;
-		if (size==12)
+		if (font!=null) {
+			g.setFont(font);
+			size = font.getSize();
+		} else if (size==12)
 			g.setFont(largeFont);
 		else
 			g.setFont(smallFont);
@@ -1327,6 +1331,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 
 	public boolean getCustomRoi() {
 		return customRoi;
+	}
+	
+	public void setLabelFont(Font font) {
+		this.font = font;
 	}
 
 	/** Called by IJ.showStatus() to prevent status bar text from
