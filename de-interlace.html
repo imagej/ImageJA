@@ -23,6 +23,7 @@ Wayne Rasband (wsr at nih.gov)
 <tr valign=top><td ><b>History:</b></td><td >
 2002/05/16: First version<br>
 2007/09/18: Bug fix<br>
+2011/07/12: Adds dialog with three choices<br>
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
@@ -31,12 +32,17 @@ Wayne Rasband (wsr at nih.gov)
 
 
 <tr valign=top><td ><b>Installation:</b></td><td >
-Copy <A HREF="download/Deinterlace_.class">Deinterlace_.class</A> to the plugins folder and restart ImageJ.
+Drag and drop <A HREF="download/Deinterlace_.class">Deinterlace_.class</A> to the "ImageJ" window.
 </td></tr>
 
 
 <tr valign=top><td ><b>Description:</b></td><td>
-This plugin de-interlaces an image by replacing the odd lines with the average of the adjacent even lines.
+This plugin deinterlaces an image or stack using one of three methods:
+<ul>
+<li> Replace odd lines with the average of the adjacent lines.
+<li> Replace even lines with the average of the adjacent lines.
+<li> Do both of the above and double the number of frames.
+</ul>
 <p>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <IMG SRC="images/de-interlace.jpg" ALT="de-interlace.jpg">
