@@ -51,7 +51,7 @@ public class Prefs {
 		AVOID_RESLICE_INTERPOLATION=1<<29, KEEP_UNDO_BUFFERS=1<<30; 
     public static final String OPTIONS = "prefs.options";
     
-	private static final int DISABLE_DIRECTDRAW=1<<0;
+	private static final int USE_SYSTEM_PROXIES=1<<0;
     public static final String OPTIONS2 = "prefs.options2";
     
 	public static final String vistaHint = "\n \nOn Windows Vista, ImageJ must be installed in a directory that\nthe user can write to, such as \"Desktop\" or \"Documents\"";
@@ -134,6 +134,8 @@ public class Prefs {
 	public static boolean keepUndoBuffers;
 	/** Use ROI names as "show all" labels in the ROI Manager */
 	public static boolean useNamesAsLabels;
+	/** Set the "java.net.useSystemProxies" property */
+	public static boolean useSystemProxies;
 
 
 	static Properties ijPrefs = new Properties();
@@ -410,8 +412,8 @@ public class Prefs {
 		avoidResliceInterpolation = (options&AVOID_RESLICE_INTERPOLATION)!=0;
 		keepUndoBuffers = (options&KEEP_UNDO_BUFFERS)!=0;
 		
-		//int options2 = getInt(OPTIONS2, 0);
-		//disableDirectDraw = (options2&DISABLE_DIRECTDRAW)!=0;
+		int options2 = getInt(OPTIONS2, 0);
+		useSystemProxies = (options2&USE_SYSTEM_PROXIES)!=0;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -434,6 +436,8 @@ public class Prefs {
 		prefs.put(OPTIONS, Integer.toString(options));
 		if (enableRMIListener >= 0)
 			prefs.put(ENABLE_RMI, Integer.toString(enableRMIListener));
+		int options2 = (useSystemProxies?USE_SYSTEM_PROXIES:0);
+		prefs.put(OPTIONS2, Integer.toString(options2));
 	}
 
 	/** Saves the value of the string <code>text</code> in the preferences

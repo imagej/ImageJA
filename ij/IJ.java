@@ -1563,7 +1563,7 @@ public class IJ {
 			path = updateExtension(path, ".zip");
 			format = "ZIP...";
 		} else if (format.indexOf("raw")!=-1) {
-			path = updateExtension(path, ".raw");
+			//path = updateExtension(path, ".raw");
 			format = "Raw Data...";
 		} else if (format.indexOf("avi")!=-1) {
 			path = updateExtension(path, ".avi");
