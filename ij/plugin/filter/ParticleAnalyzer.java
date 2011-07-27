@@ -146,7 +146,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private int wandMode = Wand.LEGACY_MODE;
 	private Overlay overlay;
 	boolean blackBackground;
-	private static int nextFontSize = 9;
+	private static int defaultFontSize = 9;
+	private static int nextFontSize = defaultFontSize;
 	private static int nextLineWidth = 1;
 	private int fontSize = nextFontSize;
 	private int lineWidth = nextLineWidth;
@@ -188,7 +189,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			wandMode = Wand.FOUR_CONNECTED;
 			options |= INCLUDE_HOLES;
 		}
-		nextFontSize=9; nextLineWidth=1;
+		nextFontSize=defaultFontSize; nextLineWidth=1;
 	}
 	
 	/** Constructs a ParticleAnalyzer using the default min and max circularity values (0 and 1). */
@@ -223,7 +224,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (saveRoi!=null && saveRoi.getType()!=Roi.RECTANGLE && saveRoi.isArea())
 			polygon = saveRoi.getPolygon();
 		imp.startTiming();
-		nextFontSize=9; nextLineWidth=1;
+		nextFontSize=defaultFontSize; nextLineWidth=1;
 		return flags;
 	}
 
@@ -875,11 +876,6 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 					if (frame==null || !(frame instanceof RoiManager))
 						{addToManager=false; return;}
 					roiManager = (RoiManager)frame;
-					if (fontSize!=9) {
-						ImageCanvas ic = imp!=null?imp.getCanvas():null;
-						if (ic!=null)
-							ic.setLabelFont(new Font("SansSerif", Font.PLAIN, fontSize));
-					}
 				}
 				if (resetCounter)
 					roiManager.runCommand("reset");
@@ -918,11 +914,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			if (overlay==null) {
 				overlay = new Overlay();
 				overlay.drawLabels(true);
-				if (fontSize!=9) {
-					ImageCanvas ic = imp!=null?imp.getCanvas():null;
-					if (ic!=null)
-						ic.setLabelFont(new Font("SansSerif", Font.PLAIN, fontSize));
-				}
+				if (fontSize!=defaultFontSize)
+					overlay.setLabelsFont(new Font("SansSerif", Font.PLAIN, fontSize));
 			}
 			Roi roi2 = (Roi)roi.clone();
 			roi2.setStrokeColor(Color.cyan);

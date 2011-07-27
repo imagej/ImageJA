@@ -358,10 +358,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		int w = metrics.stringWidth(label);
 		x = x + width/2 - w/2;
 		y = y + height/2 + Math.max(size/2,6);
-		int h =  metrics.getHeight();
+		int h = metrics.getAscent() + metrics.getDescent();
 		g.fillRoundRect(x-1, y-h+2, w+1, h-3, 5, 5);
 		if (!drawingList)
-			labelRects[index] = new Rectangle(x-1, y-h+2, w+1, h-3);
+			labelRects[index] = new Rectangle(x-1, y-h+2, w+1, h);
 		g.setColor(labelColor);
 		g.drawString(label, x, y-2);
 		g.setColor(showAllColor);
@@ -1260,6 +1260,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	/** Use ImagePlus.setOverlay(ij.gui.Overlay). */
 	public void setOverlay(Overlay overlay) {
 		this.overlay = overlay;
+		if (overlay!=null)
+			font = overlay.getLabelsFont();
 		repaint();
 	}
 	
@@ -1333,10 +1335,6 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		return customRoi;
 	}
 	
-	public void setLabelFont(Font font) {
-		this.font = font;
-	}
-
 	/** Called by IJ.showStatus() to prevent status bar text from
 		being overwritten until the cursor moves at least 12 pixels. */
 	public void setShowCursorStatus(boolean status) {
