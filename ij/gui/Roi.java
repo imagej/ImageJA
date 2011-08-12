@@ -1379,7 +1379,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
     protected double getMagnification() {
     	return ic!=null?ic.getMagnification():1.0;
     }
-
+    
 	/** Convenience method that converts Roi type to a human-readable form. */
 	public String getTypeAsString() {
 		String s="";

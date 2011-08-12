@@ -64,6 +64,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	private int offScreenHeight = 0;
 	private boolean mouseExited = true;
 	private boolean customRoi;
+	private boolean drawNames;
 	
 	
 	public ImageCanvas(ImagePlus imp) {
@@ -218,6 +219,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			slice = imp.getSlice();
 			frame = imp.getFrame();
 		}
+		drawNames = Prefs.useNamesAsLabels;
 		for (int i=0; i<n; i++) {
 			String label = list.getItem(i);
 			Roi roi = (Roi)rois.get(label);
@@ -244,6 +246,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				drawRoi(g, roi, drawLabels?i:-1);
 		}
 		((Graphics2D)g).setStroke(Roi.onePixelWide);
+		drawNames = false;
     }
        
 	public int getSliceNumber(String label) {
@@ -273,7 +276,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			slice = imp.getSlice();
 			frame = imp.getFrame();
 		}
-		boolean drawLabels = overlay.getDrawLabels();
+		drawNames = overlay.getDrawNames();
+		boolean drawLabels = drawNames || overlay.getDrawLabels();
 		for (int i=0; i<n; i++) {
 			if (overlay==null) break;
 			Roi roi = overlay.get(i);
@@ -290,6 +294,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			}
 		}
 		((Graphics2D)g).setStroke(Roi.onePixelWide);
+		drawNames = false;
 	}
     	
     void initGraphics(Graphics g) {
@@ -352,7 +357,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		boolean drawingList = index >= LIST_OFFSET;
 		if (drawingList) index -= LIST_OFFSET;
 		String label = "" + (index+1);
-		if (Prefs.useNamesAsLabels && roi.getName()!=null)
+		if (drawNames && roi.getName()!=null)
 			label = roi.getName();
 		FontMetrics metrics = g.getFontMetrics();
 		int w = metrics.stringWidth(label);
@@ -360,7 +365,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		y = y + height/2 + Math.max(size/2,6);
 		int h = metrics.getAscent() + metrics.getDescent();
 		g.fillRoundRect(x-1, y-h+2, w+1, h-3, 5, 5);
-		if (!drawingList)
+		if (!drawingList && labelRects!=null && index<labelRects.length)
 			labelRects[index] = new Rectangle(x-1, y-h+2, w+1, h);
 		g.setColor(labelColor);
 		g.drawString(label, x, y-2);
