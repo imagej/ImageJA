@@ -175,13 +175,11 @@ public class SaveDialog {
 		Frame parent = ij!=null?ij:new Frame();
 		FileDialog fd = new FileDialog(parent, title, FileDialog.SAVE);
 		if (defaultName!=null)
-			fd.setFile(defaultName);			
+			fd.setFile(defaultName + (IJ.isMacOSX() ? ".stripThis" : ""));
 		if (defaultDir!=null)
 			fd.setDirectory(defaultDir);
 		fd.show();
 		name = fd.getFile();
-		if (name!=null && name.indexOf(".")==-1)
-			name = setExtension(name, ext);
 		dir = fd.getDirectory();
 		if (name==null)
 			Macro.abort();
