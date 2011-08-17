@@ -198,9 +198,11 @@ public class SaveDialog {
 	
 	/** Returns the selected file name. */
 	public String getFileName() {
-		if (Recorder.record)
-			Recorder.recordPath(title, dir+name);
-		OpenDialog.setLastName(name);
+		if (name != null) {
+			if (Recorder.record)
+				Recorder.recordPath(title, dir+name);
+			OpenDialog.setLastName(name);
+		}
 		return name;
 	}
 		
