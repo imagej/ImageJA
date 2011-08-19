@@ -1,191 +1,167 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
   <title>Open Heyex Raw Files</title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1038.35">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Helvetica; color: #224488}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #0000ee}
+    p.p5 {margin: 0.0px 0.0px 6.0px 0.0px; font: 12.0px Helvetica}
+    p.p6 {margin: 0.0px 0.0px 5.0px 0.0px; font: 12.0px Helvetica}
+    p.p7 {margin: 0.0px 0.0px 12.0px 0.0px; font: 12.0px Helvetica; color: #0000ee}
+    li.li2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    span.s1 {text-decoration: underline}
+    span.s2 {text-decoration: underline ; color: #0000ee}
+    span.s3 {text-decoration: underline ; color: #333233}
+    span.s4 {color: #000000}
+    span.s5 {text-decoration: underline ; color: #2d00ee}
+    span.s6 {color: #224488}
+    span.s7 {color: #0000ee}
+    td.td1 {width: 70.0px; padding: 1.0px 1.0px 1.0px 1.0px}
+    td.td2 {width: 565.0px; padding: 1.0px 1.0px 1.0px 1.0px}
+    ol.ol1 {list-style-type: decimal}
+    ul.ul1 {list-style-type: circle}
+  </style>
 </head>
-<body style="background-color: rgb(255, 255, 255);">
-<font color="#224488" face="Helvetica, Arial" size="+1">
-<b>Open
-Heyex Raw Files</b>
-</font>
-<blockquote style="font-family: Helvetica,Arial,sans-serif;">
-  <table style="width: 95%; height: 85%;" cellspacing="5">
-    <tbody>
-      <tr valign="top">
-        <td><b>Author:</b></td>
-        <td>Kris Sheets
-(ksheet at lsuhsc.edu) </td>
-      </tr>
-      <tr valign="top">
-        <td><b>History:</b></td>
-        <td>2010/09/25
-(v1.0): &nbsp;First version<br>
-2010/09/30 (v1.1): &nbsp;SLO image&nbsp;now has&nbsp;overlay annotating
-position of B-scan lines. Fixed bug with NaN values in segmentation
-layers and total retinal thickness.<br>
-2010/10/04 (v1.2): &nbsp;Fixed bug with TRT in 3D files.
-&nbsp;Open_Heyex_Raw now includes Log window with exam information.
-&nbsp;Results table now includes B-Scan quality in dB. &nbsp;Greatly
-improved speed throughout. &nbsp;Added Open_Heyex_Results and
-Open_Heyex_Info.<br>
-2010/10/13 (v1.3): &nbsp;Now correctly interprets OCT data exported
-from Spectralis v5.0 <br>
-        </td>
-      </tr>
-      <tr valign="top">
-        <td><b>Source:</b></td>
-        <td><a href="Open_Heyex_Raw.jar">Open_Heyex_Raw.jar</a> </td>
-      </tr>
-      <tr valign="top">
-        <td><b>Installation:</b></td>
-        <td>Save <a href="Open_Heyex_Raw.jar">Open_Heyex_Raw.jar</a>
-to the&nbsp;plugins folder and restart ImageJ. </td>
-      </tr>
-      <tr>
-        <td valign="top"><span style="font-weight: bold;">Limitations:</span></td>
-        <td>Results table with segmented layer values is slow for
-3D-OCT files. &nbsp;Improved in v1.2 but depending on 3D oct size, it
-may still be quite slow. &nbsp;Presently, results&nbsp;seem much faster
-using ImageJ 64-bit on Mac OS X than on Windows XP 64bit. &nbsp;Exam
-time and Scan Pattern included with
-v1.2 Info Log&nbsp;are not correct, working on a fix. <span
- style="font-weight: bold;">Not
-tested for clinical or diagnostic use</span>
-(see disclaimer below).</td>
-      </tr>
-      <tr>
-        <td valign="top"><span style="font-weight: bold;">Disclaimer:</span></td>
-        <td>These plugins are
-intended to expand the compatability of Heidelberg OCT raw files,
-allowing investigators to view, share, and analyze Heidelberg
-Spectralis OCT images using ImageJ. &nbsp;They
-are&nbsp;provided on an <span style="font-style: italic;">"As
-Is"</span> basis and it is the
-responsibility of the investigator to verify
-correct interpretation of raw files. &nbsp;<span
- style="font-weight: bold;">These plugins are not
-tested, nor intended, for clinical or diagnostic use.</span>
-&nbsp;For such purposes, use of Heidelberg Spectralis software only
-is recommended.</td>
-      </tr>
-      <tr>
-        <td style="font-weight: bold;" valign="top">Citation:</td>
-        <td>If this plugin aids
-your investigations, please&nbsp;cite the
-following.<br>
-&nbsp; <br>
-E.J. Knott, K.G. Sheets, Y. Zhou, W.C. Gordon, and N.G. Bazan. 2010.
-Spatial correlation of mouse photoreceptor-RPE thickness between SD-OCT
-and histology. <span style="font-style: italic;"></span>Experimental
-Eye Research, <span style="font-style: italic;">in press</span>.<br>
-        <br>
-        <span style="font-style: italic;"></span></td>
-      </tr>
-      <tr>
-        <td valign="top"><span style="font-weight: bold;">Description:</span></td>
-        <td>These plugins
-interpret raw binary
-files exported from Heidelberg Spectralis Viewing Software.
-&nbsp;They successfully import both 8-bit SLO and 32-bit SD-OCT
-images, retaining pixel scale (optical and SD-OCT), segmentation data,
-and B-scan position relative to the SLO image (included in
-v1.1+).&nbsp; In addition to
-single B-scan SD-OCT images, the plug-in also opens multiple B-scan
-SD-OCT images as a stack, enabling 3-D reconstruction, analysis, and
-modeling.&nbsp; The plug-in is compatible with Spectralis Viewing
-Module exporting raw data in HFS-OCT-101 format, (v1.3 compatible with
-HFS-OCT-102).&nbsp; Scan
-patterns of single line, volume in ART mode, and fast volume, were all
-successfully tested. <br>
-        <br>
-Currently, five plugins are included. &nbsp;<br>
-        <br>
-        <span style="font-weight: bold;">Open_Heyex_Raw</span>
-plugin will open both the cSLO and OCT B-scan as separate images.
-The cSLO image includes green overlay lines indicating the position of
-the B-scans. Values of layers segmented by Spectralis are also be
-listed in a
-results table. The y position, in pixels from top of image, is listed
-underneath a column
-labeled with the appropriate layer. The A-scan and B-scan coordinates
-are also listed. Total retinal thickness (TRT) is the calcuated
-vertical difference between the ILM and RPE&nbsp;layers and is listed
-in&nbsp;<span style="text-decoration: line-through;"></span>&micro;m.
-The scan quality for each B-scan, in dB, is also listed. B-scans are
-opened
-in
-32-bit and
-a&nbsp;1:1 pixel ratio. &nbsp;Scale information is retained and
-quickly
-attainable by accessing the image properties.<br>
-        <br>
-        <span style="font-weight: bold;">Open_Heyex_OCT</span> opens
-only&nbsp;the OCT image in a 1:1 pixel ratio.<br>
-        <br>
-        <span style="font-weight: bold;">Open_Heyex_SLO</span> opens
-just the cSLO image without B-scan lines.<br>
-        <br>
-        <span style="font-weight: bold;">Open_Heyex_Results</span>
-produces the results table only.<br>
-        <br>
-        <span style="font-weight: bold;">Open_Heyex_Info</span> creates
-a log window containing the exam information. &nbsp; &nbsp;<br>
-        <br>
-Proper&nbsp;lateral (optical) scale&nbsp;depends upon corneal curvature
-values entered in the patient exam information prior to raw export.
-&nbsp;The Heidelberg Spectralis has a default corneal curvature value
-suitable for a human eye. &nbsp;When working with small animals, such
-as mice, the optical properties of the eye are significantly different
-and require adjustment of the corneal curvature value. &nbsp;In our
-paper (see citation) we adjusted corneal curvature values until the
-lateral measurements matched those of histologic sections. &nbsp;Others
-(<a href="http://www.ncbi.nlm.nih.gov/pubmed/19838301">Fischer et al.,
-2009</a> and <a href="http://www.ncbi.nlm.nih.gov/pubmed/19661229">Huber
-et al., 2009</a>)
-have injected&nbsp;micron-sized beads and adjusted corneal curvature
-until they were spherical in measure. &nbsp;To ensure proper lateral
-scale, corneal curvature values must be changed accordingly before
-exporting the raw file.<br>
-        <br>
-Adjusting the image to a 1:1 &micro;m
-ratio can easily be done by stretching
-the A-scan data axially (Y scale) or by shrinking the A-scan data
-laterally (X scale). &nbsp;Stretching will introduce interpolation
-artifacts
-such as aliasing, blurring and edge halos. &nbsp;Shrinking,
-however,&nbsp;will
-eliminate data points and depending on the resolution difference
-between&nbsp;the dimensions, this may result in an unacceptably
-small
-image. &nbsp;For 20&deg; x 15&deg; 3D OCT scans of mouse
-retina, we&nbsp;stretch A-scan data in the axial direction using
-bicubic interpolation.<br>
-        <br>
-To Stretch, scale the image as:<br>
-        <div style="margin-left: 40px;">X
-Scale: 1.0<br>
-Y Scale: Pixel Height &divide; Pixel Width<br>
-        </div>
-        <br>
-To Shrink, scale the image as:<br>
-        <div style="margin-left: 40px;">X
-Scale: Pixel Width &divide; Pixel Height<br>
-Y Scale: 1.0<br>
-        </div>
-        </td>
-      </tr>
-      <tr valign="top">
-        <td><b>See
-Also:</b></td>
-        <td> </td>
-      </tr>
-    </tbody>
-  </table>
-</blockquote>
-<p><font color="#224488" face="Helvetica, Arial"><b>|<a
- href="index.html">Plugins</a>
-| <a href="../index.html">Home</a>
-|</b>
-</font></p>
+<body>
+<p class="p1"><b>Open Heyex Raw Files</b></p>
+<table cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Author:</b></p>
+      </td>
+      <td valign="top" class="td2">
+        <p class="p2">Kris Sheets (ksheet at lsuhsc.edu)</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>History:</b></p>
+      </td>
+      <td valign="top" class="td2">
+        <p class="p2">2010/09/25 (v1.0):  First version</p>
+        <p class="p3"><br></p>
+        <p class="p2">2010/09/30 (v1.1):  SLO image now has overlay annotating position of B-scan lines. Fixed bug with NaN values in segmentation layers and total retinal thickness.</p>
+        <p class="p3"><br></p>
+        <p class="p2">2010/10/04 (v1.2):  Fixed bug with TRT in 3D files.  Open_Heyex_Raw now includes Log window with exam information.  Results table now includes B-Scan quality in dB.  Greatly improved speed throughout.  Added Open_Heyex_Results and Open_Heyex_Info.</p>
+        <p class="p3"><br></p>
+        <p class="p2">2010/10/13 (v1.3):  Now correctly interprets OCT data exported from Spectralis v5.0</p>
+        <p class="p3"><br></p>
+        <p class="p2">2011/08/16 (v2.0):<span class="Apple-converted-space">  </span>Complete overhaul.<span class="Apple-converted-space">  </span>The previous five plugins are now public methods within the Open_Heyex_Raw class.<span class="Apple-converted-space">  </span>Method calls are loaded into the Plugins&gt;Open Heyex Raw subfolder.<span class="Apple-converted-space">  </span>The previous plugins are included within the jar for backwards compatability with users calling the plugins from macros.</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Source:</b></p>
+      </td>
+      <td valign="top" class="td2">
+        <p class="p4"><span class="s1"><a href="Open_Heyex_Raw.jar">Open_Heyex_Raw.jar</a></span></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Installation:</b></p>
+      </td>
+      <td valign="top" class="td2">
+        <p class="p2">Save <a href="Open_Heyex_Raw.jar"><span class="s2">Open_Heyex_Raw.jar</span></a> to the plugins folder and restart ImageJ.</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Limitations:</b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p2">Results table with segmented layer values is slow for 3D-OCT files.  Improved in v1.2 but depending on 3D oct size, it may still be quite slow.  Presently, results seem much faster using ImageJ 64-bit on Mac OS X than on Windows XP 64bit.  Exam time and Scan Pattern included with v1.2 Info Log are not correct, working on a fix. There is no change to these limitations in v2.0.<span class="Apple-converted-space">  </span><b>Not tested for clinical or diagnostic use</b> (see disclaimer below).</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Disclaimer:</b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p2">This plugin is intended to expand the compatability of Heidelberg OCT raw files, allowing investigators to view, share, and analyze Heidelberg Spectralis OCT images using ImageJ.  They are provided on an <i>"As Is"</i> basis and it is the responsibility of the investigator to verify correct interpretation of raw files.  <b>These plugins are not tested, nor intended, for clinical or diagnostic use.</b>  For such purposes, use of Heidelberg Spectralis software only is recommended.</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Citation:</b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p2">If this plugin aids your investigations, please cite the following.</p>
+        <p class="p3"><br></p>
+        <p class="p2"><span class="s3">Exp Eye Res.</span> 2011 Feb;92(2):155-60. Epub 2010 Oct 28.</p>
+        <p class="p5"><b>Spatial correlation of mouse photoreceptor-RPE thickness between SD-OCT and histology.</b></p>
+        <p class="p4"><span class="s1"><a href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Knott%20EJ%22%5BAuthor%5D">Knott EJ</a></span><span class="s4">, <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Sheets%20KG%22%5BAuthor%5D"><span class="s1">Sheets KG</span></a>, <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Zhou%20Y%22%5BAuthor%5D"><span class="s1">Zhou Y</span></a>, <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Gordon%20WC%22%5BAuthor%5D"><span class="s1">Gordon WC</span></a>, <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Bazan%20NG%22%5BAuthor%5D"><span class="s1">Bazan NG</span></a>.</span></p>
+        <p class="p6">Neuroscience Center of Excellence, Louisiana State University Health Sciences Center, New Orleans, LA 70112, USA.</p>
+        <p class="p2">PubMed ID: <a href="http://www.ncbi.nlm.nih.gov/pubmed/21035444"><span class="s2">21035444</span></a></p>
+        <p class="p3"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>Description:</b></p>
+      </td>
+      <td valign="middle" class="td2">
+        <p class="p2">These plugins interpret raw binary files exported from Heidelberg Spectralis Viewing Software.  They successfully import both 8-bit SLO and 32-bit SD-OCT images, retaining pixel scale (optical and SD-OCT), segmentation data, and B-scan position relative to the SLO image (included in v1.1+).  In addition to single B-scan SD-OCT images, the plug-in also opens multiple B-scan SD-OCT images as a stack, enabling 3-D reconstruction, analysis, and modeling.  The plug-in is compatible with Spectralis Viewing Module exporting raw data in HSF-OCT-### format.<span class="Apple-converted-space">  </span>Compatability has been tested with HSF-OCT-101, 102, and 103.<span class="Apple-converted-space">  </span>If you are using a different HSF-OCT version please contact me.<span class="Apple-converted-space">  </span>I will update the compatability list<span class="Apple-converted-space">  </span>or amend the plugin as necessary. Scan patterns of single line, volume in ART mode, and fast volume, were all successfully tested.<span class="Apple-converted-space"> </span></p>
+        <p class="p3"><br></p>
+        <p class="p2">I have been experimenting an algorithm that processes small animal OCT images to produce signal quality more similar to that observed in human OCT scans.<span class="Apple-converted-space">  </span>If interested please email me.</p>
+        <p class="p3"><br></p>
+        <p class="p2">Proper lateral (optical) scale depends upon corneal curvature values entered in the patient exam information prior to raw export.  The Heidelberg Spectralis has a default corneal curvature value suitable for a human eye.  When working with small animals, such as mice, the optical properties of the eye are significantly different and require adjustment of the corneal curvature value.  In our paper (see citation) we adjusted corneal curvature values until the lateral measurements matched those of histologic sections.  Others (<a href="http://www.ncbi.nlm.nih.gov/pubmed/19838301"><span class="s5">Fischer et al., 2009</span></a> and <a href="http://www.ncbi.nlm.nih.gov/pubmed/19661229"><span class="s5">Huber et al., 2009</span></a>) have injected micron-sized beads and adjusted corneal curvature until they were spherical in measure.  To ensure proper lateral scale, corneal curvature values must be changed accordingly prior to exporting the raw file.</p>
+        <p class="p2">All OCT images are displayed as 1:1 pixel ratio.<span class="Apple-converted-space">  </span>Adjusting an image to a 1:1 µm ratio can easily be done by stretching the A-scan data axially (Y scale) or by shrinking the A-scan data laterally (X scale).<span class="Apple-converted-space">  </span>Stretching will introduce interpolation artifacts such as aliasing, blurring and edge halos.  Shrinking, however, will eliminate data points and depending on the resolution difference between the dimensions, this may result in an unacceptably small image.  For 20° x 15° 3D OCT scans of mouse retina, we stretch A-scan data in the axial direction using bicubic interpolation.</p>
+        <p class="p3"><br></p>
+        <p class="p2">To Stretch, scale the image as:</p>
+        <p class="p2">X Scale: 1.0</p>
+        <p class="p2">Y Scale: Pixel Height ÷ Pixel Width</p>
+        <p class="p3"><br></p>
+        <p class="p2">To Shrink, scale the image as:</p>
+        <p class="p2">X Scale: Pixel Width ÷ Pixel Height</p>
+        <p class="p2">Y Scale: 1.0</p>
+        <p class="p3"><br></p>
+        <p class="p2">Six opening methods are available.<span class="Apple-converted-space">  </span>All methods are located in the Plugins&gt;Open Heyex Raw subfolder.</p>
+        <ol class="ol1">
+          <li class="li2">Open OCT</li>
+          <ul class="ul1">
+            <li class="li2">opens only the OCT image in a 1:1 pixel ratio.<span class="Apple-converted-space">  </span>B-scans are opened in 32-bit format and appear darker than the 8-bit compressed image displayed by the Spectralis Viewer.<span class="Apple-converted-space">  </span>To approximate the compressed 8-bit view, perform a gamma correction using Process&gt;Math&gt;Gamma… and use a gamma value of 0.33.<span class="Apple-converted-space">  </span>Be aware that this is a destructive modification to your image.</li>
+          </ul>
+          <li class="li2">Open SLO</li>
+          <ul class="ul1">
+            <li class="li2">opens just the cSLO image without B-scan lines.</li>
+          </ul>
+          <li class="li2">Open SLO with Scan Lines</li>
+          <ul class="ul1">
+            <li class="li2">opens the cSLO image with green overlay lines indicating the position of the<span class="Apple-converted-space">  </span>B-scans.</li>
+          </ul>
+          <li class="li2">Display Retinal Thickness Results</li>
+          <ul class="ul1">
+            <li class="li2">values of layers segmented by Spectralis are listed in a results table. The y position, in pixels from top of image, is listed underneath a column labeled with the appropriate layer. The A-scan and B-scan coordinates are also listed. Total retinal thickness (TRT) is the calcuated vertical difference between the ILM and RPE layers and is listed in µm. The scan quality for each B-scan, in dB, is also listed.</li>
+          </ul>
+          <li class="li2">Display Info</li>
+          <ul class="ul1">
+            <li class="li2">creates a log window containing the exam information.<span class="Apple-converted-space"> </span></li>
+          </ul>
+          <li class="li2">Open All - opens the OCT, SLO with Scan Lines, Retinal Thickness Results, and Info log.</li>
+        </ol>
+        <p class="p3"><br></p>
+        <p class="p2"><b><i>Note to Macro Users:<span class="Apple-converted-space"> </span></i></b> The previous plugins are included in this jar file for your convenience.<span class="Apple-converted-space">  </span>Please update calls to Open_Heyex_Raw using the new methods.<span class="Apple-converted-space">  </span>For more info see the plugins.cfg file contained in the Open_Heyex_Raw.jar</p>
+        <p class="p3"><br></p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="top" class="td1">
+        <p class="p2"><b>See Also:</b></p>
+      </td>
+      <td valign="top" class="td2">
+        <p class="p2">My <a href="http://sites.google.com/site/learnimagej/"><span class="s2">LearnImageJ</span></a> website with all my ImageJ Plugins and other image processing and analysis information</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p class="p7"><span class="s6"><b>|</b><a href="http://rsbweb.nih.gov/ij/plugins/"><span class="s7"><b>Plugins</b></span></a><b> | </b><a href="http://rsbweb.nih.gov/ij/index.html"><span class="s7"><b>Home</b></span></a><b> |</b></span></p>
 </body>
 </html>
