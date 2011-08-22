@@ -14,7 +14,7 @@ import java.awt.geom.*;
 public class RoiEncoder {
 	static final int HEADER_SIZE = 64;
 	static final int HEADER2_SIZE = 64;
-	static final int VERSION = 219; // changed to 219 in v1.45m
+	static final int VERSION = 220; // changed to 220 in v1.45m
 	private String path;
 	private OutputStream f;
 	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6, freehand=7, 
@@ -82,7 +82,7 @@ public class RoiEncoder {
 		}
 		
 		if (roiType==Roi.COMPOSITE) {
-			saveShapeRoi(roi, type, f);
+			saveShapeRoi(roi, type, f, options);
 			return;
 		}
 
@@ -166,6 +166,7 @@ public class RoiEncoder {
 			}
 		}
 		
+		saveOverlayOptions(roi, options);
 		f.write(data);
 	}
 
@@ -181,7 +182,7 @@ public class RoiEncoder {
 			putInt(RoiDecoder.FILL_COLOR, fillColor.getRGB());
 	}
 
-	void saveShapeRoi(Roi roi, int type, OutputStream f) throws IOException {
+	void saveShapeRoi(Roi roi, int type, OutputStream f, int options) throws IOException {
 		float[] shapeArray = ((ShapeRoi)roi).getShapeAsArray();
 		if (shapeArray==null) return;
 		BufferedOutputStream bout = new BufferedOutputStream(f);
@@ -199,6 +200,7 @@ public class RoiEncoder {
 		//putShort(16, n);
 		putInt(36, shapeArray.length); // non-zero segment count indicate composite type
 		if (VERSION>=218) saveStrokeWidthAndColor(roi);
+		saveOverlayOptions(roi, options);
 
 		// handle the actual data: data are stored segment-wise, i.e.,
 		// the type of the segment followed by 0-6 control point coordinates.
@@ -211,6 +213,17 @@ public class RoiEncoder {
 		putHeader2(roi, hdr2Offset);
 		bout.write(data,0,data.length);
 		bout.flush();
+	}
+	
+	void saveOverlayOptions(Roi roi, int options) {
+		int overlayOptions = roi.getOverlayOptions();
+		if ((overlayOptions&RoiDecoder.OVERLAY_LABELS)!=0)
+			options |= RoiDecoder.OVERLAY_LABELS;
+		if ((overlayOptions&RoiDecoder.OVERLAY_NAMES)!=0)
+			options |= RoiDecoder.OVERLAY_NAMES;
+		if ((overlayOptions&RoiDecoder.OVERLAY_BACKGROUNDS)!=0)
+			options |= RoiDecoder.OVERLAY_BACKGROUNDS;
+		putShort(RoiDecoder.OPTIONS, options);
 	}
 	
 	void saveTextRoi(TextRoi roi) {
@@ -243,6 +256,9 @@ public class RoiEncoder {
 		putInt(offset+RoiDecoder.C_POSITION, roi.getCPosition());
 		putInt(offset+RoiDecoder.Z_POSITION, roi.getZPosition());
 		putInt(offset+RoiDecoder.T_POSITION, roi.getTPosition());
+		Color overlayLabelColor = roi.getOverlayLabelColor();
+		if (overlayLabelColor!=null)
+			putInt(offset+RoiDecoder.OVERLAY_LABEL_COLOR, overlayLabelColor.getRGB());
 		if (nameSize>0)
 			putName(roi, offset);
 	}

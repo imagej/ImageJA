@@ -1,7 +1,10 @@
 package ij.gui;
 import ij.*;
 import ij.plugin.Colors;
+import ij.io.RoiDecoder;
 import java.awt.*;
+import java.util.*;
+
 
  /** Displays a dialog that allows the user to specify ROI properties such as color and line width. */
 public class RoiProperties {
@@ -11,45 +14,50 @@ public class RoiProperties {
 	private boolean addToOverlay;
 	private boolean overlayOptions;
 	private boolean existingOverlay;
-	private static boolean showLabels;
-	private static boolean showNames;
-	private boolean overlayShowLabels;
 	private boolean setPositions;
 	private static final String[] justNames = {"Left", "Center", "Right"};
 
-    /** Constructs a ColorChooser using the specified title and initial color. */
-    public RoiProperties(String title, Roi roi) {
-    	if (roi==null)
-    		throw new IllegalArgumentException("ROI is null");
-    	this.title = title;
-    	showName = title.startsWith("Prop");
-    	addToOverlay = title.equals("Add to Overlay");
-    	overlayOptions = title.equals("Overlay Options");
-    	ImagePlus imp = WindowManager.getCurrentImage();
-    	if (overlayOptions) {
-    		Overlay overlay = imp!=null?imp.getOverlay():null;
-    		if (overlay!=null) {
-    			existingOverlay = true;
-    			showLabels = overlay.getDrawLabels();
-    			showNames = overlay.getDrawNames();
-    		}
-    		setPositions = roi.getPosition()!=0;
-    	}
-    	this.roi = roi;
-    }
-    
-    /** Displays the dialog box and returns 'false' if the user cancels it. */
-    public boolean showDialog() {
-    	Color strokeColor = null;
-    	Color fillColor = null;
-    	double strokeWidth = 1.0;
-    	String name= roi.getName();
-    	boolean isRange = name!=null && name.startsWith("range: ");
-    	String nameLabel = isRange?"Range:":"Name:";
-    	if (isRange) name = name.substring(7);
-    	if (name==null) name = "";
-    	if (!isRange && (roi instanceof ImageRoi))
-    		return showImageDialog(name);
+	/** Constructs a ColorChooser using the specified title and initial color. */
+	public RoiProperties(String title, Roi roi) {
+		if (roi==null)
+			throw new IllegalArgumentException("ROI is null");
+		this.title = title;
+		showName = title.startsWith("Prop");
+		addToOverlay = title.equals("Add to Overlay");
+		overlayOptions = title.equals("Overlay Options");
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (overlayOptions) {
+			Overlay overlay = imp!=null?imp.getOverlay():null;
+			setPositions = roi.getPosition()!=0;
+			if (overlay!=null)
+				existingOverlay = true;
+		}
+		this.roi = roi;
+	}
+	
+	private String decodeColor(Color color, Color defaultColor) {
+		if (color==null)
+			color = defaultColor;
+		String str = "#"+Integer.toHexString(color.getRGB());
+		if (str.length()==9 && str.startsWith("#ff"))
+			str = "#"+str.substring(3);
+		String lc = Colors.hexToColor(str);
+		if (lc!=null) str = lc;
+		return str;
+	}
+	
+	/** Displays the dialog box and returns 'false' if the user cancels it. */
+	public boolean showDialog() {
+		Color strokeColor = null;
+		Color fillColor = null;
+		double strokeWidth = 1.0;
+		String name= roi.getName();
+		boolean isRange = name!=null && name.startsWith("range: ");
+		String nameLabel = isRange?"Range:":"Name:";
+		if (isRange) name = name.substring(7);
+		if (name==null) name = "";
+		if (!isRange && (roi instanceof ImageRoi))
+			return showImageDialog(name);
 		if (roi.getStrokeColor()!=null) strokeColor = roi.getStrokeColor();
 		if (strokeColor==null) strokeColor = Roi.getColor();
 		if (roi.getFillColor()!=null) fillColor = roi.getFillColor();
@@ -88,11 +96,10 @@ public class RoiProperties {
 		if (addToOverlay)
 			gd.addCheckbox("New overlay", false);
 		if (overlayOptions) {
-			gd.addCheckbox("Show numeric labels", showLabels);
-			gd.addCheckbox("Show_names", showNames);
-			gd.addCheckbox("Set stack positions", setPositions);
-			if (existingOverlay)
+			if (existingOverlay) {
 				gd.addCheckbox("Apply to current overlay", false);
+			}
+			gd.addCheckbox("Set stack positions", setPositions);
 		}
 		gd.showDialog();
 		if (gd.wasCanceled()) return false;
@@ -109,25 +116,9 @@ public class RoiProperties {
 		boolean applyToOverlay = false;
 		boolean newOverlay = addToOverlay?gd.getNextBoolean():false;
 		if (overlayOptions) {
-			boolean showLabels2 = showLabels;
-			boolean showNames2 = showNames;
-			showLabels = gd.getNextBoolean();
-			showNames = gd.getNextBoolean();
-			setPositions = gd.getNextBoolean();
 			if (existingOverlay)
 				applyToOverlay = gd.getNextBoolean();
-			if (showLabels!=showLabels2 || showNames!=showNames2) {
-				ImagePlus imp = WindowManager.getCurrentImage();
-				Overlay overlay = imp!=null?imp.getOverlay():null;
-				if (overlay!=null) {
-					overlay.drawLabels(showLabels);
-					overlay.drawNames(showNames);
-					if (!applyToOverlay) imp.draw();
-				}
-			} else if (existingOverlay && overlayShowLabels) {
-				showLabels = false;
-				showNames = false;
-			}
+			setPositions = gd.getNextBoolean();
 			roi.setPosition(setPositions?1:0);
 		}
 		strokeColor = Colors.decode(linec, Roi.getColor());
@@ -153,20 +144,20 @@ public class RoiProperties {
 			Overlay overlay = imp.getOverlay();
 			if (overlay==null)
 				return true;
-		 	Roi[] rois = overlay.toArray();
+			Roi[] rois = overlay.toArray();
 			for (int i=0; i<rois.length; i++) {
 				rois[i].setStrokeColor(strokeColor);
 				rois[i].setStrokeWidth((float)strokeWidth);
 				rois[i].setFillColor(fillColor);
-		 	}
-		 	imp.draw();
+			}
+			imp.draw();
 		}
 		//if (strokeWidth>1.0 && !roi.isDrawingTool())
 		//	Line.setWidth(1);
 		return true;
-    }
-        
-    public boolean showImageDialog(String name) {
+	}
+		
+	public boolean showImageDialog(String name) {
 		GenericDialog gd = new GenericDialog(title);
 		gd.addStringField("Name:", name, 15);
 		gd.addNumericField("Opacity (0-100%):", ((ImageRoi)roi).getOpacity()*100.0, 0);
@@ -181,14 +172,6 @@ public class RoiProperties {
 		boolean newOverlay = addToOverlay?gd.getNextBoolean():false;
 		if (newOverlay) roi.setName("new-overlay");
 		return true;
-    }
-    
-    public static boolean getShowLabels() {
-    	return showLabels;
-    }
-    
-    public static boolean getShowNames() {
-    	return showNames;
-    }
-
+	}
+	
 }

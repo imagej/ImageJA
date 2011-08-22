@@ -64,6 +64,7 @@ public class RoiDecoder {
 	public static final int T_POSITION = 12;
 	public static final int NAME_OFFSET = 16;
 	public static final int NAME_LENGTH = 20;
+	public static final int OVERLAY_LABEL_COLOR = 24;
 		
 	// subtypes
 	public static final int TEXT = 1;
@@ -74,6 +75,10 @@ public class RoiDecoder {
 	public static final int SPLINE_FIT = 1;
 	public static final int DOUBLE_HEADED = 2;
 	public static final int OUTLINE = 4;
+	public static final int OVERLAY_LABELS = 8;
+	public static final int OVERLAY_NAMES = 16;
+	public static final int OVERLAY_BACKGROUNDS = 32;
+
 	
 	// types
 	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6,
@@ -129,11 +134,13 @@ public class RoiDecoder {
 		int position = getInt(POSITION);
 		int hdr2Offset = getInt(HEADER2_OFFSET);
 		int channel=0, slice=0, frame=0;
+		int overlayLabelColor=0;
 		
-		if (hdr2Offset>0 && hdr2Offset+T_POSITION+4<=size) {
+		if (hdr2Offset>0 && hdr2Offset+OVERLAY_LABEL_COLOR+4<=size) {
 			channel = getInt(hdr2Offset+C_POSITION);
 			slice = getInt(hdr2Offset+Z_POSITION);
 			frame = getInt(hdr2Offset+T_POSITION);
+			overlayLabelColor = getInt(hdr2Offset+OVERLAY_LABEL_COLOR);
 		}
 		
 		if (name!=null && name.endsWith(".roi"))
@@ -147,6 +154,9 @@ public class RoiDecoder {
 			roi.setPosition(position);
 			if (channel>0 || slice>0 || frame>0)
 				roi.setPosition(channel, slice, frame);
+			roi.setOverlayOptions(options);
+			if (version>=220)
+				roi.setOverlayLabelColor(new Color(overlayLabelColor));
 			return roi;
 		}
 
@@ -247,6 +257,9 @@ public class RoiDecoder {
 		roi.setPosition(position);
 		if (channel>0 || slice>0 || frame>0)
 			roi.setPosition(channel, slice, frame);
+		roi.setOverlayOptions(options);
+		if (version>=220)
+			roi.setOverlayLabelColor(new Color(overlayLabelColor));
 		return roi;
 	}
 	
