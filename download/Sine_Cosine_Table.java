@@ -18,6 +18,7 @@ and displays it in the Results window. It is equivalent to this macro:
             setResult("Cos(n)", row, cos(n));
             row++;
         }
+        setOption("ShowRowNumbers", false);
         updateResults()
 </pre>
 Plugins can also display tables in a TextWindow:
@@ -32,15 +33,18 @@ Plugins can also display tables in a TextWindow:
 public class Sine_Cosine_Table implements PlugIn {
 
 	public void run(String arg) {
-		ResultsTable rt = ResultsTable.getResultsTable();
-		rt.reset();
+		if (IJ.versionLessThan("1.45o"))
+			return;
+		ResultsTable rt = new ResultsTable();
 		for (double n=0; n<=2*Math.PI; n += 0.1) {
 			rt.incrementCounter();
 			rt.addValue("n", n);
 			rt.addValue("Sine(n)", Math.sin(n));
 			rt.addValue("Cos(n)", Math.cos(n));
 		}
+		rt.showRowNumbers(false);
 		rt.show("Results");
+		//rt.show("Sine/Cosine Table");
 	}
 
 }

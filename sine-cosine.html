@@ -20,6 +20,11 @@ Wayne Rasband (wsr at nih.gov)
 
 <tr valign=top><td ><b>History:</b></td><td >
 2006/07/14: First version<br>
+2011/09/08: Does not display row numbers<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.45o or later
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
@@ -43,6 +48,7 @@ and displays it in the Results window. It is equivalent to the macro:
        setResult("Cos(n)", row, cos(n));
        row++;
     }
+    setOption("ShowRowNumbers", false);
     updateResults()
 </pre>
 Macros can retrieve values from the Results Table using the <i>getResult</i> macro function:
