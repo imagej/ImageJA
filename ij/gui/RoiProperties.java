@@ -132,8 +132,8 @@ public class RoiProperties {
 			}
 			if (justification!=troi.getJustification())
 				troi.setJustification(justification);
-		} else if (addToOverlay||strokeWidth>1.0)
-				roi.setStrokeWidth((float)strokeWidth);
+		} else if (strokeWidth!=1.0 || roi.getStroke()!=null)
+			roi.setStrokeWidth((float)strokeWidth);
 		roi.setStrokeColor(strokeColor);
 		roi.setFillColor(fillColor);
 		if (newOverlay) roi.setName("new-overlay");

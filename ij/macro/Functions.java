@@ -1776,10 +1776,18 @@ public class Functions implements MacroConstants, Measurements {
 			if (roiType==Roi.OVAL) roiType = Roi.FREEROI;		
 		}
 		double[] x = getNextArray();
-		double[] y = getLastArray();
 		int n = x.length;		
-		if (y.length!=n)
-			interp.error("Arrays are not the same length");
+		interp.getComma();
+		double[] y = getNumericArray();
+		if (interp.nextToken()==',') {
+			n = (int)getLastArg();
+			if (n>x.length || n>y.length)
+				interp.error("Array too short");
+		} else {
+			interp.getRightParen();			
+			if (y.length!=n)
+				interp.error("Arrays are not the same length");
+		}
 		ImagePlus imp = getImage();
 		int[] xcoord = new int[n];
 		int[] ycoord = new int[n];
@@ -3606,6 +3614,8 @@ public class Functions implements MacroConstants, Measurements {
 			Analyzer.setMeasurement(MEAN, state);
 		else if (arg1.startsWith("std"))
 			Analyzer.setMeasurement(STD_DEV, state);
+		else if (arg1.equals("showrownumbers"))
+			ResultsTable.getResultsTable().showRowNumbers(state);
 		else if (arg1.startsWith("show"))
 			Analyzer.setOption(arg1, state);
 		else if (arg1.startsWith("bicubic"))
