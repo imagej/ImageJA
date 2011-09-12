@@ -125,7 +125,7 @@ public class SaveDialog {
 		else {
 			dir = fc.getCurrentDirectory().getPath()+File.separator;
 			name = fc.getName(f);
-			if (name!=null && name.indexOf(".")==-1)
+			if (noExtension(name))
 				name = setExtension(name, ext);
 		}
 	}
@@ -161,7 +161,7 @@ public class SaveDialog {
 					else {
 						dir = fc.getCurrentDirectory().getPath()+File.separator;
 						name = fc.getName(f);
-						if (name!=null && name.indexOf(".")==-1)
+						if (noExtension(name))
 							name = setExtension(name, ext);
 					}
 				}
@@ -186,6 +186,12 @@ public class SaveDialog {
 		fd.dispose();
 		if (ij==null)
 			parent.dispose();
+	}
+	
+	private boolean noExtension(String name) {
+		if (name==null) return false;
+		int dotIndex = name.indexOf(".");
+		return dotIndex==-1 || (name.length()-dotIndex)>5;
 	}
 	
 	/** Returns the selected directory. */
