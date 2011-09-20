@@ -182,9 +182,10 @@ public class SaveDialog {
 		fd.show();
 		name = fd.getFile();
 		String origName = name;
-		if (noExtension(name)) {
-			name = setExtension(name, ext);
-			boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJ.isMacro();
+		if (defaultName.equals(name + ext) || noExtension(name)) {
+			if (!name.endsWith(ext))
+				name = name + ext;
+			boolean dialog = name!=null && !name.equals(origName) && !IJ.isMacro();
 			if (dialog) {
 				File f = new File( fd.getDirectory()+getFileName());
 				if (!f.exists()) dialog = false;
