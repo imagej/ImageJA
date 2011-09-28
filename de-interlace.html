@@ -12,7 +12,7 @@
 
 <blockquote>
 
-<table cellspacing=5 width=700>
+<table cellspacing=5 width=650>
 
 
 <tr valign=top><td ><b>Author:</b></td><td >
@@ -23,7 +23,8 @@ Wayne Rasband (wsr at nih.gov)
 <tr valign=top><td ><b>History:</b></td><td >
 2002/05/16: First version<br>
 2007/09/18: Bug fix<br>
-2011/07/12: Adds dialog with three choices<br>
+2011/07/12: Adds dialog with three methods<br>
+2011/09/27: Supports four methods<br>
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
@@ -37,11 +38,12 @@ Drag and drop <A HREF="download/Deinterlace_.class">Deinterlace_.class</A> to th
 
 
 <tr valign=top><td ><b>Description:</b></td><td>
-This plugin deinterlaces an image or stack using one of three methods:
+This plugin deinterlaces an image or stack using one of four methods:
 <ul>
-<li> Replace odd lines with the average of the adjacent lines.
-<li> Replace even lines with the average of the adjacent lines.
-<li> Do both of the above and double the number of frames.
+<li> Even field only (replace odd lines with the average of the adjacent lines)
+<li> Odd field only (replace even lines with the average of the adjacent lines)
+<li> Double: even field followed by odd field
+<li> Double: odd field followed by even field
 </ul>
 <p>
 &nbsp;&nbsp;&nbsp;&nbsp;
