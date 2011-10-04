@@ -22,7 +22,6 @@
 
 	<build>
 		<defaultGoal>install</defaultGoal>
-		<sourceDirectory>.</sourceDirectory>
 		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
