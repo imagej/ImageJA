@@ -1040,7 +1040,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		
 	/** Creates a LookUpTable object that corresponds to this image. */
     public LookUpTable createLut() {
-	ImageProcessor ip2 = getProcessor();
+		ImageProcessor ip2 = getProcessor();
 		if (ip2!=null)
 			return new LookUpTable(ip2.getColorModel());
 		else
