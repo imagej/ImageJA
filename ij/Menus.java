@@ -852,7 +852,7 @@ public class Menus {
 			return;
 		}
 	}
-
+		
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
 		if (applet != null) {
@@ -949,7 +949,7 @@ public class Menus {
 
 	/** Installs a plugin in the Plugins menu using the class name,
 		with underscores replaced by spaces, as the command. */
-	private void installUserPlugin(String className) {
+	void installUserPlugin(String className) {
 		installUserPlugin(className, false);
 	}
 
@@ -1018,9 +1018,9 @@ public class Menus {
 	public int getPluginCount() {
 		return nPlugins;
 	}
-	
+		
 	static final int RGB_STACK=10, HSB_STACK=11;
-
+	
 	/** Updates the Image/Type and Window menus. */
 	public static void updateMenus() {
 		if (ij==null) return;
@@ -1414,7 +1414,7 @@ public class Menus {
 			if (isLibrary) mi.installLibrary(libraryPath);
 			mi.installFile(path);
 			nMacros += mi.getMacroCount();
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) {}
 	}
 	
 	static boolean validShortcut(String shortcut) {
