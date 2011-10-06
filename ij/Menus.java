@@ -1395,7 +1395,10 @@ public class Menus {
 			IJ.runPlugIn("ij.plugin.URLOpener", docBase+"StartupMacros.txt");
 			return;
 		}
-		new MacroInstaller().installFromIJJar("/macros/StartupMacros.txt");
+		if (macrosPath==null) {
+			(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
+			return;
+		}
 		String path = macrosPath + "StartupMacros.txt";
 		File f = new File(path);
 		if (!f.exists()) {
