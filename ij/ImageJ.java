@@ -90,7 +90,6 @@ public class ImageJ extends Frame implements ActionListener,
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
 	private static String[] arguments;
-	private static String title = "ImageJA";
 	private static String iconPath;
 	
 	private Toolbar toolbar;
@@ -360,7 +359,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 	
 	private String version() {
-		return title + " " + VERSION+BUILD + "; Java " + System.getProperty("java.version") + (IJ.is64Bit() ? " [64-bit]; " : " [32-bit]; ");
+		return "ImageJ "+VERSION+BUILD + "; "+"Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]; ":" [32-bit]; ");
 	}
 	
 	public void mouseReleased(MouseEvent e) {}
@@ -586,7 +585,7 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public static void main(String args[]) {
 		if (System.getProperty("java.version").substring(0,3).compareTo("1.5")<0) {
-			javax.swing.JOptionPane.showMessageDialog(null,title+" "+VERSION+" requires Java 1.5 or later.");
+			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
 		//IJ.debugMode = true;
@@ -614,8 +613,6 @@ public class ImageJ extends Frame implements ActionListener,
 					else if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
 				}
-				else if (args[i].startsWith("-title="))
-					title = args[i].substring(7);
 				else if (args[i].startsWith("-icon="))
 					iconPath = args[i].substring(6);
 			} 
@@ -723,9 +720,8 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 		if (windowClosed && !changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
-			GenericDialog gd = new GenericDialog(getTitle(), this);
-			gd.addMessage("Are you sure you want to quit "
-				+ getTitle() + "?");
+			GenericDialog gd = new GenericDialog("ImageJ", this);
+			gd.addMessage("Are you sure you want to quit ImageJ?");
 			gd.showDialog();
 			quitting = !gd.wasCanceled();
 			windowClosed = false;
