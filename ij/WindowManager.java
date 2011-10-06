@@ -320,13 +320,6 @@ public class WindowManager {
 	public static void setWindow(Frame win) {
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
-		if (IJ.getApplet() != null && win instanceof ImageWindow) {
-			currentWindow = (ImageWindow)win;
-			tempImageTable.remove(Thread.currentThread());
-			ImagePlus current = currentWindow.getImagePlus();
-			if (current != null)
-				current.setActivated();
-		}
     }
 
 	/** Closes all windows. Stops and returns false if an image or Editor "save changes" dialog is canceled. */
@@ -413,7 +406,7 @@ public class WindowManager {
 		for (int i=0; i<nonImageList.size(); i++) {
 			Frame win = (Frame)nonImageList.elementAt(i);
 			String title = win.getTitle();
-			if (item == Menus.window.getItem(i + Menus.WINDOW_MENU_ITEMS) || menuItemLabel.equals(title)) {
+			if (menuItemLabel.equals(title)) {
 				toFront(win);
 				((CheckboxMenuItem)item).setState(false);
 				if (Recorder.record && !IJ.isMacro())
