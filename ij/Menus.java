@@ -281,8 +281,6 @@ public class Menus {
 		} else
 			menu.add(item);
 		item.addActionListener(ij);
-		if (menu == macrosMenu)
-			nMacros++;
 	}
 	
 	void addPlugInItem(Menu menu, String label, String className, int shortcut, boolean shift) {
