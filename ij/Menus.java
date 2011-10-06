@@ -11,12 +11,6 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.zip.*;
 
-import java.net.URL;
-import java.net.JarURLConnection;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
-
 /**
 This class installs and updates ImageJ's menus. Note that menu labels,
 even in submenus, must be unique. This is because ImageJ uses a single
@@ -759,22 +753,12 @@ public class Menus {
     /** Opens the configuration file ("plugins.config") from a JAR file and returns it as an InputStream. */
 	InputStream getConfigurationFile(String jar) {
 		try {
-			JarFile jf;
-			// in case its a regular file
-			if(jar.startsWith("http") || jar.startsWith("file:")) {
-				URL url = new URL("jar:" + jar + "!/");
-				JarURLConnection jarcon =
-					(JarURLConnection)url.openConnection();
-				jf = jarcon.getJarFile();
-			}
-			else
-				jf = new JarFile(jar);
-			Enumeration entries = jf.entries();
+			ZipFile jarFile = new ZipFile(jar);
+			Enumeration entries = jarFile.entries();
 			while (entries.hasMoreElements()) {
-				JarEntry entry=(JarEntry)entries.nextElement();
-			if (entry.getName().endsWith("plugins.config")) {
-					return jf.getInputStream(entry);
-				}
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+        		if (entry.getName().endsWith("plugins.config"))
+					return jarFile.getInputStream(entry);
 			}
 		}
     	catch (Throwable e) {
@@ -785,8 +769,6 @@ public class Menus {
 	
     /** Creates a configuration file for JAR/ZIP files that do not have one. */
 	InputStream autoGenerateConfigFile(String jar) {
-		if (jar.startsWith("file:"))
-			jar = jar.substring(5);
 		StringBuffer sb = null;
 		try {
 			ZipFile jarFile = new ZipFile(jar);
@@ -884,20 +866,6 @@ public class Menus {
 			jarFiles = applet.getPluginJarURLs();
 			return new String[] {};
 		}
-		/*
-		 * Handling java webstart:
-		 * If the jnlp property is set, initialize jarFiles
-		 * and return
-		 */
-		String jnlp_jars = System.getProperty("jnlp");
-		if(jnlp_jars != null) {
-			String[] jars = Tools.split(jnlp_jars);
-			jarFiles = new Vector();
-			for(int i = 0; i < jars.length; i++)
-				jarFiles.addElement(jars[i]);
-			return new String[] {};
-		}
-
 		File f = pluginsPath!=null?new File(pluginsPath):null;
 		if (f==null || (f!=null && !f.isDirectory()))
 			return null;
