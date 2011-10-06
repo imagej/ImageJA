@@ -90,7 +90,6 @@ public class ImageJ extends Frame implements ActionListener,
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
 	private static String[] arguments;
-	private static String iconPath;
 	
 	private Toolbar toolbar;
 	private Panel statusBar;
@@ -130,9 +129,6 @@ public class ImageJ extends Frame implements ActionListener,
 	public ImageJ(ImageJApplet applet, int mode) {
 		super(title);
 		embedded = applet==null && (mode==EMBEDDED||mode==NO_SHOW);
-		if (!embedded && iconPath != null) try {
-			setIcon(new URL("file:" + iconPath));
-		} catch (Exception e) { e.printStackTrace(); }
 		this.applet = applet;
 		String err1 = loadPrefs(this, applet);
 		if (IJ.isLinux()) {
@@ -243,10 +239,6 @@ public class ImageJ extends Frame implements ActionListener,
 	
     void setIcon() throws Exception {
 		URL url = this.getClass().getResource("/microscope.gif");
-		setIcon(url);
-	}
-
-	void setIcon(URL url) throws Exception {
 		if (url==null) return;
 		Image img = createImage((ImageProducer)url.getContent());
 		if (img!=null) setIconImage(img);
@@ -615,8 +607,6 @@ public class ImageJ extends Frame implements ActionListener,
 					else if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
 				}
-				else if (args[i].startsWith("-icon="))
-					iconPath = args[i].substring(6);
 			} 
 		}
   		// If ImageJ is already running then isRunning()
