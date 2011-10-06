@@ -227,10 +227,11 @@ public class Menus {
 		Menu aboutMenu = getMenu("Help>About Plugins", true);
 		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
 				
-		installPlugins();
 		if (applet==null) {
 			if (fontSize!=0)
 				mbar.setFont(getFont());
+			menuSeparators = new Properties();
+			installPlugins();
 		}
 
 		// make	sure "Quit" is the last item in the File menu
