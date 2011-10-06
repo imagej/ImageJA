@@ -35,7 +35,7 @@ public class Options implements PlugIn {
 		gd.addCheckbox("Hide \"Process Stack?\" dialog", IJ.hideProcessStackDialog);
 		gd.addCheckbox("Require "+key+" key for shortcuts", Prefs.requireControlKey);
 		gd.addCheckbox("Move isolated plugins to Misc. menu", Prefs.moveToMisc);
-		gd.addCheckbox("Run single instance listener", Prefs.enableRMIListener != 0);
+		gd.addCheckbox("Run single instance listener", Prefs.runSocketListener);
 		gd.addCheckbox("Debug mode", IJ.debugMode);
 		gd.addHelp(IJ.URL+"/docs/menus/edit.html#misc");
 		gd.showDialog();
@@ -62,7 +62,7 @@ public class Options implements PlugIn {
 		IJ.hideProcessStackDialog = gd.getNextBoolean();
 		Prefs.requireControlKey = gd.getNextBoolean();
 		Prefs.moveToMisc = gd.getNextBoolean();
-		Prefs.enableRMIListener = gd.getNextBoolean() ? 1 : 0;
+		Prefs.runSocketListener = gd.getNextBoolean();
 		IJ.debugMode = gd.getNextBoolean();
 	}
 

@@ -202,6 +202,8 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		String str = m.getMacroCount()==1?" macro":" macros";
 		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
+		if (applet==null && !embedded && Prefs.runSocketListener)
+			new SocketListener();
 		configureProxy();
  	}
 
@@ -617,15 +619,10 @@ public class ImageJ extends Frame implements ActionListener,
 					iconPath = args[i].substring(6);
 			} 
 		}
-		// Read prefs before checking for other instance
-		String err1 = loadPrefs(ImageJ.class, null);
-		if (err1!=null)
-			IJ.error(err1);
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
-		if (!noGUI && (mode==STANDALONE) && Prefs.enableRMIListener!=0 &&
-				isRunning(args))
-			return;
+		if (!noGUI && (mode==STANDALONE) && isRunning(args))
+  			return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
 			ij = new ImageJ(null, mode);
@@ -673,9 +670,50 @@ public class ImageJ extends Frame implements ActionListener,
 		//if (nArgs==2 && args[0].startsWith("-ijpath"))
 		//	return false;
 		int nCommands = 0;
-		return OtherInstance.sendArguments(args);
+		try {
+			sendArgument("user.dir "+System.getProperty("user.dir"));
+			for (int i=0; i<nArgs; i++) {
+				String arg = args[i];
+				if (IJ.debugMode) IJ.log("isRunning: "+i+" "+arg);
+				if (arg==null) continue;
+				String cmd = null;
+				if (macros==0 && arg.endsWith(".ijm")) {
+					cmd = "macro " + arg;
+					macros++;
+				} else if (arg.startsWith("-macro") && i+1<nArgs) {
+					String macroArg = i+2<nArgs?"("+args[i+2]+")":"";
+					cmd = "macro " + args[i+1] + macroArg;
+					sendArgument(cmd);
+					nCommands++;
+					break;
+				} else if (arg.startsWith("-eval") && i+1<nArgs) {
+					cmd = "eval " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.startsWith("-run") && i+1<nArgs) {
+					cmd = "run " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.indexOf("ij.ImageJ")==-1 && arg.length()>0 && !arg.startsWith("-"))
+					cmd = "open " + arg;
+				if (cmd!=null) {
+					sendArgument(cmd);
+					nCommands++;
+				}
+			} // for
+		} catch (IOException e) {
+			if (IJ.debugMode) IJ.log(""+e);
+			return false;
+		}
+		return true;
 	}
-
+	
+	static void sendArgument(String arg) throws IOException {
+		Socket socket = new Socket("localhost", port);
+		PrintWriter out = new PrintWriter (new OutputStreamWriter(socket.getOutputStream()));
+		out.println(arg);
+		out.close();
+		socket.close();
+	}
+	
 	/**
 	Returns the port that ImageJ checks on startup to see if another instance is running.
 	@see ij.SocketListener
