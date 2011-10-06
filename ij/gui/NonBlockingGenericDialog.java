@@ -13,10 +13,9 @@ public class NonBlockingGenericDialog extends GenericDialog {
 
 	public synchronized void showDialog() {
 		super.showDialog();
-		if (isShowing())
-			try {
-				wait();
-			} catch (InterruptedException e) { }
+		try {
+			wait();
+		} catch (InterruptedException e) { }
 	}
 
 	public synchronized void actionPerformed(ActionEvent e) {
