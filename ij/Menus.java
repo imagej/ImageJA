@@ -838,11 +838,6 @@ public class Menus {
 	}
 	
 	void setupPluginsAndMacrosPaths() {
-		// needed to run plugins when ImageJ launched using Java WebStart
-		if (System.getProperty("jnlp") != null) {
-			System.setSecurityManager(null);
-			jnlp = true;
-		}
 		pluginsPath = macrosPath = null;
 		String homeDir = Prefs.getHomeDir();
 		if (homeDir==null) return;
@@ -860,6 +855,9 @@ public class Menus {
 				if (!(new File(pluginsDir+Prefs.separator+"plugins")).isDirectory())
 					pluginsDir = pluginsDir + Prefs.separator + "ImageJ";
 				property = null;
+				// needed to run plugins when ImageJ launched using Java WebStart
+				if (applet==null) System.setSecurityManager(null);
+				jnlp = true;
 			}
 			pluginsPath = pluginsDir+Prefs.separator+"plugins"+Prefs.separator;
 			if (property!=null&&!(new File(pluginsPath)).isDirectory())

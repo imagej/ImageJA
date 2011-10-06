@@ -948,7 +948,7 @@ public class ImageReader {
 		}
 		return out.toByteArray();
 	}
-
+	 
 	/** Based on the Bio-Formats PackbitsCodec written by Melissa Linkert. */
 	public byte[] packBitsUncompress(byte[] input, int expected) {
 		if (expected==0) expected = Integer.MAX_VALUE;

@@ -1779,7 +1779,7 @@ public class IJ {
 		if (ij!=null || Interpreter.isBatchMode())
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
-
+	
 	static void setClassLoader(ClassLoader loader) {
 		classLoader = loader;
 	}

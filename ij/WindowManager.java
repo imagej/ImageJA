@@ -231,9 +231,9 @@ public class WindowManager {
 		if (imp==null) return;
 		checkForDuplicateName(imp);
 		imageList.addElement(win);
-		Menus.addWindowMenuItem(imp);
-		setCurrentWindow(win,true);
-	}
+        Menus.addWindowMenuItem(imp);
+        setCurrentWindow(win);
+    }
 
 	static void checkForDuplicateName(ImagePlus imp) {
 		if (checkForDuplicateName) {
@@ -242,7 +242,7 @@ public class WindowManager {
 				imp.setTitle(getUniqueName(name));
 		} 
 		checkForDuplicateName = false;
-	}
+    }
 
 	static boolean isDuplicateName(String name) {
 		int n = imageList.size();

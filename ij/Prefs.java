@@ -183,6 +183,18 @@ public class Prefs {
 		return null;
 	}
 
+	/*
+	static void dumpPrefs(String title) {
+		IJ.log("");
+		IJ.log(title);
+		Enumeration e = ijPrefs.keys();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			IJ.log(key+": "+ijPrefs.getProperty(key));
+		}
+	}
+	*/
+
 	static String loadAppletProps(InputStream f, Applet applet) {
 		if (f==null)
 			return PROPS_NAME+" not found in ij.jar";
