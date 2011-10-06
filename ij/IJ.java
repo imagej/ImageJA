@@ -1807,10 +1807,6 @@ public class IJ {
 		exceptionHandler = handler;
 	}
 
-	public static ExceptionHandler getExceptionHandler() {
-		return exceptionHandler;
-	}
-
 	public interface ExceptionHandler {
 		public void handle(Throwable e);
 	}
