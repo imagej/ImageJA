@@ -24,11 +24,6 @@ public class WindowManager {
 
 	/** Makes the image contained in the specified window the active image. */
 	public static void setCurrentWindow(ImageWindow win) {
-		setCurrentWindow(win,false);
-	}
-
-	/** Makes the specified image active. */
-	public static void setCurrentWindow(ImageWindow win,boolean suppressRecording) {
 		if (win==null || win.isClosed() || win.getImagePlus()==null) // deadlock-"wait to lock"
 			return;
 		//IJ.log("setCurrentWindow: "+win.getImagePlus().getTitle()+" ("+(currentWindow!=null?currentWindow.getImagePlus().getTitle():"null") + ")");
@@ -48,7 +43,7 @@ public class WindowManager {
 		Undo.reset();
 		currentWindow = win;
 		Menus.updateMenus();
-		if (!suppressRecording && Recorder.record && !IJ.isMacro())
+		if (Recorder.record && !IJ.isMacro())
 			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
 	
