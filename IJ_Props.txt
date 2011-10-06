@@ -330,9 +330,8 @@ plug-in02=>"Shortcuts"
 plug-in03=>"Utilities"
 plug-in04=>"New_"
 plug-in05="Compile and Run...",ij.plugin.Compiler
-plug-in06="Install PlugIn...",ij.plugin.PlugInInstaller
-#plug-in07=-
-#plug-in08=>"User_Plugins"
+#plug-in06=-
+#plug-in07=>"User_Plugins"
 
 # Install user plugins located in ij.jar to Plugins>User Plugins submenu
 #user_plugins01="Red And Blue",RedAndBlue_
