@@ -1077,10 +1077,6 @@ public class Interpreter implements MacroConstants {
 	}
 	
 	void showError(String title, String msg, String[] variables) {
-		if (IJ.getInstance() == null) {
-			System.err.println(title + ": " + msg);
-			return;
-		}
 		GenericDialog gd = new GenericDialog(title);
 		gd.setInsets(6,5,0);
 		gd.addMessage(msg);
