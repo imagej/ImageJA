@@ -96,7 +96,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private ProgressBar progressBar;
 	private Label statusLine;
 	private boolean firstTime = true;
-	private ImageJApplet applet; // null if not running as an applet
+	private java.applet.Applet applet; // null if not running as an applet
 	private Vector classes = new Vector();
 	private boolean exitWhenQuitting;
 	private boolean quitting;
@@ -104,7 +104,6 @@ public class ImageJ extends Frame implements ActionListener,
 	private String lastKeyCommand;
 	private boolean embedded;
 	private boolean windowClosed;
-	private static boolean prefsLoaded;
 	
 	boolean hotkey;
 	
@@ -119,18 +118,18 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	/** Creates a new ImageJ frame that runs as an applet. */
-	public ImageJ(ImageJApplet applet) {
+	public ImageJ(java.applet.Applet applet) {
 		this(applet, STANDALONE);
 	}
 
 	/** If 'applet' is not null, creates a new ImageJ frame that runs as an applet.
 		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded 
 		version of ImageJ which does not start the SocketListener. */
-	public ImageJ(ImageJApplet applet, int mode) {
-		super(title);
+	public ImageJ(java.applet.Applet applet, int mode) {
+		super("ImageJ");
 		embedded = applet==null && (mode==EMBEDDED||mode==NO_SHOW);
 		this.applet = applet;
-		String err1 = loadPrefs(this, applet);
+		String err1 = Prefs.load(this, applet);
 		if (IJ.isLinux()) {
 			backgroundColor = new Color(240,240,240);
 			setBackground(backgroundColor);
@@ -178,8 +177,7 @@ public class ImageJ extends Frame implements ActionListener,
 			setLocation(loc.x, loc.y);
 			pack();
 			setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-			if (applet == null)
-				show();
+			show();
 		}
 		if (err1!=null)
 			IJ.error(err1);
@@ -202,21 +200,6 @@ public class ImageJ extends Frame implements ActionListener,
 			new SocketListener();
 		configureProxy();
  	}
-
-	public Component add(Component c) {
-		if (applet != null)
-			return applet.add(c);
-		return super.add(c);
-	}
-
-	static String loadPrefs(Object object, ImageJApplet applet) {
-		if (!prefsLoaded) {
-			String error = Prefs.load(object, applet);
-			prefsLoaded = true;
-			return error;
-		}
-		return null;
-	}
     	
 	void configureProxy() {
 		if (Prefs.useSystemProxies) {
@@ -266,10 +249,6 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public ProgressBar getProgressBar() {
         return progressBar;
-	}
-
-	public ImageJApplet getApplet() {
-		return applet;
 	}
 
 	public Panel getStatusBar() {

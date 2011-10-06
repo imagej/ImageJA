@@ -8,6 +8,7 @@ import java.awt.image.*;
 import java.awt.event.*;
 import java.util.*;
 import java.io.*;
+import java.applet.Applet;
 import java.awt.event.*;
 import java.util.zip.*;
 
@@ -50,7 +51,7 @@ public class Menus {
 	private static PopupMenu popup;
 
 	private static ImageJ ij;
-	private ImageJApplet applet;
+	private static Applet applet;
 	private Hashtable demoImagesTable = new Hashtable();
 	private static String pluginsPath, macrosPath;
 	private static Properties menus;
@@ -80,7 +81,7 @@ public class Menus {
 
 	static boolean jnlp; // true when using Java WebStart
 		
-	Menus(ImageJ ijInstance, ImageJApplet appletInstance) {
+	Menus(ImageJ ijInstance, Applet appletInstance) {
 		ij = ijInstance;
 		applet = appletInstance;
 		instance = this;
@@ -101,8 +102,7 @@ public class Menus {
 		Menu newMenu = getMenu("File>New", true);
 		addPlugInItem(file, "Open...", "ij.plugin.Commands(\"open\")", KeyEvent.VK_O, false);
 		addPlugInItem(file, "Open Next", "ij.plugin.NextImageOpener", KeyEvent.VK_O, true);
-		if (applet == null)
-			getMenu("File>Open Samples", true);
+		getMenu("File>Open Samples", true);
 		addOpenRecentSubMenu(file);
 		Menu importMenu = getMenu("File>Import", true);
 		file.addSeparator();
@@ -228,8 +228,6 @@ public class Menus {
 		addPlugInItem(help, "About ImageJ...", "ij.plugin.AboutBox", 0, false);
 				
 		if (applet==null) {
-			if (fontSize!=0)
-				mbar.setFont(getFont());
 			menuSeparators = new Properties();
 			installPlugins();
 		}
@@ -237,7 +235,10 @@ public class Menus {
 		// make	sure "Quit" is the last item in the File menu
 		file.addSeparator();
 		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
-		if (ij!=null && applet == null)
+
+		if (fontSize!=0)
+			mbar.setFont(getFont());
+		if (ij!=null)
 			ij.setMenuBar(mbar);
 		
 		if (pluginError!=null)
@@ -672,13 +673,9 @@ public class Menus {
 		if (result == null) {
 			int offset = menuName.lastIndexOf('>');
 			if (offset < 0) {
-				result = new PopupMenu(menuName);
-				if (mbar == null) {
-					if (applet == null)
-						mbar = new MenuBar();
-					else
-						mbar = applet.menu.getMenuBar();
-				}
+				result = new Menu(menuName);
+				if (mbar == null)
+					mbar = new MenuBar();
 				if (menuName.equals("Help"))
 					mbar.setHelpMenu(result);
 				else
@@ -856,10 +853,6 @@ public class Menus {
 		
 	/** Returns a list of the plugins in the plugins menu. */
 	public static synchronized String[] getPlugins() {
-		if (applet != null) {
-			jarFiles = applet.getPluginJarURLs();
-			return new String[] {};
-		}
 		File f = pluginsPath!=null?new File(pluginsPath):null;
 		if (f==null || (f!=null && !f.isDirectory()))
 			return null;
@@ -1480,30 +1473,10 @@ public class Menus {
 		prefs.put(Prefs.MENU_SIZE, Integer.toString(fontSize));
 	}
 	
-	MenuItem[] getWindowItems() {
-		Menu menu = getMenu("Window");
-		int count = menu.getItemCount() - WINDOW_MENU_ITEMS;
-		MenuItem[] result = new MenuItem[count];
-		for (int i = 0; i < count; i++)
-			result[i] = menu.getItem(i + WINDOW_MENU_ITEMS);
-		return result;
-	}
-
-	void addWindowItems(MenuItem[] items) {
-		if (items == null)
-			return;
-		Menu menu = getMenu("Window");
-		for (int i = 0; i < items.length; i++)
-			menu.add(items[i]);
-	}
-
 	public static void updateImageJMenus() {
-		MenuItem[] windows = instance == null ? null :
-			instance.getWindowItems();
-		Menus m = new Menus(IJ.getInstance(),
-				(ImageJApplet)IJ.getApplet());
+		jarFiles = macroFiles = null;
+		Menus m = new Menus(IJ.getInstance(), IJ.getApplet());
 		String err = m.addMenuBar();
-		m.addWindowItems(windows);
 		if (err!=null) IJ.error(err);
 		IJ.setClassLoader(null);
 		IJ.runPlugIn("ij.plugin.ClassChecker", "");
