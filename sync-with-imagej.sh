@@ -70,3 +70,7 @@ NEWHEAD="$(git commit-tree $TREE -p $HEAD -p $IJ1HEAD \
 	< "$GIT_INDEX_FILE.message")" &&
 git update-ref -m "Synchronize with ImageJ1" $BRANCH $NEWHEAD $HEAD ||
 die "Could not update $BRANCH"
+
+test -z "$NEED_TO_UPDATE_WORKING_TREE" ||
+git stash ||
+die "Could not update the working tree"
