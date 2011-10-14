@@ -141,6 +141,14 @@
 		<url>fiji.sc/cgi-bin/gitweb.cgi?p=imagej.git</url>
 	</scm>
 
+	<repositories>
+		<!-- NB: for AppleJavaExtensions -->
+		<repository>
+			<id>imagej.thirdparty</id>
+			<url>http://dev.imagejdev.org/maven2/thirdparty</url>
+		</repository>
+	</repositories>
+
 	<distributionManagement>
 		<repository>
 			<id>imagej.releases</id>
