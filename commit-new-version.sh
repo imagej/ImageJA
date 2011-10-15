@@ -29,8 +29,8 @@ if [ -z "$1" ]; then
 		echo "Already have $DOTVERSION"
 		exit 0
 	}
-	ZIP=.git/ij$VERSION-src.zip
-	test -f $ZIP || curl $SRC_URL/$ZIP > $ZIP || {
+	ZIP=ij$VERSION-src.zip
+	test -f $ZIP || curl $SRC_URL/$ZIP > .git/$ZIP || {
 		echo "Could not get $SRC_URL/$ZIP"
 		exit 1
 	}
@@ -46,7 +46,7 @@ if [ -z "$1" ]; then
 	 sed \
 		-e "/^  • /,\$d" \
 		-e "s/^•\(  • $DOTVERSION,\? \)/\1/" |
-	 sh "$0" $ZIP) || {
+	 sh "$0" .git/$ZIP) || {
 		echo "Could not commit!"
 		exit 1
 	}
