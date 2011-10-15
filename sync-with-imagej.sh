@@ -73,6 +73,7 @@ git update-ref -m "Synchronize with ImageJ1" $BRANCH $NEWHEAD $HEAD ||
 die "Could not update $BRANCH"
 
 test -z "$NEED_TO_UPDATE_WORKING_TREE" || {
+	echo "Updating work-tree" &&
 	unset GIT_INDEX_FILE &&
 	git stash
 } ||
