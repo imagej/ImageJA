@@ -53,6 +53,11 @@ POMHASH=$(git hash-object -w "$GIT_INDEX_FILE.pom.new") &&
 printf "100644 $POMHASH 0\tpom.xml\n" > "$GIT_INDEX_FILE.list.new" ||
 die "Could not update pom.xml"
 
+# copy .gitignore from previous HEAD
+GITIGNORE=$(git rev-parse $HEAD:.gitignore 2>/dev/null) &&
+printf "100644 $GITIGNORE 0\t.gitignore\n" >> "$GIT_INDEX_FILE.list.new" ||
+die "Could not find .gitignore in the current HEAD"
+
 git ls-files --stage > "$GIT_INDEX_FILE.list.old" &&
 mv "$GIT_INDEX_FILE" "$GIT_INDEX_FILE.old" &&
 sed -e 's~\t\(.*\.java\)$~\tsrc/main/java/\1~' \
