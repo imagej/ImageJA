@@ -30,12 +30,12 @@ if [ -z "$1" ]; then
 		echo "Already have $DOTVERSION"
 		exit 0
 	}
-	ZIP=ij$VERSION-src.zip
+	ZIP=.git/ij$VERSION-src.zip
 	test -f $ZIP || curl $SRC_URL/$ZIP > $ZIP || {
 		echo "Could not get $SRC_URL/$ZIP"
 		exit 1
 	}
-	NOTES=notes$VERSION.txt
+	NOTES=.git/notes$VERSION.txt
 	test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
 		echo "Could not get notes"
 		exit 1
