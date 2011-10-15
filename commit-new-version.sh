@@ -18,7 +18,6 @@ if [ -z "$1" ]; then
 	test -f $TIMESTAMP &&
 	test "$(cat $TIMESTAMP.new)" = "$(cat $TIMESTAMP)" &&
 	exit 0
-	mv $TIMESTAMP.new $TIMESTAMP
 
 	SRC_URL=$URL/download/src
 	NOTES_URL=$URL/notes.html
@@ -51,6 +50,7 @@ if [ -z "$1" ]; then
 		echo "Could not commit!"
 		exit 1
 	}
+	mv $TIMESTAMP.new $TIMESTAMP
 	exit 0
 fi
 
