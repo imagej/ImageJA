@@ -90,11 +90,17 @@ class Variable implements MacroConstants, Cloneable {
     }
     
     void setArraySize(int size) {
+    	if (array==null)
+    		size = 0;
+    	else if (size>array.length)
+    		size = array.length;
     	arraySize = size;
     }
     
     int getArraySize() {
-    	return arraySize;
+    	int size = array!=null?array.length:0;
+    	if (arraySize>0) size = arraySize;
+    	return size;
     }
 
     int getType() {
