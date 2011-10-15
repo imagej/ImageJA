@@ -9,7 +9,17 @@ git rev-parse $BRANCHNAME >/dev/null 2>/dev/null || {
 }
 
 if [ -z "$1" ]; then
-	URL=http://rsb.info.nih.gov/ij
+	URL=http://imagej.nih.gov/ij
+
+	TIMESTAMP=.git/ij.timestamp
+	curl --silent --head $URL/notes.html |
+	grep -i "^Last-Modified:" > $TIMESTAMP.new
+	test -s $TIMESTAMP.new &&
+	test -f $TIMESTAMP &&
+	test "$(cat $TIMESTAMP.new)" = "$(cat $TIMESTAMP)" &&
+	exit 0
+	mv $TIMESTAMP.new $TIMESTAMP
+
 	SRC_URL=$URL/download/src
 	NOTES_URL=$URL/notes.html
 	VERSION="$(curl $SRC_URL/ | \
