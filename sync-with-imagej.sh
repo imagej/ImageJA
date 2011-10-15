@@ -49,8 +49,9 @@ die "Could not read current ImageJ1 tree"
 git show $HEAD:pom.xml > "$GIT_INDEX_FILE.pom" &&
 sed '/^\t</s/\(<version>\).*\(<\/version>\)/\1'"$VERSION"'\2/' \
 	< "$GIT_INDEX_FILE.pom" > "$GIT_INDEX_FILE.pom.new" &&
-POMHASH=$(git hash-object -w "$GIT_INDEX_FILE.pom.new")
-printf "100644 $POMHASH 0\tpom.xml\n" > "$GIT_INDEX_FILE.list.new"
+POMHASH=$(git hash-object -w "$GIT_INDEX_FILE.pom.new") &&
+printf "100644 $POMHASH 0\tpom.xml\n" > "$GIT_INDEX_FILE.list.new" ||
+die "Could not update pom.xml"
 
 git ls-files --stage > "$GIT_INDEX_FILE.list.old" &&
 mv "$GIT_INDEX_FILE" "$GIT_INDEX_FILE.old" &&
