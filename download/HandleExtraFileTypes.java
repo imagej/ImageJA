@@ -214,6 +214,12 @@ public class HandleExtraFileTypes extends ImagePlus implements PlugIn {
 			return tryPlugIn("Open_DAT_EMMENU", path);
 		}
 
+		// Timo Rantalainen and Michael Doube: read Stratec pQCT files.
+		// File name is IDDDDDDD.MHH, where D is decimal and H is hex.
+		if (name.matches("[iI]\\d{7}\\.[mM]\\p{XDigit}{2}")) {
+			return tryPlugIn("org.doube.bonej.pqct.Read_Stratec_File", path);
+		}
+
 		// ****************** MODIFY HERE ******************
 		// do what ever you have to do to recognise your own file type
 		// and then call appropriate plugin using the above as models
