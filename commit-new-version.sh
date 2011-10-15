@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BRANCHNAME=imagej
-UPSTREAM=orcz
+UPSTREAM=origin
 
 git rev-parse $BRANCHNAME >/dev/null 2>/dev/null || {
 	echo "No branch $BRANCHNAME yet!"
