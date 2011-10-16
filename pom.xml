@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>imagej</groupId>
+	<artifactId>ij</artifactId>
+	<version>1.45r</version>
+
+	<name>ImageJ</name>
+	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
+	<url>http://imagej.nih.gov/ij/</url>
+	<inceptionYear>1997</inceptionYear>
+
+	<properties>
+		<!-- NB: Avoid platform encoding warning when copying resources. -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>tools</artifactId>
+			<version>1.4.2</version>
+			<scope>system</scope>
+			<systemPath>${java.home}/../lib/tools.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.apple</groupId>
+			<artifactId>AppleJavaExtensions</artifactId>
+			<version>1.5</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav</artifactId>
+				<version>1.0-beta-2</version>
+			</extension>
+		</extensions>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<!-- NB: Generate javadocs as part of site generation. -->
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<maxmemory>1024m</maxmemory>
+					<!-- NB: Workaround for javadoc bug when classes in the default
+						package access classes from non-default packages. See:
+						http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5101868 -->
+					<use>false</use>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<licenses>
+		<license>
+			<name>Public domain</name>
+			<url>http://rsb.info.nih.gov/ij/disclaimer.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>NIH</name>
+		<url>http://nih.gov/</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<id>wsr</id>
+			<name>Wayne Rasband</name>
+			<email>wsr@nih.gov</email>
+			<url>http://www.linkedin.com/pub/wayne-rasband/11/140/477</url>
+			<organization>NIH</organization>
+			<organizationUrl>http://rsb.info.nih.gov/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-5</timezone>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>BugZilla</system>
+		<url>http://fiji.sc/bugzilla</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Hudson</system>
+		<url>http://dev.imagejdev.org:8080/</url>
+	</ciManagement>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ</name>
+			<subscribe>http://rsb.info.nih.gov/ij/list.html</subscribe>
+			<unsubscribe>http://rsb.info.nih.gov/ij/list.html</unsubscribe>
+			<post>imagej@list.nih.gov</post>
+			<archive>http://list.nih.gov/archives/imagej.html</archive>
+		</mailingList>
+		<mailingList>
+			<name>ImageJ-devel</name>
+			<subscribe>http://imagejdev.org/mailman/listinfo/imagej-devel</subscribe>
+			<unsubscribe>http://imagejdev.org/mailman/listinfo/imagej-devel</unsubscribe>
+			<post>imagej-devel@imagejdev.org</post>
+			<archive>http://imagejdev.org/pipermail/imagej-devel/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git://fiji.sc/imagej.git</connection>
+		<developerConnection>scm:git:mob@repo.or.cz/srv/git/imageja.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>fiji.sc/cgi-bin/gitweb.cgi?p=imagej.git</url>
+	</scm>
+
+	<repositories>
+		<!-- NB: for AppleJavaExtensions -->
+		<repository>
+			<id>imagej.thirdparty</id>
+			<url>http://dev.imagejdev.org/maven2/thirdparty</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>imagej.releases</id>
+			<name>ImageJ Releases Repository</name>
+			<url>dav:http://dev.imagejdev.org:8081/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>imagej.snapshots</id>
+			<name>ImageJ Snapshots Repository</name>
+			<url>dav:http://dev.imagejdev.org:8081/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>
