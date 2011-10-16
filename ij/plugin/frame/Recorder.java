@@ -342,7 +342,14 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 	}
 	
 	static String trimKey(String key) {
-		return Macro.trimKey(key);
+		int index = key.indexOf(" ");
+		if (index>-1)
+			key = key.substring(0,index);
+		index = key.indexOf(":");
+		if (index>-1)
+			key = key.substring(0,index);
+		key = key.toLowerCase(Locale.US);
+		return key;
 	}
 
 	/** Writes the current command and options to the Recorder window. */
@@ -484,6 +491,9 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 			IJ.showMessage("Recorder", "A macro cannot be created until at least\none command has been recorded.");
 			return;
 		}
+		Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
+		if (ed==null)
+			return;
 		boolean java = mode.getSelectedItem().equals(modes[PLUGIN]);
 		String name = fileName.getText();
 		int dotIndex = name.lastIndexOf(".");
@@ -511,11 +521,6 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 				name += ".ijm";
 			}
 		}
-		if (IJ.runFijiEditor(name, text))
-			return;
-		Editor ed = (Editor)IJ.runPlugIn("ij.plugin.frame.Editor", "");
-		if (ed==null)
-			return;
 		ed.createMacro(name, text);
 	}
 	
@@ -539,7 +544,10 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 		}
 		String text2 = new String(sb);
 		text2 = text2.replaceAll("print", "IJ.log");
-		NewPlugin np = (NewPlugin)IJ.runPlugIn("ij.plugin.NewPlugin", "name:" + name + "\n" + text2);
+		NewPlugin np = (NewPlugin)IJ.runPlugIn("ij.plugin.NewPlugin", text2);
+		Editor ed = np.getEditor();
+		ed.updateClassName(ed.getTitle(), name);
+		ed.setTitle(name);
 	}
 
 	/** Temporarily disables path recording. */

@@ -37,7 +37,6 @@ public class Prefs {
     public static final String NOISE_SD = "noise.sd";
     public static final String MENU_SIZE = "menu.size";
     public static final String THREADS = "threads";
-    public static final String ENABLE_RMI = "enable.rmi.listener";
 	public static final String KEY_PREFIX = ".";
  
 	private static final int USE_POINTER=1<<0, ANTIALIASING=1<<1, INTERPOLATE=1<<2, ONE_HUNDRED_PERCENT=1<<3,
@@ -107,9 +106,7 @@ public class Prefs {
 	public static boolean pointAddToManager;
 	/** Extend the borders to foreground for binary erosions and closings. */
 	public static boolean padEdges;
-	/** Run the RMIListener (-1 unspecified, 0 no, 1 yes). */
-	public static int enableRMIListener = -1;
-	/** Only for backwards compatibility */
+	/** Run the SocketListener. */
 	public static boolean runSocketListener;
 	/** Use MultiPoint tool. */
 	public static boolean multiPointMode;
@@ -154,24 +151,23 @@ public class Prefs {
 		@return	an error message if "IJ_Props.txt" not found.
 	*/
 	public static String load(Object ij, Applet applet) {
-		InputStream f = (ij instanceof Class ? (Class)ij : ij.getClass()).getResourceAsStream("/"+PROPS_NAME);
+		InputStream f = ij.getClass().getResourceAsStream("/"+PROPS_NAME);
 		if (applet!=null)
 			return loadAppletProps(f, applet);
 		if (homeDir==null)
 			homeDir = System.getProperty("user.dir");
-		String env = System.getenv("IJ_PREFS_DIR");
-		if (env != null && !env.equals(""))
-			prefsDir = env;
-		else {
-			String userHome = System.getProperty("user.home");
-			prefsDir = userHome; // User home directory (not ImageJ home)
-			if (!IJ.isWindows()) {
-				if (IJ.isMacOSX())
-					prefsDir += "/Library/Preferences";
-				else
-					prefsDir += "/.imagej";
-			}
-		}
+		String userHome = System.getProperty("user.home");
+		if (IJ.isWindows()) {
+			prefsDir = homeDir; //ImageJ folder on Windows
+			if (prefsDir.endsWith("Desktop"))
+				prefsDir = userHome;
+		} else {
+			prefsDir = userHome; // Mac Preferences folder or Unix home dir
+			if (IJ.isMacOSX())
+				prefsDir += "/Library/Preferences";
+			else
+				prefsDir += "/.imagej";
+		} 
 		if (f==null) {
 			try {f = new FileInputStream(homeDir+"/"+PROPS_NAME);}
 			catch (FileNotFoundException e) {f=null;}
@@ -186,6 +182,18 @@ public class Prefs {
 		loadOptions();
 		return null;
 	}
+
+	/*
+	static void dumpPrefs(String title) {
+		IJ.log("");
+		IJ.log(title);
+		Enumeration e = ijPrefs.keys();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			IJ.log(key+": "+ijPrefs.getProperty(key));
+		}
+	}
+	*/
 
 	static String loadAppletProps(InputStream f, Applet applet) {
 		if (f==null)
@@ -405,7 +413,7 @@ public class Prefs {
 		noRowNumbers = (options&NO_ROW_NUMBERS)!=0;
 		moveToMisc = (options&MOVE_TO_MISC)!=0;
 		pointAddToManager = (options&ADD_TO_MANAGER)!=0;
-		enableRMIListener = getInt(ENABLE_RMI, -1);
+		runSocketListener = (options&RUN_SOCKET_LISTENER)!=0;
 		multiPointMode = (options&MULTI_POINT_MODE)!=0;
 		rotateYZ = (options&ROTATE_YZ)!=0;
 		flipXZ = (options&FLIP_XZ)!=0;
@@ -432,15 +440,13 @@ public class Prefs {
 			+ (noPointLabels?NO_POINT_LABELS:0) + (noBorder?NO_BORDER:0)
 			+ (showAllSliceOnly?SHOW_ALL_SLICE_ONLY:0) + (copyColumnHeaders?COPY_HEADERS:0)
 			+ (noRowNumbers?NO_ROW_NUMBERS:0) + (moveToMisc?MOVE_TO_MISC:0)
-			+ (pointAddToManager?ADD_TO_MANAGER:0)
+			+ (pointAddToManager?ADD_TO_MANAGER:0) + (runSocketListener?RUN_SOCKET_LISTENER:0)
 			+ (multiPointMode?MULTI_POINT_MODE:0) + (rotateYZ?ROTATE_YZ:0)
 			+ (flipXZ?FLIP_XZ:0) + (dontSaveHeaders?DONT_SAVE_HEADERS:0)
 			+ (dontSaveRowNumbers?DONT_SAVE_ROW_NUMBERS:0) + (noClickToGC?NO_CLICK_TO_GC:0)
 			+ (avoidResliceInterpolation?AVOID_RESLICE_INTERPOLATION:0)
 			+ (keepUndoBuffers?KEEP_UNDO_BUFFERS:0);
 		prefs.put(OPTIONS, Integer.toString(options));
-		if (enableRMIListener >= 0)
-			prefs.put(ENABLE_RMI, Integer.toString(enableRMIListener));
 
 		int options2 = (useSystemProxies?USE_SYSTEM_PROXIES:0)
 			+ (useFileChooser?USE_FILE_CHOOSER:0);
@@ -553,7 +559,7 @@ public class Prefs {
 	public static void savePrefs(Properties prefs, String path) throws IOException{
 		FileOutputStream fos = new FileOutputStream(path);
 		BufferedOutputStream bos = new BufferedOutputStream(fos);
-		prefs.store(bos, "ImageJA "+ImageJ.VERSION+" Preferences");
+		prefs.store(bos, "ImageJ "+ImageJ.VERSION+" Preferences");
 		bos.close();
 	}
 	

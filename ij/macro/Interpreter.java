@@ -1077,10 +1077,6 @@ public class Interpreter implements MacroConstants {
 	}
 	
 	void showError(String title, String msg, String[] variables) {
-		if (IJ.getInstance() == null) {
-			System.err.println(title + ": " + msg);
-			return;
-		}
 		GenericDialog gd = new GenericDialog(title);
 		gd.setInsets(6,5,0);
 		gd.addMessage(msg);
@@ -1697,22 +1693,6 @@ public class Interpreter implements MacroConstants {
 		return (ImagePlus)imageTable.elementAt(size-1); 
 	} 
  
-	public void setLocalVariable(String key,String value) {
-	    Symbol sym=pgm.lookupWord(key);
-	    int symTabAddress;
-	    if(sym==null) {
-		sym=new Symbol(MacroConstants.WORD,key);
-		pgm.addSymbol(sym);
-		symTabAddress=pgm.stLoc-1;
-	    } else
-		symTabAddress=pgm.symTabLoc;
-	    Variable var=lookupLocalVariable(symTabAddress);
-	    if(var==null) {
-		push(symTabAddress, 0.0, value, this);
-	    } else
-		var.setString(value);
-	}
-
  	/** The specified string, if not null, is added to strings passed to the run() method. */
  	public static void setAdditionalFunctions(String functions) {
  		additionalFunctions = functions;

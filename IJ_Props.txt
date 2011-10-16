@@ -330,9 +330,8 @@ plug-in02=>"Shortcuts"
 plug-in03=>"Utilities"
 plug-in04=>"New_"
 plug-in05="Compile and Run...",ij.plugin.Compiler
-plug-in06="Install PlugIn...",ij.plugin.PlugInInstaller
-#plug-in07=-
-#plug-in08=>"User_Plugins"
+#plug-in06=-
+#plug-in07=>"User_Plugins"
 
 # Install user plugins located in ij.jar to Plugins>User Plugins submenu
 #user_plugins01="Red And Blue",RedAndBlue_
@@ -365,7 +364,7 @@ utilities06=-
 utilities07="Capture Screen[G]",ij.plugin.ScreenGrabber
 utilities08="Capture Image",ij.plugin.ScreenGrabber("image")
 utilities09=-
-utilities10="ImageJA Properties...",ij.plugin.JavaProperties
+utilities10="ImageJ Properties...",ij.plugin.JavaProperties
 utilities11="Threads...",ij.plugin.ThreadLister
 utilities12="Benchmark",ij.plugin.filter.Benchmark
 utilities13="Reset...",ij.plugin.SimpleCommands("reset")

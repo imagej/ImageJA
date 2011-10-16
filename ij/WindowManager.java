@@ -24,11 +24,6 @@ public class WindowManager {
 
 	/** Makes the image contained in the specified window the active image. */
 	public static void setCurrentWindow(ImageWindow win) {
-		setCurrentWindow(win,false);
-	}
-
-	/** Makes the specified image active. */
-	public static void setCurrentWindow(ImageWindow win,boolean suppressRecording) {
 		if (win==null || win.isClosed() || win.getImagePlus()==null) // deadlock-"wait to lock"
 			return;
 		//IJ.log("setCurrentWindow: "+win.getImagePlus().getTitle()+" ("+(currentWindow!=null?currentWindow.getImagePlus().getTitle():"null") + ")");
@@ -48,7 +43,7 @@ public class WindowManager {
 		Undo.reset();
 		currentWindow = win;
 		Menus.updateMenus();
-		if (!suppressRecording && Recorder.record && !IJ.isMacro())
+		if (Recorder.record && !IJ.isMacro())
 			Recorder.record("selectWindow", win.getImagePlus().getTitle());
 	}
 	
@@ -231,9 +226,9 @@ public class WindowManager {
 		if (imp==null) return;
 		checkForDuplicateName(imp);
 		imageList.addElement(win);
-		Menus.addWindowMenuItem(imp);
-		setCurrentWindow(win,true);
-	}
+        Menus.addWindowMenuItem(imp);
+        setCurrentWindow(win);
+    }
 
 	static void checkForDuplicateName(ImagePlus imp) {
 		if (checkForDuplicateName) {
@@ -242,7 +237,7 @@ public class WindowManager {
 				imp.setTitle(getUniqueName(name));
 		} 
 		checkForDuplicateName = false;
-	}
+    }
 
 	static boolean isDuplicateName(String name) {
 		int n = imageList.size();
@@ -325,13 +320,6 @@ public class WindowManager {
 	public static void setWindow(Frame win) {
 		frontWindow = win;
 		//IJ.log("Set window: "+(win!=null?win.getTitle():"null"));
-		if (IJ.getApplet() != null && win instanceof ImageWindow) {
-			currentWindow = (ImageWindow)win;
-			tempImageTable.remove(Thread.currentThread());
-			ImagePlus current = currentWindow.getImagePlus();
-			if (current != null)
-				current.setActivated();
-		}
     }
 
 	/** Closes all windows. Stops and returns false if an image or Editor "save changes" dialog is canceled. */
@@ -418,7 +406,7 @@ public class WindowManager {
 		for (int i=0; i<nonImageList.size(); i++) {
 			Frame win = (Frame)nonImageList.elementAt(i);
 			String title = win.getTitle();
-			if (item == Menus.window.getItem(i + Menus.WINDOW_MENU_ITEMS) || menuItemLabel.equals(title)) {
+			if (menuItemLabel.equals(title)) {
 				toFront(win);
 				((CheckboxMenuItem)item).setState(false);
 				if (Recorder.record && !IJ.isMacro())

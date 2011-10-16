@@ -141,7 +141,6 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 				else if (slice>imp.getStack().getSize())
 					slice = imp.getStack().getSize();
 				imp.setSlice(slice);
-				imp.updateStatusbarValue();
 			}
 		}
 	}
@@ -290,7 +289,4 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
     	}
     }
 
-    public ScrollbarWithLabel getCSelector() { return cSelector; }
-    public ScrollbarWithLabel getZSelector() { return zSelector; }
-    public ScrollbarWithLabel getTSelector() { return tSelector; }
 }

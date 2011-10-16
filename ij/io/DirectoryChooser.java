@@ -124,4 +124,11 @@ import javax.swing.filechooser.*;
     	if (dir==null || (new File(dir)).isDirectory())
 			OpenDialog.setDefaultDirectory(dir);
     }
+
+	//private void setSystemLookAndFeel() {
+	//	try {
+	//		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	//	} catch(Throwable t) {}
+	//}
+
 }

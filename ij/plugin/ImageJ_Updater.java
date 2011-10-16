@@ -15,12 +15,13 @@ public class ImageJ_Updater implements PlugIn {
 		if (arg.equals("menus"))
 			{updateMenus(); return;}
 		if (IJ.getApplet()!=null) return;
-
+		//File file = new File(Prefs.getHomeDir() + File.separator + "ij.jar");
+		//if (isMac() && !file.exists())
+		//	file = new File(Prefs.getHomeDir() + File.separator + "ImageJ.app/Contents/Resources/Java/ij.jar");
 		URL url = getClass().getResource("/ij/IJ.class");
-		String ij_jar = url == null ? null
-			: url.toString().replaceAll("%20", " ");
-		if (ij_jar == null || !ij_jar.startsWith("jar:file:")) {
-			IJ.error("Could not determine location of ij.jar");
+		String ij_jar = url == null ? null : url.toString().replaceAll("%20", " ");
+		if (ij_jar==null || !ij_jar.startsWith("jar:file:")) {
+			error("Could not determine location of ij.jar");
 			return;
 		}
 		int exclamation = ij_jar.indexOf('!');
@@ -227,11 +228,13 @@ public class ImageJ_Updater implements PlugIn {
 		IJ.error("ImageJ Updater", msg);
 	}
 	
-	public static void updateMenus() {
-		long start = System.currentTimeMillis();
-		Menus.updateImageJMenus();
-		if (IJ.debugMode)
+	void updateMenus() {
+		if (IJ.debugMode) {
+			long start = System.currentTimeMillis();
+			Menus.updateImageJMenus();
 			IJ.log("Refresh Menus: "+(System.currentTimeMillis()-start)+" ms");
+		} else
+			Menus.updateImageJMenus();
 	}
 
 }

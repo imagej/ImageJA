@@ -39,12 +39,6 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 			iterator = null;
 			flavors = t.getTransferDataFlavors();
 			if (IJ.debugMode) IJ.log("DragAndDrop.drop: "+flavors.length+" flavors");
-			if (flavors==null || flavors.length==0) {
-				IJ.error("Drag and Drop ignored. Please try again. You can avoid\n"
-				+"this problem, which occurs the first time a file is dropped,\n"
-				+"by dragging to the toolbar instead of the status bar.");
-				return;
-			}
 			for (int i=0; i<flavors.length; i++) {
 			if (IJ.debugMode) IJ.log("  flavor["+i+"]: "+flavors[i].getMimeType());
 			if (flavors[i].isFlavorJavaFileListType()) {
@@ -71,7 +65,7 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 					tmp = java.net.URLDecoder.decode(tmp.replaceAll("\\+","%2b"), "UTF-8");
 					if (tmp.startsWith("file://")) tmp = tmp.substring(7);
 					if (IJ.debugMode) IJ.log("  content: "+tmp);
-					if (tmp.startsWith("http://") || tmp.startsWith("https://"))
+					if (tmp.startsWith("http://"))
 						list.add(s);
 					else
 						list.add(new File(tmp));
@@ -171,7 +165,7 @@ public class DragAndDrop implements PlugIn, DropTargetListener, Runnable {
 			if (IJ.debugMode) IJ.log("DragAndDrop.openFile: "+f);
 			try {
 				if (null == f) return;
-				String path = f.getAbsolutePath();
+				String path = f.getCanonicalPath();
 				if (f.exists()) {
 					if (f.isDirectory())
 						openDirectory(f, path);

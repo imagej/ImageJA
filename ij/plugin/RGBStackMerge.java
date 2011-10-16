@@ -3,11 +3,7 @@ import ij.*;
 import ij.process.*;
 import ij.gui.*;
 import java.awt.*;
-import java.awt.Graphics;
-
 import java.awt.image.*;
-import java.awt.image.BufferedImage;
-
 
 public class RGBStackMerge implements PlugIn {
 

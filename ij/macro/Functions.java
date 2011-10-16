@@ -3537,7 +3537,14 @@ public class Functions implements MacroConstants, Measurements {
 			Object obj = m.invoke(null, args);
 			return obj!=null?obj.toString():null;
 		} catch(InvocationTargetException e) {
-			IJ.handleException(e);
+			CharArrayWriter caw = new CharArrayWriter();
+			PrintWriter pw = new PrintWriter(caw);
+			e.getCause().printStackTrace(pw);
+			String s = caw.toString();
+			if (IJ.getInstance()!=null)
+				new TextWindow("Exception", s, 400, 400);
+			else
+				IJ.log(s);
 			return null;
 		} catch(Exception e) {
 			IJ.log("Call error ("+e+")");
@@ -3876,7 +3883,7 @@ public class Functions implements MacroConstants, Measurements {
 		boolean openingDoc = cmd.length==2&&cmd[0].equals("open") || cmd.length==5&&cmd[3].equals("excel.exe");
 		if (openingDoc&&IJ.isWindows()) {
 			String path = cmd[1];
-			if (path.startsWith("http://")||path.startsWith("HTTP://") || path.startsWith("https://")) {
+			if (path.startsWith("http://")||path.startsWith("HTTP://")) {
 				cmd = new String[4];
 				cmd[2] = "start";
 				cmd[3] = path;

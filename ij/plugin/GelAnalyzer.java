@@ -636,7 +636,5 @@ class PlotsCanvas extends ImageCanvas {
 		}
 	}
 
-	/* @deprecated */
-	public static void savePreferences(Properties prefs) { }
 }
 

@@ -1,27 +1,5 @@
 package ij;
-
-import ij.ImagePlus;
-
-import ij.gui.ImageCanvas;
-import ij.gui.MenuCanvas;
-import ij.gui.ScrollbarWithLabel;
-import ij.gui.StackWindow;
-
-import ij.io.PluginClassLoader;
-
 import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Panel;
-import java.awt.ScrollPane;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
-import java.util.Vector;
 
 /**
 	Runs ImageJ as an applet and optionally opens up to 
@@ -43,143 +21,6 @@ import java.util.Vector;
 	containing the applet tag, will be installed on startup.
 */
 public class ImageJApplet extends Applet {
-    ScrollPane imagePane;
-    ScrollbarWithLabel scrollC, scrollZ, scrollT;
-    int heightWithoutImage;
-    Panel north, south;
-    MenuCanvas menu;
-    ImagePlus image;
-    Vector pluginJarURLs;
-
-    public ImageJApplet() {
-	// Try to reset the security manager for signed applets
-	try {
-		System.setSecurityManager(null);
-	} catch (SecurityException e) { /* ignore silently */ }
-	setLayout(new BorderLayout());
-
-	menu = new MenuCanvas();
-	north = new Panel();
-	north.setLayout(new BorderLayout());
-	north.add(menu, BorderLayout.NORTH);
-	add(north, BorderLayout.NORTH);
-
-	imagePane = new ScrollPane();
-	add(imagePane, BorderLayout.CENTER);
-
-	south = new Panel();
-	south.setLayout(new GridBagLayout());
-
-	add(south, BorderLayout.SOUTH);
-}
-
-    public Component add(Component c) {
-	if (north.getComponentCount() < 2)
-		north.add(c, BorderLayout.SOUTH);
-	else if (getComponentCount() < 3)
-		add(c, BorderLayout.CENTER);
-	else if (getComponentCount() < 4){
-		GridBagConstraints b = new GridBagConstraints();
-		b.fill = GridBagConstraints.HORIZONTAL;
-		b.weightx = 1;
-		b.gridx = 0;
-		b.gridy = 0;
-		south.add(c,b);
-	}
-	else
-		IJ.error("Too many components!");
-	return null;
-    }
-
-    public void pack() {
-	north.doLayout();
-	imagePane.doLayout();
-	south.doLayout();
-	doLayout();
-    }
-
-    public void setImageCanvas(Component c) {
-	if (c != null) {
-		imagePane.removeAll();
-		imagePane.add(c);
-		c.requestFocus();
-
-		if (scrollC != null)
-			south.remove(scrollC);
-
-		if (scrollZ != null)
-			south.remove(scrollZ);
-
-		if (scrollT != null)
-			south.remove(scrollT);
-
-		if (c instanceof ImageCanvas) {
-			image = ((ImageCanvas)c).getImage();
-
-			if (image.getWindow() instanceof StackWindow) {
-				StackWindow stackWindow = (StackWindow)image.getWindow();
-				GridBagConstraints b = new GridBagConstraints();
-
-				scrollC = stackWindow.getCSelector();
-				scrollZ = stackWindow.getZSelector();
-				scrollT = stackWindow.getTSelector();
-
-				if (scrollC != null){
-					b.fill = GridBagConstraints.HORIZONTAL;
-					b.weightx = 1;
-					b.gridx = 0;
-					b.gridy = 1;
-					south.add(scrollC, b);
-				}
-					
-				if (scrollZ != null){
-					b.fill = GridBagConstraints.HORIZONTAL;
-					b.weightx = 1;
-					b.gridx = 0;
-					b.gridy = 2;
-					south.add(scrollZ, b);
-				}
-
-				if (scrollT != null){
-					b.fill = GridBagConstraints.HORIZONTAL;
-					b.weightx = 1;
-					b.gridx = 0;
-					b.gridy = 3;
-					south.add(scrollT, b);
-				}
-			}
-		}
-		pack();
-	}
-    }
-
-    public String getURLParameter(String key) {
-	    String url = getParameter(key);
-	    if (url==null)
-			return null;
-	    if (url.indexOf(":/") < 0)
-		    url = getCodeBase().toString() + url;
-	    if (url.indexOf("://") < 0) {
-		    int index = url.indexOf(":/");
-		    if (index > 0)
-			    url = url.substring(0, index) + ":///"
-				    + url.substring(index + 2);
-	    }
-		return url;
-    }
-
-    public Vector getPluginJarURLs() {
-	    if (pluginJarURLs == null) {
-		    pluginJarURLs = new Vector();
-		    for (int i = 1; i < 999; i++) {
-			    String url = getURLParameter("plugin" + i);
-			    if (url == null)
-				    break;
-			    pluginJarURLs.addElement(url);
-		    }
-	    }
-	    return pluginJarURLs;
-    }
 
 	/** Starts ImageJ if it's not already running. */
     public void init() {
@@ -187,36 +28,11 @@ public class ImageJApplet extends Applet {
      	if (ij==null || (ij!=null && !ij.isShowing()))
 			new ImageJ(this);
 		for (int i=1; i<=9; i++) {
-			String url = getURLParameter("url"+i);
+			String url = getParameter("url"+i);
 			if (url==null) break;
 			ImagePlus imp = new ImagePlus(url);
 			if (imp!=null) imp.show();
 		}
-		/** Also look for up to 9 macros to run. */
-		for (int i=1; i<=9; i++) {
-			String url = getURLParameter("macro"+i);
-			if (url==null) break;
-			try {
-				InputStream in = new URL(url).openStream();
-				BufferedReader br = new BufferedReader(new
-						InputStreamReader(in));
-				StringBuffer sb = new StringBuffer() ;
-				String line;
-				while ((line=br.readLine()) != null)
-					sb.append (line + "\n");
-				in.close ();
-				IJ.runMacro(sb.toString());
-			} catch (Exception e) {
-				IJ.write("warning: " + e);
-			}
-		}
-		/** Also look for up to 9 expressions to evaluate. */
-		for (int i=1; i<=9; i++) {
-			String macroExpression = getParameter("eval"+i);
-			if (macroExpression==null) break;
-			IJ.runMacro(macroExpression);
-		}
-	IJ.setClassLoader(new PluginClassLoader(getPluginJarURLs()));
     }
     
     public void destroy() {
@@ -224,16 +40,5 @@ public class ImageJApplet extends Applet {
     	if (ij!=null) ij.quit();
     }
 
-    public void stop() {
-	ImageJ ij = IJ.getInstance();
-	ij.dispose();
-    }
-
-    public void open(String url) {
-        IJ.open(url);
-    }
-
-    public void eval(String expression) {
-        IJ.runMacro(expression);
-    }
 }
+

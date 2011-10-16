@@ -90,15 +90,13 @@ public class ImageJ extends Frame implements ActionListener,
 	private static final String IJ_X="ij.x",IJ_Y="ij.y";
 	private static int port = DEFAULT_PORT;
 	private static String[] arguments;
-	private static String title = "ImageJA";
-	private static String iconPath;
 	
 	private Toolbar toolbar;
 	private Panel statusBar;
 	private ProgressBar progressBar;
 	private Label statusLine;
 	private boolean firstTime = true;
-	private ImageJApplet applet; // null if not running as an applet
+	private java.applet.Applet applet; // null if not running as an applet
 	private Vector classes = new Vector();
 	private boolean exitWhenQuitting;
 	private boolean quitting;
@@ -106,7 +104,6 @@ public class ImageJ extends Frame implements ActionListener,
 	private String lastKeyCommand;
 	private boolean embedded;
 	private boolean windowClosed;
-	private static boolean prefsLoaded;
 	
 	boolean hotkey;
 	
@@ -121,21 +118,18 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	/** Creates a new ImageJ frame that runs as an applet. */
-	public ImageJ(ImageJApplet applet) {
+	public ImageJ(java.applet.Applet applet) {
 		this(applet, STANDALONE);
 	}
 
 	/** If 'applet' is not null, creates a new ImageJ frame that runs as an applet.
 		If  'mode' is ImageJ.EMBEDDED and 'applet is null, creates an embedded 
 		version of ImageJ which does not start the SocketListener. */
-	public ImageJ(ImageJApplet applet, int mode) {
-		super(title);
+	public ImageJ(java.applet.Applet applet, int mode) {
+		super("ImageJ");
 		embedded = applet==null && (mode==EMBEDDED||mode==NO_SHOW);
-		if (!embedded && iconPath != null) try {
-			setIcon(new URL("file:" + iconPath));
-		} catch (Exception e) { e.printStackTrace(); }
 		this.applet = applet;
-		String err1 = loadPrefs(this, applet);
+		String err1 = Prefs.load(this, applet);
 		if (IJ.isLinux()) {
 			backgroundColor = new Color(240,240,240);
 			setBackground(backgroundColor);
@@ -183,8 +177,7 @@ public class ImageJ extends Frame implements ActionListener,
 			setLocation(loc.x, loc.y);
 			pack();
 			setResizable(!(IJ.isMacintosh() || IJ.isWindows())); // make resizable on Linux
-			if (applet == null)
-				show();
+			show();
 		}
 		if (err1!=null)
 			IJ.error(err1);
@@ -193,33 +186,20 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		}
 		m.installStartupMacroSet();
-		if (IJ.isMacintosh()&&applet==null) try {
+		if (IJ.isMacintosh()&&applet==null) { 
 			Object qh = null; 
 			qh = IJ.runPlugIn("MacAdapter", ""); 
 			if (qh==null) 
 				IJ.runPlugIn("QuitHandler", ""); 
-		} catch (ExceptionInInitializerError e) { /* ignore */ }
+		} 
 		if (applet==null)
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
 		String str = m.getMacroCount()==1?" macro":" macros";
 		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
+		if (applet==null && !embedded && Prefs.runSocketListener)
+			new SocketListener();
 		configureProxy();
  	}
-
-	public Component add(Component c) {
-		if (applet != null)
-			return applet.add(c);
-		return super.add(c);
-	}
-
-	static String loadPrefs(Object object, ImageJApplet applet) {
-		if (!prefsLoaded) {
-			String error = Prefs.load(object, applet);
-			prefsLoaded = true;
-			return error;
-		}
-		return null;
-	}
     	
 	void configureProxy() {
 		if (Prefs.useSystemProxies) {
@@ -242,10 +222,6 @@ public class ImageJ extends Frame implements ActionListener,
 	
     void setIcon() throws Exception {
 		URL url = this.getClass().getResource("/microscope.gif");
-		setIcon(url);
-	}
-
-	void setIcon(URL url) throws Exception {
 		if (url==null) return;
 		Image img = createImage((ImageProducer)url.getContent());
 		if (img!=null) setIconImage(img);
@@ -273,10 +249,6 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public ProgressBar getProgressBar() {
         return progressBar;
-	}
-
-	public ImageJApplet getApplet() {
-		return applet;
 	}
 
 	public Panel getStatusBar() {
@@ -360,7 +332,7 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 	
 	private String version() {
-		return title + " " + VERSION+BUILD + "; Java " + System.getProperty("java.version") + (IJ.is64Bit() ? " [64-bit]; " : " [32-bit]; ");
+		return "ImageJ "+VERSION+BUILD + "; "+"Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]; ":" [32-bit]; ");
 	}
 	
 	public void mouseReleased(MouseEvent e) {}
@@ -586,7 +558,7 @@ public class ImageJ extends Frame implements ActionListener,
 
 	public static void main(String args[]) {
 		if (System.getProperty("java.version").substring(0,3).compareTo("1.5")<0) {
-			javax.swing.JOptionPane.showMessageDialog(null,title+" "+VERSION+" requires Java 1.5 or later.");
+			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
 		//IJ.debugMode = true;
@@ -614,21 +586,12 @@ public class ImageJ extends Frame implements ActionListener,
 					else if (delta>0 && DEFAULT_PORT+delta<65536)
 						port = DEFAULT_PORT+delta;
 				}
-				else if (args[i].startsWith("-title="))
-					title = args[i].substring(7);
-				else if (args[i].startsWith("-icon="))
-					iconPath = args[i].substring(6);
 			} 
 		}
-		// Read prefs before checking for other instance
-		String err1 = loadPrefs(ImageJ.class, null);
-		if (err1!=null)
-			IJ.error(err1);
   		// If ImageJ is already running then isRunning()
   		// will pass the arguments to it using sockets.
-		if (!noGUI && (mode==STANDALONE) && Prefs.enableRMIListener!=0 &&
-				isRunning(args))
-			return;
+		if (!noGUI && (mode==STANDALONE) && isRunning(args))
+  			return;
  		ImageJ ij = IJ.getInstance();    	
 		if (!noGUI && (ij==null || (ij!=null && !ij.isShowing()))) {
 			ij = new ImageJ(null, mode);
@@ -676,9 +639,50 @@ public class ImageJ extends Frame implements ActionListener,
 		//if (nArgs==2 && args[0].startsWith("-ijpath"))
 		//	return false;
 		int nCommands = 0;
-		return OtherInstance.sendArguments(args);
+		try {
+			sendArgument("user.dir "+System.getProperty("user.dir"));
+			for (int i=0; i<nArgs; i++) {
+				String arg = args[i];
+				if (IJ.debugMode) IJ.log("isRunning: "+i+" "+arg);
+				if (arg==null) continue;
+				String cmd = null;
+				if (macros==0 && arg.endsWith(".ijm")) {
+					cmd = "macro " + arg;
+					macros++;
+				} else if (arg.startsWith("-macro") && i+1<nArgs) {
+					String macroArg = i+2<nArgs?"("+args[i+2]+")":"";
+					cmd = "macro " + args[i+1] + macroArg;
+					sendArgument(cmd);
+					nCommands++;
+					break;
+				} else if (arg.startsWith("-eval") && i+1<nArgs) {
+					cmd = "eval " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.startsWith("-run") && i+1<nArgs) {
+					cmd = "run " + args[i+1];
+					args[i+1] = null;
+				} else if (arg.indexOf("ij.ImageJ")==-1 && arg.length()>0 && !arg.startsWith("-"))
+					cmd = "open " + arg;
+				if (cmd!=null) {
+					sendArgument(cmd);
+					nCommands++;
+				}
+			} // for
+		} catch (IOException e) {
+			if (IJ.debugMode) IJ.log(""+e);
+			return false;
+		}
+		return true;
 	}
-
+	
+	static void sendArgument(String arg) throws IOException {
+		Socket socket = new Socket("localhost", port);
+		PrintWriter out = new PrintWriter (new OutputStreamWriter(socket.getOutputStream()));
+		out.println(arg);
+		out.close();
+		socket.close();
+	}
+	
 	/**
 	Returns the port that ImageJ checks on startup to see if another instance is running.
 	@see ij.SocketListener
@@ -723,9 +727,8 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 		if (windowClosed && !changes && Menus.window.getItemCount()>Menus.WINDOW_MENU_ITEMS && !(IJ.macroRunning()&&WindowManager.getImageCount()==0)) {
-			GenericDialog gd = new GenericDialog(getTitle(), this);
-			gd.addMessage("Are you sure you want to quit "
-				+ getTitle() + "?");
+			GenericDialog gd = new GenericDialog("ImageJ", this);
+			gd.addMessage("Are you sure you want to quit ImageJ?");
 			gd.showDialog();
 			quitting = !gd.wasCanceled();
 			windowClosed = false;

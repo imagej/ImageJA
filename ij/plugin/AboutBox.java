@@ -16,17 +16,16 @@ import java.awt.image.*;
 		System.gc();
 		int lines = 7;
 		String[] text = new String[lines];
-		int k = 0;
-		text[k++] = "ImageJA "+ImageJ.VERSION;
-		text[k++] = "http://imageja.sourceforge.net/";
-		text[k++] = "Based on ImageJ";
-		text[k++] = IJ.URL;
-		text[k++] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
-		text[k++] = IJ.freeMemory();
-		text[k++] = "ImageJA is in the public domain";
+		text[0] = "ImageJ "+ImageJ.VERSION+ImageJ.BUILD;
+		text[1] = "Wayne Rasband";
+		text[2] = "National Institutes of Health, USA";
+		text[3] = IJ.URL;
+		text[4] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
+		text[5] = IJ.freeMemory();
+		text[6] = "ImageJ is in the public domain";
 		ImageProcessor ip = null;
 		ImageJ ij = IJ.getInstance();
-		URL url = ij .getClass() .getResource("/aboutja.jpg");
+		URL url = ij .getClass() .getResource("/about.jpg");
 		if (url!=null) {
 			Image img = null;
 			try {img = ij.createImage((ImageProducer)url.getContent());}
@@ -69,7 +68,7 @@ import java.awt.image.*;
 		}
 		ip.drawString(text[6], ip.getWidth()-ip.getStringWidth(text[6])-10, ip.getHeight()-3);
 		ImageWindow.centerNextImage();
-		new ImagePlus("About ImageJA", ip).show();
+		new ImagePlus("About ImageJ", ip).show();
 	}
 
 	int x(String text, ImageProcessor ip, int max) {

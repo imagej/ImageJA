@@ -177,11 +177,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public int getToolId(String name) {
 		int tool =  -1;
 		for (int i=0; i<=SPARE9; i++) {
-			if (names[i]!=null && (names[i].equals(name) ||
-					names[i].startsWith(name + "-") || names[i].startsWith(name + " -"))) {
+			if (names[i]!=null && names[i].startsWith(name)) {
 				tool = i;
 				break;
-			}
+			}			
 		}
 		return tool;
 	}
@@ -884,7 +883,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (name.indexOf("Unused Tool")!=-1)
 					return;
 				if (name.indexOf("Action Tool")!=-1) {
-					if ((e.isPopupTrigger() && e.getButton() != 0)||e.isMetaDown()) {
+					if (e.isPopupTrigger()||e.isMetaDown()) {
 						name = name.endsWith(" ")?name:name+" ";
 						macroInstaller.runMacroTool(name+"Options");
 					} else {
@@ -900,7 +899,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				}
 			}
 			setTool2(newTool);
-			boolean isRightClick = (e.isPopupTrigger() && e.getButton() != 0)||e.isMetaDown();
+			boolean isRightClick = e.isPopupTrigger()||e.isMetaDown();
 			if (current==RECTANGLE && isRightClick) {
 				rectItem.setState(!roundRectMode);
 				roundRectItem.setState(roundRectMode);

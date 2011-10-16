@@ -82,6 +82,7 @@ import javax.swing.filechooser.*;
 
 	// Uses JFileChooser to display file open dialog box.
 	void jOpen(String title, String path, String fileName) {
+		Java2.setSystemLookAndFeel();
 		if (EventQueue.isDispatchThread())
 			jOpenDispatchThread(title, path, fileName);
 		else

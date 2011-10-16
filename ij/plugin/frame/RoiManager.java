@@ -1783,7 +1783,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
     
     public void mousePressed (MouseEvent e) {
 		int x=e.getX(), y=e.getY();
-		if ((e.isPopupTrigger() && e.getButton() != 0) || e.isMetaDown())
+		if (e.isPopupTrigger() || e.isMetaDown())
 			pm.show(e.getComponent(),x,y);
 	}
 
