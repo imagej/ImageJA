@@ -15,19 +15,14 @@
 	<inceptionYear>1997</inceptionYear>
 
 	<properties>
+		<javac.path>${java.home}/../lib/tools.jar</javac.path>
+
 		<!-- NB: Avoid platform encoding warning when copying resources. -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.sun</groupId>
-			<artifactId>tools</artifactId>
-			<version>1.4.2</version>
-			<scope>system</scope>
-			<systemPath>${java.home}/../lib/tools.jar</systemPath>
-		</dependency>
 		<dependency>
 			<groupId>com.apple</groupId>
 			<artifactId>AppleJavaExtensions</artifactId>
@@ -58,8 +53,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<archive>
-						<manifest>
+					<archive> <manifest>
 							<addClasspath>true</addClasspath>
 						</manifest>
 					</archive>
@@ -168,5 +162,23 @@
 			<url>dav:http://dev.imagejdev.org:8081/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>javac</id>
+			<activation>
+				<file>
+					<exists>${javac.path}</exists>
+				</file>
+			</activation>
+			<dependency>
+				<groupId>com.sun</groupId>
+				<artifactId>tools</artifactId>
+				<version>1.4.2</version>
+				<scope>system</scope>
+				<systemPath>${javac.path}</systemPath>
+			</dependency>
+		</profile>
+	</profiles>
 
 </project>
