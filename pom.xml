@@ -171,13 +171,15 @@
 					<exists>${javac.path}</exists>
 				</file>
 			</activation>
-			<dependency>
-				<groupId>com.sun</groupId>
-				<artifactId>tools</artifactId>
-				<version>1.4.2</version>
-				<scope>system</scope>
-				<systemPath>${javac.path}</systemPath>
-			</dependency>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun</groupId>
+					<artifactId>tools</artifactId>
+					<version>1.4.2</version>
+					<scope>system</scope>
+					<systemPath>${javac.path}</systemPath>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 
