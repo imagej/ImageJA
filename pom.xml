@@ -168,6 +168,7 @@
 			<id>javac</id>
 			<activation>
 				<file>
+					<!-- NB: Custom properties do not work here, so we hardcode. -->
 					<exists>${java.home}/../lib/tools.jar</exists>
 				</file>
 			</activation>
