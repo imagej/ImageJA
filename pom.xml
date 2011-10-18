@@ -168,7 +168,7 @@
 			<id>javac</id>
 			<activation>
 				<file>
-					<exists>${javac.path}</exists>
+					<exists>${java.home}/../lib/tools.jar</exists>
 				</file>
 			</activation>
 			<dependencies>
