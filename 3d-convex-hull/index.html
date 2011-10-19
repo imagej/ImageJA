@@ -1,0 +1,294 @@
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>3D Convex Hull</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<font color="#224488" face="Helvetica, Arial" size="+1">
+<b>3D Convex Hull</b>
+</font>
+<blockquote style="font-family: Helvetica,Arial,sans-serif;">
+  <table style="width: 95%; height: 85%;" cellspacing="5">
+    <tbody>
+      <tr valign="top">
+        <td><b>Author:</b></td>
+        <td>Kris Sheets
+(ksheet at lsuhsc.edu) </td>
+      </tr>
+      <tr valign="top">
+        <td><b>History:</b></td>
+        <td>v1.0 - 09/24/2011 <br>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Bugs:</b></td>
+        <td> This is the first
+release and bound to have bugs. &nbsp;Please report them to me so
+that I may fix them.<br>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Source:</b></td>
+        <td><a href="3D_Convex_Hull.jar" onClick="return (false);">3D_Convex_Hull.jar</a> </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Installation:</b></td>
+        <td>Save <a href="3D_Convex_Hull.jar" onClick="return (false);">3D_Convex_Hull.jar</a>
+to the&nbsp;plugins folder and restart ImageJ (or Fiji). </td>
+      </tr>
+      <tr>
+        <td valign="top"><span style="font-weight: bold;">Citation:</span></td>
+        <td>
+        <p class="p2">If
+this plugin aids your investigations,&nbsp;please&nbsp;cite the
+following abstract. &nbsp;I am currently finalizing this paper for
+submission and will update the citation at a later date.</p>
+        <p style="margin-left: 40px;" class="p5"><small><span class="s1"><span
+ style="text-decoration: underline;">Invest Ophthalmol
+Vis Sci</span>.</span>
+ARVO Meeting Abstracts April 22, 2011 52:5470</small><br>
+        <b>Topical
+Neuroprotectin D1 Attenuates Experimental CNV and Induces Activated
+Microglia Redistribution.</b><br>
+        <small><span class="s2"><a
+ href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Sheets%20KG%22%5BAuthor%5D">Sheets
+KG</a></span>,
+Bokkyoo J, <a
+ href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Zhou%20Y%22%5BAuthor%5D"><span
+ class="s2">Zhou Y</span></a>,
+Winkler J, Zhu M, Petasis N, <a
+ href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Gordon%20WC%22%5BAuthor%5D"><span
+ class="s2">Gordon WC</span></a>, <a
+ href="http://www.ncbi.nlm.nih.gov/pubmed?term=%22Bazan%20NG%22%5BAuthor%5D"><span
+ class="s2">Bazan NG</span></a>.<br>
+Neuroscience
+Center of Excellence, Louisiana State University Health Sciences
+Center, New Orleans, LA 70112, USA.</small></p>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><span style="font-weight: bold;">Description:</span></td>
+        <td>
+        <p class="p2">This
+plugin calculates the 3D shape descriptors
+Solidity3d &amp; Convexity3d based upon a convex hull constructed
+from
+an 8-bit or 16-bit grayscale image stack.<span
+ class="Apple-converted-space">&nbsp; </span>Users
+can define thresholds prior to executing or the plugin will assume a
+dark background and auto threshold the stack using the IsoData method
+and the stack histogram. Pixels within the threshold values will be
+gathered
+into a point cloud for subsequent construction of the convex hull.</p>
+        <p class="p2">Due
+to necessary calculations, this plugin can also measure the surface
+area, voxels, and volume for the point cloud and
+the convex hull.<span class="Apple-converted-space">&nbsp; </span>Surface
+area and Volume use the image calibration and report values in units^2
+and units^3, respectively.<span class="Apple-converted-space">&nbsp;</span></p>
+        <p class="p2">The
+plugin can also visualize the convex hull vertices by generating a new
+image stack containing only white pixels at location of vertices.<span
+ class="Apple-converted-space">&nbsp; </span>A
+future version will be able to generate an entire convex hull in the
+image stack.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold;" valign="top">Shape Descriptor
+Definitions:<br>
+        </td>
+        <td>
+        <p class="p2">From
+The Image Processing Handbook, 5th Ed. by John C. Russ:<span
+ class="Apple-converted-space">&nbsp;</span></p>
+        <ul>
+          <li><span class="Apple-tab-span"> </span>Solidity
+=<span class="Apple-converted-space">&nbsp; </span>Area / Convex Area</li>
+          <li><span class="Apple-tab-span"> </span>Convexity
+= Convex Perimeter / Perimeter</li>
+        </ul>
+        <p class="p2">The
+3D equivalent of Area is Volume, and the 3D equivalent of Perimeter is
+Surface Area.<span class="Apple-converted-space">&nbsp; </span>Thus
+this plugin defines:</p>
+        <ul>
+          <li><span class="Apple-tab-span"> </span>Solidity3d
+= Volume / Convex Volume</li>
+          <li><span class="Apple-tab-span"> </span>Convexity3d
+= Convex Surface Area / Surface Area</li>
+        </ul>
+        <span style="font-style: italic;"></span></td>
+      </tr>
+      <tr>
+        <td valign="top"><span style="font-weight: bold;">Usage:</span></td>
+        <td>The plugin
+measurements can be found in the 3D Convex Hull submenu under the
+Analyze Menu
+        <p class="p2"><span class="Apple-converted-space"></span><span
+ class="Apple-tab-span"></span>Analyze&gt;3D
+Convex Hull&gt;<span class="Apple-converted-space"></span>Convex
+Measures&gt;</p>
+        <ul>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Convex Volume...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span>Measure
+Convex Voxels...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Convex Surface Area...</li>
+        </ul>
+        <p class="p2">Analyze&gt;3D
+Convex Hull&gt;<span class="Apple-converted-space"></span>Object
+Measures&gt;</p>
+        <ul>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Volume...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Voxels...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Surface Area...</li>
+        </ul>
+        <p class="p2">Analyze&gt;3D
+Convex Hull&gt;Shape Descriptors&gt;</p>
+        <ul>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Solidity3D...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+Convexity3D...</li>
+          <li><span class="Apple-converted-space">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Measure
+All...<span class="Apple-converted-space"></span><span
+ class="Apple-converted-space"><span class="Apple-tab-span">&nbsp;</span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span></span></li>
+        </ul>
+        <p class="p2"><span class="Apple-converted-space"></span><span
+ class="Apple-tab-span"></span>The
+plugin can also visualize the convex hull vertices</p>
+        <ul>
+          <li><span class="Apple-converted-space">&nbsp;</span>Plugins&gt;3D
+Convex Hull&gt;Make Convex Hull Vertices Stack...</li>
+        </ul>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Future
+Directions:</b></td>
+        <td> Generate the entire
+convex hull as a new binary image stack
+        <ul>
+          <li><span class="Apple-converted-space">&nbsp;</span>Plugins&gt;3D
+Convex Hull&gt;Make Convex Hull Stack...</li>
+        </ul>
+        <p class="p2"><span class="Apple-converted-space"></span>Generate
+multi-point selections from convex hull vertices and store in the roi
+manager</p>
+        <ul>
+          <li><span class="Apple-converted-space"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Edit&gt;Selection&gt;3D
+Convex Hull&gt;Select Vertices...</li>
+        </ul>
+        <p class="p2"><span class="Apple-converted-space"></span>Generate
+z-plane cross section polygon selections from the convex hull and store
+in the roi manager</p>
+        <ul>
+          <li><span class="Apple-converted-space"></span><span
+ class="Apple-tab-span"></span><span class="Apple-tab-span"></span>Edit&gt;Selection&gt;3D
+Convex Hull&gt;Select Hull...</li>
+        </ul>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>Acknowledgements:</b></td>
+        <td>
+        <p class="p2">Determination of the convex hull is done using a
+modified version of<span class="Apple-converted-space">&nbsp; </span>the
+quickhull3d package.<span class="Apple-converted-space">&nbsp; </span>For
+specific modifications to the quickhull3d package, see the annotations
+within the source code. The quickhull3d package was written by</p>
+        <p style="margin-left: 40px;" class="p2"><span
+ class="Apple-tab-span"> </span>Copyright, 2004.<br>
+        <span class="Apple-tab-span"></span>John E. Lloyd, Ph. D.<br>
+        <span class="Apple-tab-span"></span>Research Engineer, CS and
+Electrical and Computer Engineering<br>
+        <span class="Apple-tab-span"></span>University of British
+Columbia<br>
+        <span class="Apple-tab-span"></span>lloyd at cs.ubc.ca<br>
+Available at<span class="Apple-converted-space">&nbsp; </span><a
+ href="http://www.cs.ubc.ca/%7Elloyd/java/quickhull3d.html">QuickHull3D:
+A Robust 3D Convex Hull Algorithm in Java</a></p>
+        <p class="p2">This
+package is a 3D implementation of QuickHull for Java, based on the
+original paper by Barber, Dobkin, and Huhdanpaa and the C
+implementation known as qhull. The algorithm has O(n log(n))
+complexity, works with double precision numbers, is fairly robust with
+respect to degenerate situations, and allows the merging of co-planar
+faces.</p>
+        <p style="margin-left: 40px;" class="p2">Barber, C. B., D.P.
+Dobkin, and H.T. Huhdanpaa, &quot;The Quickhull
+Algorithm for Convex Hulls,&quot; ACM Transactions on Mathematical Software,
+22(4):469-483, Dec 1996, www.qhull.org</p>
+        <p class="p2">Gathering
+the point cloud data necessary to build the convex hull is modeled on
+the approach used in the Point_Cloud plugin written by<span
+ class="Apple-converted-space">&nbsp;</span></p>
+        <p style="margin-left: 40px;" class="p2"><span
+ class="Apple-tab-span"> </span>Jonathan B. Glass, 2010<br>
+        <span class="Apple-converted-space"><span class="Apple-tab-span"></span></span>jbglassij
+at gmail.com<br>
+        <span class="Apple-tab-span"></span>Available on the ImageJ
+Plugins site <a
+ href="http://rsbweb.nih.gov/ij/plugins/point-cloud/index.html">Export
+Point Cloud</a></p>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td><b>See
+Also:</b></td>
+        <td> My website&nbsp;<a
+ href="http://sites.google.com/site/learnimagej/">LearnImageJ</a> for
+other plugins and image analysis and processing information.<br>
+        <ul>
+          <li><a href="http://sites.google.com/site/learnimagej/">LearnImageJ</a></li>
+          <li><a
+ href="http://www.cs.ubc.ca/%7Elloyd/java/quickhull3d.html">QuickHull3D:
+A Robust 3D Convex Hull Algorithm in Java</a></li>
+          <li><a
+ href="http://rsbweb.nih.gov/ij/plugins/point-cloud/index.html">Export
+Point Cloud</a></li>
+          <li><a href="http://www.qhull.org/">QHull</a></li>
+        </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+<p><font color="#224488" face="Helvetica, Arial"><b>|<a
+ href="http://rsbweb.nih.gov/ij/plugins/">Plugins</a>
+| <a href="http://rsbweb.nih.gov/ij/index.html">Home</a>
+|</b>
+</font></p>
+</body>
+</html>
