@@ -3,7 +3,8 @@
 BRANCHNAME=imagej
 UPSTREAM=origin
 
-git rev-parse $BRANCHNAME >/dev/null 2>/dev/null || {
+git rev-parse $BRANCHNAME >/dev/null 2>/dev/null ||
+git push . origin/$BRANCHNAME:refs/heads/$BRANCHNAME || {
 	echo "No branch $BRANCHNAME yet!"
 	exit 1
 }
