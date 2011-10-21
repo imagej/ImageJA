@@ -50,5 +50,9 @@ test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
 	echo "Could not commit!"
 	exit 1
 }
+sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
+	echo "Could not update 'master'"
+	exit 1
+}
 # TODO: push
 mv $TIMESTAMP.new $TIMESTAMP
