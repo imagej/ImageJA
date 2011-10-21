@@ -54,5 +54,8 @@ sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
 	echo "Could not update 'master'"
 	exit 1
 }
-# TODO: push
+git push hudson-jenkins@repo.or.cz:/srv/git/imageja.git imagej master || {
+	echo "Could not push"
+	exit 1
+}
 mv $TIMESTAMP.new $TIMESTAMP
