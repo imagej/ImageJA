@@ -1,7 +1,7 @@
 #!/bin/sh
 
 URL=git://repo.or.cz/imageja.git
-BRANCH=refs/heads/pom
+BRANCH=refs/heads/master
 IJ1BRANCH=refs/heads/imagej
 
 die () {
