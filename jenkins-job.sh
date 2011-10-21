@@ -46,7 +46,7 @@ test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
  sed \
 	-e "/^  • /,\$d" \
 	-e "s/^•\(  • $DOTVERSION,\? \)/\1/" |
- sh -x commit-new-version.sh .git/$ZIP) || {
+ sh -x "$(dirname "$0")"/commit-new-version.sh .git/$ZIP) || {
 	echo "Could not commit!"
 	exit 1
 }
