@@ -54,8 +54,23 @@ sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
 	echo "Could not update 'master'"
 	exit 1
 }
-git push hudson-jenkins@repo.or.cz:/srv/git/imageja.git imagej master || {
-	echo "Could not push"
-	exit 1
-}
+for REMOTE in \
+	git@dev.imagejdev.org:imageja.git \
+	hudson-jenkins@fiji.sc:/srv/git/ImageJA.git \
+	git@github.com:fiji/ImageJA \
+	hudson-jenkins@repo.or.cz:/srv/git/imageja.git
+do
+	ERR="$(git push $REMOTE imagej master 2>&1 &&
+		cd tools &&
+		git push $REMOTE tools 2>&1)" ||
+	case "$REMOTE $ERR" in
+	*repo.or.cz*"Connection refused"*)
+		echo "Warning: repo.or.cz was not reachable"
+		;;
+	*)
+		echo "${ERR}Could not push"
+		exit 1
+		;;
+	esac
+done
 mv $TIMESTAMP.new $TIMESTAMP
