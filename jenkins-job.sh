@@ -56,7 +56,7 @@ sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
 }
 for REMOTE in \
 	git@dev.imagejdev.org:imageja.git \
-	hudson-jenkins@fiji.sc:/srv/git/ImageJA.git \
+	hudson-imagej@fiji.sc:/srv/git/ImageJA.git \
 	git@github.com:fiji/ImageJA \
 	dscho@imageja.git.sourceforge.net/gitroot/imageja/imageja \
 	hudson-jenkins@repo.or.cz:/srv/git/imageja.git
