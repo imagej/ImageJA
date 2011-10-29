@@ -7,7 +7,7 @@
 
 	<groupId>imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.45r</version>
+	<version></version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
