@@ -341,7 +341,11 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	public FloatPolygon getFloatPolygon() {
-		return null;
+		Polygon p = getPolygon();
+		if (p!=null)
+			return new FloatPolygon(toFloat(p.xpoints), toFloat(p.ypoints), p.npoints);
+		else
+			return null;
 	}
 	
 	/** Returns a copy of this roi. See Thinking is Java by Bruce Eckel
@@ -1005,7 +1009,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		previousRoi.modState = NO_MODS;
 		PointRoi p1 = (PointRoi)previousRoi;
 		Rectangle r = getBounds();
-		imp.setRoi(p1.addPoint(r.x, r.y));
+		FloatPolygon poly = getFloatPolygon();
+		imp.setRoi(p1.addPoint(poly.xpoints[0], poly.ypoints[0]));
     }
     
     void subtractPoints() {
@@ -1443,6 +1448,22 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected int screenY(int oy) {return ic!=null?ic.screenY(oy):oy;}
 	protected int screenXD(double ox) {return ic!=null?ic.screenXD(ox):(int)ox;}
 	protected int screenYD(double oy) {return ic!=null?ic.screenYD(oy):(int)oy;}
+
+	protected int[] toInt(float[] arr) {
+		int n = arr.length;
+		int[] temp = new int[n];
+		for (int i=0; i<n; i++)
+			temp[i] = (int)Math.floor(arr[i]+0.5);
+		return temp;
+	}
+
+	protected float[] toFloat(int[] arr) {
+		int n = arr.length;
+		float[] temp = new float[n];
+		for (int i=0; i<n; i++)
+			temp[i] = arr[i];
+		return temp;
+	}
 
 	public String toString() {
 		return ("Roi["+getTypeAsString()+", x="+x+", y="+y+", width="+width+", height="+height+"]");

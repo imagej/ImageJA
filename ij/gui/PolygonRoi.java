@@ -414,8 +414,13 @@ public class PolygonRoi extends Roi {
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		xp[activeHandle] = ox-x;
-		yp[activeHandle] = oy-y;
+		if (xp==null && xpf!=null) {
+			xpf[activeHandle] = (float)(ic.offScreenXD(sx)-x);
+			ypf[activeHandle] = (float)(ic.offScreenYD(sy)-y);
+		} else {
+			xp[activeHandle] = ox-x;
+			yp[activeHandle] = oy-y;
+		}
 		if (xSpline!=null) {
 			fitSpline(splinePoints);
 			updateClipRect();
@@ -1180,24 +1185,15 @@ public class PolygonRoi extends Roi {
 		System.arraycopy(yp2, 0, yp2temp, 0, maxPoints);
 		xp=xptemp; yp=yptemp;
 		xp2=xp2temp; yp2=yp2temp;
+		if (xpf!=null) {
+			float[] xpftemp = new float[maxPoints*2];
+			float[] ypftemp = new float[maxPoints*2];
+			System.arraycopy(xpf, 0, xpftemp, 0, maxPoints);
+			System.arraycopy(ypf, 0, ypftemp, 0, maxPoints);
+			xpf=xpftemp; ypf=ypftemp;
+		}
 		if (IJ.debugMode) IJ.log("PolygonRoi: "+maxPoints+" points");
 		maxPoints *= 2;
 	}
 	
-	private int[] toInt(float[] arr) {
-		int n = arr.length;
-		int[] temp = new int[n];
-		for (int i=0; i<n; i++)
-			temp[i] = (int)Math.floor(arr[i]+0.5);
-		return temp;
-	}
-
-	private float[] toFloat(int[] arr) {
-		int n = arr.length;
-		float[] temp = new float[n];
-		for (int i=0; i<n; i++)
-			temp[i] = arr[i];
-		return temp;
-	}
-
 }
