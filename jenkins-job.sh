@@ -25,7 +25,7 @@ VERSION="$(curl $SRC_URL/ | \
 	sed -n "s/^.*ij\([0-9a-z]*\)-src.zip.*$/\1/p" | \
 	tail -n 1)"
 DOTVERSION=$(echo $VERSION | sed "s/^./&./")
-git log $BRANCHNAME | grep "^      • $DOTVERSION,\? " && {
+git log $BRANCHNAME | grep "^      . $DOTVERSION,\? " && {
 	echo "Already have $DOTVERSION"
 	exit 0
 }
@@ -41,11 +41,11 @@ test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
 }
 (cat $NOTES | \
  sed -n \
-	-e "s/^  • $DOTVERSION,\? /•&/" \
-	-e "/^•  • $DOTVERSION,\? /,\$p" |
+	-e "s/^  . $DOTVERSION,\? /•&/" \
+	-e "/^.  . $DOTVERSION,\? /,\$p" |
  sed \
-	-e "/^  • /,\$d" \
-	-e "s/^•\(  • $DOTVERSION,\? \)/\1/" |
+	-e "/^  . /,\$d" \
+	-e "s/^.\(  . $DOTVERSION,\? \)/\1/" |
  sh -x "$(dirname "$0")"/commit-new-version.sh .git/$ZIP) || {
 	echo "Could not commit!"
 	exit 1
