@@ -133,8 +133,8 @@ public class PointRoi extends PolygonRoi {
 	public void drawPixels(ImageProcessor ip) {
 		ip.setLineWidth(Analyzer.markWidth);
 		for (int i=0; i<nPoints; i++) {
-			ip.moveTo(x+xp[i], y+yp[i]);
-			ip.lineTo(x+xp[i], y+yp[i]);
+			ip.moveTo(x+(int)xpf[i], y+(int)ypf[i]);
+			ip.lineTo(x+(int)xpf[i], y+(int)ypf[i]);
 		}
 	}
 	

@@ -414,7 +414,7 @@ public class PolygonRoi extends Roi {
 		if (clipboard!=null) return;
 		int ox = ic.offScreenX(sx);
 		int oy = ic.offScreenY(sy);
-		if (xp==null && xpf!=null) {
+		if (xpf!=null) {
 			xpf[activeHandle] = (float)(ic.offScreenXD(sx)-x);
 			ypf[activeHandle] = (float)(ic.offScreenYD(sy)-y);
 		} else {
@@ -439,6 +439,10 @@ public class PolygonRoi extends Roi {
 
    /** After handle is moved, find clip rect and repaint. */
    void updateClipRectAndDraw() {
+   		if (xpf!=null) {
+   			xp = toInt(xpf);
+   			yp = toInt(ypf);
+   		}
 		int xmin=Integer.MAX_VALUE, ymin=Integer.MAX_VALUE, xmax=0, ymax=0;
 		int x2, y2;
 		if (activeHandle>0)
@@ -477,9 +481,13 @@ public class PolygonRoi extends Roi {
 	}
 
 	void resetBoundingRect() {
+   		if (xpf!=null) {
+   			xp = toInt(xpf);
+   			yp = toInt(ypf);
+   		}
 		int xmin=Integer.MAX_VALUE, xmax=-xmin, ymin=xmin, ymax=xmax;
 		int xx, yy;
-		for(int i=0; i<nPoints; i++) {
+		for (int i=0; i<nPoints; i++) {
 			xx = xp[i];
 			if (xx<xmin) xmin=xx;
 			if (xx>xmax) xmax=xx;
@@ -487,12 +495,22 @@ public class PolygonRoi extends Roi {
 			if (yy<ymin) ymin=yy;
 			if (yy>ymax) ymax=yy;
 		}
-		if (xmin!=0)
-		   for (int i=0; i<nPoints; i++)
-			   xp[i] -= xmin;
-		if (ymin!=0)
-		   for (int i=0; i<nPoints; i++)
-			   yp[i] -= ymin;
+		if (xmin!=0) {
+			for (int i=0; i<nPoints; i++)
+				xp[i] -= xmin;
+			if (xpf!=null) {
+				for (int i=0; i<nPoints; i++)
+					xpf[i] -= xmin;
+			}
+		}
+		if (ymin!=0) {
+			for (int i=0; i<nPoints; i++)
+				yp[i] -= ymin;
+			if (ypf!=null) {
+				for (int i=0; i<nPoints; i++)
+					ypf[i] -= ymin;
+			}
+		}
 		//IJ.log("reset: "+ymin+" "+before+" "+yp[0]);
 		x+=xmin; y+=ymin;
 		width=xmax-xmin; height=ymax-ymin;
@@ -1006,7 +1024,7 @@ public class PolygonRoi extends Roi {
 	public int[] getYCoordinates() {
 		if (xSpline!=null)
 			return toInt(ySpline);
-		else if (xpf!=null)
+		else if (ypf!=null)
 			return toInt(ypf);
 		else
 			return yp;
@@ -1034,7 +1052,7 @@ public class PolygonRoi extends Roi {
 		} else if (xpf!=null) {
 			n = nPoints;
 			xpoints1 = toInt(xpf);
-			ypoints1 = toInt(xpf);
+			ypoints1 = toInt(ypf);
 		} else {
 			n = nPoints;
 			xpoints1 = xp;
