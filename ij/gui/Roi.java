@@ -826,10 +826,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	void drawHandle(Graphics g, int x, int y) {
+		double mag = getMagnification();
 		double size = (width*height)*mag*mag;
 		if (type==LINE) {
 			size = Math.sqrt(width*width+height*height);
 			size *= size*mag*mag;
+			//if (mag>4.0) size = 5000;
 		}
 		if (size>4000.0) {
 			g.setColor(Color.black);
