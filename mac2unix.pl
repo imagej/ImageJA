@@ -18,8 +18,8 @@ sub inittransform () {
 sub dotransform (*$) {
 	my $file = shift;
 	$_ = shift;
-	if ($passthru) {
 PASSTHRU:
+	if ($passthru) {
 		print $file $_;
 		goto CONTINUE;
 	}
