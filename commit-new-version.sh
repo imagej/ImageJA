@@ -50,7 +50,7 @@ cd tmpCommit &&
 unzip $zipfile &&
 cd source &&
 export GIT_WORK_TREE="$(pwd)" &&
-if !  find \( -name .DS_Store -name .FBCIndex -o -name .FBCLockFolder -o -name .gdb_history \) -exec rm -rf {} \;
+if !  find \( -name .DS_Store -name .FBCIndex -o -name .gdb_history \) -exec rm -rf {} \;
 then
 	echo "No temporary files removed" >&2
 fi &&
