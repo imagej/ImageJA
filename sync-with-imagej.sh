@@ -27,7 +27,8 @@ HEAD=$(git rev-parse $BRANCH 2> /dev/null) || {
 } ||
 die "Could not initialize $BRANCH"
 
-test $HEAD != $(git rev-parse FETCH_HEAD) &&
+test -z "$NEED_TO_UPDATE_WORKING_TREE" ||
+test $HEAD = $(git rev-parse FETCH_HEAD) ||
 die "Branch $BRANCH is not up-to-date!"
 
 IJ1HEAD=$(git rev-parse $IJ1BRANCH) ||
