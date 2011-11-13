@@ -11,7 +11,7 @@ die () {
 
 NEED_TO_UPDATE_WORKING_TREE=
 test $(git config --bool core.bare) = true ||
-test $BRANCH != "$(git symbolic-ref HEAD)" || {
+test $BRANCH != "$(git symbolic-ref HEAD 2> /dev/null)" || {
 	git update-index -q --refresh &&
         git diff-files --quiet ||
 	die "The work tree is dirty"
