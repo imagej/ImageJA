@@ -39,6 +39,11 @@ test -f $NOTES || w3m -cols 72 -dump $NOTES_URL >$NOTES || {
 	echo "Could not get notes"
 	exit 1
 }
+
+# make sure that the sed call succeeds to extract the commit message
+LANG=en_US.utf-8
+export LANG
+
 (cat $NOTES | \
  sed -n \
 	-e "s/^  [^ ] $DOTVERSION,\? /•&/" \
