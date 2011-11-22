@@ -24,6 +24,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
 	int startX, startY, x, y, width, height;
+	double xd, yd, widthd, heightd;
 	int activeHandle;
 	int state;
 	int modState = NO_MODS;
@@ -64,9 +65,15 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	private int channel, slice, frame;
 	private Overlay prototypeOverlay;
 
-	/** Creates a new rectangular Roi. */
+	/** Creates a rectangular ROI. */
 	public Roi(int x, int y, int width, int height) {
 		this(x, y, width, height, 0);
+	}
+
+	/** Creates a rectangular ROI using double arguments. */
+	public Roi(double x, double y, double width, double height) {
+		this((int)x, (int)y, (int)Math.ceil(width), (int)Math.ceil(height), 0);
+		xd=x; yd=y; widthd=width; heightd=height;
 	}
 
 	/** Creates a new rounded rectangular Roi. */
@@ -153,6 +160,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		this.y = y;
 		startX = x; startY = y;
 		oldX = x; oldY = y; oldWidth=0; oldHeight=0;
+		xd=x; yd=y;
 	}
 	
 	public void setImage(ImagePlus imp) {
@@ -405,6 +413,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldY = y;
 		oldWidth = width;
 		oldHeight = height;
+		xd=x; yd=y; widthd=width; heightd=height;
 	}
 
 	private void growConstrained(int xNew, int yNew) {
@@ -526,6 +535,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 				height=1;
 				y=y2=yc;
 			}
+			xd=x; yd=y;
 
 		}
 		
@@ -651,6 +661,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldWidth = width;
 		oldHeight=height;
 		if (isImageRoi) showStatus();
+		xd=x; yd=y;
 	}
 
 	/** Nudge ROI one pixel on arrow key press. */
@@ -680,6 +691,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		updateClipRect();
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX = x; oldY = y;
+		xd=x; yd=y;
 		showStatus();
 	}
 	
@@ -826,12 +838,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	void drawHandle(Graphics g, int x, int y) {
-		double mag = getMagnification();
 		double size = (width*height)*mag*mag;
 		if (type==LINE) {
 			size = Math.sqrt(width*width+height*height);
 			size *= size*mag*mag;
-			//if (mag>4.0) size = 5000;
 		}
 		if (size>4000.0) {
 			g.setColor(Color.black);
@@ -1456,11 +1466,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected int screenXD(double ox) {return ic!=null?ic.screenXD(ox):(int)ox;}
 	protected int screenYD(double oy) {return ic!=null?ic.screenYD(oy):(int)oy;}
 
-	protected int[] toInt(float[] arr) {
+	/** Converts a float array to an int array using truncation. */
+	public static int[] toInt(float[] arr) {
 		return toInt(arr, null, arr.length);
 	}
 
-	protected int[] toInt(float[] arr, int[] arr2, int size) {
+	public static int[] toInt(float[] arr, int[] arr2, int size) {
 		int n = arr.length;
 		if (size>n) size=n;
 		int[] temp = arr2;
@@ -1472,7 +1483,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return temp;
 	}
 
-	protected int[] toIntR(float[] arr) {
+	/** Converts a float array to an int array using rounding. */
+	public static int[] toIntR(float[] arr) {
 		int n = arr.length;
 		int[] temp = new int[n];
 		for (int i=0; i<n; i++)
@@ -1480,7 +1492,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return temp;
 	}
 
-	protected float[] toFloat(int[] arr) {
+	/** Converts an int array to a float array. */
+	public static float[] toFloat(int[] arr) {
 		int n = arr.length;
 		float[] temp = new float[n];
 		for (int i=0; i<n; i++)

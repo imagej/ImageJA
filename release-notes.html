@@ -5,23 +5,19 @@
 </head>
 <body>
 
-<li> <u>1.46a 6 November 2011</u>
+<li> <u>1.46b 19 November 2011</u>
 <ul>
-<li> The segmented line, freehand line, point and multi-point tools
-now support sub-pixel resolution.
-<li> The Plot class constructors generate an X value sequence
- if the X array argument is null or empty
-(<a href="macros/ExamplePlots.js">JavaScript examples</a>).
-<li> An informative message is displayed when a batch 
-mode macro attempts to open an ROI set using open(path)
-(which does not work) instead of roiManager("open",path).
-<li> Fixed a bug that caused the length of non-straight line 
-profile plots to be greater that the measured line length.
-<li> Michael Schmid fixed a bug that could cause the RankFilters
-(Mean, Minimum, Median, etc.) to hang.
-<li> Thanks to Jan Eglinger, fixed bugs that could cause the recorder to throw
-bogus error messages or to record "null" or "nullnull" when opening or saving files.
-
+<li> Added the <i>File&gt;Import&gt;XY Coordinates</i> command.
+<li> Added a "List coordinates" checkbox to the
+<i>Edit&gt;Selection&gt;Properties</i> dialog box.
+<li>"Help" buttons in dialog boxes can display HTML formatted messages
+(<a href="macros/examples/DialogWithHelp.txt">example</a>).
+<li> The <i>Edit&gt;Selection&gt;Line to Area</i>
+command now works with one pixel wide straight lines.
+<li> Thanks to Aryeh Weiss, the ROI Manager's "OR (Combine)" 
+command now works with line selections.
+<li> Thanks to José Wojnacki, fixed a bug that could cause a macro to fail if 
+a drawing tool was used during a waitForUser() break.
 </ul> 
 
 <a href="http://imagej.nih.gov/ij">Home</a> 

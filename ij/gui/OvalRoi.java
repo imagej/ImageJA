@@ -9,8 +9,14 @@ import ij.measure.Calibration;
 /** Oval region of interest */
 public class OvalRoi extends Roi {
 
-	/** Creates a new OvalRoi.*/
+	/** Creates an OvalRoi.*/
 	public OvalRoi(int x, int y, int width, int height) {
+		super(x, y, width, height);
+		type = OVAL;
+	}
+
+	/** Creates an OvalRoi using double arguments.*/
+	public OvalRoi(double x, double y, double width, double height) {
 		super(x, y, width, height);
 		type = OVAL;
 	}

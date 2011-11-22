@@ -5,8 +5,7 @@ import ij.process.*;
 import ij.measure.*;
 import ij.plugin.frame.*;
 import ij.macro.Interpreter;
-import ij.plugin.filter.GaussianBlur;
-import ij.plugin.filter.ThresholdToSelection;
+import ij.plugin.filter.*;
 import ij.util.Tools;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -52,16 +51,16 @@ public class Selection implements PlugIn, Measurements {
     		createSelectionFromMask(imp);    	
     	else if (arg.equals("inverse"))
     		invert(imp); 
-    	else if (arg.equals("tobox"))
-    		toBoundingBox(imp); 
      	else if (arg.equals("toarea"))
     		lineToArea(imp); 
      	else if (arg.equals("toline"))
     		areaToLine(imp); 
 	   	else if (arg.equals("properties"))
-    		{setProperties("Properties", imp.getRoi()); imp.draw();}
+    		{setProperties("Properties ", imp.getRoi()); imp.draw();}
  		else if (arg.equals("band"))
 			makeBand(imp);
+		else if (arg.equals("tobox"))
+			toBoundingBox(imp); 
 		else
 			runMacro(arg);
 	}
@@ -76,7 +75,7 @@ public class Selection implements PlugIn, Measurements {
 			}
 		}
 		if (roi==null) {
-			IJ.error("Rotate>Selection", "This command requires a selection");
+			noRoi("Rotate>Selection");
 			return;
 		}
 		roi = (Roi)roi.clone();
@@ -104,7 +103,7 @@ public class Selection implements PlugIn, Measurements {
 	void fitCircle(ImagePlus imp) {
 		Roi roi = imp.getRoi();
 		if (roi==null) {
-			IJ.error("Fit Circle", "Selection required");
+			noRoi("Fit Circle");
 			return;
 		}
 		
@@ -217,7 +216,7 @@ public class Selection implements PlugIn, Measurements {
 	void fitSpline() {
 		Roi roi = imp.getRoi();
 		if (roi==null)
-			{IJ.error("Spline", "Selection required"); return;}
+			{noRoi("Spline"); return;}
 		int type = roi.getType();
 		boolean segmentedSelection = type==Roi.POLYGON||type==Roi.POLYLINE;
 		if (!(segmentedSelection||type==Roi.FREEROI||type==Roi.TRACED_ROI||type==Roi.FREELINE))
@@ -321,7 +320,7 @@ public class Selection implements PlugIn, Measurements {
 		IJ.showStatus("Fitting ellipse");
 		Roi roi = imp.getRoi();
 		if (roi==null)
-			{IJ.error("Fit Ellipse", "Selection required"); return;}
+			{noRoi("Fit Ellipse"); return;}
 		if (roi.isLine())
 			{IJ.error("Fit Ellipse", "\"Fit Ellipse\" does not work with line selections"); return;}
 		ImageProcessor ip = imp.getProcessor();
@@ -451,21 +450,12 @@ public class Selection implements PlugIn, Measurements {
 		Roi roi = imp.getRoi();
 		if (roi==null || !roi.isLine())
 			{IJ.error("Line to Area", "Line selection required"); return;}
-		if (roi.getType()==Roi.LINE && roi.getStrokeWidth()==1)
-			{IJ.error("Line to Area", "Straight line width must be > 1"); return;}
 		ImageProcessor ip2 = new ByteProcessor(imp.getWidth(), imp.getHeight());
 		ip2.setColor(255);
-		if (roi.getType()==Roi.LINE)
+		if (roi.getType()==Roi.LINE && roi.getStrokeWidth()>1)
 			ip2.fillPolygon(roi.getPolygon());
-		else {
+		else
 			roi.drawPixels(ip2);
-			//BufferedImage bi = new BufferedImage(imp.getWidth(), imp.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-			//Graphics g = bi.getGraphics();
-			//Roi roi2 = (Roi)roi.clone();
-			//roi2.setStrokeColor(Color.white);
-			//roi2.drawOverlay(g);
-			//ip2 = new ByteProcessor(bi);
-		}
 		//new ImagePlus("ip2", ip2.duplicate()).show();
 		ip2.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
 		ThresholdToSelection tts = new ThresholdToSelection();
@@ -497,6 +487,10 @@ public class Selection implements PlugIn, Measurements {
 
 	void toBoundingBox(ImagePlus imp) {
 		Roi roi = imp.getRoi();
+		if (roi==null) {
+			noRoi("To Bounding Box");
+			return;
+		}
 		Rectangle r = roi.getBounds();
 		imp.killRoi();
 		imp.setRoi(new Roi(r.x, r.y, r.width, r.height));
@@ -538,7 +532,7 @@ public class Selection implements PlugIn, Measurements {
 	private void makeBand(ImagePlus imp) {
 		Roi roi = imp.getRoi();
 		if (roi==null) {
-			IJ.error("Make Band", "Selection required");
+			noRoi("Make Band");
 			return;
 		}
 		if (!roi.isArea()) {
@@ -606,6 +600,10 @@ public class Selection implements PlugIn, Measurements {
 		roi2 = roi2.not(roi1);
 		imp.setRoi(roi2);
 		bandSize = n;
+	}
+	
+	void noRoi(String command) {
+		IJ.error(command, "This command requires a selection");
 	}
 
 }
