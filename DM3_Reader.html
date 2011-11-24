@@ -52,6 +52,8 @@
 	   reading of unsigned 16 bit integer images.</td></tr>
  	   <tr><td>- 27 March 2008 (Version 1.3.8) Fixed a bug in which tag hashes were not cleared when reading a new file.
         Also small speed improvement by converting tags to String via StringBuffer.</td></tr>
+	   <tr><td>- 22 November 2011 (Version 1.4.1)    Adds ability to read 3D stacks and RGB images. Fixes reading of RGBA_UINT8_3_DATA == ABGR images (which were being read as ARGB). Improves ability to identify "main" image automatically for opening. Adds a menu to choose which image to open when Alt/Option key is depressed before plugin is called.
+     </td></tr>
   </table>
   </td>
  </tr>
@@ -104,11 +106,11 @@
    <td valign=top><b>Limitations:</b></td>
    <td valign=top>
    	 The DM3 reader has now been tested with at least the following kinds 
-   	 of data: 16 bit signed and unsigned integer, 32 bit float.
+   	 of data: 16 bit signed and unsigned integer, 32 bit float, 24 bit RGB.
    	<p>Limited to the following DM3 data types: UNSIGNED_INT8_DATA, SIGNED_INT16_DATA,
 	UNSIGNED_INT16_DATA, SIGNED_INT32_DATA,
-	UNSIGNED_INT32_DATA, REAL4_DATA, RGB_DATA, BINARY_DATA, RGBA_UINT8_3_DATA</p>
-	<p>Limited to single images since I do not have any stacks to test.</p>
+	UNSIGNED_INT32_DATA, REAL4_DATA, REAL8_DATA, BINARY_DATA, RGB_DATA, RGB_UINT8_1_DATA, RGB_UINT16_DATA, RGBA_UINT8_3_DATA</p>
+	<p>Limited support for 3D stacks since I have not had many to test.</p>
 	<p><FONT COLOR="#FF0000">I welcome any feedback on bugs</FONT></p>  
    </td>
   </tr>
