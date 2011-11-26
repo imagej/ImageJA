@@ -64,6 +64,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	private int position;
 	private int channel, slice, frame;
 	private Overlay prototypeOverlay;
+	private boolean subPixel;
 
 	/** Creates a rectangular ROI. */
 	public Roi(int x, int y, int width, int height) {
@@ -72,11 +73,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 
 	/** Creates a rectangular ROI using double arguments. */
 	public Roi(double x, double y, double width, double height) {
-		this((int)x, (int)y, (int)Math.ceil(width), (int)Math.ceil(height), 0);
-		xd=x; yd=y; widthd=width; heightd=height;
+		this(x, y, width, height, 0);
 	}
 
-	/** Creates a new rounded rectangular Roi. */
+	/** Creates a new rounded rectangular ROI. */
 	public Roi(int x, int y, int width, int height, int cornerDiameter) {
 		setImage(null);
 		if (width<1) width = 1;
@@ -105,8 +105,16 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			g.dispose();
 		}
 		fillColor = defaultFillColor;
+		xd=x; yd=y; widthd=width; heightd=height;
 	}
 	
+	/** Creates a rounded rectangular ROI using double arguments. */
+	public Roi(double x, double y, double width, double height, int cornerDiameter) {
+		this((int)x, (int)y, (int)Math.ceil(width), (int)Math.ceil(height), cornerDiameter);
+		xd=x; yd=y; widthd=width; heightd=height;
+		subPixel = true;
+	}
+
 	/** Creates a new rectangular Roi. */
 	public Roi(Rectangle r) {
 		this(r.x, r.y, r.width, r.height);
@@ -349,11 +357,22 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	public FloatPolygon getFloatPolygon() {
-		Polygon p = getPolygon();
-		if (p!=null)
+		if (subPixelResolution()) {
+			float[] xpoints = new float[4];
+			float[] ypoints = new float[4];
+			xpoints[0] = (float)xd;
+			ypoints[0] = (float)yd;
+			xpoints[1] = (float)(xd+widthd);
+			ypoints[1] = (float)yd;
+			xpoints[2] = (float)(xd+widthd);
+			ypoints[2] = (float)(yd+heightd);
+			xpoints[3] = (float)xd;
+			ypoints[3] = (float)(yd+heightd);
+			return new FloatPolygon(xpoints, ypoints);
+		} else {
+			Polygon p = getPolygon();
 			return new FloatPolygon(toFloat(p.xpoints), toFloat(p.ypoints), p.npoints);
-		else
-			return null;
+		}
 	}
 	
 	/** Returns a copy of this roi. See Thinking is Java by Bruce Eckel
@@ -785,6 +804,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		int sh = (int)(height*mag);
 		int sx1 = screenX(x);
 		int sy1 = screenY(y);
+		if (subPixelResolution()) {
+			sw = (int)(widthd*mag);
+			sh = (int)(heightd*mag);
+			sx1 = screenXD(xd);
+			sy1 = screenYD(yd);
+		}
 		int sx2 = sx1+sw/2;
 		int sy2 = sy1+sh/2;
 		int sx3 = sx1+sw;
@@ -1446,7 +1471,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 
 	/** Returns true if this is a PolygonRoi that supports sub-pixel resolution. */
 	public boolean subPixelResolution() {
-		return false;
+		return subPixel;
 	}
 
     /** Checks whether two rectangles are equal. */

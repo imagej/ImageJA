@@ -15,7 +15,7 @@ import java.awt.geom.*;
 public class RoiEncoder {
 	static final int HEADER_SIZE = 64;
 	static final int HEADER2_SIZE = 64;
-	static final int VERSION = 222; // changed to 222 in v1.46a
+	static final int VERSION = 223; // changed to 223 in v1.46b
 	private String path;
 	private OutputStream f;
 	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6, freehand=7, 
@@ -128,6 +128,17 @@ public class RoiEncoder {
 		putShort(RoiDecoder.LEFT, r.x);
 		putShort(RoiDecoder.BOTTOM, r.y+r.height);
 		putShort(RoiDecoder.RIGHT, r.x+r.width);	
+		if (roi.subPixelResolution() && (type==rect||type==oval)) {
+			FloatPolygon p = roi.getFloatPolygon();
+			if (p.npoints==4) {
+				putFloat(RoiDecoder.XD, p.xpoints[0]);
+				putFloat(RoiDecoder.YD, p.ypoints[0]);
+				putFloat(RoiDecoder.WIDTHD, p.xpoints[1]-p.xpoints[0]);
+				putFloat(RoiDecoder.HEIGHTD, p.ypoints[2]-p.ypoints[1]);	
+				options |= RoiDecoder.SUB_PIXEL_RESOLUTION;
+				putShort(RoiDecoder.OPTIONS, options);
+			}
+		}
 		putShort(RoiDecoder.N_COORDINATES, n);
 		putInt(RoiDecoder.POSITION, roi.getPosition());
 		
@@ -138,11 +149,11 @@ public class RoiEncoder {
 		}
 		
 		if (roi instanceof Line) {
-			Line l = (Line)roi;
-			putFloat(RoiDecoder.X1, l.x1);
-			putFloat(RoiDecoder.Y1, l.y1);
-			putFloat(RoiDecoder.X2, l.x2);
-			putFloat(RoiDecoder.Y2, l.y2);
+			Line line = (Line)roi;
+			putFloat(RoiDecoder.X1, (float)line.x1d);
+			putFloat(RoiDecoder.Y1, (float)line.y1d);
+			putFloat(RoiDecoder.X2, (float)line.x2d);
+			putFloat(RoiDecoder.Y2, (float)line.y2d);
 			if (roi instanceof Arrow) {
 				putShort(RoiDecoder.SUBTYPE, RoiDecoder.ARROW);
 				if (((Arrow)roi).getDoubleHeaded())

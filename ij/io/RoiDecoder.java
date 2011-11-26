@@ -47,6 +47,10 @@ public class RoiDecoder {
 	public static final int Y1 = 22;
 	public static final int X2 = 26;
 	public static final int Y2 = 30;
+	public static final int XD = 18;
+	public static final int YD = 22;
+	public static final int WIDTHD = 26;
+	public static final int HEIGHTD = 30;
 	public static final int STROKE_WIDTH = 34;
 	public static final int SHAPE_ROI_SIZE = 36;
 	public static final int STROKE_COLOR = 40;
@@ -148,6 +152,15 @@ public class RoiDecoder {
 		int imageSize=0;
 		boolean subPixelResolution = (options&SUB_PIXEL_RESOLUTION)!=0 &&  version>=222;
 		
+		boolean subPixelRect = version>=223 && subPixelResolution && (type==rect||type==oval);
+		double xd=0.0, yd=0.0, widthd=0.0, heightd=0.0;
+		if (subPixelRect) {
+			xd = getFloat(XD);
+			yd = getFloat(YD);
+			widthd = getFloat(WIDTHD);
+			heightd = getFloat(HEIGHTD);
+		}
+		
 		if (hdr2Offset>0 && hdr2Offset+IMAGE_SIZE+4<=size) {
 			channel = getInt(hdr2Offset+C_POSITION);
 			slice = getInt(hdr2Offset+Z_POSITION);
@@ -175,19 +188,25 @@ public class RoiDecoder {
 
 		switch (type) {
 			case rect:
-				roi = new Roi(left, top, width, height);
+				if (subPixelRect)
+					roi = new Roi(xd, yd, widthd, heightd);
+				else
+					roi = new Roi(left, top, width, height);
 				int arcSize = getShort(ROUNDED_RECT_ARC_SIZE);
 				if (arcSize>0)
 					roi.setCornerDiameter(arcSize);
 				break;
 			case oval:
-				roi = new OvalRoi(left, top, width, height);
+				if (subPixelRect)
+					roi = new OvalRoi(xd, yd, widthd, heightd);
+				else
+					roi = new OvalRoi(left, top, width, height);
 				break;
 			case line:
-				int x1 = (int)getFloat(X1);		
-				int y1 = (int)getFloat(Y1);		
-				int x2 = (int)getFloat(X2);		
-				int y2 = (int)getFloat(Y2);
+				double x1 = getFloat(X1);		
+				double y1 = getFloat(Y1);		
+				double x2 = getFloat(X2);		
+				double y2 = getFloat(Y2);
 				if (subtype==ARROW) {
 					roi = new Arrow(x1, y1, x2, y2);		
 					((Arrow)roi).setDoubleHeaded((options&DOUBLE_HEADED)!=0);
@@ -363,7 +382,12 @@ public class RoiDecoder {
 		for (int i=0; i<textLength; i++)
 			text[i] = (char)getShort(hdrSize+16+nameLength*2+i*2);
 		Font font = new Font(new String(name), style, size);
-		Roi roi2 = new TextRoi(r.x, r.y, new String(text), font);
+		Roi roi2 = null;
+		if (roi.subPixelResolution()) {
+			FloatPolygon fp = roi.getFloatPolygon();
+			roi2 = new TextRoi(fp.xpoints[0], fp.ypoints[0], new String(text), font);
+		} else
+			roi2 = new TextRoi(r.x, r.y, new String(text), font);
 		roi2.setStrokeColor(roi.getStrokeColor());
 		roi2.setFillColor(roi.getFillColor());
 		roi2.setName(getRoiName());
