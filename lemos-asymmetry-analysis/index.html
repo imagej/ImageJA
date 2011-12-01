@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Lemos Asymmetry Analysis Plugin</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Lemos Asymmetry Analysis Plugin</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Authors:</b></td><td >
+Eduardo Moura, Federal University of Campina Grande, Brazil. (eduardosmoura at gmail.com)<br>
+
+Arnaldo Sena, Federal University of Campina Grande, Brazil. (arnaldoufcg at gmail.com)<br>
+
+Herman Gomes, Federal University of Campina Grande, Brazil. (hmg at dsc.ufcg.edu.br)<br><br>
+
+This plugin has been created as part of the methodology for mandibular asymmetry analysis
+proposed by Alexandre Durval Lemos in his PhD work, developed at the School of Dentistry,
+Department of Social Dentistry, Pernambuco state University, Brazil, with the collaboration
+of Cintia Regina Tornisiello Katz, MUnica Vilela Heimer, Aronita Rosenblatt, and Denise NUbrega Diniz.
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2011/11/30: First public release<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Download <a href="Lemos_Asymmetry_Analysis.zip">Lemos_Asymmetry_Analysis.zip</A>, source code with
+internal documentation.
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="Lemos_Asymmetry_Analysis.jar">Lemos_Asymmetry_Analysis.jar</A> to the "ImageJ" window.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin is designed to produce mandibular asymmetry measurements from dental panoramic radiographs.
+
+Nine anatomic points should be indicated in sequence directly on the dental panoramic radiograph image using the ImageJ POINT TOOL, from which angular and linear measurements can be automatically calculated. <br><br>
+
+<b>Measurements</b>
+<UL TYPE="CIRCLE"> <li>Angular Measurement
+<UL TYPE="SQUARE"> <li><b>Gonial Angle</b> (GA): formed between CH and CL on both sides; results expressed in degrees.</ul>
+<li>Linear Measurements
+<UL TYPE="SQUARE">
+<li><b>Ramus Height</b> (RH): distance between the most cranial point of the condyle (points 4 and 6, as described by Deleurant et al.15) and the gonion (points 5 and 7);
+<li><b>Corpus Length</b> (CL): distance between gonion (Go) and pogonion (Pg); the gonion was defined as a random midpoint on the posterior curvature of the mandible (intersection points between corpus and ramus);
+<li><b>Pg-MSP</b>: distance between pogonion and median sagittal plane, represented by a horizontal link connecting the Pg to the plane;
+<li><b>IP-MSP</b>: distance between IP and MSP, represented by a horizontal line connecting the IP to the plane;
+<li><b>CHD</b>: difference between the heights of the right and left condyle (beginning with most superior to the most inferior position; represented by a horizontal line automatically drawn from the CH point of the taller condyle, proceeding to the contralateral side for a better visualization in relation to the opposing condyle.
+</ul></ul>
+
+<b>Operation</b><BR>
+<OL TYPE="1">
+<LI>Start ImageJ and open a dental panoramic x-ray image;
+ <LI> Select ImageJ STRAIGHT LINE tool and trace the mesio-distal length of one of the incisors (for example, tooth 11) the measurement (in millimeters) is previously known through a clinical exam or study model; this step is necessary for the calibration of the image and conversion of measurements from pixels to millimeters;
+<LI>On the menu bar, click on ANALYZE and select SET SCALE tool: enter known distance (measurement of length of tooth 11 in mm), change length unit to mm and select GLOBAL SCALE option (this option is only valid for images with the same resolution; if the researcher needs to evaluate images with different resolutions, this step will need to be carried out on each image individually);
+<LI>On the menu bar, click on Plugins and select Lemos Asymmetry Analysis;
+<LI>Choose whether or not to use a distortion factor (Yes/No). If choosing Yes, left and right distortion factors (LDF and RDF) will be considered. This is important because on panoramic radiographs, measurements of the mandibular corpus may have some inaccuracy because of distortion. Vertical measurements are considered to be less affected by the possible change in the positioning than horizontal and oblique ones.
+ <LI>In case a distortion factor should be used: trace the mesio-distal length of one of the molars (for example, tooth 16); press F8 and then select the chosen tooth on the popup window is shown. The same process should be performed for the molar teeth(teeth 26, 36, 46).
+  <LI>On the tool bar, click POINT TOOL with the right button of the mouse and define the MULTI-POINT TOOL option as the standard;
+  <LI>Left click the mouse to choose points 1 to 9 (as indicated in the figure below) in sequence; the lines are automatically drawn by the program; at the end of the operation, a spreadsheet is opened with all measurements ready for analysis;
+  <LI>To conclude the analysis with a distortion factor (items 5 and 6 above), press the F9 key to insert the molars mesio-distal length (in millimeters) previously known from the clinical exam or cast model. After this step, the measurements are automatically shown on a spreadsheet that can be saved to disk;
+  <LI>After defining the 9 interest points, any of the points can be adjusted with the left mouse button. By pressing the F10 key, the updated measurements are shown on a spreadsheet that can be saved to disk. Note that this will not consider any previously set distortion factor - if measurements with distortion factors are needed after changing the point positions, restart the plugin after saving the marked points and global calibration (using the F12 key, see item 12 below) and follow steps 5, 6 and 9 above;
+ <LI>The image with the overlayed measurements can be saved by pressing the F11 key;
+ <LI>The points and global calibration can be saved by pressing the F12 key (this will save a text file with the same image name and a .txt extension, which can be automatically loaded for a future analysis).
+</OL>
+
+
+<p><center><img SRC="sample2.jpg" width=600></center><p>
+
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
