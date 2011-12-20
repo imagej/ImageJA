@@ -1,14 +1,15 @@
-	/**
-	This plugin demonstrates how to use a mask to tally the values
-	and number of pixels within a non-rectangular selection.
-	*/
 	import ij.*;
 	import ij.process.*;
 	import ij.gui.*;
 	import java.awt.*;
 	import ij.plugin.*;
 	
+	/**
+	This plugin demonstrates how to use a mask to tally the values
+	and number of pixels within a non-rectangular selection.
+	*/
 	public class Calculate_Mean implements PlugIn {
+
 		public void run(String arg) {
 			ImagePlus imp = IJ.getImage();
 			Roi roi = imp.getRoi();
@@ -29,4 +30,5 @@
 			IJ.log("count: "+count);
 			IJ.log("mean: "+IJ.d2s(sum/count,4));
 		}
+
 	}
