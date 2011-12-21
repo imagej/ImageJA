@@ -62,8 +62,8 @@ macro can capture and display video using the VirtualDub program.
 <li> Uncompressed 24 & 32 bit RGB (alpha channel ignored)
 <li> Uncompressed 32 bit AYUV (alpha channel ignored)
 <li> Various YUV 4:2:2 compressed formats
-<li> PNG or JPEG-encoded individual frames. Note that most MJPG (motion-JPEG)
- formats are not read correctly.
+<li> PNG or JPEG-encoded individual frames.
+<li> MJPG (motion-JPEG)
 </ul> 
 <li> Does not read AVI formats with more than one frame per chunk
 <li> Palette changes during the video not supported
@@ -88,7 +88,9 @@ enter "Min." 16, "Max." 235, and press "Apply".
 <u>2005/02/14:</u> Uses file name as window title instead of "stack"<br>
 <u>2005/10/20:</u> Opens 32-bit (ARGB) AVIs<br>
 <u>2007/10/19: </u>Fixed bug that could cause "Map size(0)>=1" error; fixed progress bar<br>
+<p>
 <u>2008/04/29:</u>
+<ul>
 <li> Support for several other formats added, especially some YUV
 (also named YCbCr) formats
 <li> Uneven chunk sizes fixed
@@ -102,13 +104,38 @@ enter "Min." 16, "Max." 235, and press "Apply".
 <li> Added a public method 'getStack' that does not create an image window
 <li> More compact code, especially for reading the header (rewritten)
 <li> In the code, bitmapinfo items have their canonical names
+</ul>
 <u>2008-06-08:</u>
+<ul>
 <li> Support for PNG and JPEG/MJPG encoded files added
 <li> Retrieves animation speed from image frame rate
 <li> Exception handling without multiple error messages
+</ul>
 <u>2008/07/07:</u>
+<ul>
 <li> Adds support for 16-bit grayscale AVIs created by 
 MIL (Matrox Imaging Library), thanks to a patch by Reinhard Mayr
+</ul>
+<u>2009/03/06:</u>
+<ul>
+<li> Jesper Soendergaard Pedersen added support for extended (large) AVI files,
+also known as 'AVI 2.0' or 'OpenDML 1.02 AVI file format extension'
+<li> With virtual stacks, reads the 'AVI 2.0' index (indx and ix00 tags).
+<li> Fixes a bug where too many frames are read.
+</ul>
+<u>2011/12/03:</u>
+<ul>
+<li> Minor updates & cleanup for integration into ImageJ.
+<li> Multithread-compliant.
+</ul>
+<u>2011/12/10:</u>
+<ul>
+<li> Based on a plugin by Jesper Soendergaard Pedersen, also reads the 'idx1' index of
+AVI 1 files, speeding up initial reading of virtual stacks also for smaller files.
+<li> When the first frame to read is > 1, uses the index to quickly skip the initial frames.
+<li> Creates a unique window name.
+<li> Opens MJPG files that do not contain Huffman tables.
+</ul>
 
 </td></tr>
 
