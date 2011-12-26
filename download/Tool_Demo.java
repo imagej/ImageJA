@@ -1,28 +1,39 @@
 import ij.*;
 import ij.process.*;
 import ij.gui.*;
+import ij.plugin.tool.PlugInTool;
 import ij.plugin.*;
 import java.awt.*;
+import java.awt.event.*;
 
-/** This plugin demonstrates how to add a tool to the toolbar. */
-public class Tool_Demo implements PlugIn {
 
-	public void run(String arg) {
-		if (IJ.versionLessThan("1.37c")) return;
-		String macro =
-			"macro 'Example Tool-C090T0f15EC00aT7f15T' {\n" +
-			"  getCursorLoc(x, y, z, flags);\n" +
-			"  call('Tool_Demo.mousePressed', x, y, z, flags);\n"+
-			"}";
-		new MacroInstaller().install(macro);
-  	}
+/** This plugin demonstrates how to add a tool to the toolbar.
+	It requires ImageJ 1.46d or later. */
+public class Tool_Demo extends PlugInTool {
 
-	public static void mousePressed(String xs, String ys, String zs, String flags) {
-		int x = Integer.parseInt(xs);
-		int y = Integer.parseInt(ys);
-		ImagePlus img = WindowManager.getCurrentImage();
-		if (img!=null)
-			IJ.log("User clicked at ("+x+","+y+") on "+img.getTitle());
+	public void mousePressed(ImagePlus imp, MouseEvent e) {
+		show(imp, e, "clicked");
+	}
+
+	public void mouseDragged(ImagePlus imp, MouseEvent e) {
+		show(imp, e, "dragged");
+	}
+
+	public void showOptionsDialog() {
+		IJ.log("User double clicked on the tool icon");
+	}
+
+	void show(ImagePlus imp, MouseEvent e, String msg) {
+		ImageCanvas ic = imp.getCanvas();
+		int x = ic.offScreenX(e.getX());
+		int y = ic.offScreenY(e.getY());
+		IJ.log("User "+msg+" at ("+x+","+y+") on "+imp.getTitle());
+	}
+
+	public String getToolIcon() {
+		return "C090T0f15EC00aT7f15T"; // "ET (Example Tool)"
 	}
 
 }
+
+
