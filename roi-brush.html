@@ -21,14 +21,15 @@ Tom Larkworthy (tom.larkworthy@GMAIL.COM)
 
 <tr valign=top><td ><b>History:</b></td><td >
 2006/06/27: First version<br>
+2011/12/26: Updated to be a PlugInTool<br>
 </td></tr>
 
 <tr valign=top><td ><b>Requires:</b></td><td >
-ImageJ 1.37c or later (1.37k or later to avoid flicker)
+ImageJ 1.46d or later
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >
-<a href="download/ROI_Brush.java">ROI_Brush.java</a>
+<a href="download/ROI_Brush_Tool.java">ROI_Brush_Tool.java</a>
 </td></tr>
 
 <tr valign=top><td ><b>Installation:</b></td><td >
@@ -43,33 +44,7 @@ instead of
 painting circular regions, it <i>selects</i> them (or, if you press alt
 while dragging the mouse, <i>deselects</i> them).
 <p>
-Add the following text to StartupMacros.txt in ImageJ/macros to have the <i>ROI Brush</i> installed 
-automatically when ImageJ  starts up:
-<pre>
-  var roiBrushWidth=10;
-  macro 'Roi Brush Tool - Cf800O11dd' {
-      leftClick=16; alt=9;
-      while (true) {
-          getCursorLoc(x, y, z, flags);
-          if (flags&leftClick==0) exit();
-          if (flags&alt==0) {
-              call('ROI_Brush.label', x,y,z,flags, roiBrushWidth);
-          } else {
-              call('ROI_Brush.unlabel', x,y,z,flags, roiBrushWidth);
-          }
-          wait(10);
-      }
-  }
-  macro 'Roi Brush Tool Options...' {
-      roiBrushWidth = getNumber('Roi Brush Width (pixels):', roiBrushWidth);
-  }
-  </pre>
-  With ImageJ ImageJ 1.37c and earlier, the first line ("var roiBrushWidth=10;") must be moved to the top of StartupMacros.txt.
-
-<p>
-For plugin writers,
-this plugin demonstrates how to add a tool to the tool bar and how to call
-Java code from a macro 
+For plugin writers, this plugin demonstrates how to add a tool to the tool bar. 
 <p> 
 This plugin was contributed to the ImageJ
 community by Tom Larkworthy. </td></tr>
