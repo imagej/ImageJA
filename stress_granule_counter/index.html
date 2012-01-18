@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>Stress granule counter plugin</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Stress granule counter plugin</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Ann Sablina<br>
+Lomonosov Moscow State University, Russia<br>
+sablinaaa@mail.ru<br> 
+</td></tr>
+
+<tr valign=top><td ><b>Date:</b></td><td >
+2012/01<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="SG_counter.java">SG_counter.java</A>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Download <a href="SG_counter.class">SG_counter.class</A> to the plugins folder and restart ImageJ.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This plugin automates counting of <a href="http://en.wikipedia.org/wiki/Stress_granule">stress granules</A> (SGs) in images of eucaryotic cells that are flattened on substrate when SGs are revealed by a fluorescent marker. Uses ParticleAnalyser functionality. Recognition of SGs is possible even if values of their pixels are less than background brightness in the centre of the cell (as in large CV-1 cells).<br>
+</td></tr>
+
+<tr valign=top><td ><b>Use:</b></td><td >
+Select the needed cell on the image with "Freehand selections" tool. Run the plugin. Check needed checkboxes (the first two are used to send subjective information directly to output). Change parameters if necessary.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Output:</b></td><td >
+The output of the plugin is similar to that of "Analyse particles" feature of ImageJ. In addition, the plugin creates a separate window with a unique name for each cell's results and a "SG counter output" window in which presets and subjective information for each cell are recorded. It also creates for each cell images with outlines of SGs that have unique names and represent only the area of the selected cell, not the whole image.<br>
+</td></tr>
+
+<tr valign=top><td ><b>Principle of operation:</b></td><td >
+The principle of operation of the plugin bases on the fact that the bigger the difference in brightness between neighbouring pixels, the faster the brightness changes in the process of smoothing. SG's edge is a place of the fastest change in brightness of SG marker. An image is smoothed and subtracted from original image. Threshold setting in the resulting image makes possible to count SGs that are less bright than background in the centre of the cell.<br>
+</td></tr>
+
+<tr valign=top><td ></td><td ><br>
+Parameters for HeLa cells (default):<br>
+Number of smoothes: 70<br>
+Number of smoothes after subtraction: 4<br>
+Threshold: 3000<br><br>
+Parameters for CV-1 cells:<br>
+Number of smoothes: 6<br>
+Number of smoothes after subtraction: 3<br>
+Threshold: 4500<br><br>
+Parameters can be changed before each cell's treatment or in source code file.<br> <br>
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
