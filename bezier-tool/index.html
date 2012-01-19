@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>Bezier Curve Tool</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+ | <a href="../../list.html">list</a> | <a href="../../links.html">links</a></p>
+
+<h1>Bezier Curve Tool</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Berin Martini
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2010/01/26: Original release<br>
+2012/01/18: Converted to a PlugInTool<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires</b></td><td >
+ImageJ 1.46f or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Java source is in <a href="bezier_tool.jar">bezier_tool.jar</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="bezier_tool.jar">bezier_tool.jar</a> 
+onto the "ImageJ" window, save it in the plugins/Tools directory,
+then run the <i>Plugins&gt;Tools&gt;Bezier Curve Tool</i> command
+to add the Bezier Curve Tool to the ImageJ toolbar (it has a "B" icon).
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is a version of Berin Martini's
+<a href="http://imagejdocu.tudor.lu/doku.php?id=plugin:utilities:bezier_curve_roi:start">Bezier Curve ROI</a>
+plugin that has been converted to a plugin tool. To use (once installed) simply click, drag and release on an
+image to define a starting point (Bezier control point zero) and the first Bezier control point.
+Then click , drag and release again to define the curves end point (Bezier control point three) 
+and second Bezier control point. The shape of the curve can be altered by clicking on any of 
+the control points and dragging them around until the desired shape is reached. New curve 
+segments can be added to the curve by holding down the shift key and clicking on any of the
+control points which form part of the curve. Likewise, segments can be removed by holding
+on the alt key a clicking on any of the same control point. A single clicking anywhere on the
+image outside the control points will convert the bezier curve into a line selection.
+<p>
+
+   <img src="bezier-curve.png" width=419 height=165 alt="[screen shot]">
+   
+</td></tr>
+
+</table>
+
+</blockquote>
+
+</body>
+</html>
