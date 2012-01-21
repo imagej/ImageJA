@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>Image Slice</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Image Slice</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Authors:</b></td><td>
+Lev Manovich (manovich.lev at gmail.com)<br />
+Matias Giachino (matias.giachino at gmail.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td>
+2012/01/05: First version<br />
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td>
+Download <a href="Image_Slice.ijm">Image_Slice.ijm</A> to the plugins/Macros folder, restart ImageJ or click <i>Help&gt;Update Menus</i> and there will be a new <i>Image Slice</i> command in the Plugins/Macros menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td>
+ImageSlice operates similar to Image>Stacks>Orthogonal Views command. The key differences are: 1) The source images do not have to be loaded into a stack, so they can have different dimensions. 2) The user can specify the width or height of the part of each image used to create a slice.
+<br /><br />
+<img width="313" height="688" src="images/imageslicemenu.gif"><br />
+<p><b>Image Source:</b> Lets you choose the method for image selection. Folder uses all the images in a specified folder, Folder and Subfolders find all the images in both the specified folder and all subfolders, Data File lets you specify a tab-delimited text file with a column of image filenames to use, Data File as Filepaths works like the Data File option but expects absolute paths to the files instead of just filenames.</p>
+<p><b>Slice Mode:</b> Options for setting the canvas size. Can be set manually, set automatically using the dimensions of the first source image, or computed from the entire image set as either the minimum or maximum size.</p>
+<p><b>Set Height and Set Width:</b> Sets the "thickness" of the image slice (i.e., the width of the column or the height of a row taken from each source image).</p>
+<p><b>X Offset and Y Offset:</b> Determine where in the original images to start the slice.</p>
+<p><b>Offset Units:</b> Determines if the X Offset and Y Offset values are specified using pixel offsets or percentages. 50 percent would sample from the exact center of the source images.</p>
+<p><b>Create Grayscale Image:</b> Forces the slice montages to be in grayscale.</p>
+<p><b>Examples:</b><br />
+</b><br />
+A slice of 72 Vincent van Gogh paintings (sliced along the horizontal axis):</p>
+<p><img src="images/imagesliceh.gif"></p>
+The same set of images sliced along the vertical axis:
+<p><img src="images/imageslicev.gif"></p><br />
+</td></tr>
+<tr valign=top><td ><b>See Also:</b></td><td>
+<i>Image>Stacks>Orthogonal Views</i>
+</td></tr>
+</table>
+
+</blockquote>
+<p><b>| <a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
