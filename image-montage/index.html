@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>Image Montage</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Image Montage</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Authors:</b></td><td>
+Lev Manovich (manovich.lev at gmail.com)<br />
+Matias Giachino (matias.giachino at gmail.com)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td>
+2012/01/05: First version<br />
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td>
+Download <a href="Image_Montage.ijm">Image_Montage.ijm</A> to the plugins/Macros folder, restart ImageJ or click <i>Help&gt;Update Menus</i> and there will be a new <i>Image Montage</i> command in the Plugins/Macros menu.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td>
+ImageMontage creates montages of images without the need to load them into a stack first. The source images can be located in one or multiple directories. The images can also have different sizes. To fit images into a montage, the macro scales them vertically to the same user-specified size. Images are added horizontally until they no longer fit on the row and then a new row is begun. This process is repeated until all source images are rendered. If you see that the generated montage does not include all source images, change the options to reduce the size of images and/or increase canvas dimensions, and run the macro again.
+<br /><br />
+<img width="283" height="545" src="images/imagemontagemenu.gif"><br />
+<p><b>Image Source:</b> Lets you choose the method for image selection. Folder uses all the images in a specified folder, Folder and Subfolders find all the images in both the specified folder and all subfolders, Data File lets you specify a tab-delimited text file with a column of image filenames to use, Data File as Filepaths works like the Data File option but expects absolute paths to the files instead of just filenames.</p>
+<p><b>Color Mode:</b> Determines whether to create a grayscale or RGB montage.</p>
+<p><b>Set Width and Set Height:</b> Set the size of the canvas in which to montage the images.</p>
+<p><b>Row Height:</b> The height at which to resize all images for row placement.</p>
+<p><b>X Spacing and Y Spacing:</b> Set the X and Y spacing between montaged images.</p>
+<br /><br /><b>Examples:</b><br />
+<br />
+Here is a montage of 72 Vincent van Gogh paintings with varying sizes:</p>
+<p><img width="375" height="256" src="images/imagemontage.gif"></p>
+Here is the same montage with added space between the images:
+<p><img width="425" height="326" src="images/imagemontage2.gif"></p><br />
+</td></tr>
+<tr valign=top><td ><b>See Also:</b></td><td>
+<a href="../custom-montage.html">Custom Montage</a><br />
+<a href="../rc-montage/index.html">RC Montage</a>
+</td></tr>
+</table>
+
+</blockquote>
+<p><b>| <a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
