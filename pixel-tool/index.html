@@ -1,0 +1,81 @@
+﻿<html>
+<head>
+<title>Pixel Inspection Tool</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+ | <a href="../../list.html">list</a> | <a href="../../links.html">links</a></p>
+
+<h1>Pixel Inspection Tool</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Authors:</b></td><td > 
+Michael Schmid<br>
+Wayne Rasband (wsr at nih.gov)<br>
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2007/12/14: Original release<br>
+2012/02/12: Converted to a PlugInTool<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires</b></td><td >
+ImageJ 1.46f or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+Java source is in <a href="pixel_inspection_tool.jar">pixel_inspection_tool.jar</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="pixel_inspection_tool.jar">pixel_inspection_tool.jar</a> 
+onto the "ImageJ" window, save it in the plugins/Tools directory,
+then run the <i>Plugins&gt;Tools&gt;Pixel Inspection Tool</i> command
+to add the Pixel Inspection Tool to the ImageJ toolbar (it has a "PI" icon).
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is a version of Michael Schmid's
+<a href="http://imagejdocu.tudor.lu/doku.php?id=plugin:utilities:pixel_inspector:start">Pixel Inspector</a>
+plugin that has been converted to a plugin tool.
+
+<p><img src="pixel-inspector.png" width=383 height=322 alt="[pixel inspector panel]"></p>
+   
+What it does is
+display in a window the values of the pixels in a small square neighborhood (outlined in red)
+as the mouse is dragged over the image.
+The arrow keys nudge the red square if the Pixel Values
+window is in the foreground. This tool can be used to examine how a filter changes the
+pixel data. It also works with the "Preview" button in dialog boxes.
+If the Pixel Values window is in the foreground, pressing "c" (or ctrl-c)
+copies the current table of pixel values into the clipboard, in tab-delimited format.
+In the Pixel Values table, the center position (current cursor) is printed in red (x, y and the value).
+The direction of the y axis is determined by Analyze>Set Measurements>Invert Y Coordinates).
+<p>
+Press the "Prefs" button in the top left corner of the Pixel Values window to display the preferences dialog box.
+   
+   <p><img src="pixel-inspector-prefs.png" width=318 height=248 alt="[dialog box]"></p>
+
+<i>Radius</i> determines the size of the table, 3×3 for radius=1, 5×5 for radius=2 etc.
+The display of grayscale pixels values (<i>Grayscale readout</i>) can be raw, calibrated or hexadecimal.
+The display of RGB pixel values (<i>RGB readout</i>) can be R,G,B triples, gray value or hexadecimal.
+When copying the pixel values to the clipboard, the current position (x,y) is not not written at all,
+written in the first line or in the same way as the header lines of the Pixel Values window.
+	
+</td></tr>
+
+</table>
+
+</blockquote>
+
+</body>
+</html>
