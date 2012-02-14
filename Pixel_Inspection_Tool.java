@@ -94,17 +94,17 @@ public class  Pixel_Inspection_Tool extends PlugInTool {
 	}
 
 	public String getToolIcon() {
-		return "C037O00aaL99ff";
+		return "Ca00T2b10PT8b10xC000L2e0cL0c02L0220L20d0Pd0f2fcde2e0BccP125665210";
 	}
 
 }
 
 
 class PixelInspector extends PlugInFrame
-		implements ImageListener, ActionListener, KeyListener, Runnable {
+		implements ImageListener, KeyListener, MouseListener, Runnable {
 	//ImageListener: listens to changes of image data
-	//ActionListener: for Button
 	//KeyListener: for fix/unfix key
+	//MouseListener: for "Prefs" label
 	//Runnable: for background thread
 
 	/* Preferences and related */
@@ -140,8 +140,8 @@ class PixelInspector extends PlugInFrame
 	boolean expMode;				//whether to display the data in exp format
 	ImageCanvas canvas;				//the canvas of imp
 	Thread bgThread;				//thread for output (in the background)
-	Button prefsButton;				//gets the prefs dialog
 	Label[] labels;					//the display fields
+	Label prefsLabel = new Label("Prefs");
 	final String PREFS_KEY="pixelinspector."; //key in IJ_Prefs.txt
 	
 
@@ -160,10 +160,8 @@ class PixelInspector extends PlugInFrame
 		//setTitle("Pixels of "+imp.getTitle());
 		WindowManager.addWindow(this);
 		//readPreferences();
-		int trim = IJ.isMacOSX()?11:0;
-		prefsButton = new TrimmedButton("Prefs", trim);
-		prefsButton.addActionListener(this);
-		prefsButton.addKeyListener(this);	//this is enough as a listener for the panel
+		prefsLabel.addMouseListener(this);
+		addKeyListener(this);
 		init();
 		Point loc = Prefs.getLocation(PREFS_KEY+"loc");
 		if (loc!=null)
@@ -183,27 +181,18 @@ class PixelInspector extends PlugInFrame
 
 	private void init() {
 		removeAll();
-	   int size = 2*radius+2;			   //number of columns and rows
+		int size = 2*radius+2;			   //number of columns and rows
 		labels = new Label[size*size];
 		for (int i=1; i<labels.length; i++) //make the labels (display fields)
 			labels[i] = new Label();
 		initializeLabels();					//fill the labels with spaceholders
-		GridBagLayout gridbag = new GridBagLayout();//set up the layout
-		GridBagConstraints c = new GridBagConstraints();
-		setLayout(gridbag);
-		c.insets = new Insets(1,0,1,0);		//top, left, bottom, right
-		int y = 0;
-		c.gridwidth = 1; c.anchor = GridBagConstraints.EAST;
-		for (int row=0,p=0; row<size; row++,y++) {
+		setLayout(new GridLayout(size, size, 0, 0));
+		for (int row=0,p=0; row<size; row++) {
 			for (int col=0; col<size; col++,p++) {
-				if (row == 0 && col == 0) {
-					c.anchor = GridBagConstraints.WEST;
-					add(prefsButton, c);
-				} else {
-					c.gridx = col; c.gridy = y;
-					c.anchor = GridBagConstraints.EAST;
-					add(labels[p], c);
-				}
+				if (row == 0 && col == 0)
+					add(prefsLabel);
+				else
+					add(labels[p]);
 			}
 		}
 		pack();
@@ -249,14 +238,9 @@ class PixelInspector extends PlugInFrame
 	public void imageOpened(ImagePlus imp) {}
 	public void imageClosed(ImagePlus imp) {}
 
-	//ActionListener (Prefs Button)
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() instanceof Button) { showDialog(); }
-	}
-
 	//KeyListener
 	public void keyPressed(KeyEvent e) {
-		boolean thisPanel = e.getSource() instanceof Button; //keys typed into this panel
+		boolean thisPanel = e.getSource() instanceof PixelInspector;
 		if (thisPanel && e.getKeyCode()==KeyEvent.VK_C) { 
 			copyToClipboard();
 			return;
@@ -283,6 +267,14 @@ class PixelInspector extends PlugInFrame
 			imp.setOverlay(overlay);	
 	   }
 	}
+
+	public void mousePressed(MouseEvent e) {
+		showDialog();
+	}   
+	public void mouseEntered(MouseEvent e) {}   
+	public void mouseExited(MouseEvent e) {}   
+	public void mouseClicked(MouseEvent e) {}   
+	public void mouseReleased(MouseEvent e) {}   
 
 	/** In the Overlay class in imageJ 1.46g and later. */
 	static int getIndex(Overlay overlay, String name) {
