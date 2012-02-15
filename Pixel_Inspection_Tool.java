@@ -88,8 +88,11 @@ public class  Pixel_Inspection_Tool extends PlugInTool {
 			overlay.add(roi);
 		}
 		imp.setOverlay(overlay);
-		if (pi==null)
-			  pi = new PixelInspector(imp, this);
+		if (pi==null) {
+			if (PixelInspector.instance!=null)
+				PixelInspector.instance.close();
+			pi = new PixelInspector(imp, this);
+		}
 		pi.update(imp, PixelInspector.POSITION_UPDATE, x, y);
 	}
 
@@ -108,9 +111,9 @@ class PixelInspector extends PlugInFrame
 	//Runnable: for background thread
 
 	/* Preferences and related */
-	static int radius = 3;				 //determines size of the surrounding (min. 1)
+	static final String PREFS_KEY="pixelinspector."; //key in IJ_Prefs.txt
+	static int radius = (int)Prefs.get(PREFS_KEY+"radius", 3);
 	final static int MAX_RADIUS = 10;//the largest radius possible (ImageJ can hang if too large)
-	int saveRadius = radius;		//what to write into the prefs
 	int grayDisplayType = 0;		//how to display 8-bit&16-bit grayscale pixels
 	final static String[] GRAY_DISPLAY_TYPES = {"Raw","Calibrated","Hex"};
 	final static int GRAY_RAW = 0, GRAY_CAL = 1, GRAY_HEX = 2;
@@ -141,8 +144,8 @@ class PixelInspector extends PlugInFrame
 	ImageCanvas canvas;				//the canvas of imp
 	Thread bgThread;				//thread for output (in the background)
 	Label[] labels;					//the display fields
+	//Label prefsLabel = new Label("Prefs\u2026");
 	Label prefsLabel = new Label("Prefs");
-	final String PREFS_KEY="pixelinspector."; //key in IJ_Prefs.txt
 	
 
 	/* Initialization, preparing the window (panel) **/
@@ -489,40 +492,24 @@ class PixelInspector extends PlugInFrame
 	/** Preferences dialog */
 	void showDialog() {
 		GenericDialog gd = new GenericDialog("Pixel Inspector Prefs...");
-		gd.addNumericField("Radius:", saveRadius, 0, 6, "(1-"+MAX_RADIUS+")");
+		gd.addNumericField("Radius:", radius, 0, 6, "(1-"+MAX_RADIUS+")");
 		gd.addChoice("Grayscale readout:",GRAY_DISPLAY_TYPES,GRAY_DISPLAY_TYPES[grayDisplayType]);
 		gd.addChoice("RGB readout:",RGB_DISPLAY_TYPES,RGB_DISPLAY_TYPES[rgbDisplayType]);
 		gd.addChoice("Copy to clipboard:", COPY_TYPES, COPY_TYPES[copyType]);
-		gd.addMessage("Use arrow keys to move red outline.\nPress 'c'to copy data to clipboard.");
+		gd.addMessage("Use arrow keys to move red outline.\nPress 'c' to copy data to clipboard.");
 		gd.showDialog();
-		if (!gd.wasCanceled()){
-			int temp = (int)gd.getNextNumber(); //radius
-			 if (temp >= 1 && temp <= MAX_RADIUS) {
-				saveRadius = temp;
-				radius = temp;
-			}
-			grayDisplayType = gd.getNextChoiceIndex();
-			rgbDisplayType = gd.getNextChoiceIndex();
-			copyType = gd.getNextChoiceIndex();
-			boolean keyOK = false;
-			init();
-			update(POSITION_UPDATE);
-		}
-	}
-
-	void readPreferences() {
-		radius = (int)Prefs.get(PREFS_KEY+"radius", radius);
-		grayDisplayType = (int)Prefs.get(PREFS_KEY+"display.gray", grayDisplayType);
-		rgbDisplayType = (int)Prefs.get(PREFS_KEY+"display.rgb", rgbDisplayType);
-		colorNumber = (int)Prefs.get(PREFS_KEY+"color", colorNumber);
-		saveRadius = radius;
-	}
-
-	void savePreferences() {
-		Prefs.set(PREFS_KEY+"radius", saveRadius);
-		Prefs.set(PREFS_KEY+"display.gray", grayDisplayType);
-		Prefs.set(PREFS_KEY+"display.rgb", rgbDisplayType);
-		Prefs.set(PREFS_KEY+"color", colorNumber);
+		if (gd.wasCanceled())
+			return;
+		radius = (int)gd.getNextNumber();
+		if (radius<1) radius=1;
+		if (radius>MAX_RADIUS) radius=MAX_RADIUS;
+		grayDisplayType = gd.getNextChoiceIndex();
+		rgbDisplayType = gd.getNextChoiceIndex();
+		copyType = gd.getNextChoiceIndex();
+		boolean keyOK = false;
+		init();
+		update(POSITION_UPDATE);
+		Prefs.set(PREFS_KEY+"radius", radius);
 	}
 
 	static String int2hex(int i, int digits) {
