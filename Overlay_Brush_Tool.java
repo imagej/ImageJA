@@ -54,7 +54,7 @@ public class Overlay_Brush_Tool extends PlugInTool implements Runnable {
 	}
 
 	public void showOptionsDialog() {
-		thread = new Thread(this, "Overlay Brush Options");
+		thread = new Thread(this, "Brush Options");
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
 	}
@@ -64,12 +64,12 @@ public class Overlay_Brush_Tool extends PlugInTool implements Runnable {
 	}
 
 	public void run() {
-		new OptionsDialog();
+		new Options();
 	}
 
-	class OptionsDialog implements DialogListener {
+	class Options implements DialogListener {
 
-		OptionsDialog() {
+		Options() {
 			if (dialogShowing)
 				return;
 			dialogShowing = true;
@@ -83,32 +83,34 @@ public class Overlay_Brush_Tool extends PlugInTool implements Runnable {
 			gd.addSlider("Brush width (pixels):", 1, 50, width);
 			gd.addSlider("Transparency (%):", 0, 100, transparency);
 			gd.addChoice("Color:", Colors.colors, colorName);
-			gd.setInsets(8, 50, 0);
-			gd.addCheckbox("Remove last object", false);
 			gd.setInsets(10, 0, 0);
-			gd.addMessage("Color can also be set using Color Picker (shift-k)");
+			gd.addMessage("Also set the color using Color Picker (shift-k)");
+			gd.hideCancelButton();
+			gd.addHelp("");
+			gd.setHelpLabel("Remove Last Object");
+			gd.setOKLabel("Close");
 			gd.addDialogListener(this);
 			gd.showDialog();
 			dialogShowing = false;
 		}
 
 		public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
-			width = (float)gd.getNextNumber();
-			transparency = (int)gd.getNextNumber();
-			String colorName = gd.getNextChoice();
-			Color color = Colors.getColor(colorName, Color.black);
-			Toolbar.setForegroundColor(color);
-			ImagePlus imp = WindowManager.getCurrentImage();
-			if (imp!=null && gd.getNextBoolean()) {
+			if (e!=null && e.toString().contains("Remove Last Object")) {
+				ImagePlus imp = WindowManager.getCurrentImage();
+				if (imp==null) return true;
 				Overlay overlay = imp.getOverlay();
 				if (overlay!=null && overlay.size()>0) {
 					overlay.remove(overlay.size()-1);
 					imp.draw();
 				}
+				return true;
 			}
+			width = (float)gd.getNextNumber();
+			transparency = (int)gd.getNextNumber();
+			String colorName = gd.getNextChoice();
+			Color color = Colors.getColor(colorName, Color.black);
+			Toolbar.setForegroundColor(color);
 			stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-			Checkbox checkbox = (Checkbox)(gd.getCheckboxes().elementAt(0));
-			checkbox.setState(false);
 			Prefs.set(WIDTH_KEY, width);
 			return true;
 		}
