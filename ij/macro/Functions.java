@@ -670,7 +670,7 @@ public class Functions implements MacroConstants, Measurements {
 				x[n] = (int)Math.round(interp.getExpression());
 				if (n==2 && interp.nextToken()==')') {
 					interp.getRightParen();
-					Roi line = new Line(x1, y1, x2, y2);
+					Roi line = new Line(x1d, y1d, x2d, y2d);
 					line.updateWideLine((float)x[n]);
 					getImage().setRoi(line);
 					return;
@@ -757,16 +757,20 @@ public class Functions implements MacroConstants, Measurements {
 		interp.getComma();
 		double a2 = interp.getExpression();
 		interp.getToken();
+		ImageProcessor ip = getProcessor();
 		if (interp.token==',') {
 			double a3 = interp.getExpression();
 			interp.getRightParen();
-			if (getType()==ImagePlus.GRAY32)
-				getProcessor().putPixelValue(a1, (int)a2, a3);
+			if (ip instanceof FloatProcessor)
+				ip.putPixelValue(a1, (int)a2, a3);
 			else
-				getProcessor().putPixel(a1, (int)a2, (int)a3);
+				ip.putPixel(a1, (int)a2, (int)a3);
 		} else {
 			if (interp.token!=')') interp.error("')' expected");
-			getProcessor().setf(a1, (float)a2);
+			if (ip instanceof ColorProcessor)
+				ip.set(a1, (int)a2);
+			else
+				ip.setf(a1, (float)a2);
 		}
 		updateNeeded = true;
 	}
@@ -783,31 +787,35 @@ public class Functions implements MacroConstants, Measurements {
 			int ia1 = (int)a1;
 			int ia2 = (int)a2;
 			if (a1==ia1 && a2==ia2) {
-				if (getType()==ImagePlus.GRAY32)
+				if (ip instanceof FloatProcessor)
 					value = ip.getPixelValue(ia1, ia2);
 				else
 					value = ip.getPixel(ia1, ia2);
 			} else {
-				if (getType()==ImagePlus.COLOR_RGB)
+				if (ip instanceof ColorProcessor)
 					value = ip.getPixelInterpolated(a1, a2);
 				else
 					value = ip.getInterpolatedValue(a1, a2);
 			}
 		} else {
 			if (interp.token!=')') interp.error("')' expected");
-			value = ip.getf((int)a1);
+			if (ip instanceof ColorProcessor)
+				value = ip.get((int)a1);
+			else
+				value = ip.getf((int)a1);
 		}
 		return value;
 	}
 	
 	void setZCoordinate() {
 		int z = (int)getArg();
+		int n = z + 1;
 		ImagePlus imp = getImage();
 		ImageStack stack = imp.getStack();
 		int size = stack.getSize();
 		if (z<0 || z>=size)
 			interp.error("Z coordinate ("+z+") is out of 0-"+(size-1)+ " range");
-		this.defaultIP = stack.getProcessor(z+1);		
+		this.defaultIP = stack.getProcessor(n);		
 	}
 	
 	void moveTo() {
@@ -1809,22 +1817,51 @@ public class Functions implements MacroConstants, Measurements {
 				interp.error("Arrays are not the same length");
 		}
 		ImagePlus imp = getImage();
-		int[] xcoord = new int[n];
-		int[] ycoord = new int[n];
-		int height = imp.getHeight();
+		boolean floatCoordinates = false;
 		for (int i=0; i<n; i++) {
-			xcoord[i] = (int)Math.round(x[i]);
-			ycoord[i] = (int)Math.round(y[i]);
+			if (x[i]!=(int)x[i] || y[i]!=(int)y[i]) {
+				floatCoordinates = true;
+				break;
+			}
+		}
+		int[] xcoord = null;
+		int[] ycoord = null;
+		float[] xfcoord = null;
+		float[] yfcoord = null;
+		if (floatCoordinates) {
+			xfcoord = new float[n];
+			yfcoord = new float[n];
+			for (int i=0; i<n; i++) {
+				xfcoord[i] = (float)x[i];
+				yfcoord[i] = (float)y[i];
+			}
+		} else {
+			xcoord = new int[n];
+			ycoord = new int[n];
+			for (int i=0; i<n; i++) {
+				xcoord[i] = (int)Math.round(x[i]);
+				ycoord[i] = (int)Math.round(y[i]);
+			}
 		}
 		Roi roi = null;
 		if (roiType==Roi.LINE) {
 			if (xcoord.length!=2)
 				interp.error("2 element arrays expected");
-			roi = new Line(xcoord[0], ycoord[0], xcoord[1], ycoord[1]);
-		} else if (roiType==Roi.POINT)
-			roi = new PointRoi(xcoord, ycoord, n);
-		else
-			roi = new PolygonRoi(xcoord, ycoord, n, roiType);
+			if (floatCoordinates)
+				roi = new Line(xfcoord[0], yfcoord[0], xfcoord[1], yfcoord[1]);
+			else
+				roi = new Line(xcoord[0], ycoord[0], xcoord[1], ycoord[1]);
+		} else if (roiType==Roi.POINT) {
+			if (floatCoordinates)
+				roi = new PointRoi(xfcoord, yfcoord, n);
+			else
+				roi = new PointRoi(xcoord, ycoord, n);
+		} else {
+			if (floatCoordinates)
+				roi = new PolygonRoi(xfcoord, yfcoord, n, roiType);
+			else
+				roi = new PolygonRoi(xcoord, ycoord, n, roiType);
+		}
 		Roi previousRoi = imp.getRoi();
 		if (shiftKeyDown||altKeyDown) imp.saveRoi();
 		imp.setRoi(roi);
@@ -2036,7 +2073,7 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		Roi roi = imp.getRoi();
 		if (roi!=null) {
-			Rectangle r = roi.getBounds();
+			Rectangle2D.Double r = roi.getFloatBounds();
 			x.setValue(r.x);
 			y.setValue(r.y);
 			width.setValue(r.width);
@@ -2373,7 +2410,8 @@ public class Functions implements MacroConstants, Measurements {
 		if (tok!=WORD) return false;
 		Variable v = interp.lookupVariable(nextToken>>TOK_SHIFT);
 		if (v==null) return false;
-		return v.getType()==Variable.ARRAY;
+		int nextNextToken = pgm.code[interp.pc+2];
+		return v.getType()==Variable.ARRAY && nextNextToken!='[';
 	}
 
 	double setMultipleIndexes(RoiManager rm) {
@@ -3941,9 +3979,9 @@ public class Functions implements MacroConstants, Measurements {
 	double getValue() {
 		String key = getStringArg();
 		if (key.indexOf("foreground")!=-1)
-			return Toolbar.getForegroundColor().getRGB()&0xffffff;
+			return getColorValue(Toolbar.getForegroundColor());
 		else if (key.indexOf("background")!=-1)
-			return Toolbar.getBackgroundColor().getRGB()&0xffffff;
+			return getColorValue(Toolbar.getBackgroundColor());
 		else if (key.equals("font.size")) {
 			resetImage();
 			ImageProcessor ip = getProcessor();
@@ -3958,6 +3996,18 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("Invalid key");
 			return 0.0;
 		}
+	}
+	
+	double getColorValue(Color color) {
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp==null || imp.getBitDepth()==24)
+			return color.getRGB()&0xffffff;
+		ImageProcessor ip = imp.getProcessor();
+		ip.setRoi(0,0,1,1);
+		ip = ip.crop();
+		ip.setColor(color);
+		ip.drawDot(0,0);
+		return ip.getf(0,0);
 	}
 
 	double doStack() {
@@ -4079,6 +4129,8 @@ public class Functions implements MacroConstants, Measurements {
 			active[i] = b;
 		}
 		imp.updateAndDraw();
+		Channels c = (Channels)Channels.getInstance();
+		if (c!=null) c.update();
 	}
 
 	void getActiveChannels(ImagePlus imp) {
@@ -4423,7 +4475,7 @@ public class Functions implements MacroConstants, Measurements {
 			int index = (int)getArg();
 			checkIndex(index, 0, fitter.getNumParams()-1);
 			double[] p = fitter.getParams();
-			return p[index];
+			return index<p.length?p[index]:Double.NaN;
 		} else if (name.equals("rSquared")) {
 			interp.getParens();
 			return fitter.getRSquared();
@@ -4554,13 +4606,98 @@ public class Functions implements MacroConstants, Measurements {
 			return getArrayStatistics();
 		else if (name.equals("fill"))
 			return fillArray();
-		else if (name.equals("invert"))
-			return invertArray();
+		else if (name.equals("reverse")||name.equals("invert"))
+			return reverseArray();
+		else if (name.equals("concat"))
+			return concatArray();
+		else if (name.equals("slice"))
+			return sliceArray();
+		else if (name.equals("print"))
+			return printArray();
 		else
 			interp.error("Unrecognized Array function");
 		return null;
 	}
+	
+	Variable[] printArray() {
+		interp.getLeftParen();
+		Variable[] a = getArray();
+		interp.getRightParen();
+		int len = a.length;
+		StringBuffer sb = new StringBuffer(len);
+		for (int i=0; i<len; i++) {
+			String s = a[i].getString();
+			if (s==null) {
+				double v = a[i].getValue();
+				if ((int)v==v)
+					s = IJ.d2s(v,0);
+				else
+					s = ""+v;
+			}
+			sb.append(s);
+			if (i!=len-1)
+				sb.append(",");
+		}
+		IJ.log(sb.toString());
+		return null;
+	}
 
+	Variable[] concatArray() {
+		interp.getLeftParen();
+		ArrayList list = new ArrayList();
+		int len = 0;
+		do {
+			if (isArrayArg()) {
+				Variable[] a = getArray();
+				for (int i=0; i<a.length; i++) {
+					list.add((Variable)a[i].clone());
+					len++;
+				}
+			} else if (isStringArg()) {
+				Variable v = new Variable();
+				v.setString(getString());
+				list.add(v);
+				len++;
+			} else {
+				Variable v = new Variable();
+				v.setValue(interp.getExpression());
+				list.add(v);
+				len++;
+			}
+			interp.getToken();				
+		} while (interp.token==',');
+		Variable[] a2 = new Variable[len];
+		int index = 0;
+		for (int i=0; i<list.size(); i++) {
+			Variable v = (Variable)list.get(i);
+			a2[index++] = v;
+		}
+		return a2;
+	}
+
+	Variable[] sliceArray() {
+		interp.getLeftParen();
+		Variable[] a = getArray();
+		int len = a.length;
+		int i1 = (int)getNextArg();
+		int i2 = len;
+		if (interp.nextToken()==',') {
+			interp.getComma();
+			i2 = (int)interp.getExpression();
+		}
+		if (i1<0)
+			interp.error("Invalid argument");
+		if (i2>len) i2 = len;
+		int len2 = i2-i1;
+		if (len2<0) len2=0;
+		if (len2>len) len2=len;
+		interp.getRightParen();
+		Variable[] a2 = new Variable[len2];
+		for (int i=0; i<len2; i++)
+			a2[i] = (Variable)a[i1++].clone();
+		return a2;
+	}
+	
 	Variable[] copyArray() {
 		interp.getLeftParen();
 		Variable[] a = getArray();
@@ -4699,7 +4836,7 @@ public class Functions implements MacroConstants, Measurements {
 		return a;
 	}
 	
-	Variable[] invertArray() {
+	Variable[] reverseArray() {
 		interp.getLeftParen();
 		Variable[] a = getArray();
 		interp.getRightParen();
@@ -4733,7 +4870,7 @@ public class Functions implements MacroConstants, Measurements {
 		resetImage();
 	}
 	
-	String ijCall() {
+	private String ijCall() {
 		interp.getToken();
 		if (interp.token!='.')
 			interp.error("'.' expected");
@@ -4758,10 +4895,23 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("redirectErrorMessages"))
 			{interp.getParens(); IJ.redirectErrorMessages(); return null;}
 		else if (name.equals("renameResults"))
-			IJ.renameResults(getStringArg());
+			renameResults();
 		else
 			interp.error("Unrecognized IJ function name");
 		return null;
+	}
+	
+	private void renameResults() {
+		String arg1 = getFirstString();
+		String arg2 = null;
+		if (interp.nextToken()==')')
+			interp.getRightParen();
+		else
+			arg2 = getLastString();
+		if (arg2!=null)
+			IJ.renameResults(arg1, arg2);
+		else
+			IJ.renameResults(arg1);
 	}
 	
 	double overlay() {

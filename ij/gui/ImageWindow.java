@@ -69,7 +69,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
         	else
         		setBackground(Color.white);
         }
-		boolean hyperstack = imp.isHyperStack();
+		boolean openAsHyperStack = imp.getOpenAsHyperStack();
 		ij = IJ.getInstance();
 		this.imp = imp;
 		if (ic==null)
@@ -110,8 +110,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			imp.changes = changes;
 			if (unlocked)
 				imp.unlock();
-			if (hyperstack && this.imp!=null)
-				this.imp.setOpenAsHyperStack(true);
+			if (this.imp!=null)
+				this.imp.setOpenAsHyperStack(openAsHyperStack);
 			WindowManager.setCurrentWindow(this);
 		} else {
 			setLocationAndSize(false);
@@ -530,6 +530,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			IJ.wait(10); // may be needed for Java 1.4 on OS X
 			setMenuBar(Menus.getMenuBar());
 		}
+		if (imp==null) return;
 		imp.setActivated(); // notify ImagePlus that image has been activated
 		if (!closed && !quitting && !Interpreter.isBatchMode())
 			WindowManager.setCurrentWindow(this);
@@ -620,6 +621,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     /** Causes the next image to be displayed at the specified location. */
     public static void setNextLocation(Point loc) {
     	nextLocation = loc;
+    }
+
+    /** Causes the next image to be displayed at the specified location. */
+    public static void setNextLocation(int x, int y) {
+    	nextLocation = new Point(x, y);
     }
 
     /** Moves and resizes this window. Changes the 

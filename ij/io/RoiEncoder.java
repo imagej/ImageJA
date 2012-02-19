@@ -113,6 +113,8 @@ public class RoiEncoder {
 					fp = roi.getFloatPolygon();
 				if (n==fp.npoints) {
 					options |= RoiDecoder.SUB_PIXEL_RESOLUTION;
+					if (roi.getDrawOffset())
+						options |= RoiDecoder.DRAW_OFFSET;
 					xf = fp.xpoints;
 					yf = fp.ypoints;
 					floatSize = n*8;
@@ -163,6 +165,9 @@ public class RoiEncoder {
 				putShort(RoiDecoder.OPTIONS, options);
 				putByte(RoiDecoder.ARROW_STYLE, ((Arrow)roi).getStyle());
 				putByte(RoiDecoder.ARROW_HEAD_SIZE, (int)((Arrow)roi).getHeadSize());
+			} else {
+				if (roi.getDrawOffset())
+					options |= RoiDecoder.SUB_PIXEL_RESOLUTION+RoiDecoder.DRAW_OFFSET;
 			}
 		}
 		
@@ -331,6 +336,10 @@ public class RoiEncoder {
 			putShort(hdr2Offset+RoiDecoder.OVERLAY_FONT_SIZE, font.getSize());
 		if (roiNameSize>0)
 			putName(roi, hdr2Offset);
+		double strokeWidth = roi.getStrokeWidth();
+		if (roi.getStroke()==null)
+			strokeWidth = 0.0;
+		putFloat(hdr2Offset+RoiDecoder.FLOAT_STROKE_WIDTH, (float)strokeWidth);
 	}
 
 	void putName(Roi roi, int hdr2Offset) {

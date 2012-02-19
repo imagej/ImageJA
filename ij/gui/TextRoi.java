@@ -67,7 +67,7 @@ public class TextRoi extends Roi {
 		if (font==null) font = new Font(name, style, size);
 		instanceFont = font;
 		firstChar = false;
-		if (IJ.debugMode) IJ.log("TextRoi: "+theText[0]+"  "+width+","+height);
+		if (IJ.debugMode) IJ.log("TextRoi: "+theText[0]+"  "+getBounds());
 	}
 
 	/** @deprecated */
@@ -96,6 +96,7 @@ public class TextRoi extends Roi {
 		}
 		instanceFont = new Font(name, style, size);
 		justification = globalJustification;
+		setStrokeColor(Toolbar.getForegroundColor());
 	}
 
 	/** This method is used by the text tool to add typed
@@ -406,7 +407,7 @@ public class TextRoi extends Roi {
 		widthd = newWidth;
 		switch (justification) {
 			case LEFT:
-				if (xMax!=0 && x+newWidth>xMax)
+				if (xMax!=0 && x+newWidth>xMax && width!=1)
 					xd = xMax-width;
 				break;
 			case CENTER:
@@ -423,7 +424,9 @@ public class TextRoi extends Roi {
 			if (yd+heightd>yMax)
 				yd = yMax-height;
 		}
-		x=(int)xd; y=(int)yd; width=(int)Math.ceil(widthd); height=(int)Math.ceil(heightd);
+		x=(int)xd; y=(int)yd;
+		width=(int)Math.ceil(widthd);
+		height=(int)Math.ceil(heightd);
 		//IJ.log("adjustSize2: "+theText[0]+"  "+width+","+height);
 	}
 	

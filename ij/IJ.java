@@ -179,8 +179,8 @@ public class IJ {
 		Object thePlugIn = null;
 		try { 
 			thePlugIn = (loader.loadClass(className)).newInstance(); 
- 			if (thePlugIn instanceof PlugIn)
-				((PlugIn)thePlugIn).run(arg);
+			if (thePlugIn instanceof PlugIn)
+ 				((PlugIn)thePlugIn).run(arg);
  			else if (thePlugIn instanceof PlugInFilter)
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
 		}
@@ -449,6 +449,23 @@ public class IJ {
 		}
 	}
 
+	/** Changes the name of a results window from 'oldTitle' to 'newTitle'. */
+	public static void renameResults(String oldTitle, String newTitle) {
+		Frame frame = WindowManager.getFrame(oldTitle);
+		if (frame==null) {
+			error("Rename", "\""+oldTitle+"\" not found");
+			return;
+		} else if (frame instanceof TextWindow) {
+			TextWindow tw = (TextWindow)frame;
+			if (tw.getTextPanel().getResultsTable()==null) {
+				error("Rename", "\""+oldTitle+"\" is not a results table");
+				return;
+			}
+			tw.rename(newTitle);
+		} else
+			error("Rename", "\""+oldTitle+"\" is not a results table");
+	}
+
 	/** Deletes 'row1' through 'row2' of the "Results" window. Arguments
 	     must be in the range 0-Analyzer.getCounter()-1. */
 	public static void deleteRows(int row1, int row2) {
@@ -532,10 +549,15 @@ public class IJ {
 		Writes to the Java console if ImageJ is not present. */
 	public static void showMessage(String title, String msg) {
 		if (ij!=null) {
-			if (msg!=null && msg.startsWith("<html>"))
-				new HTMLDialog(title, msg);
-			else
-				new MessageDialog(ij, title, msg);
+			if (msg!=null && msg.startsWith("<html>")) {
+				HTMLDialog hd = new HTMLDialog(title, msg);
+				if (isMacro() && hd.escapePressed())
+					throw new RuntimeException(Macro.MACRO_CANCELED);
+			} else {
+				MessageDialog md = new MessageDialog(ij, title, msg);
+				if (isMacro() && md.escapePressed())
+					throw new RuntimeException(Macro.MACRO_CANCELED);
+			}
 		} else
 			System.out.println(msg);
 	}
@@ -736,6 +758,27 @@ public class IJ {
 		return df[decimalPlaces].format(n);
 	}
 
+    /** Converts a number to a rounded formatted string.
+    * The 'significantDigits' argument specifies the minimum number
+    * of significant digits, which is also the preferred number of
+    * digits behind the decimal. Fewer decimals are shown if the 
+    * number would have more than 'maxDigits'.
+    * Exponential notation is used if more than 'maxDigits' would be needed.
+    */
+    public static String d2s(double x, int significantDigits, int maxDigits) {
+        double log10 = Math.log10(Math.abs(x));
+        double roundErrorAtMax = 0.223*Math.pow(10, -maxDigits);
+        int magnitude = (int)Math.ceil(log10+roundErrorAtMax);
+        int decimals = x==0 ? 0 : maxDigits - magnitude;
+        if (decimals<0 || magnitude<significantDigits+1-maxDigits)
+            return IJ.d2s(x, -significantDigits); // exp notation for large and small numbers
+        else {
+            if (decimals>significantDigits)
+                decimals = Math.max(significantDigits, decimals-maxDigits+significantDigits);
+            return IJ.d2s(x, decimals);
+        }
+    }
+
 	/** Pad 'n' with leading zeros to the specified number of digits. */
 	public static String pad(int n, int digits) {
 		String str = ""+n;
@@ -899,9 +942,11 @@ public class IJ {
 			return flags;
 		int stackSize = imp.getStackSize();
 		if (stackSize>1) {
-			if (imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE)
-				return flags+PlugInFilter.DOES_STACKS;
 			String macroOptions = Macro.getOptions();
+			if (imp.isComposite() && ((CompositeImage)imp).getMode()==CompositeImage.COMPOSITE) {
+				if (macroOptions==null || !macroOptions.contains("slice"))
+					return flags+PlugInFilter.DOES_STACKS;
+			}
 			if (macroOptions!=null) {
 				if (macroOptions.indexOf("stack ")>=0)
 					return flags+PlugInFilter.DOES_STACKS;
@@ -966,6 +1011,11 @@ public class IJ {
 		getImage().setRoi(new Line(x1, y1, x2, y2));
 	}
 	
+	/** Creates a straight line selection using floating point coordinates. */
+	public static void makeLine(double x1, double y1, double x2, double y2) {
+		getImage().setRoi(new Line(x1, y1, x2, y2));
+	}
+
 	/** Creates a point selection. */
 	public static void makePoint(int x, int y) {
 		ImagePlus img = getImage();
@@ -980,11 +1030,6 @@ public class IJ {
 			IJ.setKeyUp(KeyEvent.VK_ALT);
 		} else
 			img.setRoi(new PointRoi(x, y));
-	}
-
-	/** Creates a straight line selection using double coordinates. */
-	public static void makeLine(double x1, double y1, double x2, double y2) {
-		getImage().setRoi(new Line(x1, y1, x2, y2));
 	}
 
 	/** Sets the display range (minimum and maximum displayed pixel values) of the current image. */
@@ -1143,8 +1188,10 @@ public class IJ {
 		if (imp==null)
 			error("Macro Error", "Image "+id+" not found or no images are open.");
 		if (Interpreter.isBatchMode()) {
-			ImagePlus imp2 = WindowManager.getCurrentImage();
-			if (imp2!=null && imp2!=imp) imp2.saveRoi();
+			ImagePlus impT = WindowManager.getTempCurrentImage();
+			ImagePlus impC = WindowManager.getCurrentImage();
+			if (impC!=null && impC!=imp && impT!=null)
+				impC.saveRoi();
             WindowManager.setTempCurrentImage(imp);
             WindowManager.setWindow(null);
 		} else {

@@ -69,6 +69,17 @@ public class Overlay {
     	return (Roi)list.get(index);
     }
     
+    /** Returns the index of the Roi with the specified name, or -1 if not found. */
+    public int getIndex(String name) {
+    	if (name==null) return -1;
+    	Roi[] rois = toArray();
+		for (int i=rois.length-1; i>=0; i--) {
+			if (name.equals(rois[i].getName()))
+				return i;
+		}
+		return -1;
+    }
+    
     /** Returns the number of Rois in this Overlay. */
     public int size() {
     	return list.size();
@@ -102,6 +113,27 @@ public class Overlay {
 			rois[i].setLocation(r.x+dx, r.y+dy);
 		}
 	}
+
+    /** Returns the bounds of this overlay. */
+    /*
+    public Rectangle getBounds() {
+    	if (size()==0)
+    		return new Rectangle(0,0,0,0);
+    	int xmin = Integer.MAX_VALUE;
+    	int xmax = -Integer.MAX_VALUE;
+    	int ymin = Integer.MAX_VALUE;
+    	int ymax = -Integer.MAX_VALUE;
+		Roi[] rois = toArray();
+		for (int i=0; i<rois.length; i++) {
+			Rectangle r = rois[i].getBounds();
+			if (r.x<xmin) xmin = r.x;
+			if (r.y<ymin) ymin = r.y;
+			if (r.x+r.width>xmax) xmax = r.x+r.width;
+			if (r.y+r.height>ymax) ymax = r.y+r.height;
+		}
+		return new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
+	}
+	*/
 
     /** Draws outlines of the Rois in this Overlay on the specified
     	ImageProcessor using the current color and line width of 'ip'. */

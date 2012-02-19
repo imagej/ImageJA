@@ -1138,8 +1138,13 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			dispose();
 		} else if (source==help) {
 			if (hideCancelButton) {
-				wasOKed = true;
-				dispose();
+				if (helpURL!=null && helpURL.equals("")) {
+            		notifyListeners(e);
+            		return;
+				} else {
+					wasOKed = true;
+					dispose();
+				}
 			}
 			showHelp();
 		} else
@@ -1299,7 +1304,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	void showHelp() {
 		if (helpURL.startsWith("<html>"))
-			new HTMLDialog("", helpURL);
+			new HTMLDialog(this, "", helpURL);
 		else {
 			String macro = "run('URL...', 'url="+helpURL+"');";
 			new MacroRunner(macro);

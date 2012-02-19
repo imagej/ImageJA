@@ -5,24 +5,30 @@
 </head>
 <body>
 
-<li> <u>1.46b 25 November 2011</u>
+<li> <u>1.46g 16 February 2012</u>
 <ul>
-<li> Added the <i>File&gt;Import&gt;XY Coordinates</i> command.
-<li> Added a "List coordinates" checkbox to the
-<i>Edit&gt;Selection&gt;Properties</i> dialog box.
-<li>"Help" buttons in dialog boxes can display HTML formatted messages
-(<a href="macros/examples/DialogWithHelp.txt">example</a>).
-<li> The <i>Edit&gt;Selection&gt;Line to Area</i>
-command now works with one pixel wide straight lines.
-<li> Thanks to Aryeh Weiss, the ROI Manager's "OR (Combine)" 
-command now works with line selections.
-<li> Added the ParticleAnalyzer.setRoiManager() method
-(<a href="macros/js/HiddenRoiManager.js">example</a>).
-<li> To support sub-pixel positioning, added constructors that accept 
-double arguments to the Roi, OvalRoi and TextRoi classes
-(<a href="macros/js/SubPixelSelections.js">example</a>).
-<li> Thanks to José Wojnacki, fixed a bug that could cause a macro to fail if 
-a drawing tool was used during a waitForUser() break.
+<li> The ">>" toolbar menu now also lists
+<a href="http://imagej.nih.gov/ij/plugins/index.html#tools">plugin tools</a>.
+<li> Added "Help" buttons to the <i>Image&gt;Stacks&gt;3D Project</i> 
+and <i>Process&gt;Enhance Contrast</i> dialog boxes.
+<li> Fixed a bug that caused hyperstacks to be converted to interleaved stacks 
+in macros that opened a hyperstack and did a crop or type conversion operation.
+<li> Thanks to Gilles Carpentier, fixed a bug that sometimes caused commands in
+the <i>Image&gt;Lookup Tables</i> submenu to not work as expected with
+single channel composite images.
+<li> Thanks to Michael Cammer, fixed a bug that caused <i>Process&gt;Enhance Contrast</i>
+to not work as expected when the "Equalize histogram", "Process all n slices" and
+"Stack histogram" options were enabled.
+<li> Thanks to Rainer Engel, fixed bug that caused <i>Image&gt;Stacks&gt;Z Project</i> 
+to not correctly perform "Median" and "Standard Deviation" projections of RGB stacks.
+<li> Thanks to Eik Schumann, fixed a bug that caused run("Merge Channels...", "...")
+to not close source images in batch mode macros.
+<li> Thanks to Zeljka Maglica, fixed a bug that caused position-dependent overlays to not
+be saved when using the <i>Image&gt;Overlay&gt;Flatten</i>, <i>File&gt;Save As&gt;AVI</i>
+and <i>Image&gt;Stacks&gt;QuickTime Movie</i> commands.
+<li> Thanks to Fabian Svara, fixed a bug that caused an incomplete ROI to be added to the
+ROI Manager if you pressed "t" (<i>Edit&gt;Selection&gt;Add to Manager</i>) before
+you finished drawing the ROI.
 </ul> 
 
 <a href="http://imagej.nih.gov/ij">Home</a> 

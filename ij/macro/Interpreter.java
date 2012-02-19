@@ -48,6 +48,7 @@ public class Interpreter implements MacroConstants {
 	String argument;
 	String returnValue;
 	boolean calledMacro; // macros envoked by eval() or runMacro()
+	boolean batchMacro; // macros envoked by Process/Batch commands
 	double[] rgbWeights;
 	boolean inPrint;
 	static String additionalFunctions;
@@ -132,6 +133,16 @@ public class Interpreter implements MacroConstants {
 		Recorder.recordInMacros = false;
 	}
 	
+	/** Runs Process/Batch/ macros. */
+	public void runBatchMacro(String macro, ImagePlus imp) {
+		calledMacro = true;
+		batchMacro = true;
+		setBatchMode(true);
+		addBatchModeImage(imp);
+		run(macro);
+		IJ.showStatus("");
+	}
+
 	/** Saves global variables. */
 	public void saveGlobals(Program pgm) {
 		saveGlobals2(pgm);
@@ -1212,17 +1223,22 @@ public class Interpreter implements MacroConstants {
 			// else fall through
 		default:
 			putTokenBack();
-			double value = getStringExpression();
-			if ((int)value==value)
-				str = IJ.d2s(value,0);
-			else {
-				str = ""+value;
-				if (inPrint && value!=Double.POSITIVE_INFINITY && value!=Double.NEGATIVE_INFINITY
-						&& value!=Double.NaN && (str.length()-str.indexOf('.'))>6 && str.indexOf('E')==-1)
-					str = IJ.d2s(value, 4);
-			}
+			str = toString(getStringExpression());
 		}
 		return str;
+	}
+	
+	private String toString(double x) {
+		if ((int)x==x)
+			return IJ.d2s(x,0);
+		else {
+			String str = IJ.d2s(x, 4, 9);
+			while(str.endsWith("0") && str.contains(".") && !str.contains("E"))
+				str = str.substring(0, str.length()-1);
+			if (str.endsWith("."))
+				str = str.substring(0, str.length()-1);
+			return str;
+		}
 	}
 
 	final boolean isStringFunction() {
@@ -1592,7 +1608,7 @@ public class Interpreter implements MacroConstants {
 	void finishUp() {
 		func.updateDisplay();
 		instance = null;
-		if (!calledMacro) {
+		if (!calledMacro || batchMacro) {
 			if (batchMode) showingProgress = true;
 			batchMode = false;
 			imageTable = null;
@@ -1642,7 +1658,7 @@ public class Interpreter implements MacroConstants {
 	
 	/** Aborts this macro. */
 	public void abortMacro() {
-		if (!calledMacro) {
+		if (!calledMacro || batchMacro) {
 			batchMode = false;
 			imageTable = null;
 		}

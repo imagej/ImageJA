@@ -9,6 +9,8 @@ import ij.plugin.frame.Recorder;
 import ij.plugin.frame.Editor; 
 import ij.plugin.MacroInstaller;
 import ij.plugin.RectToolOptions;
+import ij.plugin.tool.PlugInTool;
+import ij.plugin.tool.MacroToolRunner;
 import ij.macro.Program;
 
 /** The ImageJ toolbar. */
@@ -61,10 +63,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private int mpPrevious = RECTANGLE;
 	private String[] names = new String[NUM_TOOLS];
 	private String[] icons = new String[NUM_TOOLS];
+	private PlugInTool[] tools = new PlugInTool[NUM_TOOLS];
     private PopupMenu[] menus = new PopupMenu[NUM_TOOLS];
+    private MacroInstaller macroInstaller;
+    private boolean addingSingleTool;
 	private int pc;
 	private String icon;
-	private MacroInstaller macroInstaller;
 	private int startupTime;
 	private PopupMenu rectPopup, ovalPopup, pointPopup, linePopup, switchPopup;
 	private CheckboxMenuItem rectItem, roundRectItem;
@@ -100,7 +104,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		instance = this;
-		names[NUM_TOOLS-1] = "Switch to alternate macro tool sets";
+		names[NUM_TOOLS-1] = "Switch to other macro toolsets or add a plugin tool";
 		icons[NUM_TOOLS-1] = "C900T1c12>T7c12>"; // ">>"
 		addPopupMenus();
 		if (IJ.isMacOSX() || IJ.isVista()) Prefs.antialiasedTools = true;
@@ -885,7 +889,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				if (name.indexOf("Action Tool")!=-1) {
 					if (e.isPopupTrigger()||e.isMetaDown()) {
 						name = name.endsWith(" ")?name:name+" ";
-						macroInstaller.runMacroTool(name+"Options");
+						tools[newTool].runMacroTool(name+"Options");
 					} else {
 						drawTool(newTool, true);
 						IJ.wait(50);
@@ -895,7 +899,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					return;
 				} else {	
 					name = name.endsWith(" ")?name:name+" ";
-					macroInstaller.runMacroTool(name+"Selected");
+					tools[newTool].runMacroTool(name+"Selected");
 				}
 			}
 			setTool2(newTool);
@@ -933,12 +937,16 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			}
 			if (isMacroTool(current) && isRightClick) {
 				String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
-				macroInstaller.runMacroTool(name+"Options");
+				tools[current].runMacroTool(name+"Options");
 			}
 		} else {
 			if (isMacroTool(current)) {
 				String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
-				macroInstaller.runMacroTool(name+"Options");
+				tools[current].runMacroTool(name+"Options");
+				return;
+			}
+			if (isPlugInTool(current)) {
+				tools[current].showOptionsDialog();
 				return;
 			}
 			ImagePlus imp = WindowManager.getCurrentImage();
@@ -1025,13 +1033,50 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
                 addItem(name);
 			}
 		}
+		addPluginTools();
 		addItem("Help...");
 		add(ovalPopup);
 		if (IJ.isMacOSX()) IJ.wait(10);
 		switchPopup.show(e.getComponent(), e.getX(), e.getY());
 	}
-    
-    void addItem(String name) {
+
+	private void addPluginTools() {
+		switchPopup.addSeparator();
+		addItem("Overlay Brush Tool*");
+		addItem("Pixel Inspection Tool*");
+		MenuBar menuBar = Menus.getMenuBar();
+		if (menuBar==null)
+			return;
+		int n = menuBar.getMenuCount();
+		Menu pluginsMenu = null;
+		if (menuBar.getMenuCount()>=5)
+			pluginsMenu = menuBar.getMenu(5);
+		if (pluginsMenu==null || !"Plugins".equals(pluginsMenu.getLabel()))
+			return;
+		n = pluginsMenu.getItemCount();
+		Menu toolsMenu = null;
+		for (int i=0; i<n; ++i) {
+			MenuItem m = pluginsMenu.getItem(i);
+			if ("Tools".equals(m.getLabel()) && (m instanceof Menu)) {
+				toolsMenu = (Menu)m;
+				break;
+			}
+		}
+		if (toolsMenu==null) {
+			switchPopup.addSeparator();
+			return;
+		}
+		n = toolsMenu.getItemCount();
+		for (int i=0; i<n; ++i) {
+			MenuItem m = toolsMenu.getItem(i);
+			String label = m.getLabel();
+			if (label!=null && label.endsWith(" Tool"))
+				addItem(label);
+		}
+		switchPopup.addSeparator();
+	}
+
+    private void addItem(String name) {
 		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
 		item.addItemListener(this);
 		switchPopup.add(item);
@@ -1058,9 +1103,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	boolean isMacroTool(int tool) {
-		return tool>=SPARE1 && tool<=SPARE9 && names[tool]!=null && macroInstaller!=null;
+		return tool>=SPARE1 && tool<=SPARE9 && names[tool]!=null && tools[tool] instanceof MacroToolRunner;
 	}
 	
+	boolean isPlugInTool(int tool) {
+		return tool>=SPARE1 && tool<=SPARE9 && tools[tool]!=null;
+	}
+
 	public void mouseReleased(MouseEvent e) {}
 	public void mouseExited(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
@@ -1118,21 +1167,41 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			showMessage(LINE);
 		} else {
 			String label = item.getActionCommand();
-			if (!label.equals("Help...")) currentSet = label;
+			boolean pluginTool = label.endsWith(" Tool") || label.endsWith(" Tool*");
+			if (!label.equals("Help...") && !pluginTool)
+				currentSet = label;
+			if (pluginTool) {
+				if (label.endsWith("*")) {
+					PlugInTool tool = null;
+					if (label.equals("Overlay Brush Tool*"))
+						tool = new ij.plugin.tool.OverlayBrushTool();
+					else if (label.equals("Pixel Inspection Tool*"))
+						tool = new ij.plugin.tool.PixelInspectionTool();
+					if (tool!=null)
+						tool.run("");
+				} else
+					IJ.run(label);
+				return;
+			}
 			String path;
 			if (label.equals("Help...")) {
-				IJ.showMessage("Tool Switcher",
-					"Use this drop down menu to switch to macro tool\n"+
-					"sets located in the ImageJ/macros/toolsets folder,\n"+
-					"or to revert to the ImageJ/macros/StartupMacros\n"+
-					"set. The default tool sets, which have names\n"+
-					"ending in '*', are loaded from ij.jar.\n"+
+				IJ.showMessage("Tool Switcher and Loader",
+					"Use this drop down menu to switch to alternative\n"+
+					"macro toolsets or to load additional plugin tools.\n"+
+					"The toolsets listed in the menu are located\n"+
+					"in the ImageJ/macros/toolsets folder and the\n"+
+					"plugin tools are the ones installed in the\n"+
+					"Plugins>Tools submenu.\n"+
 					" \n"+
-					"Hold the shift key down while selecting a tool\n"+
-					"set to view its source code.\n"+
+					"Hold the shift key down while selecting a\n"+
+					"toolset to view its source code.\n"+
 					" \n"+
-					"Several example tool sets are available at\n"+
-					"<"+IJ.URL+"/macros/toolsets/>."
+					"More macro toolsets are available at\n"+
+					"  <"+IJ.URL+"/macros/toolsets/>\n"+
+					" \n"+
+					"Plugin tools can be downloaded from\n"+
+					"the Tools section of the Plugins page at\n"+
+					"  <"+IJ.URL+"/plugins/>\n"
 					);
 				return;
 			} else if (label.endsWith("*")) {
@@ -1180,8 +1249,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			}
 		}
 		if (tool==-1) return;
-		if (macroInstaller!=null)
-			macroInstaller.runMenuTool(names[tool], cmd);
+		if (tools[tool]!=null)
+			tools[tool].runMenuTool(names[tool], cmd);
     }
 
 	public Dimension getPreferredSize(){
@@ -1210,13 +1279,18 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			tool = SPARE1;
 		if (tool==-1) {
 			for (int i=SPARE2; i<=SPARE8; i++) {
-				if (names[i]==null) {
+				if (names[i]==null || toolTip.startsWith(names[i])) {
 					tool = i;
 					break;
 				}			
 			}
 		}
-		if (tool==-1) return -1;
+		if (tool==-1) {
+			if (addingSingleTool)
+				tool = SPARE8;
+			else
+				return -1;
+		}
 		if (hasIcon) {
 			icons[tool] = toolTip.substring(index+1);
 			if (index>0 && toolTip.charAt(index-1)==' ')
@@ -1262,22 +1336,78 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
         if (tool==current) setTool(RECTANGLE);
     }
     
-	/** Used by the MacroInstaller class to install macro tools. */
+	/** Used by the MacroInstaller class to install a set of macro tools. */
 	public void addMacroTool(String name, MacroInstaller macroInstaller, int id) {
-	    if (id==0) {
-			for (int i=SPARE1; i<NUM_TOOLS-1; i++) {
-				names[i] = null;
-				icons[i] = null;
-				if (menus[i]!=null) menus[i].removeAll();
-			}
-	    }
+		if (id==0)
+			resetTools();
 		this.macroInstaller = macroInstaller;
-        addTool(name);
+		int tool = addTool(name);
+		this.macroInstaller = null;
+		if (tool!=-1)
+			tools[tool] = new MacroToolRunner(macroInstaller);
 	}
-			
+	
+	private void resetTools() {
+		for (int i=SPARE1; i<NUM_TOOLS-1; i++) {
+			names[i] = null;
+			tools[i] = null;
+			icons[i] = null;
+			if (menus[i]!=null)
+				menus[i].removeAll();
+		}
+	}
+
+	
+	/** Used by the MacroInstaller class to add a macro tool to the first
+		available toolbar slot, or to the last slot if the toolbar is full. */
+	public void addMacroTool(String name, MacroInstaller macroInstaller) {
+		this.macroInstaller = macroInstaller;
+		addingSingleTool = true;
+		int tool = addTool(name);
+		addingSingleTool = false;
+		this.macroInstaller = null;
+		if (tool!=-1) {
+			tools[tool] = new MacroToolRunner(macroInstaller);
+			if (menus[tool]!=null && !name.endsWith(" Menu Tool"))
+				menus[tool].removeAll();
+		}
+	}
+
+	public static void removeMacroTools() {
+		if (instance!=null) {
+			instance.resetTools();
+			instance.repaint();
+		}
+	}
+
+	/** Adds a plugin tool to the first available toolbar slot,
+		or to the last slot if the toolbar is full. */
+	public static void addPlugInTool(PlugInTool tool) {
+		if (instance==null) return;
+		String nameAndIcon = tool.getToolName()+" - "+tool.getToolIcon();
+		instance.addingSingleTool = true;
+		int id = instance.addTool(nameAndIcon);
+		instance.addingSingleTool = false;
+		if (id!=-1) {
+			instance.tools[id] = tool;
+			if (instance.menus[id]!=null)
+				instance.menus[id].removeAll();
+			instance.repaint();	
+			instance.setTool(id);
+		}
+	}
+
+	public static PlugInTool getPlugInTool() {
+		if (instance==null) return null;
+		PlugInTool tool = instance.tools[current];
+		if (tool!=null && tool instanceof MacroToolRunner)
+			tool = null;
+		return tool;
+	}
+
 	void runMacroTool(int id) {
-		if (macroInstaller!=null)
-			macroInstaller.runMacroTool(names[id]);
+		if (tools[id]!=null)
+			tools[id].runMacroTool(names[id]);
 	}
 	
 	void showBrushDialog() {

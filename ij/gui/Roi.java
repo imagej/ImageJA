@@ -9,6 +9,7 @@ import ij.process.*;
 import ij.measure.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.filter.Analyzer;
+import ij.plugin.RectToolOptions;
 import ij.macro.Interpreter;
 import ij.io.RoiDecoder;
 
@@ -24,6 +25,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
 	int startX, startY, x, y, width, height;
+	Rectangle2D.Double bounds;
 	double xd, yd, widthd, heightd;
 	int activeHandle;
 	int state;
@@ -141,17 +143,13 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		height = 0;
 		state = CONSTRUCTING;
 		type = RECTANGLE;
-		if (isDrawingTool()) {
-			setStrokeColor(Toolbar.getForegroundColor());
-			if (!(this instanceof TextRoi)) {
-				double mag = imp!=null&&imp.getCanvas()!=null?imp.getCanvas().getMagnification():1.0; 
-				if (mag>1.0) mag = 1.0;
-				if (Line.getWidth()==1 && !Line.widthChanged)
-					Line.setWidth((int)(2.0/mag));
-				if (mag<1.0 && Line.getWidth()*mag<1.0)
-						Line.setWidth((int)(1.0/mag));
-				setStrokeWidth(Line.getWidth());
-			}
+		if (cornerDiameter>0) {
+			double swidth = RectToolOptions.getDefaultStrokeWidth();
+			if (swidth>0.0)
+				setStrokeWidth(swidth);
+			Color scolor = RectToolOptions.getDefaultStrokeColor();
+			if (scolor!=null)
+				setStrokeColor(scolor);
 		}
 		fillColor = defaultFillColor;
 	}
@@ -328,6 +326,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return new Rectangle(x, y, width, height);
 	}
 	
+	/** Return this selection's bounding rectangle. */
+	public Rectangle2D.Double getFloatBounds() {
+		if (bounds!=null)
+			return new Rectangle2D.Double(bounds.x, bounds.y, bounds.width, bounds.height);
+		else
+			return new Rectangle2D.Double(x, y, width, height);
+	}
+
 	/**
 	* @deprecated
 	* replaced by getBounds()
@@ -681,6 +687,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		oldHeight=height;
 		if (isImageRoi) showStatus();
 		xd=x; yd=y;
+		bounds = null;
 	}
 
 	/** Nudge ROI one pixel on arrow key press. */
@@ -711,6 +718,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		imp.draw(clipX, clipY, clipWidth, clipHeight);
 		oldX = x; oldY = y;
 		xd=x; yd=y;
+		bounds = null;
 		showStatus();
 	}
 	
@@ -1140,6 +1148,11 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 
 	/** Returns the angle in degrees between the specified line and a horizontal line. */
 	public double getAngle(int x1, int y1, int x2, int y2) {
+		return getFloatAngle(x1, y1, x2, y2);
+	}
+	
+	/** Returns the angle in degrees between the specified line and a horizontal line. */
+	public double getFloatAngle(double x1, double y1, double x2, double y2) {
 		double dx = x2-x1;
 		double dy = y1-y2;
 		if (imp!=null && !IJ.altKeyDown()) {
@@ -1149,7 +1162,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 		return (180.0/Math.PI)*Math.atan2(dy, dx);
 	}
-	
+
 	/** Sets the default (global) color used for ROI outlines.
 	 * @see #getColor()
 	 * @see #setStrokeColor(Color)
@@ -1436,9 +1449,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
     }
     
 	/** Returns 'true' if this is an ROI primarily used from drawing
-		(e.g., Rounded Rectangle, TextRoi or Arrow). */
+		(e.g., TextRoi or Arrow). */
     public boolean isDrawingTool() {
-        return cornerDiameter>0;
+        //return cornerDiameter>0;
+        return false;
     }
     
     protected double getMagnification() {
@@ -1472,6 +1486,16 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	/** Returns true if this is a PolygonRoi that supports sub-pixel resolution. */
 	public boolean subPixelResolution() {
 		return subPixel;
+	}
+
+	/** Returns true if this is a PolygonRoi that supports sub-pixel 
+		resolution and polygons are drawn on zoomed images offset
+		down and to the right by 0.5 pixels.. */
+	public boolean getDrawOffset() {
+		return false;
+	}
+	
+	public void setDrawOffset(boolean drawOffset) {
 	}
 
     /** Checks whether two rectangles are equal. */
