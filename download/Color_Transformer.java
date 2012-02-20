@@ -536,7 +536,7 @@ public class Color_Transformer implements PlugInFilter{
             c3[q] =  (rf[q] + gf[q] + bf[q])/3f;         
 
             if ( del_Max == 0f ){                //This is a gray, no chroma...
-                c1[q] =  0f;                   //HSL results = 0 ÷ 1
+                c1[q] =  0f;                   //HSL results = 0 ï¿½ 1
                 c2[q] =  0f;           
             }
             else{                               //Chromatic data...                                   
@@ -547,8 +547,8 @@ public class Color_Transformer implements PlugInFilter{
                float del_B = ( ( ( var_Max - bf[q] ) / 6f ) + ( del_Max / 2f ) ) / del_Max;
 
                if      ( rf[q] == var_Max ) c1[q] = del_B - del_G;
-               else if ( gf[q] == var_Max ) c1[q] = ( 1 / 3 ) + del_R - del_B;
-               else if ( bf[q] == var_Max ) c1[q] = ( 2 / 3 ) + del_G - del_R;
+               else if ( gf[q] == var_Max ) c1[q] = ( 1f / 3f ) + del_R - del_B;
+               else if ( bf[q] == var_Max ) c1[q] = ( 2f / 3f ) + del_G - del_R;
 
                if ( c1[q] < 0 )  c1[q] += 1;
                if ( c1[q] > 1 )  c1[q] -= 1;     
@@ -569,7 +569,7 @@ public class Color_Transformer implements PlugInFilter{
             L =  (var_Max + var_Min)/2;         
 
             if ( del_Max == 0f){                //This is a gray, no chroma...
-                H =  0f;                   //HSL results = 0 ÷ 1
+                H =  0f;                   //HSL results = 0 ï¿½ 1
                 S =  0f;           
             }
             else{                               //Chromatic data...                                              
@@ -605,7 +605,7 @@ public class Color_Transformer implements PlugInFilter{
 
             V =  var_Max*1f;
             if ( del_Max == 0 ){                    //This is a gray, no chroma...      
-                H =  0f;                        //HSV results = 0 ÷ 1
+                H =  0f;                        //HSV results = 0 ï¿½ 1
                 S =  0f;           
             }
             else{                                   //Chromatic data...                                   
@@ -683,7 +683,7 @@ public class Color_Transformer implements PlugInFilter{
             C = new Double(Math.sqrt((u*u)+(v*v))).floatValue();
 
             if ( u == 0 ){                //This is a gray, no chroma...
-                H =  0f;                   //LCH results = 0 ÷ 1
+                H =  0f;                   //LCH results = 0 ï¿½ 1
             }
             else{
               if (u>=0f && v>=0f) H = new Double(Math.atan(v/u)).floatValue();
@@ -752,7 +752,7 @@ public class Color_Transformer implements PlugInFilter{
             S = (new Double(13*Math.sqrt(((u-up)*(u-up))+((v-vp)*(v-vp))))).floatValue();
 
             if ( u == 0 ){                //This is a gray, no chroma...
-                H =  0f;                   //LCH results = 0 ÷ 1
+                H =  0f;                   //LCH results = 0 ï¿½ 1
             }
             else{
               if (u>=0f && v>=0f) H = new Double(Math.atan(v/u)).floatValue();
@@ -814,7 +814,7 @@ public class Color_Transformer implements PlugInFilter{
             C = new Double(Math.sqrt((a*a)+(b*b))).floatValue();
 
             if ( a == 0f ){                //This is a gray, no chroma...
-                H =  0f;                   //LCH results = 0 ÷ 1
+                H =  0f;                   //LCH results = 0 ï¿½ 1
             }
             else{
               if (a>=0f && b>=0f) H = new Double(Math.atan(b/a)).floatValue();
