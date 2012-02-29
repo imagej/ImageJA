@@ -80,4 +80,5 @@ do
 		;;
 	esac
 done
+mvn deploy || exit
 mv $TIMESTAMP.new $TIMESTAMP
