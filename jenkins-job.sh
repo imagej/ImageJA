@@ -11,14 +11,6 @@ test -z "$HUDSON_URL" && {
 
 URL=http://imagej.nih.gov/ij
 
-TIMESTAMP=.git/ij.timestamp
-curl --silent --head $URL/notes.html |
-grep -i "^Last-Modified:" > $TIMESTAMP.new
-test -s $TIMESTAMP.new &&
-test -f $TIMESTAMP &&
-test "$(cat $TIMESTAMP.new)" = "$(cat $TIMESTAMP)" &&
-exit 0
-
 SRC_URL=$URL/download/src
 NOTES_URL=$URL/notes.html
 VERSION="$(curl $SRC_URL/ | \
@@ -81,4 +73,3 @@ do
 	esac
 done
 mvn deploy || exit
-mv $TIMESTAMP.new $TIMESTAMP
