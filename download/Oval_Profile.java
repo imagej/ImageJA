@@ -181,7 +181,7 @@ class OvalProfilePlot {
 	}
 
 	double[] getOvalProfile(Roi roi, ImageProcessor ip) {
-		Rectangle b = roi.getBoundingRect();
+		Rectangle b = roi.getBounds();
 		double width = b.width;
 		double height = b.height;
                 double w2 = width*width / 4.0;
@@ -203,7 +203,7 @@ class OvalProfilePlot {
                 {
                   e = new EllipsePoint(b, TESTRADII, 0);
                   manyRadii = getCircumference(e);
-                  IJ.write("circumference=" + manyRadii[TESTRADII]);
+                  IJ.log("circumference=" + manyRadii[TESTRADII]);
                   circumInc = manyRadii[TESTRADII] / npoints;
                 }
 		int i = 0;
@@ -333,11 +333,10 @@ class OvalProfilePlot {
           String xLabel = "";
           if(mode == 3) xLabel = "Circumference";
           else xLabel = "Degrees";
-          PlotWindow plot = new PlotWindow(modes[mode], xLabel, "Gray Value",
-                            xValues, profile);
+          Plot plot = new Plot(modes[mode], xLabel, "Gray Value", xValues, profile);
           plot.setLimits(getMin(xValues), getMax(xValues), getMin(profile), getMax(profile));
           plot.setColor(Color.black);
-          plot.draw();
+          plot.show();
         }
 
         double getMax(double[] v)
