@@ -308,6 +308,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				xOffset = x+2; yOffset = y+2;
 				dot(4,0);  m(2,0); d(3,1); d(4,2);  m(0,0); d(1,1);
 				m(0,2); d(1,3); d(2,4);  dot(0,4); m(3,3); d(12,12);
+				g.setColor(Roi.getColor());
+				m(1,2); d(3,2); m(2,1); d(2,3);
 				return;
 			case TEXT:
 				xOffset = x+2; yOffset = y+1;
@@ -997,9 +999,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	
 	void showSwitchPopupMenu(MouseEvent e) {
 		String path = IJ.getDirectory("macros")+"toolsets/";
-		if (path==null) {
+		if (path==null)
 			return;
-		}
 		boolean applet = IJ.getApplet()!=null;
 		File f = new File(path);
 		String[] list;
@@ -1025,6 +1026,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (!stackTools) addItem("Stack Tools*");
  		for (int i=0; i<list.length; i++) {
 			String name = list[i];
+			if (name.startsWith(".") || name.endsWith(" Tool"))
+				continue;
 			if (name.endsWith(".txt")) {
 				name = name.substring(0, name.length()-4);
                 addItem(name);
@@ -1034,6 +1037,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			}
 		}
 		addPluginTools();
+		addItem("Remove Tools");
 		addItem("Help...");
 		add(ovalPopup);
 		if (IJ.isMacOSX()) IJ.wait(10);
@@ -1042,8 +1046,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 
 	private void addPluginTools() {
 		switchPopup.addSeparator();
-		addItem("Overlay Brush Tool*");
-		addItem("Pixel Inspection Tool*");
+		addBuiltInTool("Arrow");
+		addBuiltInTool("Overlay Brush");
+		addBuiltInTool("Pixel Inspector");
+		addBuiltInTool("Spray Can");
+		addBuiltInTool("Commands Menu");
+		addBuiltInTool("LUT Menu");
 		MenuBar menuBar = Menus.getMenuBar();
 		if (menuBar==null)
 			return;
@@ -1067,14 +1075,34 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			return;
 		}
 		n = toolsMenu.getItemCount();
+		boolean separatorAdded = false;
 		for (int i=0; i<n; ++i) {
 			MenuItem m = toolsMenu.getItem(i);
 			String label = m.getLabel();
-			if (label!=null && label.endsWith(" Tool"))
-				addItem(label);
+			if (label!=null && label.endsWith(" Tool")) {
+				if (!separatorAdded) {
+					switchPopup.addSeparator();
+					separatorAdded = true;
+				}
+				addPluginTool(label);
+			}
 		}
 		switchPopup.addSeparator();
 	}
+
+    private void addBuiltInTool(String name) {
+		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
+		item.addItemListener(this);
+		item.setActionCommand("Tool");
+		switchPopup.add(item);
+    }
+
+    private void addPluginTool(String name) {
+		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
+		item.addItemListener(this);
+		item.setActionCommand("Plugin Tool");
+		switchPopup.add(item);
+    }
 
     private void addItem(String name) {
 		CheckboxMenuItem item = new CheckboxMenuItem(name, name.equals(currentSet));
@@ -1166,25 +1194,40 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			setTool2(LINE);
 			showMessage(LINE);
 		} else {
-			String label = item.getActionCommand();
-			boolean pluginTool = label.endsWith(" Tool") || label.endsWith(" Tool*");
-			if (!label.equals("Help...") && !pluginTool)
+			String label = item.getLabel();
+			String cmd = item.getActionCommand();
+			boolean isTool = cmd.equals("Tool") || cmd.equals("Plugin Tool");
+			if (!(label.equals("Help...")||label.equals("Remove Tools")) && !isTool)
 				currentSet = label;
-			if (pluginTool) {
-				if (label.endsWith("*")) {
+			if (isTool) {
+				if (cmd.equals("Tool")) { // built in tool
 					PlugInTool tool = null;
-					if (label.equals("Overlay Brush Tool*"))
+					if (label.equals("Arrow")) {
+						tool = new ij.plugin.tool.ArrowTool();
+						if (tool!=null) tool.run("");
+					} else if (label.equals("Overlay Brush")) {
 						tool = new ij.plugin.tool.OverlayBrushTool();
-					else if (label.equals("Pixel Inspection Tool*"))
+						if (tool!=null) tool.run("");
+					} else if (label.equals("Pixel Inspector")) {
 						tool = new ij.plugin.tool.PixelInspectionTool();
-					if (tool!=null)
-						tool.run("");
-				} else
+						if (tool!=null) tool.run("");
+					} else if (label.equals("Spray Can")) {
+						(new MacroInstaller()).installFromIJJar("/macros/SprayCanTool.txt");
+					} else if (label.equals("Commands Menu")) {
+						(new MacroInstaller()).installFromIJJar("/macros/CCMenuTool.txt");
+					} else if (label.equals("LUT Menu")) {
+						(new MacroInstaller()).installFromIJJar("/macros/LUTMenuTool.txt");
+					}
+				} else  // plugin or macro tool in ImageJ/plugins/Tools
 					IJ.run(label);
 				return;
 			}
 			String path;
-			if (label.equals("Help...")) {
+			if (label.equals("Remove Tools")) {
+				removeMacroTools();
+				setTool(RECTANGLE);
+				currentSet = "Startup Macros";
+			} else if (label.equals("Help...")) {
 				IJ.showMessage("Tool Switcher and Loader",
 					"Use this drop down menu to switch to alternative\n"+
 					"macro toolsets or to load additional plugin tools.\n"+
@@ -1356,7 +1399,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				menus[i].removeAll();
 		}
 	}
-
 	
 	/** Used by the MacroInstaller class to add a macro tool to the first
 		available toolbar slot, or to the last slot if the toolbar is full. */
@@ -1368,8 +1410,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		this.macroInstaller = null;
 		if (tool!=-1) {
 			tools[tool] = new MacroToolRunner(macroInstaller);
-			if (menus[tool]!=null && !name.endsWith(" Menu Tool"))
-				menus[tool].removeAll();
+			if (!name.contains(" Menu Tool")) {
+				if (menus[tool]!=null)
+					menus[tool].removeAll();
+				setTool(tool);
+			}
 		}
 	}
 

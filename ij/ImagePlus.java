@@ -53,7 +53,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	protected ImageProcessor ip;
 	protected ImageWindow win;
 	protected Roi roi;
-	protected int currentSlice;
+	protected int currentSlice; // current stack index (one-based)
 	protected static final int OPENED=0, CLOSED=1, UPDATED=2;
 	protected boolean compositeImage;
 	protected int width;
@@ -134,6 +134,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
      		properties = imp.getProperties();
      		setFileInfo(imp.getOriginalFileInfo());
      		setDimensions(imp.getNChannels(), imp.getNSlices(), imp.getNFrames());
+     		setOverlay(imp.getOverlay());
    			if (isURL)
    				this.url = pathOrURL;
    			ID = --currentID;
@@ -601,6 +602,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		else {
 			if (win!=null && win instanceof StackWindow)
 				((StackWindow)win).updateSliceSelector();
+			if (isComposite()) {
+				((CompositeImage)this).reset();
+				updateAndDraw();
+			}
 			repaintWindow();
 		}
 		if (resetCurrentSlice) setSlice(currentSlice);
@@ -609,11 +614,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public void setStack(ImageStack stack, int nChannels, int nSlices, int nFrames) {
 		if (nChannels*nSlices*nFrames!=stack.getSize())
 			throw new IllegalArgumentException("channels*slices*frames!=stackSize");
+		int channelsBefore = this.nChannels;
 		this.nChannels = nChannels;
 		this.nSlices = nSlices;
 		this.nFrames = nFrames;
 		setStack(null, stack);
-		if (isComposite())
+		if (channelsBefore!=nChannels && isComposite())
 			((CompositeImage)this).setChannelsUpdated();
 	}
 
@@ -1177,7 +1183,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 	}
 
-	/** Returns the current stack slice number or 1 if
+	/** Returns the current stack index (one-based) or 1 if
 		this is a single image. */
 	public int getCurrentSlice() {
 		if (currentSlice<1) setCurrentSlice(1);
@@ -1365,12 +1371,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public void setRoi(Roi newRoi, boolean updateDisplay) {
 		if (newRoi==null)
 			{killRoi(); return;}
+		Rectangle bounds = newRoi.getBounds();
 		if (newRoi.isVisible()) {
+			if ((newRoi instanceof Arrow) && newRoi.getState()==Roi.CONSTRUCTING && bounds.width==0 && bounds.height==0) {
+				killRoi();
+				roi = newRoi;
+				return;
+			}
 			newRoi = (Roi)newRoi.clone();
 			if (newRoi==null)
 				{killRoi(); return;}
 		}
-		Rectangle bounds = newRoi.getBounds();
 		if (bounds.width==0 && bounds.height==0 && !(newRoi.getType()==Roi.POINT||newRoi.getType()==Roi.LINE))
 			{killRoi(); return;}
 		roi = newRoi;
@@ -1697,6 +1708,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				for (int i=0; i<arrays.length; i++)
 					arrays[i] = null;
 			}
+			if (isComposite())
+				((CompositeImage)this).setChannelsUpdated(); //flush
 		}
 		stack = null;
 		img = null;

@@ -5,30 +5,17 @@
 </head>
 <body>
 
-<li> <u>1.46g 16 February 2012</u>
+<li> <u>1.46i 2 March 2012</u>
 <ul>
-<li> The ">>" toolbar menu now also lists
-<a href="http://imagej.nih.gov/ij/plugins/index.html#tools">plugin tools</a>.
-<li> Added "Help" buttons to the <i>Image&gt;Stacks&gt;3D Project</i> 
-and <i>Process&gt;Enhance Contrast</i> dialog boxes.
-<li> Fixed a bug that caused hyperstacks to be converted to interleaved stacks 
-in macros that opened a hyperstack and did a crop or type conversion operation.
-<li> Thanks to Gilles Carpentier, fixed a bug that sometimes caused commands in
-the <i>Image&gt;Lookup Tables</i> submenu to not work as expected with
-single channel composite images.
-<li> Thanks to Michael Cammer, fixed a bug that caused <i>Process&gt;Enhance Contrast</i>
-to not work as expected when the "Equalize histogram", "Process all n slices" and
-"Stack histogram" options were enabled.
-<li> Thanks to Rainer Engel, fixed bug that caused <i>Image&gt;Stacks&gt;Z Project</i> 
-to not correctly perform "Median" and "Standard Deviation" projections of RGB stacks.
-<li> Thanks to Eik Schumann, fixed a bug that caused run("Merge Channels...", "...")
-to not close source images in batch mode macros.
-<li> Thanks to Zeljka Maglica, fixed a bug that caused position-dependent overlays to not
-be saved when using the <i>Image&gt;Overlay&gt;Flatten</i>, <i>File&gt;Save As&gt;AVI</i>
-and <i>Image&gt;Stacks&gt;QuickTime Movie</i> commands.
-<li> Thanks to Fabian Svara, fixed a bug that caused an incomplete ROI to be added to the
-ROI Manager if you pressed "t" (<i>Edit&gt;Selection&gt;Add to Manager</i>) before
-you finished drawing the ROI.
+<li> Add the CC (Command Commands) menu tool and the "Remove Tool" 
+command to the toolbar's <i>&gt;&gt;</i> menu;
+<li> The <i>Image&gt;Stacks&gt;Add Slice</i> command works with hyperstacks.
+<li> The Fly Brain sample stack opens with the middle slice instead of the first.
+<li> Thanks to Jan Eglinger, fixed a bug that caused <i>Image&gt;Transform&gt;Rotate Right</i>
+and <i>Image&gt;Transform&gt;Rotate Left</i> to not work with square composite color images.
+<li> Thanks to Gilles Carpentier, fixed a bug that sometimes caused
+<i>Image&gt;Stacks&gt;Z Project</i> to not work with 3D composite color images.
+<li> Fixed a bug that caused overlays to not lost when opening TIFF files using a URL.
 </ul> 
 
 <a href="http://imagej.nih.gov/ij">Home</a> 
