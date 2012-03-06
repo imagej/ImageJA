@@ -9,10 +9,10 @@ import java.lang.Math.*;
 import java.awt.image.*;
 import ij.plugin.filter.Analyzer;
 
-// FRETcalc_ plugin version 4.0
+// FRETcalc_ plugin version 5.0
 // for analysis of FRET by acceptor photobleaching using ImageJ program
 // is suitable for analysis of non-continuos compartments
-// written by David Stepensky (david.stepensky@yale.edu)
+// written by David Stepensky (davidst@bgu.ac.il)
 // September 18, 2010
 
 public class FRETcalc_ extends Dialog
@@ -58,7 +58,7 @@ implements ActionListener, WindowListener, Runnable {
 
 	public FRETcalc_ () {
 		
-		super(new Frame(), "FRETcalc v4.0");
+		super(new Frame(), "FRETcalc v5.0");
 		if (IJ.versionLessThan("1.21a"))
 			return;
 
@@ -647,9 +647,9 @@ FRET_DonAcc_PW.draw();
 		}
 		else if (e.getSource() == bnHelp) {
 			IJ.showMessage("Help",
-			"FRETcalc plugin version 4.0\n"+
+			"FRETcalc plugin version 5.0\n"+
 			"for analysis of FRET images obtained by acceptor photobleaching using ImageJ program\n"+
-			"written by David Stepensky (david.stepensky@yale.edu) September 18, 2010\n"+
+			"written by David Stepensky (davidst@bgu.ac.il) September 18, 2010\n"+
 			" \n"+
  			"File (8-bit) is required with 4 slices corresponding to Donor & Acceptor pre & post-bleaching images\n"+
  			"Supports all types of regions of interest (polygonal, rectangular, elliptical, and freehand ROIs)\n"+
@@ -691,5 +691,9 @@ FRET_DonAcc_PW.draw();
 
 	public void windowOpened(WindowEvent e){
 	}
+
+public static void main(String[] arguments) {
+new FRETCalc_();
+}
 }
 
