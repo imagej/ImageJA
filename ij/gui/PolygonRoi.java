@@ -440,8 +440,6 @@ public class PolygonRoi extends Roi {
 		imp.draw(xmin-margin, ymin-margin, (xmax-xmin)+margin*2, (ymax-ymin)+margin*2);
 	}
 	
-	static int counter = 0;
-
     void finishPolygon() {
     	if (xpf!=null) {
 			FloatPolygon poly = new FloatPolygon(xpf, ypf, nPoints);
@@ -1364,6 +1362,23 @@ public class PolygonRoi extends Roi {
 			p1 = p2;
 		} while (p1!=pstart);
 		return new Polygon(xx, yy, n2);
+	}
+	
+	public FloatPolygon getInterpolatedPolygon(double interval) {
+		FloatPolygon p = getFloatPolygon();
+		if (type==TRACED_ROI || type==FREEROI || type==FREELINE) {
+			for (int i=1; i<p.npoints-2; i++) {
+				p.xpoints[i] = (p.xpoints[i-1]+p.xpoints[i]+p.xpoints[i+1])/3f;
+				p.ypoints[i] = (p.ypoints[i-1]+p.ypoints[i]+p.ypoints[i+1])/3f;
+			}
+			if (type!=FREELINE) {
+				p.xpoints[0] = (p.xpoints[p.npoints-1]+p.xpoints[0]+p.xpoints[1])/3f;
+				p.ypoints[0] = (p.ypoints[p.npoints-1]+p.ypoints[0]+p.ypoints[1])/3f;
+				p.xpoints[p.npoints-1] = (p.xpoints[p.npoints-2]+p.xpoints[p.npoints-1]+p.xpoints[0])/3f;
+				p.ypoints[p.npoints-1] = (p.ypoints[p.npoints-2]+p.ypoints[p.npoints-1]+p.ypoints[0])/3f;
+			}
+		}
+		return super.getInterpolatedPolygon(p, interval);
 	}
 
 	protected int clipRectMargin() {

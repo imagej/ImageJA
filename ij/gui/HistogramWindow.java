@@ -96,8 +96,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
 		if (channel!=INTENSITY && imp.getType()==ImagePlus.COLOR_RGB) {
 			ColorProcessor cp = (ColorProcessor)imp.getProcessor();
-			byte[] bytes = cp.getChannel(channel);
-			ImageProcessor ip = new ByteProcessor(imp.getWidth(), imp.getHeight(), bytes, null);
+			ImageProcessor ip = cp.getChannel(channel, null);
 			ImagePlus imp2 = new ImagePlus("", ip);
 			imp2.setRoi(imp.getRoi());
 			stats = imp2.getStatistics(AREA+MEAN+MODE+MIN_MAX, bins, histMin, histMax);
@@ -143,27 +142,28 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
  		Panel buttons = new Panel();
  		int hgap = IJ.isMacOSX()||isRGB?1:5;
 		buttons.setLayout(new FlowLayout(FlowLayout.RIGHT,hgap,0));
-		list = new Button("List");
+		int trim = IJ.isMacOSX()?6:0;
+		list = new TrimmedButton("List", trim);
 		list.addActionListener(this);
 		buttons.add(list);
-		copy = new Button("Copy");
+		copy = new TrimmedButton("Copy", trim);
 		copy.addActionListener(this);
 		buttons.add(copy);
-		log = new Button("Log");
+		log = new TrimmedButton("Log", trim);
 		log.addActionListener(this);
 		buttons.add(log);
-		live = new Button("Live");
+		live = new TrimmedButton("Live", trim);
 		live.addActionListener(this);
 		buttons.add(live);
 		if (imp!=null && isRGB) {
-			rgb = new Button("RGB");
+			rgb = new TrimmedButton("RGB", trim);
 			rgb.addActionListener(this);
 			buttons.add(rgb);
 		}
 		if (!(IJ.isMacOSX()&&isRGB)) {
 			Panel valueAndCount = new Panel();
 			valueAndCount.setLayout(new GridLayout(2,1,0,0));
-			blankLabel = IJ.isMacOSX()?"         ":"                ";
+			blankLabel = IJ.isMacOSX()?"           ":"                ";
 			value = new Label(blankLabel);
 			Font font = new Font("Monospaced", Font.PLAIN, 12);
 			value.setFont(font);
@@ -187,12 +187,12 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			if (x>255) x = 255;
 			int index = (int)(x*((double)histogram.length)/HIST_WIDTH);
 			String vlabel=null, clabel=null;
-			if (blankLabel.length()==9)
+			if (blankLabel.length()==11) // OS X
 				{vlabel=" "; clabel=" ";}
 			else
 				{vlabel=" value="; clabel=" count=";}
 			String v = vlabel+d2s(cal.getCValue(stats.histMin+index*stats.binSize))+blankLabel;
-			String c = clabel+histogram[index]+blankLabel;
+			String c = clabel+hist(index)+blankLabel;
 			int len = vlabel.length() + blankLabel.length();
 			value.setText(v.substring(0,len));
 			count.setText(c.substring(0,len));
@@ -223,7 +223,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 				mode2 = i;
   			}
   		}
-		newMaxCount = stats.maxCount;
+		newMaxCount = histogram[stats.mode];
 		if ((newMaxCount>(maxCount2 * 2)) && (maxCount2 != 0)) {
 			newMaxCount = (int)(maxCount2 * 1.5);
   			//histogram[stats.mode] = newMaxCount;
@@ -346,10 +346,12 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		int row3 = row2 + 15;
 		int row4 = row3 + 15;
 		long count = stats.longPixelCount>0?stats.longPixelCount:stats.pixelCount;
+		String modeCount = " (" + stats.maxCount + ")";
+		if (modeCount.length()>12) modeCount = "";
 		ip.drawString("Count: " + count, col1, row1);
 		ip.drawString("Mean: " + d2s(stats.mean), col1, row2);
 		ip.drawString("StdDev: " + d2s(stats.stdDev), col1, row3);
-		ip.drawString("Mode: " + d2s(stats.dmode) + " (" + stats.maxCount + ")", col2, row3);
+		ip.drawString("Mode: " + d2s(stats.dmode) + modeCount, col2, row3);
 		ip.drawString("Min: " + d2s(stats.min), col2, row1);
 		ip.drawString("Max: " + d2s(stats.max), col2, row2);
 		
@@ -384,17 +386,24 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	int getWidth(double d, ImageProcessor ip) {
 		return ip.getStringWidth(d2s(d));
 	}
+	
+	private long hist(int index) {
+		if (stats!=null && stats.longHistogram!=null)
+			return stats.longHistogram[index];
+		else
+			return histogram[index];
+	}
 
 	protected void showList() {
 		StringBuffer sb = new StringBuffer();
         String vheading = stats.binSize==1.0?"value":"bin start";
 		if (cal.calibrated() && !cal.isSigned16Bit()) {
 			for (int i=0; i<stats.nBins; i++)
-				sb.append(i+"\t"+ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+histogram[i]+"\n");
+				sb.append(i+"\t"+ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+hist(i)+"\n");
 			TextWindow tw = new TextWindow(getTitle(), "level\t"+vheading+"\tcount", sb.toString(), 200, 400);
 		} else {
 			for (int i=0; i<stats.nBins; i++)
-				sb.append(ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+histogram[i]+"\n");
+				sb.append(ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+hist(i)+"\n");
 			TextWindow tw = new TextWindow(getTitle(), vheading+"\tcount", sb.toString(), 200, 400);
 		}
 	}
@@ -409,7 +418,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		CharArrayWriter aw = new CharArrayWriter(stats.nBins*4);
 		PrintWriter pw = new PrintWriter(aw);
 		for (int i=0; i<stats.nBins; i++)
-			pw.print(ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+histogram[i]+"\n");
+			pw.print(ResultsTable.d2s(cal.getCValue(stats.histMin+i*stats.binSize), digits)+"\t"+hist(i)+"\n");
 		String text = aw.toString();
 		pw.close();
 		StringSelection contents = new StringSelection(text);

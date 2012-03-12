@@ -2,6 +2,7 @@ package ij.plugin;
 import ij.*;
 import ij.process.*;
 import ij.gui.*;
+import ij.measure.Calibration;
 import java.awt.*;
 import java.awt.image.*;
 
@@ -11,39 +12,38 @@ import java.awt.image.*;
  * calculated as average, median, maximum or minimum.
  *
  * @author Nico Stuurman
+ * @author Wayne Rasband
  */
 public class Binner implements PlugIn {
 	public static int AVERAGE=0, MEDIAN=1, MIN=2, MAX=3;
 	private static String[] methods = {"Average", "Median", "Min", "Max"};
-	private static int gxshrink=2, gyshrink=2;
-	private static int gmethod = AVERAGE;
-
-	private int xshrink, yshrink;
-	private int method;
+	private int xshrink=2, yshrink=2, zshrink=1;
+	private int method = AVERAGE;
 
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
-		if (!showDialog())
+		if (!showDialog(imp))
 			return;
 		if (imp.getStackSize()==1)
 			Undo.setup(Undo.TYPE_CONVERSION, imp);
 		imp.startTiming();
-		ImagePlus imp2 = shrink(imp, xshrink, yshrink, method);
-		imp.setStack(imp2.getStack());
+		ImagePlus imp2 = shrink(imp, xshrink, yshrink, zshrink, method);
 		IJ.showTime(imp, imp.getStartTime(), "", imp.getStackSize());
+		imp.setStack(imp2.getStack());
+		imp.setCalibration(imp2.getCalibration());
 	}
 
-	private ImagePlus shrink(ImagePlus imp, int xshrink, int yshrink, int method) {
+	public ImagePlus shrink(ImagePlus imp, int xshrink, int yshrink, int zshrink, int method) {
 		this.xshrink = xshrink;
 		this.yshrink = yshrink;
 		int w = imp.getWidth()/xshrink;
 		int h = imp.getHeight()/yshrink;
-		if (method<0 || method>methods.length)
-			method = AVERAGE;
 		ColorModel cm=imp.createLut().getColorModel();
 		ImageStack stack=imp.getStack();
 		ImageStack stack2 = new ImageStack (w, h, cm);
-		for (int z=1; z<=stack.getSize(); z++) {
+		int d = stack.getSize();
+		for (int z=1; z<=d; z++) {
+			IJ.showProgress(z, d);
 			ImageProcessor ip = stack.getProcessor(z);
 			if (ip.isInvertedLut()) 
 				ip.invert();
@@ -51,10 +51,58 @@ public class Binner implements PlugIn {
 			if (ip.isInvertedLut()) ip2.invert();
 			stack2.addSlice(stack.getSliceLabel(z), ip2);
 		}
-		return new ImagePlus("Reduced "+imp.getShortTitle(), stack2);
+		if (zshrink>1)
+			stack2 = shrinkZ(stack2, zshrink);
+		ImagePlus imp2 = (ImagePlus)imp.clone();
+		imp2.setStack("Reduced "+imp.getShortTitle(), stack2);
+		Calibration cal2 = imp2.getCalibration();
+		if (cal2.scaled()) {
+			cal2.pixelWidth *= xshrink;
+			cal2.pixelHeight *= yshrink;
+			cal2.pixelDepth *= zshrink;
+		}
+		imp2.setOpenAsHyperStack(imp.isHyperStack());
+		return imp2;
+	}
+	
+	private ImageStack shrinkZ(ImageStack stack, int zshrink) {
+		int w = stack.getWidth();
+		int h = stack.getHeight();
+		int d = stack.getSize();
+		int d2 = d/zshrink;
+		ImageStack stack2 = new ImageStack (w, h, stack.getColorModel());
+		for (int z=1; z<=d2; z++)
+			stack2.addSlice(stack.getProcessor(z).duplicate());
+		boolean rgb = stack.getBitDepth()==24;
+		ImageProcessor ip = rgb?new ColorProcessor(d, h):new FloatProcessor(d, h);
+		for (int x=0; x<w; x++) {
+			IJ.showProgress(x+1, w);
+			for (int y=0; y<h; y++) {
+				float value;
+				for (int z=0; z<d; z++) {
+					value = (float)stack.getVoxel(x, y, z);
+					ip.setf(z, y, value);
+				}
+			}
+			ImageProcessor ip2 = shrink(ip, zshrink, 1, method);
+			for (int x2=0; x2<d2; x2++) {
+				for (int y2=0; y2<h; y2++) {
+					stack2.setVoxel(x, y2, x2, ip2.getf(x2,y2));
+				}
+			}
+		}
+		return stack2;
+	}
+	
+	public ImageProcessor shrink(ImageProcessor ip, int xshrink, int yshrink, int method) {
+		this.xshrink = xshrink;
+		this.yshrink = yshrink;
+		return shrink(ip, method);
 	}
 
 	private ImageProcessor shrink(ImageProcessor ip, int method) {
+		if (method<0 || method>methods.length)
+			method = AVERAGE;
 		int w = ip.getWidth()/xshrink;
 		int h = ip.getHeight()/yshrink;
 		ImageProcessor ip2 = ip.createProcessor(w, h);
@@ -148,27 +196,30 @@ public class Binner implements PlugIn {
 		return max;
 	}
 
-	private boolean showDialog() {
-		xshrink = gxshrink;
-		yshrink = gyshrink;
-		method = gmethod;
+	private boolean showDialog(ImagePlus imp) {
+		boolean stack = imp.getStackSize()>1;
+		if (imp.isHyperStack() || imp.isComposite())
+			stack = false;
 		GenericDialog gd = new GenericDialog("Image Shrink");
 		gd.addNumericField("X shrink factor:", xshrink, 0);
 		gd.addNumericField("Y shrink factor:", yshrink, 0);
+		if (stack)
+			gd.addNumericField("Z shrink factor:", zshrink, 0);
 		if (method>methods.length)
 			method = 0;
 		gd.addChoice ("Bin Method: ", methods, methods[method]);
+		if (imp.getStackSize()==1) {
+			gd.setInsets(5, 0, 0);
+			gd.addMessage("This command supports Undo");
+		}
 		gd.showDialog();
 		if (gd.wasCanceled()) 
 			return false;
 		xshrink = (int) gd.getNextNumber();
 		yshrink = (int) gd.getNextNumber();
+		if (stack)
+			zshrink = (int) gd.getNextNumber();
 		method = gd.getNextChoiceIndex();
-		if (!IJ.isMacro()) {
-			gxshrink = xshrink;
-			gyshrink = yshrink;
-			gmethod = method;
-		}
 		return true;
 	}
 
