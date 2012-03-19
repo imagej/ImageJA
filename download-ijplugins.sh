@@ -1,5 +1,6 @@
 #!/bin/sh
 
+URL=git@code.imagej.net:imageja.git
 BASE_URL=http://rsb.info.nih.gov/ij/plugins
 BRANCH=refs/heads/ijplugins
 VERBOSE=t
@@ -83,7 +84,7 @@ then
 	do
 		download_plugin $plugin || break
 	done &&
-	(test -z "$NEED_TO_PUSH" || git push orcz $BRANCH)
+	(test -z "$NEED_TO_PUSH" || git push $URL $BRANCH)
 else
 	for plugin in "$@"
 	do
