@@ -27,9 +27,16 @@ HEAD=$(git rev-parse $BRANCH) || {
 } ||
 die "Could not initialize $BRANCH"
 
-test -z "$NEED_TO_UPDATE_WORKING_TREE" ||
-test $HEAD = $(git rev-parse FETCH_HEAD) ||
-die "Branch $BRANCH is not up-to-date!"
+if test -z "$NEED_TO_UPDATE_WORKING_TREE"
+then
+	git push . FETCH_HEAD:$BRANCH ||
+	die "Could not pull $BRANCH"
+	HEAD=$(git rev-parse $BRANCH) ||
+	die "Could not parse $BRANCH"
+else
+	test $HEAD = $(git rev-parse FETCH_HEAD) ||
+	die "Branch $BRANCH is not up-to-date!"
+fi
 
 IJ1HEAD=$(git rev-parse $IJ1BRANCH) ||
 die "No ImageJ1 branch?"
