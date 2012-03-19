@@ -41,6 +41,17 @@ parent=$(git rev-parse $BRANCHNAME) || {
 	echo "Could not get revision for $BRANCHNAME"
 	exit 1
 }
+ONELINE="$(git cat-file commit $BRANCHNAME)" || {
+	echo "Could not get commit message for $BRANCHNAME"
+	exit 1
+}
+ONELINE="$(echo "$ONELINE" | sed '1,/^$/d' | sed '2q')"
+case "$MESSAGE" in
+"$ONELINE"*)
+	echo "Already have a commit starting with $ONELINE"
+	exit 1
+	;;
+esac
 export GIT_DIR="$(cd "$(git rev-parse --git-dir)" && pwd)"
 export GIT_INDEX_FILE="$(pwd)/tmpIndex"
 mkdir tmpCommit || {
