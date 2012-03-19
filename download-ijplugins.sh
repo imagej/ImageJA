@@ -74,8 +74,8 @@ cd ijplugins &&
 if ! test -d .git
 then
 	git init &&
-	git remote add -t $BRANCH -f origin $URL &&
-	git checkout $BRANCH
+	git remote add -t ${BRANCH#refs/heads/} -f origin $URL &&
+	git checkout ${BRANCH#refs/heads/}
 fi &&
 if test $# = 0
 then
