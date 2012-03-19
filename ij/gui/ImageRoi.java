@@ -69,6 +69,13 @@ public class ImageRoi extends Roi {
 		return opacity;
 	}
 
+	public synchronized Object clone() {
+		ImagePlus imp = new ImagePlus("", img);
+		ImageRoi roi2 = new ImageRoi(x, y, imp.getProcessor());
+		roi2.setOpacity(getOpacity());
+		return roi2;
+	}
+
 	//public void setImage(ImagePlus imp) {
 	//	ij.IJ.log("draw "+ic+"  "+img);
 	//	super.setImage(imp);
