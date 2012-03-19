@@ -30,6 +30,10 @@ test -d "$CURRENT_DIR" ||
  do
 	ln -s ../../$f .git/ || break
  done &&
+ if ! git rev-parse refs/heads/$CURRENT
+ then
+	git fetch $URL $CURRENT:refs/heads/$CURRENT
+ fi &&
  echo ref: refs/heads/$CURRENT > .git/HEAD || {
 	echo "Could not set up $CURRENT workdir"
 	exit 1
