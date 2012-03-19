@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=git://repo.or.cz/imageja.git
+URL=git@git.imagej.net:imageja.git
 BRANCH=refs/heads/master
 IJ1BRANCH=refs/heads/imagej
 
