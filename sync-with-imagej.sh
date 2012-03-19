@@ -21,7 +21,7 @@ test $BRANCH != "$(git symbolic-ref HEAD 2> /dev/null)" || {
 ERROR="$(git fetch $URL $BRANCH 2>&1)" ||
 die "${ERROR}No branch $BRANCH at $URL?"
 
-HEAD=$(git rev-parse $BRANCH 2> /dev/null) || {
+HEAD=$(git rev-parse $BRANCH) || {
 	HEAD=$(git rev-parse FETCH_HEAD) &&
 	git update-ref -m "Initialize synchronization" $BRANCH $HEAD
 } ||
