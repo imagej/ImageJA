@@ -19,7 +19,7 @@ macros,)
 	NO_PUSH=t
 ;;
 esac
-test -z "$CURRENT_DIR" && CURRENT_DIR="$TOOLS_DIR/../.git/$CURRENT"
+test -z "$CURRENT_DIR" && CURRENT_DIR="$TOOLS_DIR/.git/$CURRENT"
 
 # set up working directory
 test -d "$CURRENT_DIR" ||
