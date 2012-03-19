@@ -1,5 +1,6 @@
 #!/bin/sh
 
+URL=git@code.imagej.net:imageja.git
 EMAIL=johannes.schindelin@gmx.de
 TOOLS_DIR="$(cd "$(dirname "$0")" && pwd)"
 case "$1,$3" in
@@ -62,7 +63,7 @@ exit
 
 GIT_AUTHOR_NAME="Wayne Rasband" GIT_AUTHOR_EMAIL="wsr@nih.gov" \
 	git commit -m "updated $(date +"%d.%m.%Y %H:%M")" &&
-	(test ! -z "$NO_PUSH" || git push orcz HEAD)
+	(test ! -z "$NO_PUSH" || git push $URL HEAD)
 
 git show | mail -s "ImageJ daily update" \
 	-a "Content-Type: text/plain; charset=UTF-8" $EMAIL
