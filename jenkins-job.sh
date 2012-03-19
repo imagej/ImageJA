@@ -52,6 +52,8 @@ sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
 	echo "Could not update 'master'"
 	exit 1
 }
+test -n "$NO_PUSH" && exit
+
 for REMOTE in \
 	git@dev.imagejdev.org:imageja.git \
 	hudson-imagej@fiji.sc:/srv/git/ImageJA.git \
