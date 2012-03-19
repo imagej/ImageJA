@@ -19,15 +19,16 @@ case "$1" in
 *) zipfile="$(pwd)/$1";;
 esac
 
-test -t 0 && {
-	unzip -p "$zipfile" source/release-notes.html |
-	sed -e 's/^.*<body>/<ul>/' -e 's/<a href[^>]*>Home<\/a>//' |
-	w3m -cols 72 -dump -T text/html |
-	sed -e '/^Home/d' |
-	git stripspace |
-	sh "$0" "$@"
-	exit
-}
+if test -t 0
+then
+	MESSAGE="$(unzip -p "$zipfile" source/release-notes.html |
+		sed -e 's/^.*<body>/<ul>/' -e 's/<a href[^>]*>Home<\/a>//' |
+		w3m -cols 72 -dump -T text/html |
+		sed -e '/^Home/d' |
+		git stripspace)"
+else
+	MESSAGE="$(cat)"
+fi
 
 MAC2UNIX="$(cd "$(dirname "$0")" && pwd)"/mac2unix.pl
 
@@ -59,7 +60,7 @@ find -type f -print0 | xargs -0 git update-index --add &&
 tree=$(git write-tree) &&
 export GIT_AUTHOR_NAME="Wayne Rasband" &&
 export GIT_AUTHOR_EMAIL="wsr@nih.gov" &&
-commit=$(git commit-tree $tree -p $parent) &&
+commit=$(echo "$MESSAGE" | git commit-tree $tree -p $parent) &&
 git update-ref refs/heads/$BRANCHNAME $commit &&
 cd ../.. &&
 rm -rf tmpCommit tmpIndex
