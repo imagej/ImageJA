@@ -6,7 +6,7 @@ VERBOSE=t
 
 NEED_TO_PUSH=
 download_plugin () {
-	GIT_INDEX_FILE=.index
+	GIT_INDEX_FILE=.git/.index
 	export GIT_INDEX_FILE
 	FILE="$1"
 	OPT=
@@ -68,11 +68,14 @@ download_plugin () {
 	NEED_TO_PUSH=t
 }
 
-cd "$(dirname "$0")"/../.git &&
-GIT_DIR="$(pwd)" &&
-export GIT_DIR &&
 mkdir -p ijplugins &&
 cd ijplugins &&
+if ! test -d .git
+then
+	git init &&
+	git remote add -t $BRANCH -f origin $URL &&
+	git checkout $BRANCH
+fi &&
 if test $# = 0
 then
 	for plugin in $(curl --silent $BASE_URL/ |
