@@ -1,10 +1,10 @@
 #!/bin/sh
 
 BRANCHNAME=imagej
-UPSTREAM=origin
+URL=git@git.imagej.net:imageja.git
 
 git rev-parse $BRANCHNAME >/dev/null 2>/dev/null ||
-git push . origin/$BRANCHNAME:refs/heads/$BRANCHNAME || {
+git fetch $URL $BRANCHNAME:refs/heads/$BRANCHNAME || {
 	echo "No branch $BRANCHNAME yet!"
 	exit 1
 }
@@ -31,8 +31,8 @@ test -t 0 && {
 
 MAC2UNIX="$(cd "$(dirname "$0")" && pwd)"/mac2unix.pl
 
-git fetch $UPSTREAM $BRANCHNAME &&
-git push . FETCH_HEAD:$BRANCHNAME || {
+git fetch $URL $BRANCHNAME &&
+git push . +FETCH_HEAD:$BRANCHNAME || {
 	echo "Could not update $BRANCHNAME to $UPSTREAM"
 	exit 1
 }
