@@ -344,7 +344,7 @@ public class ImageStack {
 			return 0.0;
 	}
 		
-	/* Sets the value of the specified voxel). */
+	/* Sets the value of the specified voxel. */
 	public final void setVoxel(int x, int y, int z, double value) {
 		if (x>=0 && x<width && y>=0 && y<height && z>=0 && z<nSlices) {
 			switch (type) {
@@ -375,6 +375,101 @@ public class ImageStack {
 			}
 		}
 	}
+	
+	/** Experimental */
+	public float[] getVoxels(int xbase, int ybase, int zbase, int w, int h, int d, float[] voxels) {
+		if (voxels==null || voxels.length!=w*h*d)
+			voxels = new float[w*h*d];
+		int i = 0;
+		for (int z=zbase; z<zbase+d; z++) {
+			for (int y=ybase; y<ybase+h; y++) {
+				for (int x=xbase; x<xbase+w; x++) {
+					voxels[i++] = (float)getVoxel(x, y, z);
+				}
+			}
+		}
+		return voxels;
+	}
+
+	public float[] getVoxels(int channel, int xbase, int ybase, int zbase, int w, int h, int d, float[] voxels) {
+		if (getBitDepth()!=24)
+			return getVoxels(xbase, ybase, zbase, w, h, d, voxels);
+		if (voxels==null || voxels.length!=w*h*d)
+			voxels = new float[w*h*d];
+		int i = 0;
+		for (int z=zbase; z<zbase+d; z++) {
+			for (int y=ybase; y<ybase+h; y++) {
+				for (int x=xbase; x<xbase+w; x++) {
+					int value = (int)getVoxel(x, y, z);
+					switch (channel) {
+						case 0: value=(value&0xff0000)>>16; break;
+						case 1: value=(value&0xff00)>>8; break;
+						case 2: value=value&0xff;; break;
+					}
+					voxels[i++] = (float)value;
+				}
+			}
+		}
+		return voxels;
+	}
+
+	/** Experimental */
+	public void setVoxels(int xbase, int ybase, int zbase, int w, int h, int d, float[] voxels) {
+		if (voxels==null || voxels.length!=w*h*d)
+			;
+		int i = 0;
+		for (int z=zbase; z<zbase+d; z++) {
+			for (int y=ybase; y<ybase+h; y++) {
+				for (int x=xbase; x<xbase+w; x++) {
+					setVoxel(x, y, z, voxels[i++]);
+				}
+			}
+		}
+	}
+	
+	public void setVoxels(int channel, int xbase, int ybase, int zbase, int w, int h, int d, float[] voxels) {
+		if (getBitDepth()!=24)
+			setVoxels(xbase, ybase, zbase, w, h, d, voxels);
+		if (voxels==null || voxels.length!=w*h*d)
+			;
+		int i = 0;
+		for (int z=zbase; z<zbase+d; z++) {
+			for (int y=ybase; y<ybase+h; y++) {
+				for (int x=xbase; x<xbase+w; x++) {
+					int color = (int)voxels[i++];
+					int value = (int)getVoxel(x, y, z);
+					switch (channel) {
+						case 0: value=(value&0xff00ffff) | ((color&0xff)<<16); break;
+						case 1: value=(value&0xffff00ff) | ((color&0xff)<<8); break;
+						case 2: value=(value&0xffffff00) | (color&0xff); break;
+					}
+					setVoxel(x, y, z, value);
+				}
+			}
+		}
+	}
+
+	/** Experimental */
+	public void drawSphere(int xc, int yc, int zc) {
+		int lineWidth = 200;
+	    double r = lineWidth/2.0;
+		int xmin=(int)(xc-r+0.5), ymin=(int)(yc-r+0.5), zmin=(int)(zc-r+0.5);
+		int xmax=xmin+lineWidth, ymax=ymin+lineWidth, zmax=zmin+lineWidth;
+		double r2 = r*r;
+		r -= 0.5;
+		double xoffset=xmin+r, yoffset=ymin+r, zoffset=zmin+r;
+		double xx, yy, zz;
+		for (int x=xmin; x<xmax; x++) {
+			for (int y=ymin; y<ymax; y++) {
+				for (int z=zmin; z<zmax; z++) {
+					xx = x-xoffset; yy = y-yoffset;  zz = z-zoffset;
+					if (xx*xx+yy*yy+zz*zz<=r2)
+						setVoxel(x, y, z, 255);
+				}
+			}
+		}
+	}
+
 	
 	/** Returns the bit depth (8=byte, 16=short, 24=RGB, 32=float). */
 	public int getBitDepth() {
