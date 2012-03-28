@@ -74,4 +74,8 @@ do
 		;;
 	esac
 done
+
+git stash &&
+git checkout master &&
+git stash &&
 mvn deploy || exit
