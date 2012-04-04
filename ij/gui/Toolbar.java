@@ -886,7 +886,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			mpPrevious = current;
 			if (isMacroTool(newTool)) {
 				String name = names[newTool];
-				if (name.indexOf("Unused Tool")!=-1)
+				if (name.contains("Unused Tool"))
 					return;
 				if (name.indexOf("Action Tool")!=-1) {
 					if (e.isPopupTrigger()||e.isMetaDown()) {
@@ -1049,7 +1049,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addBuiltInTool("Arrow");
 		addBuiltInTool("Overlay Brush");
 		addBuiltInTool("Pixel Inspector");
+		addBuiltInTool("Pencil");
+		addBuiltInTool("Brush");
+		addBuiltInTool("Flood Fill Tool");
 		addBuiltInTool("Spray Can");
+		addBuiltInTool("Developer Menu");
+		addBuiltInTool("Stacks Menu");
 		addBuiltInTool("LUT Menu");
 		MenuBar menuBar = Menus.getMenuBar();
 		if (menuBar==null)
@@ -1130,7 +1135,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	boolean isMacroTool(int tool) {
-		return tool>=SPARE1 && tool<=SPARE9 && names[tool]!=null && tools[tool] instanceof MacroToolRunner;
+		return tool>=SPARE1 && tool<=SPARE9 && names[tool]!=null
+			&& (tools[tool] instanceof MacroToolRunner||names[tool].equals("Unused Tool"));
 	}
 	
 	boolean isPlugInTool(int tool) {
@@ -1210,8 +1216,18 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					} else if (label.equals("Pixel Inspector")) {
 						tool = new ij.plugin.tool.PixelInspectionTool();
 						if (tool!=null) tool.run("");
+					} else if (label.equals("Pencil")) {
+						(new MacroInstaller()).installFromIJJar("/macros/PencilTool.txt");
+					} else if (label.equals("Brush")) {
+						(new MacroInstaller()).installFromIJJar("/macros/BrushTool.txt");
+					} else if (label.equals("Flood Fill Tool")) {
+						(new MacroInstaller()).installFromIJJar("/macros/FloodFillTool.txt");
 					} else if (label.equals("Spray Can")) {
 						(new MacroInstaller()).installFromIJJar("/macros/SprayCanTool.txt");
+					} else if (label.equals("Developer Menu")) {
+						(new MacroInstaller()).installFromIJJar("/macros/DeveloperMenuTool.txt");
+					} else if (label.equals("Stacks Menu")) {
+						(new MacroInstaller()).installFromIJJar("/macros/StacksMenuTool.txt");
 					} else if (label.equals("LUT Menu")) {
 						(new MacroInstaller()).installFromIJJar("/macros/LUTMenuTool.txt");
 					}
@@ -1315,8 +1331,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		int index = toolTip.indexOf('-');
 		boolean hasIcon = index>=0 && (toolTip.length()-index)>4;
 		int tool =-1;
-		if (names[SPARE1]==null)
-			tool = SPARE1;
+		if (names[SPARE1]==null) {
+			if (addingSingleTool) {
+				names[SPARE1] = "Unused Tool";
+			} else
+				tool = SPARE1;
+		}
 		if (tool==-1) {
 			for (int i=SPARE2; i<=SPARE8; i++) {
 				if (names[i]==null || toolTip.startsWith(names[i])) {
@@ -1476,6 +1496,36 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		gd.showDialog();
 		if (!gd.wasCanceled())
 			Prefs.reflexAngle = gd.getNextBoolean();
+	}
+
+	/** Called once when ImageJ quits. */
+	public void savePreferences(Properties prefs) {
+		int index = 0;
+		for (int i=SPARE2; i<=SPARE8; i++) {
+			if (names[i]!=null) {
+				String key = "tool" + (index/10)%10 + index%10;
+				int id = i - SPARE2;
+				prefs.put(key, id+names[i]);
+				index++;
+			}			
+		}
+		/*
+		int index = 0;
+		for (Enumeration en=pluginsPrefs.elements(); en.hasMoreElements();) {
+			String key = "plugin" + (index/10)%10 + index%10;
+			String value = (String)en.nextElement();
+			prefs.put(key, value);
+			index++;
+		}
+		int n = openRecentMenu.getItemCount();
+		for (int i=0; i<n; i++) {
+			String key = ""+i;
+			if (key.length()==1) key = "0"+key;
+			key = "recent"+key;
+			prefs.put(key, openRecentMenu.getItem(i).getLabel());
+		}
+		prefs.put(Prefs.MENU_SIZE, Integer.toString(fontSize));
+		*/
 	}
 
 }

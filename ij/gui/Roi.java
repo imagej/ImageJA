@@ -381,12 +381,23 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		}
 	}
 	
-	/** Returns an interpolated FloatPolygon with point spacing of 'interval'. */
-	public FloatPolygon getInterpolatedPolygon(double interval) {
-		return getInterpolatedPolygon(getFloatPolygon(), interval);
+	/** Returns, as a FloatPolygon, an interpolated version 
+	 * of this selection that has points spaced 1.0 pixel apart.
+	 */
+	public FloatPolygon getInterpolatedPolygon() {
+		return getInterpolatedPolygon(getFloatPolygon(), 1.0, false);
 	}
 
-	protected FloatPolygon getInterpolatedPolygon(FloatPolygon p, double interval) {
+	/** Returns, as a FloatPolygon, an interpolated version of
+	 * this selection with points spaced 'interval' pixels apart. 
+	 * If 'smooth' is true, traced and freehand selections are
+	 * first smoothed using a 3 point running average.
+	 */
+	public FloatPolygon getInterpolatedPolygon(double interval, boolean smooth) {
+		return getInterpolatedPolygon(getFloatPolygon(), interval, smooth);
+	}
+
+	protected FloatPolygon getInterpolatedPolygon(FloatPolygon p, double interval, boolean smooth) {
 		double length = p.getLength(isLine());
 		int npoints2 = (int)((length*1.2)/interval);
 		float[] xpoints2 = new float[npoints2];
@@ -1503,7 +1514,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 
 	/** Returns 'true' if this is a line selection. */
     public boolean isLine() {
-        return (type>=LINE && type<=FREELINE) || type==ANGLE;
+        return type>=LINE && type<=FREELINE;
     }
     
 	/** Returns 'true' if this is an ROI primarily used from drawing

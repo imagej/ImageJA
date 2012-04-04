@@ -143,8 +143,8 @@ public abstract class ImageProcessor implements Cloneable {
 	/** Sets the color model. Must be an IndexColorModel (aka LUT)
 		for all processors except the ColorProcessor. */
 	public void setColorModel(ColorModel cm) {
-		if (!(this instanceof ColorProcessor) && !(cm instanceof IndexColorModel))
-			throw new IllegalArgumentException("Must be IndexColorModel");
+		if (cm!=null && !(cm instanceof IndexColorModel))
+			throw new IllegalArgumentException("IndexColorModel required");
 		this.cm = cm;
 		baseCM = null;
 		rLUT1 = rLUT2 = null;
@@ -264,6 +264,13 @@ public abstract class ImageProcessor implements Cloneable {
 		return invertedLut;
 	}
 	
+	/** Returns 'true' if this is an image with a grayscale LUT or an
+	 * RGB image with identical red, green and blue channels.
+	*/
+	public boolean isGrayscale() {
+		return !isColorLut();
+	}
+
 	/** Returns true if this image uses a color LUT. */
 	public boolean isColorLut() {
 		if (cm==null || !(cm instanceof IndexColorModel))
