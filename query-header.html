@@ -24,11 +24,6 @@
 2003/05/12: Can be called from macros
 </td></tr>
 
-<tr valign=top><td ><b>Requires:</b></td><td >
-ImageJ 1.30m or later
-</td></tr>
-
-
 <tr valign=top><td ><b>Source:</b></td><td >
 <A HREF="download/Query_Dicom_Header.java">Query_Dicom_Header.java</A>
 </td></tr>
@@ -39,6 +34,30 @@ to the plugins folder and restart ImageJ.
 </td></tr>
 
 <tr valign=top><td ><b>Description:</b></td><td >
+
+This plugin is no longer needed. Instead, plugins and scripts can call the
+DicomTools.getTag() method. Here is a JavaScript example:
+<pre>
+   imp = IJ.openImage("http://imagej.nih.gov/ij/images/ct.dcm.zip");
+   studyDescription = DicomTools.getTag(imp, "0008,1030");
+   imagePosition = DicomTools.getTag(imp, "0020,0032");
+   pixelSpacing = DicomTools.getTag(imp, "0028,0030");
+   print("Study Description: "+ studyDescription);
+   print("Image Position: "+imagePosition);
+   print("Pixel Spacing: "+ pixelSpacing);
+</pre>
+
+Macros can use the getInfo() function:
+<pre>
+   open("http://imagej.nih.gov/ij/images/ct.dcm.zip");
+   studyDescription = getInfo("0008,1030");
+   imagePosition = getInfo("0020,0032");
+   pixelSpacing = getInfo("0028,0030");
+   print("Study Description: "+ studyDescription);
+   print("Image Position: "+imagePosition);
+   print("Pixel Spacing: "+ pixelSpacing);
+</pre>
+
 This plugin queries the DICOM header to return the value for given criterion.
 A typical search string would look like "0020,0013", but without the double quotes.
 <p>
