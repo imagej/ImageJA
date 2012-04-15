@@ -38,9 +38,16 @@ quantitates such difficult to describe details of morphology
 represented in binary or grayscale digital images, using mass and box
 counting fractal dimensions (D<sub>B</sub>s), multifractal analysis data, lacunarity (&#955;) data, and some other morphometrics. 
 </td></tr>
-<tr valign="top"><td><b>Features:</b></td><td>
 
-<p>
+<tr valign="top"><td><b>Support:</b></td><td>
+A User's Guide is 
+<a href="FLHelp/Introduction.htm">available online</a>. Contact the <a href="mailto:akarpe01@postoffice.csu.edu.au"> author</a> for assistance, suggestions, and bug reports.
+<p>A help archive that can be unzipped into the plugins folder where FracLac will access it, is 
+<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/FLH.zip">available for download</a>.
+The 38 page PDF manual for previous versions is still 
+<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/fraclac-manual.pdf">available for download</a>.
+</p></td></tr>
+<tr valign="top"><td><b>Features:</b></td><td><p>
 FracLac scans images using a shifting grid algorithm that can do
 multiple scans from different locations on each image, and uses either
 a nonoverlapping or an overlapping sliding box method. The overlapping
@@ -102,7 +109,7 @@ screen (the option is presented when each type of scan is set up). </li>
 files accompanied by various statistics for the data, including the
 y-intercept, standard deviation, and coefficient of variation, for
 instance. Reports generated can be viewed and saved as Results Windows
-or automatically saved as .xls files (tab-delimited). These include:
+or automatically saved as .txt files (tab-delimited;UTF-8 encoded to be opened in a spreadsheet. These include:
 </p><li>summary reports
 </li><li>data files
 </li><li>raw pixel counts
@@ -123,15 +130,9 @@ cellular outlines), images must be thresholded prior to analysis to
 ensure that only the pixels of interest are assessed. For grayscale
 scans, images and rois are padded with a value that is ignored by the
 counting method. <p>
+You should assess your analysis against benchmark images and be aware of how the settings can affect the result. For instance, FracLac will determine the fractal dimension of a 400x400 pixel square as a perfect 1.000 (not fractal at all but the correct value) if the software is set to use a scaled series with a scaling factor of 2 and the largest box set to 50% with 12 grid positions. But for most images, the point of the analysis is to determine a value for the fractal dimension without knowing the scaling ahead of time. See the online help for more about this.  
  </p></td></tr>
-<tr valign="top"><td><b>Support:</b></td><td>
-A User's Guide is 
-<a href="FLHelp/Introduction.htm">available online</a>.
-<p>A new help archive that can be unzipped into the plugins folder where FracLac will access it, is 
-<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/FLH.zip">available for download</a>.
-The 38 page PDF manual for previous versions is still 
-<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/fraclac-manual.pdf">available for download</a>.
-</p></td></tr>
+
 <tr valign="top"><td><b>References:</b></td><td>
 <p>For details of the calculations, see the FracLac javadoc,which can be generated using the FracLac source code.  For more information, the references below are 
 the main ones used in defining the calculations:</p><p>
@@ -183,6 +184,9 @@ orientations was changed or not; implements user suggestions for multifractal
 optimization and local connected fractal dimension; help file is now html (2.5d)<br>
 2011/02/03: Fixed a couple of bugs with multifractal analysis<br>
 2012/04/05: Fixed encoding of autosaved text files so Greek symbols are retained; fixed bug so autosaved files are saved in a date and time stamped folder (2.5g)<br>
+2102/04/15: release 2.5i; Fixed saved results file problem so filtered data are saved in separate files; fixed display problem so images are not displayed while being processed;changed grid location algorithm to use a series of grid positions in response to user requests; fixed bug so images having inverted LUTs are filled with the right colour.
+<br>
+2102/04/15: release 2.5i.2; fixed bug so subscans can be done using the particle analyzer again; fixed bug so subscans don't hang on stacks  
 </td></tr>
 
 </tbody></table>
