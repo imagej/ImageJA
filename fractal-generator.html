@@ -1,61 +1,65 @@
-<html>
-<head>
+﻿<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <title>Fractal Generator</title>
 </head>
-<body bgcolor = "#ffffff">
+<body bgcolor="#ffffff">
 
-<font color="#224488" face="Helvetica, Arial" size=+1>
+<font color="#224488" face="Helvetica, Arial" size="+1">
 <b>Fractal Generator</b>
 </font>
 
 <p>
 
-<blockquote>
+</p><blockquote>
 
-<table cellspacing=5>
+<table cellspacing="5">
 
-<tr valign=top><td ><b>Author:</b></td><td >
+<tbody><tr valign="top"><td><b>Author:</b></td><td>
 Audrey Karperien (akarpe01@postoffice.csu.edu.au) 
 </td></tr>
 
-<tr valign=top><td ><b>History:</b></td><td >
+<tr valign="top"><td><b>History:</b></td><td>
 2005/08/10: First version<br>
-2007/06/19: Updated options and interface; added Koch fractals
+2007/06/19: Updated options and interface; added Koch fractals<br>
+2012/04/19: fixed bugs with gui and centering images; updated fat fractals; put all scales on one input dialog as per user requests<br>
 </td></tr>
 
-<tr valign=top><td ><b>Requires:</b></td><td >
-Java 1.3 or later<br>
+<tr valign="top"><td><b>Requires:</b></td><td>
+Java 1.6 or later<br>
 </td></tr>
 
-<tr valign=top><td ><b>Source:</b></td><td >
-<A HREF="download/Fractal_Generator.java">Fractal_Generator.java</A>
+<tr valign="top"><td><b>Source:</b></td><td>
+<a href="http://rsb.info.nih.gov/ij/plugins/download/Fractal_Generator.jar">Fractal_Generator.jar</a>
 </td></tr>
 
-<tr valign=top><td ><b>Installation:</b></td><td >
-Download <A HREF="download/Fractal_Generator.class">Fractal_Generator.class</A> to 
+<tr valign="top"><td><b>Installation:</b></td><td>
+Download <a href="http://rsb.info.nih.gov/ij/plugins/download/Fractal_Generator.jar">Fractal_Generator.jar</a> to 
 the plugins folder and restart ImageJ.
 </td></tr>
 
-<tr valign=top><td ><b>Description:</b></td><td >
-The plugin draws simple quadric and Koch fractal contours and a 
-  Sierpinski gasket type fat fractal.  The user can specify size, line width, and iterations, and can use colour options
+<tr valign="top"><td><b>Description:</b></td><td>
+The plugin draws simple quadric and Koch fractal contours and fat fractals such as the 
+  Sierpinski gasket and a custom fat fractal.  The user can specify size, line width, and iterations, and can use colour options
 or generate binary files for fractal analysis benchmarks.
-The table below illustrates several models that can be generated and lists their theoretical fractal dimensions.
-<table border="2" ><h1>Theoretical Fractal Dimensions</h1>
-<tr><td>Type</td><td>Scaling Rule<br> (ln New Parts/ ln Scale) </td><td> = Fractal Dimension</td></tr>
+The table below illustrates several models that can be generated and lists their theoretical fractal dimensions.<br>
+<img src = "images/fg.jpg">
+<h1>Theoretical Fractal Dimensions</h1><table border="2">
+<tbody><tr><td>Type</td><td>Scaling Rule<br> (ln New Parts/ ln Scale) </td><td> = Fractal Dimension</td></tr>
 
-<tr><td>Koch Line<img src="images/line.gif" align="right" alt="[line]"></td><td>ln 4/ln 3</td><td>1.26</td></tr>
-<tr><td>Koch Flake<img src="images/koch.gif" align="right" alt="[koch]"></td><td>ln 4/ln 3</td><td>1.26</td></tr>
-<tr><td>Quadric Flake<img src="images/qflake.gif" align="right" alt="[qflake]"></</td><td>ln 3/ln (&radic;5)</td><td>1.37</td></tr>
-<tr><td>Quadric Cross<img src="images/cross.gif" align="right" alt="[cross]"></td><td>ln 3.33/ln (&radic;5)</td><td>1.49</td></tr>
-<tr><td>8-Segment Quadric Fractal<img src="images/8seg.gif" align="right" alt="[8seg]"></td><td >ln 8/ln 4</td><td>1.50</td></tr> 
-<tr><td>18-Segment Quadric Fractal<img src="images/18seg.gif" align="right" alt="[18seg]"></td><td>ln 18/ln 6</td><td>1.61</td></tr> 
-<tr><td>32-Segment Quadric Fractal<img src="images/32pink.gif" align="right" alt="[32pink]"></td><td>ln 32/ln 8</td><td>1.67</td></tr> 
-<tr><td>50-Segment Quadric Fractal<img src="images/50seg.gif" align="right" alt="[50seg]"></td><td>ln 50/ln 10</td><td>1.70</td></tr> 
-</table>
+<tr><td>Koch Line<img src="images/line.gif" alt="[line]" align="right"></td><td>ln 4/ln 3</td><td>1.26</td></tr>
+<tr><td>Koch Flake<img src="images/koch.gif" alt="[koch]" align="right"></td><td>ln 4/ln 3</td><td>1.26</td></tr>
+<tr><td>Quadric Flake<img src="images/qflake.gif" alt="[qflake]" align="right"><!--</td--></td><td>ln 3/ln (√5)</td><td>1.37</td></tr>
+<tr><td>Quadric Cross<img src="images/cross.gif" alt="[cross]" align="right"></td><td>ln 3.33/ln (√5)</td><td>1.50</td></tr>
+<tr><td>8-Segment Quadric Fractal<img src="images/8seg.gif" alt="[8seg]" align="right"></td><td>ln 8/ln 4</td><td>1.50</td></tr> 
+<tr><td>18-Segment Quadric Fractal<img src="images/18seg.gif" alt="[18seg]" align="right"></td><td>ln 18/ln 6</td><td>1.61</td></tr> 
+<tr><td>32-Segment Quadric Fractal<img src="images/32seg.gif" alt="[32seg]" align="right"></td><td>ln 32/ln 8</td><td>1.67</td></tr> 
+<tr><td>50-Segment Quadric Fractal<img src="images/50seg.gif" alt="[50seg]" align="right"></td><td>ln 50/ln 10</td><td>1.70</td></tr> 
+<tr><td>Fat Fractals<img src="images/Montage.gif" alt="[montage]" align="right"></td><td>various</td><td>various</td></tr> 
+</tbody></table>
 
-</blockquote>
-<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
 
-</body>
-</html>
+<p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
+
+
+
+</p></td></tr></tbody></table></blockquote></body></html>
