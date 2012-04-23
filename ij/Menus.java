@@ -3,6 +3,7 @@ import ij.process.*;
 import ij.util.*;
 import ij.gui.ImageWindow;
 import ij.plugin.MacroInstaller;
+import ij.gui.Toolbar;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -1389,6 +1390,7 @@ public class Menus {
 			IJ.runPlugIn("ij.plugin.URLOpener", docBase+"StartupMacros.txt");
 			return;
 		}
+
 		if (macrosPath==null) {
 			(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
 			return;

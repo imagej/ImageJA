@@ -31,6 +31,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	int state;
 	int modState = NO_MODS;
 	int cornerDiameter;
+	boolean activeOverlayRoi;
 	
 	public static Roi previousRoi;
 	public static final BasicStroke onePixelWide = new BasicStroke(1);
@@ -1133,7 +1134,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		if (p2!=null)
 			imp.setRoi(p1.subtractPoints(this));
 		else
-			imp.killRoi();
+			imp.deleteRoi();
     }
 
     /** If 'add' is true, adds this selection to the previous one. If 'subtract' is true, subtracts 
@@ -1207,6 +1208,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			clipboard = null;
 			Undo.setup(Undo.FILTER, imp);
 		}
+		activeOverlayRoi = false;
 	}
 	
 	public void abortPaste() {
@@ -1329,7 +1331,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		this.nonScalable = nonScalable;
 	}
 
-	/** Sets the width of the line used to draw this ROI.
+	/** Sets the width of the line used to draw this ROI. Set
+	 * the width to 0.0 and the ROI will be drawn using a
+	 * a 1 pixel stroke width regardless of the magnification.
 	 * @see #setStrokeColor(Color)
 	 * @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
 	 */

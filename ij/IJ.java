@@ -22,6 +22,7 @@ import java.net.*;
 
 /** This class consists of static utility methods. */
 public class IJ {
+
 	public static final String URL = "http://imagej.nih.gov/ij";
 	public static final int ALL_KEYS = -1;
 	
@@ -281,6 +282,7 @@ public class IJ {
 			commandTable.put("In", "In [+]");
 			commandTable.put("Out", "Out [-]");
 			commandTable.put("Enhance Contrast", "Enhance Contrast...");
+			commandTable.put("XY Coodinates... ", "XY Coordinates... ");
 		}
 		String command2 = (String)commandTable.get(command);
 		if (command2!=null)
@@ -986,7 +988,7 @@ public class IJ {
 		selection if width or height are less than 1. */
 	public static void makeRectangle(int x, int y, int width, int height) {
 		if (width<=0 || height<0)
-			getImage().killRoi();
+			getImage().deleteRoi();
 		else {
 			ImagePlus img = getImage();
 			if (Interpreter.isBatchMode())
@@ -1000,7 +1002,7 @@ public class IJ {
 		selection if width or height are less than 1. */
 	public static void makeOval(int x, int y, int width, int height) {
 		if (width<=0 || height<0)
-			getImage().killRoi();
+			getImage().deleteRoi();
 		else {
 			ImagePlus img = getImage();
 			img.setRoi(new OvalRoi(x, y, width, height));
@@ -1336,7 +1338,7 @@ public class IJ {
 			Roi previousRoi = img.getRoi();
 			int type = Wand.allPoints()?Roi.FREEROI:Roi.TRACED_ROI;
 			Roi roi = new PolygonRoi(w.xpoints, w.ypoints, w.npoints, type);
-			img.killRoi();
+			img.deleteRoi();
 			img.setRoi(roi);
 			// add/subtract this ROI to the previous one if the shift/alt key is down
 			if (previousRoi!=null)
