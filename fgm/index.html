@@ -16,7 +16,7 @@
 <table cellspacing=5 width=700>
 
 <tr valign=top><td ><b>Author:</b></td><td >
-Audrey Karperien (akarpe at telus.net)<br>
+Audrey Karperien (akarpe01@postoffice.csu.edu.au)<br>
 </td></tr>
 
 
@@ -28,11 +28,13 @@ Audrey Karperien (akarpe at telus.net)<br>
 <u>2005/11/15:</u> First version<br>
 
 
-<u>2011/02/11:</u> Fixed a bug with the rendering of rectangles vs ovals and added stacks that 
+<u>2011/02/11:</u> Fixed a bug with the rendering of rectangles vs ovals and added stacks that
 show the growth at various stages for comparison.<br>
 
 
-<u>2012/04/18:</u> Fixed problem with no image appearing on screen; responded to user request to retain arrays while working on a model; added "About" message</td></tr>
+<u>2012/04/18:</u> Fixed problem with no image appearing on screen; responded to user request to retain arrays while working on a model; added "About" message<br>
+
+<u>2012/04/24:</u> Fixed bug with plugin not closing; added ability to load files to work on models repeatedly; added option for user to specify amount to amplify rendering by to increase available detail in models</td></tr>
 
 
 <tr valign=top><td ><b>Source:</b></td><td >
@@ -51,7 +53,7 @@ to the plugins folder, or subfolder, and restart ImageJ.
 
 
 <tr valign=top><td ><b>Description:</b></td><td >
-<p>This plugin draws iterated growth models in ImageJ.   
+<p>This plugin draws iterated growth models in ImageJ.
   These are saveable screen drawings made of points calculated using the
   basic expressions: <BR>
 
@@ -62,35 +64,33 @@ to the plugins folder, or subfolder, and restart ImageJ.
   + ny<sub>n</sub><sup>Xypow</sup> + o</B> <BR>and<BR>
   <B>y<sub>n+1</sub> = fx<sub>n</sub><sup>Yxpow</sup> +
   gy<sub>n</sub><sup>Yypow</sup> + h</B>.
-  
+
 
 
 
 
 
 <p>
-  For each model, 
+  For each model,
   each equation's coefficients (m,n,o;f,g,h; Xxpow, Xypow, Yxpow, Yypow) are
   specified in sets that the user can modify.
   Each of these sets also contains a probability of using the
   set.  This is for cases when more than one set of coefficients
   is used to calculate each point, chosen according to a likelihood
   that the user sets.  </p>
- <p>Each particle calculated and drawn is coloured on a black background, and all 
-  are the same size.  Colours are generated randomly, without user input.
-  The user can change the size of the particles
-  in the models, however, using an option in the first popup.
+ <p>Each particle calculated and drawn is coloured on a black background, and all
+  are the same size but that size itself can be changed.  Colours are generated randomly or as a single colour or using a gradient, as specified by the user.  The user can also select to watch the growth animated on screen, save a stack, or view an amplified image.  For fractal analysis, images should be binary.  More detail is available by increasing the number of particles and the amplification factor. 
 
-</p 
+</p
 
 <h3>Models</h3>
   <p>There are five default models. The user
-  can change the coefficients to vary the basic pattern, or 
+  can change the coefficients to vary the basic pattern, or
   change the number of sets to create a new model.
   <ul><li> The
-  "Henon" model is specified by one set of coefficients (i.e., 
+  "Henon" model is specified by one set of coefficients (i.e.,
    the likelihood of using that set is 1).  </li>
-  <li>The Henon Map model is a  multifractal benchmark model; it is also specified by one set of 
+  <li>The Henon Map model is a  multifractal benchmark model; it is also specified by one set of
  coefficients.  It has a (capacity) fractal dimension that is
   assumed to be around 1.261 (correlation dimension around 1.25).</li>
   <li>The "Random" model is similar to the Henon models, but uses
@@ -103,18 +103,10 @@ to the plugins folder, or subfolder, and restart ImageJ.
   </li></ul>
 <h3>Using the plugin</h3>
   <ol><li>To generate a default model, the user selects a model from
-  the dropdown menu on the first popup.  The number
-  of sets for the selected model is automatically determined,
-  and this number will appear in the next popup.  
-  <li>If the user
-  wants to modify a model, the number in this second popup can be changed.
-  <li>  After
-  a number of sets is selected, one popup appears for each set.
-  The popups show each coefficient's
-  name listed beside a textbox for its
-  value.  The values can be left at the defaults,
-  or changed as desired.
-  <li>At the bottom of each of these popups, there is a space for
+  the menu on the GUI, then clicks the button at the bottom to render the model. Prior to rendering, various dialogs will appear asking the user to specify some settings.
+  <li>The user can also save or load files of coefficients using the checkboxes and buttons on the interface. 
+  <li>  Popups appear displaying the coefficients for each set, which the user can modify as desired.
+  <li>At the bottom of each set, there is a space for
   the probability that the coefficients above it
   will be used in generating each next point.  The total of
   all probabilities should not be greater than 1; all sets for values
