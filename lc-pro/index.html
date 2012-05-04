@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>LC_Pro Plugin and Demo</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.3  (Win32)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGED" CONTENT="20120504;13420352">
+</HEAD>
+<BODY LANG="en-US" BGCOLOR="#ffffff" DIR="LTR">
+<P><FONT COLOR="#224488"><FONT FACE="Helvetica, Arial"><FONT SIZE=4><B>LC_Pro
+Plugin and Demo</B> </FONT></FONT></FONT>
+</P>
+<DL>
+	<DD>
+	<TABLE WIDTH=700 BORDER=0 CELLPADDING=2 CELLSPACING=0>
+		<COL WIDTH=90>
+		<COL WIDTH=602>
+		<TR VALIGN=TOP>
+			<TD WIDTH=90>
+				<P><B>Author:</B></P>
+			</TD>
+			<TD WIDTH=602>
+				<P>Michael Francis (michaelfranciscmf@gmail.com) 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=90>
+				<P><B>History:</B></P>
+			</TD>
+			<TD WIDTH=602>
+				<P>2012/05/03: First version</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=90>
+				<P><B>Source:</B></P>
+			</TD>
+			<TD WIDTH=602>
+				<P>Download <A HREF="LC_Pro.jar">LC_Pro.jar</A>, and extract it
+				to obtain the source. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=90>
+				<P><B>Installation:</B></P>
+			</TD>
+			<TD WIDTH=602>
+				<P>Paste <A HREF="LC_Pro.jar">LC_Pro.jar</A> into the imageJ
+				plugins folder</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=90>
+				<P><B>Description:</B></P>
+			</TD>
+			<TD WIDTH=602>
+				<P STYLE="margin-bottom: 0in">LC_Pro is an imageJ plugin that
+				performs automated region of interest analysis (ROI) on gray
+				scale image sequences. 
+				</P>
+				<P STYLE="margin-bottom: 0in">Use:</P>
+				<OL>
+					<LI><P STYLE="margin-bottom: 0in">Start ImageJ and select
+					Plugins -&gt; LCpro -&gt; LCpro</P>
+					<LI><P STYLE="margin-bottom: 0in">Enter the ROI diameter in
+					pixels</P>
+					<LI><P STYLE="margin-bottom: 0in">Enter the movie frame rate (in
+					frames per second)</P>
+					<LI><P STYLE="margin-bottom: 0in">If you are measuring the
+					effect of a drug, check &ldquo;drug treatment&rdquo;</P>
+					<LI><P STYLE="margin-bottom: 0in">If &ldquo;drug treatment&rdquo;
+					is checked, enter the time interval during which the drug was
+					added (in seconds).</P>
+					<LI><P STYLE="margin-bottom: 0in">Select the detection
+					confidence limit: p = 0.05 or 0.01.</P>
+					<LI><P STYLE="margin-bottom: 0in">Select the folder containing
+					the files to be analyzed</P>
+				</OL>
+				<P STYLE="margin-bottom: 0in"><BR>
+				</P>
+				<P STYLE="margin-bottom: 0in">Output files:</P>
+				<OL>
+					<LI><P STYLE="margin-bottom: 0in">&ldquo;ROI normalized.txt&rdquo;:
+					a tab delimited file containing intensity versus time values for
+					each region of interest</P>
+					<LI><P STYLE="margin-bottom: 0in">&ldquo;Parameter List.txt&rdquo;:
+					a tab delimited file containing spatial and temporal information
+					about each detected event.</P>
+					<LI><P STYLE="margin-bottom: 0in">&ldquo;Mean Values.txt&rdquo;:
+					a tab delimited file containing the average parameter values
+					from LC_Pro. If &ldquo;drug treatment&rdquo; was checked, both
+					&ldquo;Parameter List.txt&rdquo; and &ldquo;Mean Values.txt&rdquo;
+					will be split into before/after versions of the files.</P>
+				</OL>
+				<P STYLE="margin-bottom: 0in"><BR>
+				</P>
+				<P STYLE="margin-bottom: 0in">Demo:</P>
+				<P STYLE="margin-bottom: 0in">The file <A HREF="test.tif">test.tif</A>
+				is included as a demonstration. Running LC_Pro with default
+				parameters on test.tif should result in the output file
+				&ldquo;Parameter List.txt&rdquo; containing the following
+				entries:</P>
+				<P STYLE="margin-bottom: 0in">1 230 32 1.50 13.75 9.12 0.88 8.25
+				13.00 402</P>
+				<P STYLE="margin-bottom: 0in">2 254 38 1.47 14.75 6.38 1.12 5.25
+				8.89 125</P>
+				<P STYLE="margin-bottom: 0in">Notes: 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in">Input files must be 8 bit,
+					grayscale .tif stacks with no scale information</P>
+					<LI><P STYLE="margin-bottom: 0in">Multiple files in a single
+					folder will be run sequentially using the entered parameter
+					values.</P>
+					<LI><P STYLE="margin-bottom: 0in">ImageJ must have at least 1300
+					MB ram available</P>
+				</UL>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+	</TABLE>
+</DL>
+<P><BR><BR>
+</P>
+<P><B>|<A HREF="">Plugins</A> | <A HREF="../index.html">Home</A> |</B>
+</P>
+</BODY>
+</HTML>
