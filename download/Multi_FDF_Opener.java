@@ -106,7 +106,16 @@ public class Multi_FDF_Opener implements PlugIn {
 		float xsize = 0;
 		float ysize = 0;
 		float zsize = 0;
+		long bigEndian = 1;
 		float elementsize = 0;
+		
+		String type;
+		String name;
+		
+		
+		
+		
+		long arrayIndex;
 		if ( !file.exists() || !file.canRead() ) {
 			IJ.showStatus( "Can't read " + file );
 			return(fi);
@@ -117,46 +126,52 @@ public class Multi_FDF_Opener implements PlugIn {
 				IJ.showStatus( files[i] );
 		}
 		else try {
-			IJ.log("Parameters for " + fdffile + " : ");
 			while ( ((line = in.readLine()) != null ) & !done ) {
 				IJ.log( "      FDF header>>> " + line);
-				if ( line.startsWith("char  *spatial_rank") ) {
-					StringTokenizer st = new StringTokenizer(line, " =;,{}\"");
-					st.nextToken();	// 1st token is 'char'
-					st.nextToken();	// 2nd token is '*spatial_rank'
-					spatial_rank = st.nextToken();
-				}
-				if ( line.startsWith("float  matrix") ) {
-					StringTokenizer st = new StringTokenizer(line, " =;,{}");
-					st.nextToken();	// 1st token is 'float'
-					st.nextToken();	// 2nd token is 'matrix'
-					if ( spatial_rank.equals("2dfov") ) {
-						xdim = Long.valueOf(st.nextToken()).longValue();	// 3rd token is xdim
-						ydim = Long.valueOf(st.nextToken()).longValue();	// 4th token is ydim
+				if( line.length() == 0 ) {
+					IJ.log("line is empty");
+				} else {
+					StringTokenizer st = new StringTokenizer( line, " *=;,{}[]\"");
+					type = st.nextToken();
+					if( type.equals("int") ) {
+					// process ints
+						name = st.nextToken();
+						if( name.equals("bigendian") ) {
+							bigEndian = Long.valueOf(st.nextToken()).longValue();
+						} else	if( name.equals("checksum") ) {
+							done = true;
+						}
+					} else if( type.equals("float") ) {
+					// process float
+						name = st.nextToken();
+						if( name.equals("matrix") ) {
+							if( spatial_rank.equals("2dfov") ) {
+								xdim = Long.valueOf(st.nextToken()).longValue();
+								ydim = Long.valueOf(st.nextToken()).longValue();
+							} else if( spatial_rank.equals("3dfov") ) {
+								xdim = Long.valueOf(st.nextToken()).longValue();
+								ydim = Long.valueOf(st.nextToken()).longValue();
+								zdim = Long.valueOf(st.nextToken()).longValue();
+							}
+						} else if( name.equals("span") ) { 
+							if( spatial_rank.equals("2dfov") ) {
+								xspan = Float.valueOf(st.nextToken()).floatValue();
+								yspan = Float.valueOf(st.nextToken()).floatValue();
+							} else if( spatial_rank.equals("3dfov") ) {
+								xspan = Float.valueOf(st.nextToken()).floatValue();
+								yspan = Float.valueOf(st.nextToken()).floatValue();
+								zspan = Float.valueOf(st.nextToken()).floatValue();
+							}
+						} else if( name.equals("bigendian") ) {
+							bigEndian = Long.valueOf(st.nextToken()).longValue();
+						}
+					} else if( type.equals("char") ) {
+						name = st.nextToken();
+						if( name.equals("spatial_rank") ) {
+							spatial_rank = st.nextToken();
+						}
 					}
-					else if ( spatial_rank.equals("3dfov") ) {
-						xdim = Long.valueOf(st.nextToken()).longValue();	// 3rd token is xdim
-						ydim = Long.valueOf(st.nextToken()).longValue();	// 4th token is ydim
-						zdim = Long.valueOf(st.nextToken()).longValue();	// 5th token is zdim
-					}
-				}
-				if ( line.startsWith("float  span") ) {
-					StringTokenizer st = new StringTokenizer(line, " =;,{}");
-					st.nextToken();	// 1st token is 'float'
-					st.nextToken();	// 2nd token is 'span'
-					if ( spatial_rank.equals("2dfov") ) {
-						xspan = Float.valueOf(st.nextToken()).floatValue();	// 3rd token is xspan
-						yspan = Float.valueOf(st.nextToken()).floatValue();	// 4th token is yspan
-					}
-					else if ( spatial_rank.equals("3dfov") ) {
-			    			xspan = Float.valueOf(st.nextToken()).floatValue();	// 3rd token is xspan
-			    			yspan = Float.valueOf(st.nextToken()).floatValue();	// 4th token is yspan
-			    			zspan = Float.valueOf(st.nextToken()).floatValue();	// 5th token is zspan
-					}
-				}
-				count = count + 1;
-				if ( count > 20 ) {
-					done = true;
+					count = count + 1;
 				}
 			}
 		}
@@ -166,6 +181,21 @@ public class Multi_FDF_Opener implements PlugIn {
 		xsize = 10 * xspan / xdim;
 		ysize = 10 * yspan / ydim;
 		zsize = 10 * zspan / zdim;
+			fi.fileName = fdffile;
+		fi.directory = directory;
+		fi.fileFormat = fi.RAW;
+		fi.width = (int)xdim;
+		fi.height = (int)ydim;
+		fi.nImages = (int)zdim;
+		fi.pixelWidth = xsize;
+		fi.pixelHeight = ysize;
+		fi.pixelDepth = zsize;
+		fi.intelByteOrder = bigEndian == 0 ? true: false;
+		fi.fileType = FileInfo.GRAY32_FLOAT; 
+		fi.unit = "mm";
+		fi.offset = (int)(file.length() - xdim*ydim*zdim*4); 
+
+		IJ.log(" intelByteOrder: " + fi.intelByteOrder);
 		IJ.log("      xdim:  " + xdim);
 		IJ.log("      ydim:  " + ydim);
 		IJ.log("      zdim:  " + zdim);
@@ -175,21 +205,11 @@ public class Multi_FDF_Opener implements PlugIn {
 		IJ.log("      xsize: " + xsize);
 		IJ.log("      ysize: " + ysize);
 		IJ.log("      zsize: " + zsize);
-		fi.fileName = fdffile;
-		fi.directory = directory;
-		fi.fileFormat = fi.RAW;
-		fi.width = (int)xdim;
-		fi.height = (int)ydim;
-		fi.nImages = (int)zdim;
-		fi.pixelWidth = xsize;
-		fi.pixelHeight = ysize;
-		fi.pixelDepth = zsize;
-		fi.intelByteOrder = false;
-		fi.fileType = FileInfo.GRAY32_FLOAT; 
-		fi.unit = "mm";
-		fi.offset = (int)(file.length() - xdim*ydim*zdim*4); 
-		IJ.log("      fi.offset = " + fi.offset);
-		IJ.log("");
+		IJ.log(" file length: " + file.length() );
+		IJ.log(" data offset: " + fi.offset );
+
+//		IJ.log("      fi.offset = " + fi.offset);
+//		IJ.log("");
 		return (fi);
 	}
 }
