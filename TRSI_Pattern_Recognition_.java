@@ -1,6 +1,6 @@
 /** TRSI Pattern Recognition
   * Version May 1, 2012
-  * A Plugin for Translation, Rotation, and Scale Invariant Character/Object Recognition using Modified Ring Projection
+  * A Plugin for Translation, Rotation, and Scale Invariant Character/Pattern Recognition using Modified Ring Projection
   * By Gholam Reza Kaka and Kaiser Niknam
   *
   * Reference: Niknam, Kaiser and Gholam Reza Kaka. Translation, Rotation, and Scale Invariant Character Recognition using Modified Ring Projection.� International Journal of Imaging & Robotics 7.1 (2012): 1-10.
@@ -78,11 +78,12 @@ public class TRSI_Pattern_Recognition_ implements ExtendedPlugInFilter, DialogLi
 		try {
 			ImageProcessor icopy = ip.duplicate();
 			Rectangle roi = ip.getRoi(); // Pattern region
+			ip.setRoi(0, 0, 0, 0); // Kill roi
 			
 			int H = icopy.getHeight(); // Image Height
 			int W = icopy.getWidth(); // Image Width
 			icopy.threshold(intOtsu); // Image binarization
-			if(!blbg) ip.invert(); // Set background color to black
+			if(!blbg) icopy.invert(); // Set background color to black
 			
 			data = new int[W][H]; // Matrix of binary image
 			for(int i=0; i<W; i++) {
@@ -95,8 +96,8 @@ public class TRSI_Pattern_Recognition_ implements ExtendedPlugInFilter, DialogLi
 			for(int i=0; i<N; i++) rho[i] = ((float)i)/((float)N)*((float)Math.sqrt(2.)); // rho = [0..sqrt(2)]
 			ref = new float[N];
 			ref = modified_ring(1, roi.x, roi.y, roi.width+roi.x-1, roi.height+roi.y-1, icopy.duplicate()); // Reference modified ring projections
-			
-			int m = 1; // Areas identification
+			// Areas identification
+			int m = 1;
 			for(int i=0; i<W; i++) {
 				for(int j=0; j<H; j++) {
 					if(data[i][j]==1) {
@@ -105,7 +106,6 @@ public class TRSI_Pattern_Recognition_ implements ExtendedPlugInFilter, DialogLi
 					}
 				}
 			}
-			
 			// Comparison modified ring projection of all identified areas with reference modified ring projection
 			for(int indm=2; indm<=m; indm++) {
 				int xmin=-1; int xmax=-1; int ymin=-1; int ymax=-1;
@@ -127,14 +127,14 @@ public class TRSI_Pattern_Recognition_ implements ExtendedPlugInFilter, DialogLi
 				}
 				error=error/sum*100;
 				if(error<(float)intError) { // Draw an oval around the similar patterns
-					ip.setColor(Color.white); ip.setLineWidth(1); ip.drawOval((3*xmin-xmax)/2, (3*ymin-ymax)/2, 2*(xmax-xmin+1), 2*(ymax-ymin+1));
+					if(blbg) ip.setColor(Color.white); else ip.setColor(Color.black); ip.setLineWidth(2); ip.drawOval((3*xmin-xmax)/2, (3*ymin-ymax)/2, 2*(xmax-xmin+1), 2*(ymax-ymin+1));
 				}
 				if(sciv) { // Write in percent of similarity
-					ip.setColor(Color.white); ip.setLineWidth(1); ip.drawString(Float.toString((float)Math.floor(100*error)/100)+"%", xmin, ymin);
+					if(blbg) ip.setColor(Color.white); else ip.setColor(Color.black); ip.setLineWidth(2); ip.drawString(Float.toString((float)Math.floor(100*error)/100)+"%", xmin, ymin);
 				}
-				
 			}
-			imp.setRoi(roi); imp.updateAndDraw(); // Restore region of pattern and re-draw image
+			// Restore region of pattern and re-draw image
+			imp.setRoi(roi); imp.updateAndDraw();
 		}
 		catch(Exception e) {
 			IJ.error("Runtime Error", e.getMessage());
@@ -235,6 +235,5 @@ public class TRSI_Pattern_Recognition_ implements ExtendedPlugInFilter, DialogLi
 			this.y = y;
 		}
 	}
-
+	
 }
-
