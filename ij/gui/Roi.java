@@ -68,6 +68,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	private int channel, slice, frame;
 	private Overlay prototypeOverlay;
 	private boolean subPixel;
+	private boolean scaleStrokeWidth = true;
 
 	/** Creates a rectangular ROI. */
 	public Roi(int x, int y, int width, int height) {
@@ -1033,6 +1034,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	protected void handleMouseDown(int sx, int sy) {
+IJ.log("handleMouseDown: "+sx+" "+sy+" "+state);
 		if (state==NORMAL && ic!=null) {
 			state = MOVING;
 			startX = ic.offScreenX(sx);
@@ -1042,6 +1044,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 		
 	protected void handleMouseUp(int screenX, int screenY) {
+IJ.log("handleMouseUp: "+screenX+" "+screenY);
 		state = NORMAL;
 		if (imp==null) return;
 		imp.draw(clipX-5, clipY-5, clipWidth+10, clipHeight+10);
@@ -1267,7 +1270,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		return  strokeColor;
 	}
 
-	/** Sets the color used to fill ROIs when they are in an overlay.
+	/** Sets the color used to fill ROIs.
 	 * @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
 	 */
 	public void setFillColor(Color color) {
@@ -1369,7 +1372,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	protected BasicStroke getScaledStroke() {
-		if (ic==null) return stroke;
+		if (ic==null || !scaleStrokeWidth)
+			return stroke;
 		double mag = ic.getMagnification();
 		if (mag!=1.0) {
 			float width = stroke.getLineWidth();
@@ -1569,6 +1573,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 	
 	public void setDrawOffset(boolean drawOffset) {
+	}
+	
+	public boolean getScaleStrokeWidth() {
+		return scaleStrokeWidth;
+	}
+	
+	public void setScaleStrokeWidth(boolean scaleStrokeWidth) {
+		this.scaleStrokeWidth = scaleStrokeWidth;
 	}
 
     /** Checks whether two rectangles are equal. */

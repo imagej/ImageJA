@@ -54,7 +54,6 @@ public class ResultsTable implements Cloneable {
 	private boolean headingSet; 
 	private boolean showRowNumbers = true;
 	private boolean autoFormat = true;
-	private int showCount;
 
 	/** Constructs an empty ResultsTable with the counter=0 and no columns. */
 	public ResultsTable() {
@@ -526,6 +525,7 @@ public class ResultsTable implements Cloneable {
 	public synchronized void deleteRow(int row) {
 		if (counter==0 || row<0 || row>counter-1) return;
 		if (rowLabels!=null) {
+			rowLabels[row] = null;
 			for (int i=row; i<counter-1; i++)
 				rowLabels[i] = rowLabels[i+1];
 		}
@@ -538,7 +538,6 @@ public class ResultsTable implements Cloneable {
 		counter--;
 	}
 	
-	/** Obsolete; instead, use "rt=new ResultsTable()". */
 	public synchronized void reset() {
 		counter = 0;
 		maxRows = 100;
@@ -588,6 +587,7 @@ public class ResultsTable implements Cloneable {
 		String tableHeadings = getColumnHeadings();		
 		TextPanel tp;
 		boolean newWindow = false;
+		boolean cloneNeeded = false;
 		if (windowTitle.equals("Results")) {
 			tp = IJ.getTextPanel();
 			if (tp==null) return;
@@ -610,15 +610,14 @@ public class ResultsTable implements Cloneable {
 				win = (TextWindow)frame;
 			else {
 				win = new TextWindow(windowTitle, "", 400, 300);
-				if (showCount++==1)
-					IJ.log("ResultsTable: show() called more than once; window contents may be invalid");
+				cloneNeeded = true;
 			}
 			tp = win.getTextPanel();
 			tp.setColumnHeadings(tableHeadings);
 			newWindow = tp.getLineCount()==0;
 			autoFormat = false;
 		}
-		tp.setResultsTable(this);
+		tp.setResultsTable(cloneNeeded?(ResultsTable)this.clone():this);
 		int n = getCounter();
 		if (n>0) {
 			if (tp.getLineCount()>0) tp.clear();
