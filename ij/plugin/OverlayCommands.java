@@ -75,9 +75,12 @@ public class OverlayCommands implements PlugIn {
 		}
 		boolean setPos = defaultRoi.getPosition()!=0;
 		if (setPos && imp.getStackSize()>1) {
-			if (imp.isHyperStack()||imp.isComposite())
-				roi.setPosition(0, imp.getSlice(), imp.getFrame());
-			else
+			if (imp.isHyperStack()||imp.isComposite()) {
+				if (imp.getNSlices()>1)
+					roi.setPosition(0, imp.getSlice(), 0);
+				else if (imp.getNFrames()>1)
+					roi.setPosition(0, 0, imp.getFrame());
+			} else
 				roi.setPosition(imp.getCurrentSlice());
 		}
 		int width = Line.getWidth();
@@ -95,7 +98,8 @@ public class OverlayCommands implements PlugIn {
 		}
 		String name = roi.getName();
 		boolean newOverlay = name!=null && name.equals("new-overlay");
-		if (overlay==null || newOverlay) overlay = OverlayLabels.createOverlay();
+		if (overlay==null || newOverlay)
+			overlay = OverlayLabels.createOverlay();
 		overlay.add(roi);
 		if (!roi.isDrawingTool())
 			defaultRoi = (Roi)roi.clone();
@@ -270,9 +274,6 @@ public class OverlayCommands implements PlugIn {
 			return;
 		}
 		rm.moveRoisToOverlay(imp);
-		ImageCanvas ic = imp.getCanvas();
-		if (ic!=null) ic.setShowAllROIs(false);
-		rm.setEditMode(imp, false);
 		imp.deleteRoi();
 	}
 	
