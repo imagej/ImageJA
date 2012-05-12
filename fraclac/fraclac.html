@@ -125,12 +125,9 @@ or automatically saved as .txt files (tab-delimited;UTF-8 encoded to be opened i
 </li></td></tr>
 <tr valign="top"><td><b>Limitations:</b></td><td>FracLac works on
 binary images (black pixels on a white background, or white pixels on a
-black background) and grayscale images. For a binary analysis (e.g., of
-cellular outlines), images must be thresholded prior to analysis to
-ensure that only the pixels of interest are assessed. For grayscale
-scans, images and rois are padded with a value that is ignored by the
-counting method. <p>
-You should assess your analysis against benchmark images and be aware of how the settings can affect the result. For instance, FracLac will determine the fractal dimension of a 400x400 pixel square as a perfect 1.000 (not fractal at all but the correct value) if the software is set to use a scaled series with a scaling factor of 2 and the largest box set to 50% with 12 grid positions. But for most images, the point of the analysis is to determine a value for the fractal dimension without knowing the scaling ahead of time. See the online help for more about this.  
+black background) and on grayscale images or grayscale images that have been converted to RGB. For a binary analysis (e.g., branching patterns or single pixel wide contours of cellular outlines), the signal is black or white pixels and the noise is the opposite, white or black pixels, thus images must be thresholded prior to analysis to ensure that only the pixels of interest are assessed. For grayscale scans, images and rois are padded with a value that is ignored by the
+counting method. Grayscale scans are suited to textures as opposed to contours, and assess every pixel as signal, so the region of interest must be selected carefully. To ensure non-significant parts of grayscale images are not assessed, the image can be converted to RGB and the non-significant areas selected with the wand function or  filled with a non-gray value, as is illustrated in the image.<p><img src="texture.jpg" alt = "[texture]">
+You should assess your analysis against benchmark images and be aware of how the settings can affect the result. For instance, FracLac will determine the fractal dimension of a 400 x 400 pixel square as a perfect 1.000 (not fractal at all but the correct value) if the software is set to use a scaled series with a scaling factor of 2, a minimum box size of 25, and a maximum box size of 50%. But for most images, the point of the analysis is to determine a value for the fractal dimension without knowing the scaling ahead of time. See the online help for more about this.  
  </p></td></tr>
 
 <tr valign="top"><td><b>References:</b></td><td>
@@ -190,7 +187,8 @@ optimization and local connected fractal dimension; help file is now html (2.5d)
 2012/04/18: 2.5i.3 fixed bug that caused grid position counter to reset with very small box sizes; fixed problem with getting irregular rois<br>
 2012/04/30: 2.5k fixed bugs with particle analyzer on inverting LUTs; fixed random mass sampling bug that caused a hang on stacks<br>
 2012/05/03: 2.5m fixed bugs with lcfd stacks<br>
-2012/05/08: 2.5p fixed bug with regression lines not showing; added feature to let user choose less slices per stack so grid images don't crash
+2012/05/08: 2.5p fixed bug with regression lines not showing; added feature to let user choose less slices per stack so grid images don't crash<br>
+2012/05/13: 2.5r added feature to work on grayscale images with "holes"
 </td></tr>
 
 </tbody></table>
