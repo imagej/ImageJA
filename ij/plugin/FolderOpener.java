@@ -27,16 +27,19 @@ public class FolderOpener implements PlugIn {
 	private FileInfo fi;
 	private String info1;
 	private ImagePlus image;
+	private boolean saveImage;
 	
 	/** Opens the images in the specified directory as a stack. */
 	public static ImagePlus open(String path) {
 		FolderOpener fo = new FolderOpener();
+		fo.saveImage = true;
 		fo.run(path);
 		return fo.image;
 	}
 
 	/** Opens the images in the specified directory as a stack. */
 	public ImagePlus openFolder(String path) {
+		saveImage = true;
 		run(path);
 		return image;
 	}
@@ -316,9 +319,9 @@ public class FolderOpener implements PlugIn {
 			}
 			if (imp2.getStackSize()==1 && info1!=null)
 				imp2.setProperty("Info", info1);
-			if (arg==null)
+			if (arg==null && !saveImage)
 				imp2.show();
-			else
+			if (saveImage)
 				image = imp2;
 		}
 		IJ.showProgress(1.0);

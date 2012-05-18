@@ -31,7 +31,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	int state;
 	int modState = NO_MODS;
 	int cornerDiameter;
-	boolean activeOverlayRoi;
 	
 	public static Roi previousRoi;
 	public static final BasicStroke onePixelWide = new BasicStroke(1);
@@ -63,12 +62,13 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	protected boolean nonScalable;
 	protected boolean overlay;
 	protected boolean wideLine;
+	protected boolean ignoreClipRect;
 	private String name;
 	private int position;
 	private int channel, slice, frame;
 	private Overlay prototypeOverlay;
 	private boolean subPixel;
-	private boolean scaleStrokeWidth = true;
+	private boolean activeOverlayRoi;
 
 	/** Creates a rectangular ROI. */
 	public Roi(int x, int y, int width, int height) {
@@ -746,7 +746,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 		startX = xNew;
 		startY = yNew;
 		updateClipRect();
-		if (lineWidth>1 && isLine())
+		if ((lineWidth>1 && isLine()) || ignoreClipRect)
 			imp.draw();
 		else
 			imp.draw(clipX, clipY, clipWidth, clipHeight);
@@ -1034,7 +1034,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	protected void handleMouseDown(int sx, int sy) {
-IJ.log("handleMouseDown: "+sx+" "+sy+" "+state);
 		if (state==NORMAL && ic!=null) {
 			state = MOVING;
 			startX = ic.offScreenX(sx);
@@ -1044,7 +1043,6 @@ IJ.log("handleMouseDown: "+sx+" "+sy+" "+state);
 	}
 		
 	protected void handleMouseUp(int screenX, int screenY) {
-IJ.log("handleMouseUp: "+screenX+" "+screenY);
 		state = NORMAL;
 		if (imp==null) return;
 		imp.draw(clipX-5, clipY-5, clipWidth+10, clipHeight+10);
@@ -1341,7 +1339,8 @@ IJ.log("handleMouseUp: "+screenX+" "+screenY);
 	 * @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
 	 */
 	public void setStrokeWidth(float width) {
-		//this.stroke = new BasicStroke(width);
+		if (width<0f)
+			width = 0f;
 		if (width==0)
 			stroke = null;
 		else if (wideLine)
@@ -1358,7 +1357,7 @@ IJ.log("handleMouseUp: "+screenX+" "+screenY);
 
 	/** Returns the lineWidth. */
 	public float getStrokeWidth() {
-		return stroke!=null?stroke.getLineWidth():1;
+		return stroke!=null?stroke.getLineWidth():0f;
 	}
 
 	/** Sets the Stroke used to draw this ROI. */
@@ -1372,7 +1371,7 @@ IJ.log("handleMouseUp: "+screenX+" "+screenY);
 	}
 	
 	protected BasicStroke getScaledStroke() {
-		if (ic==null || !scaleStrokeWidth)
+		if (ic==null)
 			return stroke;
 		double mag = ic.getMagnification();
 		if (mag!=1.0) {
@@ -1575,12 +1574,16 @@ IJ.log("handleMouseUp: "+screenX+" "+screenY);
 	public void setDrawOffset(boolean drawOffset) {
 	}
 	
-	public boolean getScaleStrokeWidth() {
-		return scaleStrokeWidth;
+	public void setIgnoreClipRect(boolean ignoreClipRect) {
+		this.ignoreClipRect = ignoreClipRect;
 	}
-	
-	public void setScaleStrokeWidth(boolean scaleStrokeWidth) {
-		this.scaleStrokeWidth = scaleStrokeWidth;
+
+	public final boolean isActiveOverlayRoi() {
+		return activeOverlayRoi;
+	}
+
+	public final void setActiveOverlayRoi(boolean activeOverlayRoi) {
+		this.activeOverlayRoi = activeOverlayRoi;
 	}
 
     /** Checks whether two rectangles are equal. */
