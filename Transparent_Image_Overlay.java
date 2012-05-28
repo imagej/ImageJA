@@ -8,6 +8,8 @@ import java.awt.image.*;
 public class Transparent_Image_Overlay implements PlugIn {
 
     public void run(String arg) {
+        if (IJ.versionLessThan("1.46p"))
+           return;
         ImagePlus imp = IJ.openImage("http://imagej.nih.gov/ij/images/cardio.dcm.zip");
         ImageProcessor ip = imp.getProcessor();
         ip = ip.crop();
@@ -18,20 +20,18 @@ public class Transparent_Image_Overlay implements PlugIn {
         ip.setColor(Color.red);
         ip.setFont(new Font("SansSerif",Font.PLAIN,28));
         ip.drawString("Transparent\nImage\nOverlay", 0, 40);
-        ip.setColorModel(new DirectColorModel(32,0x00ff0000,0x0000ff00,0x000000ff,0xff000000));
-        for (int x=0; x<width; x++) {
-           for (int y=0; y<height; y++) {
-                double v = ip.getPixelValue(x, y);
-                if (v>1) ip.set(x, y, ip.get(x,y)|0xff000000);
-            }
-        }
-        Roi imageOverlay = new ImageRoi(100, 25, ip);
+        ImageRoi imageRoi = new ImageRoi(100, 25, ip);
+        imageRoi.setZeroTransparent(true);
         ImagePlus boats = IJ.openImage("http://imagej.nih.gov/ij/images/boats.gif");
-        Overlay overlay = new Overlay(imageOverlay);
+        Overlay overlay = new Overlay(imageRoi);
         boats.setOverlay(overlay);
-        //boats.setRoi(imageOverlay);
+        boats.setRoi(imageRoi);
         boats.show();
-        
+        for (int a=0; a<=360; a++) {
+           imageRoi.setAngle(a);
+           boats.draw();
+           IJ.wait(20);
+        }
     }
 
 }
