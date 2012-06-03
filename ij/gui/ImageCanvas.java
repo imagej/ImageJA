@@ -239,13 +239,22 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		else
 			labelRects = null;
 		font = overlay.getLabelFont();
+		Roi activeRoi = imp.getRoi();
 		for (int i=0; i<n; i++) {
 			if (overlay==null) break;
 			Roi roi = overlay.get(i);
-			if (roi.isActiveOverlayRoi()) {
+			if (roi==activeRoi) {
 				Color fillColor = roi.getFillColor();
-				if ((fillColor!=null&&fillColor.getAlpha()!=255) || (roi instanceof ImageRoi))
+				if ((fillColor!=null&&fillColor.getAlpha()!=255) || (roi instanceof ImageRoi)) {
+					if (drawLabels) {
+						if (roi==currentRoi)
+							g.setColor(Roi.getColor());
+						else
+							g.setColor(defaultColor);
+						drawRoiLabel(g, i+LIST_OFFSET, roi);
+					}
 					continue;
+				}
 			}
 			if (hyperstack && roi.getPosition()==0) {
 				int c = roi.getCPosition();
@@ -1429,7 +1438,6 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 						continue;
 				}
 				roi.setImage(null);
-				roi.setActiveOverlayRoi(true);
 				imp.setRoi(roi);
 				roi.handleMouseDown(sx, sy);
 				roiManagerSelect(roi, false);

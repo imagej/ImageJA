@@ -1040,7 +1040,7 @@ public class ShapeRoi extends Roi {
 		Color color =  strokeColor!=null? strokeColor:ROIColor;
 		boolean isActiveOverlayRoi = !overlay && isActiveOverlayRoi();
 		if (isActiveOverlayRoi)
-			color = Color.orange;
+			color = Color.cyan;
 		if (fillColor!=null) color = fillColor;
 		g.setColor(color);
 		AffineTransform aTx = (((Graphics2D)g).getDeviceConfiguration()).getDefaultTransform();

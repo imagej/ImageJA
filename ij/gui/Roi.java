@@ -1579,11 +1579,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	public final boolean isActiveOverlayRoi() {
-		return activeOverlayRoi;
-	}
-
-	public final void setActiveOverlayRoi(boolean activeOverlayRoi) {
-		this.activeOverlayRoi = activeOverlayRoi;
+		Overlay overlay = imp!=null?imp.getOverlay():null;
+		return overlay!=null && overlay.contains(this);
 	}
 
     /** Checks whether two rectangles are equal. */

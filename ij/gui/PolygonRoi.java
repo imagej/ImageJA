@@ -189,7 +189,7 @@ public class PolygonRoi extends Roi {
         updatePolygon();
 		Color color =  strokeColor!=null?strokeColor:ROIColor;
 		boolean hasHandles = xSpline!=null||type==POLYGON||type==POLYLINE||type==ANGLE;
-		boolean isActiveOverlayRoi = !overlay && isActiveOverlayRoi() && !hasHandles;
+		boolean isActiveOverlayRoi = !overlay && !hasHandles && isActiveOverlayRoi();
 		if (isActiveOverlayRoi) {
 			if (color==Color.cyan)
 				color = Color.magenta;
@@ -225,9 +225,13 @@ public class PolygonRoi extends Roi {
                 	g.drawPolyline(xp2, yp2, nPoints);
                 }
             } else {
-            	if (fill)
+            	if (fill) {
                 	g.fillPolygon(xp2, yp2, nPoints);
-                else
+                	if (isActiveOverlayRoi) {
+                		g.setColor(Color.cyan);
+                		g.drawPolygon(xp2, yp2, nPoints);
+                	}
+                } else
                 	g.drawPolygon(xp2, yp2, nPoints);
              }
             if (state==CONSTRUCTING && type!=FREEROI && type!=FREELINE)
