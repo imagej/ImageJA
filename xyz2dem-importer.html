@@ -1,14 +1,14 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html><head>    
-<title>XYZ2DEM Importer</title>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">  
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">    
+<html><head><title>XYZ2DEM Importer</title>
+<meta HTTP-EQUIV="content-type" CONTENT="text/html;charset=iso-8859-1">  
 <meta name="description" content="Digital Elevation Model Importer">  
 <meta name="keywords" content="Geoinformatics and Surveying">    
-<meta http-equiv="expires" content="86400">  
-<meta name="Content-Language" content="en">  
-<meta name="revisit-after" content="15 days">  
-<meta name="robots" content="index,follow">  
-</head><body bgcolor="#ffffff">
+<meta HTTP-EQUIV="expires" CONTENT="86400">  
+<meta NAME="Content-Language" CONTENT="en">  
+<meta NAME="revisit-after" CONTENT="15 days">  
+<meta NAME="robots" CONTENT="index,follow">  
+</head>
+<body bgcolor="#ffffff">
 
 <font color="#224488" face="Helvetica, Arial" size="+1">
 <b>XYZ2DEM Importer</b>
@@ -21,28 +21,30 @@
 <table cellspacing="5">
 
 <tbody><tr valign="top"><td><b>Author:</b></td><td>
-Martin Schlueter (ij<img src="xyz2dem-importer_files/at.gif" alt="[at]" align="top" height="18" width="15">ms3d.de),
+Martin Schl&uuml;ter (ij<img src="../images/at.gif" align="top" width=15 height=18 alt="[at]">ms3d.de),
 <a href="http://www.i3mainz.fh-mainz.de/">i3mainz</a>
 </td></tr>
 
-</tbody><tbody><tr valign="top"><td><b>Contributor:</b></td><td>
-Barry Joe (bjoe<img src="xyz2dem-importer_files/at.gif" alt="[at]" align="top" height="18" width="15">shaw.ca), 
+<tbody><tr valign="top"><td><b>Contributor:</b></td><td>
+Barry Joe (bjoe<img src="../images/at.gif" align="top" width=15 height=18 alt="[at]">shaw.ca), 
 author of <a href="http://members.shaw.ca/bjoe/" target="_blank">Geompack</a>
 </td></tr>
 
 <tr valign="top"><td><b>History:</b></td><td>
+2012/07/01: Optionally create a Tiff World File '.tfw'<br>
+2012/07/01: Rename result to file extension '.tif'<br>
 2009/04/23: Fix (removes java generics compiler warnings)<br>
 2005/02/22: First version
 </td></tr>
 
 
 <tr valign="top"><td><b>Source:</b></td><td>
-<a href="http://ij.ms3d.de/plugins/download/XYZ2DEM_Importer.java">XYZ2DEM_Importer.java</a>
+<a href="./download/XYZ2DEM_Importer.java">XYZ2DEM_Importer.java</a>
 </td></tr>
 
 
 <tr valign="top"><td><b>Installation:</b></td><td>
-Download <a href="http://ij.ms3d.de/plugins/download/XYZ2DEM_Importer.class">XYZ2DEM_Importer.class</a> to the plugins folder and restart ImageJ.
+Download <a href="./download/XYZ2DEM_Importer.class">XYZ2DEM_Importer.class</a> to the plugins folder and restart ImageJ.
 </td></tr>
 
 <tr valign="top"><td><b>Description:</b></td><td>
@@ -52,8 +54,8 @@ from the first 3 columns of a plain text file
 and interpolates a Digital Elevation Model (DEM) image
 using a Delaunay triangulation.
 <p>
-<a href="http://ij.ms3d.de/plugins/images/xyz2dem_importer.png" target="ImageWindow">
-   <img src="xyz2dem-importer_files/xyz2dem_importer.png" alt="images/xyz2dem_importer.png" border="0" height="265" width="499"></a>
+<a href="images/xyz2dem_importer.png" target="ImageWindow">
+   <img src="images/xyz2dem_importer.png" height="265" width="499" border="0" alt="images/xyz2dem_importer.png"></a>
 </p>
 <p>
 The given points are projected to the X,Y-plane and are meshed by a 2D-Delaunay triangulation.
@@ -93,3 +95,4 @@ are brought to you by <a href="http://www.i3mainz.fh-mainz.de/">i3mainz</a>.
 <p><b>|<a href="http://ij.ms3d.de/xyz2dem-importer.php">XYZ2DEM Importer - Tutorials, Examples, Applications</a> |<a href="http://rsb.info.nih.gov/ij/plugins/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/index.html">Home</a> |</b>
 
 </p></body></html>
+
