@@ -15,6 +15,7 @@ import ij.plugin.OverlayLabels;
 import ij.util.*;
 import ij.macro.*;
 import ij.measure.*;
+import ij.text.TextWindow;
 
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
 public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener {
@@ -148,8 +149,9 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		addPopupItem("Sort");
 		addPopupItem("Specify...");
 		addPopupItem("Remove Slice Info");
-		addPopupItem("Help");
 		addPopupItem("Labels...");
+		addPopupItem("List");
+		addPopupItem("Help");
 		addPopupItem("Options...");
 		add(pm);
 	}
@@ -213,10 +215,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			specify();
 		else if (command.equals("Remove Slice Info"))
 			removeSliceInfo();
-		else if (command.equals("Help"))
-			help();
 		else if (command.equals("Labels..."))
 			labels();
+		else if (command.equals("List"))
+			listRois();
+		else if (command.equals("Help"))
+			help();
 		else if (command.equals("Options..."))
 			options();
 		else if (command.equals("\"Show All\" Color..."))
@@ -423,12 +427,9 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			boolean hasPosition = false;
 			boolean hyperstack = imp!=null &&  imp.isHyperStack();
 			int slice = roi.getPosition();
-			if (slice==0) {
-				if (Prefs.showAllSliceOnly)
-					slice = imp.getCurrentSlice();
-				else
-					slice = 0;
-			} else
+			if (slice==0)
+				slice = imp.getCurrentSlice();
+			else
 				hasPosition = true;
 			if (!hasPosition)
 				hasPosition = hyperstack && (roi.getZPosition()>0 || roi.getTPosition()>0);
@@ -1053,8 +1054,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 					break;
 			}
 		}
-		ImageCanvas ic = imp.getCanvas();
-		if (ic!=null) ic.setShowAllROIs(false);
+		runCommand("show none");
 		imp.updateAndDraw();
 		return true;
 	}
@@ -1394,7 +1394,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		Color c = ImageCanvas.getShowAllColor();
 		GenericDialog gd = new GenericDialog("Options");
 		//gd.addPanel(makeButtonPanel(gd), GridBagConstraints.CENTER, new Insets(5, 0, 0, 0));
-		gd.addCheckbox("Associate ROIs with stack positions", Prefs.showAllSliceOnly);
+		gd.addCheckbox("Associate \"Show All\" ROIs with Slices", Prefs.showAllSliceOnly);
 		gd.addCheckbox("Restore ROIs centered", restoreCentered);
 		gd.addCheckbox("Use ROI names as labels", Prefs.useNamesAsLabels);
 		gd.showDialog();
@@ -1960,8 +1960,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	
 	private Overlay newOverlay() {
 		Overlay overlay = OverlayLabels.createOverlay();
-		if (labelsCheckbox.getState())
-			overlay.drawLabels(true);
+		overlay.drawLabels(labelsCheckbox.getState());
 		if (overlay.getLabelFont()==null && overlay.getLabelColor()==null) {
 			overlay.setLabelColor(Color.white);
 			overlay.drawBackgrounds(true);
@@ -1983,6 +1982,18 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			return;
 		ic.setShowAllList(overlay);
 		imp.draw();
+	}
+	
+	private void listRois() {
+		StringBuffer sb = new StringBuffer();
+		Roi[] rois = getRoisAsArray();
+		for (int i=0; i<rois.length; i++) {
+			Rectangle r = rois[i].getBounds();
+			String color = Colors.colorToString(rois[i].getStrokeColor());
+			sb.append(i+"\t"+rois[i].getName()+"\t"+rois[i].getTypeAsString()+"\t"+(r.x+r.width/2)+"\t"+(r.y+r.height/2)+"\t"+color+"\n");
+		}
+        String headings = "Index\tName\tType\tX\tY\tColor";
+		new TextWindow("ROI List", headings, sb.toString(), 400, 400);
 	}
 
 	private boolean record() {

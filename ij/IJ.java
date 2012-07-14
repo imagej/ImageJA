@@ -1387,7 +1387,7 @@ public class IJ {
 
 	/** Returns a reference to the active image, or displays an error
 		message and aborts the plugin or macro if no images are open. */
-	public static ImagePlus getImage() {  //ts
+	public static ImagePlus getImage() {
 		ImagePlus img = WindowManager.getCurrentImage();
 		if (img==null) {
 			IJ.noImage();
@@ -1399,6 +1399,13 @@ public class IJ {
 		return img;
 	}
 	
+	/** Returns the active image or stack slice as an ImageProcessor, or displays
+		an error message and aborts the plugin or macro if no images are open. */
+	public static ImageProcessor getProcessor() {
+		ImagePlus imp = IJ.getImage();
+		return imp.getProcessor();
+	}
+
 	/** Switches to the specified stack slice, where 1<='slice'<=stack-size. */
 	public static void setSlice(int slice) {
 		getImage().setSlice(slice);
@@ -1732,6 +1739,17 @@ public class IJ {
 		}
 		return str;
 	}
+
+	/** Creates a new image.
+	*  @param title   image name
+	*  @param width  image width in pixels
+	*  @param height image height in pixels
+	*  @param depth number of stack images
+	*  @param bitdepth  8, 16, 32 (float) or 24 (RGB)
+	*/
+	 public static ImagePlus createImage(String title, int width, int height, int depth, int bitdepth) {
+		return NewImage.createImage(title, width, height, depth, bitdepth, NewImage.FILL_BLACK);
+	 }
 
 	 /** Creates a new imagePlus. <code>Type</code> should contain "8-bit", "16-bit", "32-bit" or "RGB". 
 		 In addition, it can contain "white", "black" or "ramp" (the default is "white"). <code>Width</code> 

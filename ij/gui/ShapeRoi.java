@@ -1055,9 +1055,13 @@ public class ShapeRoi extends Roi {
 		}
 		aTx.setTransform(mag, 0.0, 0.0, mag, -basex*mag, -basey*mag);
 		aTx.translate(x, y);
-		if (fillColor!=null)
-			g2d.fill(aTx.createTransformedShape(shape));
-		else
+		if (fillColor!=null) {
+			if (isActiveOverlayRoi) {
+				g2d.setColor(Color.cyan);
+				g2d.draw(aTx.createTransformedShape(shape));
+			} else
+				g2d.fill(aTx.createTransformedShape(shape));
+		} else
 			g2d.draw(aTx.createTransformedShape(shape));
 		if (stroke!=null) g2d.setStroke(defaultStroke);
 		if (Toolbar.getToolId()==Toolbar.OVAL)

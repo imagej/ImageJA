@@ -32,10 +32,6 @@ public class PolygonRoi extends Roi {
 		Type must be Roi.POLYGON, Roi.FREEROI, Roi.TRACED_ROI, Roi.POLYLINE, Roi.FREELINE or Roi.ANGLE.*/
 	public PolygonRoi(int[] xPoints, int[] yPoints, int nPoints, int type) {
 		super(0, 0, null);
-		if (xPoints==null || yPoints==null)
-			throw new IllegalArgumentException("null argument");
-		if (nPoints<1)
-			throw new IllegalArgumentException("npoints<1");
 		init1(nPoints, type);
 		xp = xPoints;
 		yp = yPoints;
@@ -56,8 +52,6 @@ public class PolygonRoi extends Roi {
 		Type must be Roi.POLYGON, Roi.FREEROI, Roi.POLYLINE, Roi.FREELINE or Roi.ANGLE.*/
 	public PolygonRoi(float[] xPoints, float[] yPoints, int nPoints, int type) {
 		super(0, 0, null);
-		if (xPoints==null || yPoints==null)
-			throw new IllegalArgumentException("Null argument");
 		init1(nPoints, type);
 		xpf = xPoints;
 		ypf = yPoints;
@@ -189,8 +183,8 @@ public class PolygonRoi extends Roi {
         updatePolygon();
 		Color color =  strokeColor!=null?strokeColor:ROIColor;
 		boolean hasHandles = xSpline!=null||type==POLYGON||type==POLYLINE||type==ANGLE;
-		boolean isActiveOverlayRoi = !overlay && !hasHandles && isActiveOverlayRoi();
-		if (isActiveOverlayRoi) {
+		boolean isActiveOverlayRoi = !overlay && isActiveOverlayRoi();
+		if (isActiveOverlayRoi && !hasHandles) {
 			if (color==Color.cyan)
 				color = Color.magenta;
 			else
@@ -208,14 +202,14 @@ public class PolygonRoi extends Roi {
 			g2d.setStroke(getScaledStroke());
         if (xSpline!=null) {
             if (type==POLYLINE || type==FREELINE) {
-                drawSpline(g, xSpline, ySpline, splinePoints, false, fill);
+                drawSpline(g, xSpline, ySpline, splinePoints, false, fill, isActiveOverlayRoi);
                 if (wideLine && !overlay) {
                 	g2d.setStroke(onePixelWide);
                 	g.setColor(getColor());
-                	drawSpline(g, xSpline, ySpline, splinePoints, false, fill);
+                	drawSpline(g, xSpline, ySpline, splinePoints, false, fill, isActiveOverlayRoi);
                 }
             } else
-                drawSpline(g, xSpline, ySpline, splinePoints, true, fill);
+                drawSpline(g, xSpline, ySpline, splinePoints, true, fill, isActiveOverlayRoi);
         } else {
             if (type==POLYLINE || type==FREELINE || type==ANGLE || state==CONSTRUCTING) {
                 g.drawPolyline(xp2, yp2, nPoints);
@@ -226,11 +220,11 @@ public class PolygonRoi extends Roi {
                 }
             } else {
             	if (fill) {
-                	g.fillPolygon(xp2, yp2, nPoints);
                 	if (isActiveOverlayRoi) {
                 		g.setColor(Color.cyan);
                 		g.drawPolygon(xp2, yp2, nPoints);
-                	}
+                	} else
+                		g.fillPolygon(xp2, yp2, nPoints);
                 } else
                 	g.drawPolygon(xp2, yp2, nPoints);
              }
@@ -254,7 +248,7 @@ public class PolygonRoi extends Roi {
             {updateFullWindow = false; imp.draw();}
 	}
 	
- 	private void drawSpline(Graphics g, float[] xpoints, float[] ypoints, int npoints, boolean closed, boolean fill) {
+ 	private void drawSpline(Graphics g, float[] xpoints, float[] ypoints, int npoints, boolean closed, boolean fill, boolean isActiveOverlayRoi) {
  		double srcx=0.0, srcy=0.9, mag=1.0;
  		if (ic!=null) {
 			Rectangle srcRect = ic.getSrcRect();
@@ -276,9 +270,13 @@ public class PolygonRoi extends Roi {
 		}
 		if (closed)
 			path.lineTo((xpoints[0]-srcx+xd+offset)*mag, (ypoints[0]-srcy+yd+offset)*mag);
-		if (fill)
-			g2d.fill(path);
-		else
+		if (fill) {
+			if (isActiveOverlayRoi) {
+				g2d.setColor(Color.cyan);
+				g2d.draw(path);
+			} else
+				g2d.fill(path);
+		} else
 			g2d.draw(path);
 	}
 

@@ -240,31 +240,19 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			labelRects = null;
 		font = overlay.getLabelFont();
 		Roi activeRoi = imp.getRoi();
+		boolean roiManagerShowAllMode = overlay==showAllOverlay && !Prefs.showAllSliceOnly;
 		for (int i=0; i<n; i++) {
 			if (overlay==null) break;
 			Roi roi = overlay.get(i);
-			if (roi==activeRoi) {
-				Color fillColor = roi.getFillColor();
-				if ((fillColor!=null&&fillColor.getAlpha()!=255) || (roi instanceof ImageRoi)) {
-					if (drawLabels) {
-						if (roi==currentRoi)
-							g.setColor(Roi.getColor());
-						else
-							g.setColor(defaultColor);
-						drawRoiLabel(g, i+LIST_OFFSET, roi);
-					}
-					continue;
-				}
-			}
 			if (hyperstack && roi.getPosition()==0) {
 				int c = roi.getCPosition();
 				int z = roi.getZPosition();
 				int t = roi.getTPosition();
-				if ((c==0||c==channel) && (z==0||z==slice) && (t==0||t==frame))
+				if (((c==0||c==channel) && (z==0||z==slice) && (t==0||t==frame)) || roiManagerShowAllMode)
 					drawRoi(g, roi, drawLabels?i+LIST_OFFSET:-1);
 			} else {
 				int position = roi.getPosition();
-				if (position==0 || position==currentImage)
+				if (position==0 || position==currentImage || roiManagerShowAllMode)
 					drawRoi(g, roi, drawLabels?i+LIST_OFFSET:-1);
 			}
 		}
@@ -976,7 +964,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			return;
 		}
 		
-		if ((overlay!=null||showAllOverlay!=null) && (e.isAltDown()||e.isControlDown()||overOverlayLabel)) {
+		if ((overlay!=null||showAllOverlay!=null) && ((e.isAltDown()&&!drawingTool())||e.isControlDown()||overOverlayLabel)) {
 			if (activateOverlayRoi(ox, oy)) {
 				mousePressedX = mousePressedY = 0;
 				return;
@@ -1062,6 +1050,10 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			default:  //selection tool
 				handleRoiMouseDown(e);
 		}
+	}
+	
+	private boolean drawingTool() {
+		return Toolbar.getToolName().equals("Paintbrush Tool") || Toolbar.getToolName().equals("Pencil Tool");
 	}
 	
 	void zoomToSelection(int x, int y) {
@@ -1252,11 +1244,14 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 
 	/** Obsolete */
 	public void setShowAllROIs(boolean showAllROIs) {
+		RoiManager rm = RoiManager.getInstance();
+		if (rm!=null)
+			rm.runCommand(showAllROIs?"show all":"show none");
 	}
 
 	/** Obsolete */
 	public boolean getShowAllROIs() {
-		return false;
+		return getShowAllList()!=null;
 	}
 	
 	/** Obsolete */
@@ -1371,7 +1366,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		int ox = offScreenX(e.getX());
 		int oy = offScreenY(e.getY());
 		if ((overlay!=null||showAllOverlay!=null) && ox==mousePressedX && oy==mousePressedY
-		&& (System.currentTimeMillis()-mousePressedTime)>250L) {
+		&& (System.currentTimeMillis()-mousePressedTime)>250L && !drawingTool()) {
 			if (activateOverlayRoi(ox,oy))
 				return;
 		}

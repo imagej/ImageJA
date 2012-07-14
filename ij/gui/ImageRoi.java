@@ -5,9 +5,9 @@ import ij.io.FileSaver;
 import java.awt.*;
 import java.awt.image.*;
 
-	/** An ImageRoi is an Roi that displays an image as an overlay. 
-	 * @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
-	 */
+/** An ImageRoi is an Roi that displays an image as an overlay. 
+* @see ij.ImagePlus#setOverlay(ij.gui.Overlay)
+*/
 public class ImageRoi extends Roi {
 	private Image img;
 	private Composite composite;
@@ -51,7 +51,7 @@ public class ImageRoi extends Roi {
 		}
 		g.drawImage(img2, screenX(x), screenY(y), sx2, sy2, 0, 0, img.getWidth(null), img.getHeight(null), null);
 		if (composite!=null) g2d.setComposite(saveComposite);
-		if (isActiveOverlayRoi())
+		if (isActiveOverlayRoi() && !overlay)
 			super.draw(g);
  	}
  	 	

@@ -91,7 +91,8 @@ public class HyperStackConverter implements PlugIn {
 				imp2.getProcessor().resetMinAndMax();
 			}
 			imp2.setOpenAsHyperStack(true);
-			new StackWindow(imp2);
+			if (imp.getWindow()!=null || imp!=imp2)
+				new StackWindow(imp2);
 			if (imp!=imp2) {
 				imp2.setOverlay(imp.getOverlay());
 				imp.hide();
@@ -161,7 +162,8 @@ public class HyperStackConverter implements PlugIn {
 			ip2.setColorModel(ip2.getDefaultColorModel());
 		}
 		imp2.setOpenAsHyperStack(false);
-		new StackWindow(imp2);
+		if (imp.getWindow()!=null || imp!=imp2)
+			new StackWindow(imp2);
 		if (imp!=imp2) {
 			imp2.setOverlay(imp.getOverlay());
 			imp.hide();

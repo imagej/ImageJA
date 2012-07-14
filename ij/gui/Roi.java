@@ -902,9 +902,13 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			else
 				g.drawRoundRect(sx1, sy1, sw, sh, sArcSize, sArcSize);
 		} else {
-			if (fillColor!=null)
-				g.fillRect(sx1, sy1, sw, sh);
-			else
+			if (fillColor!=null) {
+				if (!overlay && isActiveOverlayRoi()) {
+					g.setColor(Color.cyan);
+					g.drawRect(sx1, sy1, sw, sh);
+				} else
+					g.fillRect(sx1, sy1, sw, sh);
+			} else
 				g.drawRect(sx1, sy1, sw, sh);
 		}
 		if (state!=CONSTRUCTING && clipboard==null && !overlay) {
@@ -1375,8 +1379,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 			return stroke;
 		double mag = ic.getMagnification();
 		if (mag!=1.0) {
-			float width = stroke.getLineWidth();
-			return new BasicStroke((float)(width*mag), BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+			float width = (float)(stroke.getLineWidth()*mag);
+			//return new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+			return new BasicStroke(width, stroke.getEndCap(), stroke.getLineJoin(), stroke.getMiterLimit(), stroke.getDashArray(), stroke.getDashPhase());
 		} else
 			return stroke;
 	}
@@ -1579,7 +1584,13 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
 	}
 
 	public final boolean isActiveOverlayRoi() {
-		Overlay overlay = imp!=null?imp.getOverlay():null;
+		if (imp==null)
+			return false;
+		Overlay overlay = imp.getOverlay();
+		if (overlay!=null && overlay.contains(this))
+			return true;
+		ImageCanvas ic = imp.getCanvas();
+		overlay = ic!=null?ic.getShowAllList():null; // ROI Manager overlay
 		return overlay!=null && overlay.contains(this);
 	}
 
