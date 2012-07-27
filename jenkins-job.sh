@@ -78,4 +78,5 @@ done
 git stash &&
 git checkout master &&
 git stash &&
+mvn clean &&
 mvn deploy || exit
