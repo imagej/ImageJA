@@ -1438,6 +1438,13 @@ public class Functions implements MacroConstants, Measurements {
 				Roi roi = imp.getRoi();
 				String name = roi!=null?roi.getName():null;
 				return name!=null?name:"";
+			} else if (key.equals("selection.color")||key.equals("roi.color")) {
+				ImagePlus imp = getImage();
+				Roi roi = imp.getRoi();
+				if (roi==null)
+					interp.error("No selection");
+				Color color = roi.getStrokeColor();
+				return Colors.colorToString(color);
 			} else if (key.equals("font.name")) {
 				resetImage();
 				ImageProcessor ip = getProcessor();
@@ -1648,8 +1655,6 @@ public class Functions implements MacroConstants, Measurements {
 			setMinMax = true;
 		} else 
 			interp.getRightParen();
-		if ((bitDepth==8||bitDepth==24) && nBins!=256)
-			interp.error("Bin count ("+nBins+") must be 256 for 8-bit and RGB images");
 		if (nBins==65536 && bitDepth==16) {
 			Variable[] array = counts.getArray();
 			int[] hist = getProcessor().getHistogram();
@@ -1661,7 +1666,14 @@ public class Functions implements MacroConstants, Measurements {
 			return;
 		}
 		ImageStatistics stats;
-		if (setMinMax)
+		boolean custom8Bit = false;
+		if ((bitDepth==8||bitDepth==24) && nBins!=256) {
+			ImageProcessor ip = imp.getProcessor().convertToShort(false);
+			imp = imp.createImagePlus();
+			imp.setProcessor(ip);
+			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX, nBins, 0, 256);
+			custom8Bit = true;
+		} else if (setMinMax)
 			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX, nBins, histMin, histMax);
 		else
 			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX, nBins);
@@ -1670,7 +1682,7 @@ public class Functions implements MacroConstants, Measurements {
 			double[] array = new double[nBins];
 			double value = cal.getCValue(stats.histMin);
 			double inc = 1.0;
-			if (bitDepth==16 || bitDepth==32 || cal.calibrated())
+			if (bitDepth==16 || bitDepth==32 || cal.calibrated() || custom8Bit)
 				inc = (cal.getCValue(stats.histMax) - cal.getCValue(stats.histMin))/stats.nBins;
 			for (int i=0; i<nBins; i++) {
 				array[i] = value;
@@ -4003,6 +4015,12 @@ public class Functions implements MacroConstants, Measurements {
 			ImageProcessor ip = getProcessor();
 			setFont(ip);
 			return ip.getFontMetrics().getHeight();
+		} else if (key.equals("selection.width")) {
+			ImagePlus imp = getImage();
+			Roi roi = imp.getRoi();
+			if (roi==null)
+				interp.error("No selection");
+			return roi.getStrokeWidth();
 		} else {
 			interp.error("Invalid key");
 			return 0.0;
