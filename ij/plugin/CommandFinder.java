@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Hashtable;
+import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -104,7 +105,6 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	String [] commands;
 	Hashtable listLabelToCommand;
 	static boolean closeWhenRunning = Prefs.get("command-finder.close", true);
-;
 
 	protected String makeListLabel(String command, CommandAction ca, boolean fullInfo) {
 		if (fullInfo) {
@@ -201,10 +201,22 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	public void mouseExited(MouseEvent e) {}
 	
 	void showSource(String cmd) {
+		cmd = (String)listLabelToCommand.get(cmd);
 		Hashtable table = Menus.getCommands();
 		String className = (String)table.get(cmd);
+		if (IJ.debugMode)
+			IJ.log("showSource: "+cmd+"   "+className);
 		if (className==null) {
-			IJ.error("No source code is associated with this command");
+			IJ.error("No source associated with this command:\n  "+cmd);
+			return;
+		}
+		int mstart = className.indexOf("ij.plugin.Macro_Runner(\"");
+		if (mstart>=0) { // macro or script
+			int mend = className.indexOf("\")");
+			if (mend==-1)
+				return;
+			String macro = className.substring(mstart+24,mend);
+			IJ.open(IJ.getDirectory("plugins")+macro);
 			return;
 		}
 		if (className.endsWith("\")")) {
@@ -214,11 +226,17 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 		}
 		if (className.startsWith("ij.")) {
 			className = className.replaceAll("\\.", "/");
-			String url = IJ.URL+"/source/"+className;
 			IJ.runPlugIn("ij.plugin.BrowserLauncher", IJ.URL+"/source/"+className+".java");
 			return;
 		}
-		//IJ.log(className);
+		className = IJ.getDirectory("plugins")+className.replaceAll("\\.","/");
+		String path = className+".java";
+		File f = new File(path);
+		if (f.exists()) {
+			IJ.open(path);
+			return;
+		}
+		IJ.error("Unable to display source for this plugin:\n  "+className);
 	}
 
 	void export() {
