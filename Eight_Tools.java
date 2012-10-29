@@ -10,9 +10,10 @@ import java.io.File;
 
 
 /** This plugin demonstrates how to add multiple tools to the ImageJ toolbar.
-	It requires ImageJ 1.46d or later. */
+	It requires ImageJ 1.47e or later. */
 public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventListener {
 	private static Frame instance;
+	private boolean logging;
 
 	public Eight_Tools() {
 		super("Eight_Tools");
@@ -20,6 +21,8 @@ public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventL
 			instance.toFront();
 			return;
 		}
+		if (IJ.versionLessThan("1.47e"))
+			return;
 		instance = this;
 		addKeyListener(IJ.getInstance());
 		IJ.addEventListener(this);
@@ -29,7 +32,7 @@ public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventL
 		Button b = new Button("Add Custom Tools");
 		b.addActionListener(this);
 		panel.add(b);
-		b = new Button("Restore Default Tools");
+		b = new Button("Restore Tools");
 		b.addActionListener(this);
 		panel.add(b);
 		add(panel);
@@ -39,19 +42,18 @@ public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventL
 	}
 
 	private void addTools() {
+		logging = false;
 		Toolbar.removeMacroTools();
 		for (int n=1; n<=8; n++)
 			new Tool(n);
+		logging = true;
 	}
 
 	private void restoreTools() {
-		String path = IJ.getDirectory("macros")+"StartupMacros.txt";
-		File f = new File(path);
-		if (!f.exists() && path.contains("Fiji"))
-			path = IJ.getDirectory("macros")+"StartupMacros.fiji.ijm";
-		IJ.run("Install...", "install="+path);
+		logging = false;
+		Toolbar.restoreTools();
 	}
-	
+
 	public Insets getInsets() {
     		Insets i= super.getInsets();
     		return new Insets(i.top+10, i.left+10, i.bottom+10, i.right+10);
@@ -74,6 +76,8 @@ public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventL
 	}
 
 	public void eventOccurred(int eventID) {
+		if (!logging)
+			return;
 		switch (eventID) {
 			case IJEventListener.FOREGROUND_COLOR_CHANGED:
 				String c = Integer.toHexString(Toolbar.getForegroundColor().getRGB());
