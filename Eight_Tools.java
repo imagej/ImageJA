@@ -101,7 +101,7 @@ public class Eight_Tools extends PlugInFrame implements ActionListener, IJEventL
 	
 		Tool(int toolNumber) {
 			this.toolNumber = toolNumber;
-			run("");
+			Toolbar.addTempPlugInTool(this);
 		}
 	
 		public void mousePressed(ImagePlus imp, MouseEvent e) {
