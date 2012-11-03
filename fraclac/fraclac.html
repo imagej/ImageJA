@@ -28,7 +28,7 @@ Download <a href="http://rsb.info.nih.gov/ij/plugins/fraclac/Frac_Lac.jar">Frac_
 to the plugins folder, or subfolder, restart ImageJ,
 then run the plugin using the <i>Plugins/Fractal Analysis/FracLac</i> command.
 </td></tr>
-<img src ="flicon.gif">
+<img src ="flicon.png">
 <tr valign="top"><td><b>Description:</b></td><td>
 Some patterns - such as contours of biological cells, other biological
 structures, fractals, and some textures - are difficult to describe
@@ -161,39 +161,71 @@ the main ones used in defining the calculations:</p><p>
 </li>
 </ol></td></tr>
 
-<tr valign="top"><td><b>History:</b></td><td>
-2002/08/26: First version<br>
-2002/09/26: Calculates circularity<br>
-2003/12/17: Major update<br>
-2004/06/30: Updated<br>
-2005/03/23: Updated to version 2.0aF<br>
-2005/11/24: Updated to version 2.3<br>
-2006/03/17: Updated to version 2.3j<br>
-2006/05/22: Updated to version 2.4b<br>
-2006/11/20: Updated to version 2.4e<br>
-2007/03/13: Major update to version 2.5<br>
-2007/03/27: Fixes bug that caused no printed and saved results for some scans (2.5a)<br>
-2007/04/04: Fixes bug that sometimes prevented maximum epsilon from changing (2.5b)<br>
+
+<tr valign="top"><td>
+<b>History:</b></td>
+<td>
+2002/08/26: First version
+<br>
+2002/09/26: Calculates circularity
+<br>
+2003/12/17: Major update
+<br>
+2004/06/30: Updated
+<br>
+2005/03/23: Updated to version 2.0aF
+<br>
+2005/11/24: Updated to version 2.3
+<br>
+2006/03/17: Updated to version 2.3j
+<br>
+2006/05/22: Updated to version 2.4b   
+<br>
+2006/11/20: Updated to version 2.4e   
+<br>
+2007/03/13: Major update to version 2.5
+<br>
+2007/03/27: Fixes bug that caused no printed and saved results for some scans (2.5a)  
+<br>
+2007/04/04: Fixes bug that sometimes prevnted maximum epsilon from changing (2.5b)   
+<br>
 2007/07/17: Fixes bugs that prevented box masses from being printed for sliding box lacunarity
-scans and prevented batches from being processed (2.5c)<br>
+scans and prevented batches from being processed (2.5c)    
+<br>
 2007/08/01: Fixes bug that prevented user from knowing if the number of grid
 orientations was changed or not; implements user suggestions for multifractal
-optimization and local connected fractal dimension; help file is now html (2.5d)<br>
-2011/02/03: Fixed a couple of bugs with multifractal analysis<br>
-2012/04/05: Fixed encoding of autosaved text files so Greek symbols are retained; fixed bug so autosaved files are saved in a date and time stamped folder (2.5g)<br>
-2102/04/15: release 2.5i; Fixed saved results file problem so filtered data are saved in separate files; fixed display problem so images are not displayed while being processed;changed grid location algorithm to use a series of grid positions in response to user requests; fixed bug so images having inverted LUTs are filled with the right colour.
+optimization and local connected fractal dimension; help file is now html (2.5d)   
 <br>
-2012/04/15: release 2.5i.2; fixed bug so subscans can be done using the particle analyzer again; fixed bug so subscans don't hang on stacks <br>
-2012/04/18: 2.5i.3 fixed bug that caused grid position counter to reset with very small box sizes; fixed problem with getting irregular rois<br>
-2012/04/30: 2.5k fixed bugs with particle analyzer on inverting LUTs; fixed random mass sampling bug that caused a hang on stacks<br>
-2012/05/03: 2.5m fixed bugs with lcfd stacks<br>
-2012/05/08: 2.5p fixed bug with regression lines not showing; added feature to let user choose less slices per stack so grid images don't crash<br>
+2011/02/03: Fixed a couple of bugs with multifractal analysis   
+<br>
+2012/04/05: Fixed encoding of autosaved text files so Greek symbols are retained; fixed bug so autosaved files are saved in a date and time stamped folder (2.5g)   
+<br>
+2102/04/15: release 2.5i; Fixed saved results file problem so filtered data are saved in separate files; fixed display problem so images are not displayed while being processed; changed grid location algorithm to use a series of grid positions in response to user requests; fixed bug so images having inverted LUTs are filled with the right colour.
+   
+<br>
+2012/04/15: release 2.5i.2; fixed bug so subscans can be done using the particle analyzer again; fixed bug so subscans don't hang on stacks    
+<br>
+2012/04/18: 2.5i.3 fixed bug that caused grid position counter to reset with very small box sizes; fixed problem with getting irregular rois   
+<br>
+2012/04/30: 2.5k fixed bugs with particle analyzer on inverting LUTs; fixed random mass sampling bug that caused a hang on stacks   
+<br>
+2012/05/03: 2.5m fixed bugs with lcfd stacks   
+<br>
+2012/05/08: 2.5p fixed bug with regression lines not showing; added feature to let user choose less slices per stack so grid images don't crash   
+<br>
 2012/05/13: 2.5r added feature to work on grayscale images with "holes"
+
+<br>2012/06/21: 2.5v fixed bug with multifractal scanner autochanging the number of scans; added mass vs distance feature; updated colour coded image outputs 
+<br>2012/11/02: 2.5w fixed bug with multifractal scanner to allow user to override minimum box size; changed default for edge effects; fixed grayscale bug with RGB images 
+
+
 </td></tr>
 
 </tbody></table>
 
 </blockquote>
+
+
 <p><b>|<a href="http://rsb.info.nih.gov/ij/plugins/fraclac/index.html">Plugins</a> | <a href="http://rsb.info.nih.gov/ij/plugins/index.html">Home</a> |</b>
 
 </p></body></html>
