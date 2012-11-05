@@ -746,9 +746,9 @@ public class Color_Space_Converter implements  PlugInFilter {
         }
         imp.setTitle(title + " (" + to + ")");
       }
+      csc = new ColorSpaceConverter(whitePoint);
     }
 
-    csc = new ColorSpaceConverter(whitePoint);
     return DOES_RGB + DOES_STACKS;
   }
 
