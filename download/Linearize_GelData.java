@@ -3,8 +3,7 @@ import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.measure.Calibration;
 import ij.measure.Measurements;
-import ij.plugin.filter.PlugInFilter;
-import ij.process.Blitter;
+import ij.plugin.PlugIn;
 import ij.process.ByteProcessor;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
@@ -31,101 +30,36 @@ import ij.process.ImageProcessor;
  * @version 2006/01/25
  * 
  */
-public class Linearize_GelData implements PlugInFilter, Measurements {
-	private ImagePlus imp;
-	private GenericDialog gd;
-	private double scaleFactor = 1.0D/21025.0D;//default value 
+public class Linearize_GelData implements PlugIn, Measurements {
 	
-	public int setup(String arg, ImagePlus imp) {
-		if (IJ.versionLessThan("1.18o"))
-			return DONE;
-		this.imp = imp;
-		return DOES_ALL;
-	}
-	
-	public void run(ImageProcessor ip) {
-		
-		switch (imp.getBitDepth()) {
-		
-		case 16:
-			//interface
-			gd = new GenericDialog(".gel data transformer", IJ.getInstance());
-			gd.addNumericField("Scale Factor: 1/",21025,0);//0 = digits
-			gd.showDialog();
-			
-			if (gd.wasCanceled())
-				return;
-			
-			//scale factor
-			scaleFactor = 1.0D/gd.getNextNumber();		
-			//end interface
-			
-			ImagePlus workImage = linearGel(imp,scaleFactor);		
-			workImage.show();
-			
-			displayValues();
-			break;
-			
-		default:
-			IJ.error("16 bits grayscale image required!");
-		
+	public void run(String arg) {
+		ImagePlus imp = IJ.getImage();
+		if (imp.getBitDepth()!=16) {
+			IJ.error("16-bit image required");
+			return;
 		}
-		
-		
+		GenericDialog gd = new GenericDialog(".gel data transformer", IJ.getInstance());
+		gd.addNumericField("Scale Factor: 1/",21025,0);//0 = digits
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return;
+		double scaleFactor = 1.0D/gd.getNextNumber();
+		ImagePlus workImage = linearGel(imp, scaleFactor);	
+		workImage.show("scaleFactor= "+scaleFactor);
 	}
 	
-	/**
-	 * 
-	 */
-	private void displayValues() {
-		System.out.println("****VALUES****");
-		System.out.println("scaleFactor= "+scaleFactor);
-		System.out.println("*************");
-	}
-	
-	
-	/**
-	 * Do transformation of Square-root encoded Data to Linear Data
-	 * 
-	 */
-	public static ImagePlus linearGel(ImagePlus imagePlus,double scaleFact) {
-		ImageProcessor ip = imagePlus.getProcessor();
-		ImageProcessor ip2 = imagePlus.getProcessor();
-		Calibration cal = imagePlus.getCalibration();
-		Calibration cal2 = imagePlus.getCalibration();
-		
-		// 32bits conversion
-		ip.setCalibrationTable(cal.getCTable());
-		ip = ip.convertToFloat();
-		ip2.setCalibrationTable(cal2.getCTable());
+	/** Do transformation of Square-root encoded Data to Linear Data */
+	public static ImagePlus linearGel(ImagePlus imp, double scaleFact) {
+		ImageProcessor ip2 = imp.getProcessor();
 		ip2 = ip2.convertToFloat();
-		
-		try {
-			int mode = Blitter.MULTIPLY;
-			ip.copyBits(ip2, 0, 0, mode);
-		}
-		catch (IllegalArgumentException e) {
-			IJ.error("\""+imagePlus.getTitle()+"\": "+e.getMessage());
-			return null;
-		}
-		if (!(ip instanceof ByteProcessor)) 
-			ip.resetMinAndMax();
-		
-		ip.multiply(scaleFact);
-		
-		ImagePlus result = new ImagePlus("linear_"+ imagePlus.getShortTitle(),ip);
-		result.setCalibration(cal);
-		
-		
-		// 16 bits conversion
-		ImageConverter ic = new ImageConverter(result);
-		ic.convertToGray16();
-		
-		//result.show();
+		ip2.sqr();
+		ip2.multiply(scaleFact);
+		ip2.resetMinAndMax();
+		ip2 = ip2.convertToShort(true);
+		ImagePlus result = new ImagePlus("linear_"+ imp.getShortTitle(), ip2);
+		result.setCalibration(imp.getCalibration());
 		return result;
 	}
-	
-	
-	
+		
 }
 
