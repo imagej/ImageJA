@@ -46,11 +46,12 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 	private String version="1.0";
 	private int nPasses=1;
 	private int pass;
-    
 	private static int staticSZ = 5;
 	private int sz = staticSZ;
 	private float[] kernel=null;
-	public static boolean debug=IJ.debugMode;
+	private Convolver con;
+	private boolean debug = IJ.debugMode;
+	private Checkbox debugCheckbox;
 	
 	@Override
 	public int setup(String arg, ImagePlus imp) {
@@ -62,13 +63,18 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 		pass++;
 		int r = (sz-1)/2;
 		computeKernel(r);
-		Convolver con=new Convolver();
-		if (debug && pass==1) {
+		if (pass==1) {
+			con = new Convolver();
+			con.setNPasses(nPasses);
+		}
+		con.convolveFloat(ip, kernel, sz, sz);
+		if (debug) {
 			FloatProcessor fp=new FloatProcessor(sz,sz);
 			fp.setPixels(kernel);
 			new ImagePlus("kernel",fp).show();
+			debug = false;
+			debugCheckbox.setState(false);
 		}
-		con.convolveFloat(ip, kernel, sz, sz);
 	}
 	
 	public float[] getKernel() {
@@ -82,6 +88,8 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 		GenericDialog gd=new GenericDialog("Input");
 		gd.addNumericField("Radius", r, 1);
 		gd.addCheckbox("Show kernel", debug);
+		Vector v = gd.getCheckboxes();
+		debugCheckbox = (Checkbox)v.firstElement();
 		gd.addPreviewCheckbox(pfr);
 		gd.addDialogListener(this);
 		gd.showDialog();
@@ -97,9 +105,10 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 		int r = (int)(gd.getNextNumber());
 		debug = gd.getNextBoolean();
 		sz = 2*r+1;
-		if (gd.wasCanceled())
+		if (gd.wasCanceled() || r==0)
 			return false;
-		return r>0;
+		pass = 0;
+		return true;
     }
 
 	/**
