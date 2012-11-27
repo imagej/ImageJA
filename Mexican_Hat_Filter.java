@@ -47,24 +47,27 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 
 	private PlugInFilterRunner pfr=null;
 
-	final int flags=DOES_ALL+CONVERT_TO_FLOAT+SUPPORTS_MASKING+KEEP_PREVIEW;
+	final int flags=DOES_ALL+CONVERT_TO_FLOAT+SUPPORTS_MASKING+KEEP_PREVIEW+SNAPSHOT;//+PARALLELIZE_IMAGES;
 	private String version="2.0";
 	private int nPasses=1;
-	private int pass;
+	private int pass=1;
+	private ImageProcessor snapshot;
 
-	private static int staticSZ = 5;
+	private static int staticSZ = 11;
 	private int sz = staticSZ;
 	private float[][] kernel=null;
-	public static boolean debug=IJ.debugMode;
+	public static boolean debug;
 
 	private Roi roi;
 
-	public static boolean sep=false;
+	public static boolean sep = false;
 
 	@Override
 	public int setup(String arg, ImagePlus imp) {
 		if (IJ.versionLessThan("1.47g"))
 			return DONE;
+		if (imp!=null)
+			snapshot = imp.getProcessor().duplicate();
 		return  flags;
 	}
 
@@ -94,21 +97,15 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 			 
 			new ImagePlus("kernel",fp).show();
 			if (!sep) {
-				
 				FloatProcessor fp2=new FloatProcessor(sz,sz, kernel2);
 				new ImagePlus("kernel 2",fp2).show();
 			}
 		}
 		long time=-System.nanoTime();	
-		Convolver con=new Convolver();
-		if (sep) {
-			FloatProcessor ipx=(FloatProcessor)ip.duplicate();
-			con.convolveFloat1D( ipx, kern_diff, sz, 1); // x direction
-			con.convolveFloat1D( ipx, kernx, 1, sz); // y direction
-			con.convolveFloat1D( (FloatProcessor)ip, kernx, sz, 1); // x direction
-			con.convolveFloat1D( (FloatProcessor)ip, kern_diff, 1, sz); // y direction
-			ip.copyBits(ipx, 0, 0, Blitter.ADD);
-		} else {
+		if (sep)
+			convolveSep(ip, kernx, kern_diff);
+		else {
+			Convolver con=new Convolver();
 			con.convolveFloat(ip, kernel2, sz, sz);
 		}
 		double sigma2=(sz-1)/6.0;
@@ -116,8 +113,49 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 		ip.multiply(sigma2);
 		time+=System.nanoTime();
 		time/=1000.0f;
-		//System.out.println("elapsed time: " + time +" us");
-		//ip.resetMinAndMax();
+	}
+
+	private void convolveSep(ImageProcessor ip, float[] kernx, float[] kern_diff) {
+		FloatProcessor ip2 = null;
+		FloatProcessor ipx = null;
+		synchronized(this) {
+			ip2 = (FloatProcessor)ip.duplicate();
+			ip2.setRoi(ip.getRoi());
+			ip2.setSnapshotPixels(ip.getSnapshotPixels());
+			ipx=(FloatProcessor)ip2.duplicate();
+			ipx.setRoi(ip.getRoi());
+			ipx.setSnapshotPixels(ip.getSnapshotPixels());
+		}
+		Convolver con=new Convolver();
+		con.convolveFloat1D(ipx, kern_diff, sz, 1); // x direction
+		ipx.setSnapshotPixels(null);
+		con.convolveFloat1D(ipx, kernx, 1, sz); // y direction
+		con.convolveFloat1D(ip2, kernx, sz, 1); // x direction
+		ip2.setSnapshotPixels(null);
+		con.convolveFloat1D(ip2, kern_diff, 1, sz); // y direction
+		add(ip2, ipx, ip2.getRoi());
+		insert(ip2, ip);
+	}
+
+	private void insert(ImageProcessor ip1, ImageProcessor ip2) {
+		float[] pixels1 = (float[])ip1.getPixels();
+		float[] pixels2 = (float[])ip2.getPixels();
+		Rectangle r = ip1.getRoi();
+		int offset = r.y*r.width;
+		int n = r.width*r.height;
+		for (int i=0; i<n; i++) {
+			pixels2[offset] = pixels1[offset];
+			offset++;
+		}
+ 	}
+
+	private void add(ImageProcessor ip1, ImageProcessor ip2, Rectangle r) {
+		for (int y=r.y; y<r.y+r.height; y++) {
+			for (int x=r.x;x<r.x+r.width; x++) {
+				float sum = ip1.getf(x,y) + ip2.getf(x,y);
+				ip1.setf(x, y, sum);
+			}
+		}
 	}
 
 	public float[] getKernel(int i) {
@@ -139,7 +177,7 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 			return DONE;
 		if (!IJ.isMacro())
 			staticSZ = sz;
-		return IJ.setupDialog(imp, flags);
+		return flags;
 	}
 
 	// Called after modifications to the dialog. Returns true if valid input.
