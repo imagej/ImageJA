@@ -90,22 +90,19 @@ this macro, and a rendered MicroCT stack, are available at
 <a href="http://doube.net/macros.html#volslice">http://doube.net/macros.html#volslice</a>.
 <pre>
 macro "RotatingVolume.txt" {
-  requires("1.33r");
   saveSettings();
   stack1 = getImageID;
   stack2 = 0;
   if (nSlices==1)
       exit("Stack required");
   setBatchMode(true);
-  n = 6;
+  n = 160;
   for (i=0; i&lt;n; i++) {
     showProgress(i, n);
     selectImage(stack1);
     gradz = -i * 10;
     // params for mri-stack.tif
-    run("Volume Viewer", 
-      "display_mode=5 axes=0 markers=0 lut=0 scale=2 z-aspect=4 dist=-300 "
-      + "depth=6 thresh=40 angle_x=110 angle_z="+gradz );
+    run("Volume Viewer", "display_mode=4 axes=1 z-aspect=4 scale=1 angle_x=110 angle_z="+gradz );
     run("Copy");
     w = getWidth; h = getHeight;
     close();     
@@ -138,7 +135,7 @@ macro "RotatingVolume.txt" {
 <p>&nbsp;</p>
 
 <center>
-<img SRC="images/volviewer.jpg" width=778 height=597 alt="Volume Viewer"><br>
+<img SRC="images/volviewer.png" width=1168 height=751 alt="Volume Viewer"><br>
 <p>
 Rendering of a series of 83 CT images downloaded from 
 <A HREF="http://homepage.mac.com/rossetantoine/osirix/Index2.html">
