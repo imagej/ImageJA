@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Sampling Window</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+ | <a href="../../list.html">list</a> | <a href="../../links.html">links</a></p>
+
+<h1>Sampling Window</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5>
+
+<tr valign=top><td ><b>Author:</b></td><td > 
+Jiri Janacek (janacek at biomed.cas.cz)
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2012/11/28: First release<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Sampling_Window.java">Sampling_Window.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Drag and drop <a href="Sampling_Window.class">Sampling_Window.class</a> 
+onto the "ImageJ" window and save it in the plugins folder.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+ This plugin creates a non-destructive unbiased sampling window on the current
+ image or stack. You can specify the window size and position, and 
+the lines properties. Implementation is based on the Grid and Dotted line plugins.
+<p>
+Only the objects within the window or intersecting the window and not intersecting
+the full line are to be sampled.
+<p>
+Gundersen HJG. 1977. Notes on the estimation of the numerical density of arbitrary
+profiles: the edge effect. Journal of Microscopy 111, 219-223. 
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="../grid.html">Grid plugin</a><br>
+<a href="../dotted-line.html">Dotted line plugin</a>
+</td></tr>
+
+</table>
+<p>
+</blockquote>
+
+<img src="sampwin.png" width=222 height=292 alt="[dialog]">
+<img src="blobswin.jpg" width=282 height=310 alt="[blobs-win]">
+<img src="blobswindots.jpg" width=282 height=310 alt="[blobs-win-dots]">
+
+</body>
+</html>
