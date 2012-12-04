@@ -14,9 +14,10 @@
 
 <table cellspacing=5>
 
-<tr valign=top><td ><b>Author:</b></td><td >
-Kai Uwe Barthel (k.barthel at fhtw-berlin.de)<br>
-Internationale Medieninformatik<br>
+<tr valign=top><td ><b>Author:</b></td>
+  <td >
+Kai Uwe Barthel (barthel at htw-berlin.de)<br>
+Internationale Medieninformatik, HTW Berlin<br>
 Berlin, Germany
 </td></tr>
 
@@ -25,7 +26,7 @@ Berlin, Germany
 <b>2005/03/07 (V1.12):</b> Speedups; planar view indicators; new display mode (projection)<br>
 <b>2005/03/15 (V1.21):</b> New and better volume rendering mode; can be called from macros<br>
 <b>2007/03/08 (V1.31):</b> Works with RGB stacks<br>
-<b>2012/11/29 (V2.00):</b> Version 2.0<br>
+<b>2012/12/03 (V2.01):</b> Added editable transfer functions, lighting, projections, faster rendering<br>
 </td></tr>
 
 <tr valign=top><td ><b>Source:</b></td><td >Contained in
@@ -39,87 +40,62 @@ to the plugins folder, or subfolder, restart ImageJ,
 and there will be a new <i>Volume Viewer</i> command in the Plugins menu, or submenu.
 </td></tr>
 
-<tr valign=top><td ><b>Description:</b></td><td >
-This plugin shows stacks as volumes within a 3D-(xyz)-space.  The viewing angle 
-can be adjusted with the mouse. This plugin can be used  with 8, 16 and 32 bit stacks.
+<tr valign=top><td ><b>Description:</b></td>
+<td >
+This plugin shows stacks as slices, projections or volumes within a 3D-(xyz)-space.  This plugin can be used  with 8, 16, 32 bit and RGB stacks. The viewing angle 
+can be adjusted with the mouse.  The position of the volume
+may be changed by pressing the SHIFT-key and dragging the mouse.
 
-<ul>
+  <ul>
 <li><b>Display Modes: </b> 
 <ul>
-  <li><b>Slice Nearest Neighbor:</b> A slice through the volume. 
-  No interpolation is performed.
-  <li><b>Slice Trilinear:</b> A  slice through the volume using trilinear interpolation. 
-  <li><b>Slice and Borders:</b> A slice through the volume generated using trilinear interpolation, 
+  <li><b>Slice:</b> A slice through the volume. 
+  <li><b>Slice &amp; Borders:</b> A slice through the volume,  
 in addition the borders of the volume stack are displayed.
-<li><b>Slice and Volume Dots:</b> A slice generated using trilinear interpolation. 
-Only values above the <b>Thr.</b> (threshold) slider value are displayed. 
-Voxels further away than the distance slider are displayed as volume dots.
-<li><b>Volume Dots:</b> Voxels are shown according to their distance, no interpolationis 
-performed (quality is poor).
-<li><b>Volume:</b> A 3D scene with higher visual quality is rendered. The opacity  
-of the voxels is controlled by the <b>Thr. </b> slider. Values below the threshold are interpreted 
-as transparent. <b>Volume II</b> uses direct volume rendering  overlaying voxels from the back. 
-<b>Volume  I</b> uses an overlay of front voxels and can achieve more realistic  3D-views even without 
-illumination. The <b>depth</b>  slider controls the number of voxels that are used for rendering. 
-(Both volume  modes may be very slow for large scales.) 
- </ul>
-<li>Different <b>LUTs</b> can be used for display.
-<li>The <b>Dist.</b> slider adjusts the distance of the slice. Only voxels 
-further away than this distance are displayed. The lines in the planar views on 
-the left indicate the intersection of the displayed slice and the three 
-orthogonal center planes of the stack.
-
-<li>The <b>z-aspect </b>ratio is read automatically, but it can also be
-set.
-<li><b>Axes:</b> If checked, axes and text are shown.
-<li><b>Markers:</b> If checked, the start and end positions of the lines in the planar views are 
-displayed in the volume.
-<li>The <b>Scale</b> slider sets the viewing distance/volume size.
+<li><b>Max Projection:</b> The volume is projected, maximum values (with alpha &gt; 0) are kept.
+<li><b>Projection:</b> Voxels are projected using the alpha values as weight.
+<li><b>Volume:</b> A 3D redering is performed using alpha blending.
+The <b>Sampling </b>value 
+ controls how many samples 
+ are used to blend the volume values. Higher values lead to better looking results, but this will be slower.
 </ul>
-
-Additional features: If brightness or contrast settings of the stack are
-adjusted, the data is reread.  The position of the volume
-may be changed by pressing the SHIFT-key and dragging the mouse. If the
-mouse is released while dragging the mouse, the cube keeps rotating.
-<p>
-This plugin can be called from a macro. This example
-macro generates volume views of all the images
-in a stack and stores then in another stack.
-<i>Volume Slicer,</i> an extended version of
-this macro, and a rendered MicroCT stack, are available at
-<a href="http://doube.net/macros.html#volslice">http://doube.net/macros.html#volslice</a>.
-<pre>
-macro "RotatingVolume.txt" {
-  saveSettings();
-  stack1 = getImageID;
-  stack2 = 0;
-  if (nSlices==1)
-      exit("Stack required");
-  setBatchMode(true);
-  n = 160;
-  for (i=0; i&lt;n; i++) {
-    showProgress(i, n);
-    selectImage(stack1);
-    gradz = -i * 10;
-    // params for mri-stack.tif
-    run("Volume Viewer", "display_mode=4 axes=1 z-aspect=4 scale=1 angle_x=110 angle_z="+gradz );
-    run("Copy");
-    w = getWidth; h = getHeight;
-    close();     
-    if (stack2==0) {
-      run("New...", "name=Plots type=RGB Color width="+w+" height="+h+" slices=1");
-      stack2 = getImageID;
-    } else {
-      selectImage(stack2);
-      run("Add Slice");
-    }
-    run("Paste");
-  }
-  setSlice(1);
-  setBatchMode(false);
-  restoreSettings();
-}
-</pre>
+<li><b>Transfer functions: </b><strong>Color</strong> <b>LUTs</b> can be used for display. Their curves may be modified with the mouse.
+<li><b>Transfer functions: </b><strong> Alpha values</strong> may be set using four different transfer functions using the luminance, gradient, mean and difference of the voxels.<br>
+  <ul>
+    <li><b>1D:</b> The alpha value may be drawn as a 1D-function: alpha(luminance)</li>
+    <li><b>2D Grad:</b> The alpha value may be drawn as a 2D-function: alpha(luminance, gradient)</li>
+    <li><b>2D MD:</b> The alpha value may be drawn as a 2D-function: alpha(mean, difference)</li>
+    <li><b>3D Fill:</b> The alpha value may be set as a 3D-function: alpha(x,y,z). By clicking in the planar views alpha and color values may be assigned to voxels with similar intensities.</li>
+    </ul>
+<li><b>Interpolation modes </b> may be chosen from <em>Nearest Neighbor</em> (fastest), <em>triliniar</em> and two <em>tricubic</em> modes (slowest).
+</li>
+<li>The <b>Distance</b> slider adjusts the z screen position of the slice. Only voxels 
+  at this distance or further away (for volumes and projections) are displayed. The colored lines in the planar views on 
+  the left of the plugin indicate the intersection of the displayed slice and these views.
+  
+  The positions of the planar views may be set with the xy, yz, and xz sliders. 
+</li>
+<li>The <b>z-Aspect </b>ratio of the volume is read automatically, but it can also be
+  set.
+</li>
+<li>The <b>Scale</b> slider sets the zoom factor. </li>
+<li><b>Axes:</b> If checked, axes and text are shown.
+</li>
+<li><b>Clipping:</b> If checked, the clipping plane (at the selected distance)  is shown.
+  
+</li>
+<li><b>Slice positions:</b> If checked, the positions of planar views are 
+  displayed.
+  
+</li>
+  </ul>
+  <p>
+    This plugin can be called from a macro. This example
+    macro generates volume views of all the images
+    in a stack and stores then in another stack. Call Volume Viewer with &quot;help&quot; as parameter to get a list of valid parameters. <i>Volume Slicer,</i> an extended version of
+    this macro, and a rendered MicroCT stack, are available at
+    <a href="http://doube.net/macros.html#volslice">http://doube.net/macros.html#volslice</a>.
+<pre>macro &quot;RotatingVolume.txt&quot; {<br>  requires(&quot;1.33r&quot;);<br>  saveSettings();<br>  stack1 = getImageID;<br>  stack2 = 0;<br>  if (nSlices==1)<br>      exit(&quot;Stack required&quot;);<br>  setBatchMode(true);<br>  n = 10;<br>  for (i=0; i&lt;n; i++) {<br>    showProgress(i, n);<br>    selectImage(stack1);<br>    angle_y = i * 10 + 40;<br>    // params  (z-aspect=4 for mri-stack.tif)<br>    run(&quot;Volume Viewer&quot;, &quot;display_mode=4 z-aspect=4 scale=2 axes=0 interpolation=2 angle_y=&quot;+ angle_y );<br>    run(&quot;Copy&quot;);<br>    w = getWidth; h = getHeight;<br>    close();     <br>    if (stack2==0) {<br>      run(&quot;New...&quot;, &quot;name=Plots type=RGB Color width=&quot;+w+&quot; height=&quot;+h+&quot; slices=1&quot;);<br>      stack2 = getImageID;<br>    } else {<br>      selectImage(stack2);<br>      run(&quot;Add Slice&quot;);<br>    }<br>    run(&quot;Paste&quot;);<br>  }<br>  setSlice(1);<br>  setBatchMode(false);<br>  restoreSettings();<br>}</pre>
 </td></tr>
 
 <tr valign=top><td ><b>See Also:</b></td><td >
@@ -137,9 +113,8 @@ macro "RotatingVolume.txt" {
 <center>
 <img SRC="images/volviewer.png" width=1168 height=751 alt="Volume Viewer"><br>
 <p>
-Rendering of a series of 83 CT images downloaded from 
-<A HREF="http://homepage.mac.com/rossetantoine/osirix/Index2.html">
-homepage.mac.com/rossetantoine/osirix/Index2.html</A>.
+Rendering of a series of 110 images of an   
+<A HREF="http://www.f4.htw-berlin.de/~barthel/ImageJ/temp/engine.zip"> engine part</A>.
 </center>
 <p>
 
