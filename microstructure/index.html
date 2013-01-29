@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>Map_BoneMicrostructure Plugin and Demo</title>
+</head>
+<body bgcolor = "#ffffff">
+
+<font color="#224488" face="Helvetica, Arial" size=+1>
+<b>Map_BoneMicrostructure Plugin and Demo</b>
+</font>
+<p>
+
+<blockquote>
+<table cellspacing=5 width=700>
+
+<tr valign=top><td ><b>Author:</b></td><td >
+Vasilis Karantzoulis (vkarantz at gmx.net) 
+</td></tr>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2013/01/28: First version<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Map_BoneMicrostructure.java"> Map_BoneMicrostructure.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+Within ImageJ Compile-and-Run the above source file, and restart ImageJ.
+For large images, it may be necessary to increase the memory available for the JVM
+to 1064MB or more using the <i>Edit&gt;Options&gt;Memory & Threads</i> command command.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+Map_BoneMicrostructure calculates the following standard bone histomorphometry parameters on a digitized trabecular-bone surface, according to the 'parallel plates model': <br> <br>
+<li>BA/TA (bone area fraction, %)</li>
+<li>TbTh (mean trabecular thickness, &#956m)</li>
+<li>TbSp (mean trabecular separation, &#956m)</li>
+<li>TbN (mean trabecular number per length unit, 1/mm)</li><br>
+
+The plugin is designed to process 8-bit grayscale images with black-coloured bone-trabeculae on white background. If the image does not conform, it must be manually modified by the user before processing.<br> <br>
+
+For the thresholding of the bone-trabuculae, the user can either use the default ISODATA algorithm of ImageJ (Autothreshold), or set arbitrary threshold values. <br> <br>
+
+The calculations can be performed on a single ROI, or on a grid of square-ROIs that the image gets split to. The latter function is actually the most powerful feature of the plugin, since it "maps" the distrubution of the selected parameter onto the bone surface, as shown in the following example (mapping of the Mean Trabecular Thickness, values in &#956m). <br> <br>
+
+<p><center><img SRC="BoneTrabeculaeTbTh.jpg"></center><p>
+You can download the above sample image of trabecular bone: <a href="BoneTrabeculae4800DPI.jpg"> BoneTrabeculae4800DPI.jpg  (1.5MB)</a>
+
+
+</td></tr>
+
+</table>
+
+</blockquote>
+<p><b>|<a href="index.html">Plugins</a> | <a href="../index.html">Home</a> |</b>
+</body>
+</html>
