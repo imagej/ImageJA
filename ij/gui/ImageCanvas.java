@@ -244,14 +244,25 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		for (int i=0; i<n; i++) {
 			if (overlay==null) break;
 			Roi roi = overlay.get(i);
-			if (hyperstack && roi.getPosition()==0) {
+			if (hyperstack) {
 				int c = roi.getCPosition();
 				int z = roi.getZPosition();
 				int t = roi.getTPosition();
+				int position = roi.getPosition();
+				//IJ.log(c+" "+z+" "+t+"  "+position+" "+roiManagerShowAllMode);
+				if (position>0) {
+					if (z==0 && imp.getNSlices()>1)
+						z = position;
+					else if (t==0)
+						t = position;
+				}
 				if (((c==0||c==channel) && (z==0||z==slice) && (t==0||t==frame)) || roiManagerShowAllMode)
 					drawRoi(g, roi, drawLabels?i+LIST_OFFSET:-1);
 			} else {
 				int position = roi.getPosition();
+				if (position==0)
+					position = getSliceNumber(roi.getName());
+				//IJ.log(position+"  "+currentImage+" "+roiManagerShowAllMode);
 				if (position==0 || position==currentImage || roiManagerShowAllMode)
 					drawRoi(g, roi, drawLabels?i+LIST_OFFSET:-1);
 			}
@@ -268,7 +279,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
     private void initGraphics(Overlay overlay, Graphics g, Color textColor, Color defaultColor) {
 		if (smallFont==null) {
 			smallFont = new Font("SansSerif", Font.PLAIN, 9);
-			largeFont = new Font("SansSerif", Font.PLAIN, 12);
+			largeFont = ImageJ.SansSerif12;
 		}
 		if (textColor!=null) {
 			labelColor = textColor;
@@ -1392,11 +1403,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			&& roi.getState()==roi.CONSTRUCTING
 			&& type!=roi.POINT)
 				imp.deleteRoi();
-			else {
+			else
 				roi.handleMouseUp(e.getX(), e.getY());
-				if (roi.getType()==Roi.LINE && roi.getLength()==0.0)
-					imp.deleteRoi();
-			}
 		}
 	}
 	
@@ -1473,11 +1481,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if (e.isConsumed()) return;
 		}
 		Roi roi = imp.getRoi();
-		if (roi!=null && (roi.getType()==Roi.POLYGON || roi.getType()==Roi.POLYLINE || roi.getType()==Roi.ANGLE) 
-		&& roi.getState()==roi.CONSTRUCTING) {
-			PolygonRoi pRoi = (PolygonRoi)roi;
-			pRoi.handleMouseMove(sx, sy);
-		} else {
+		int type = roi!=null?roi.getType():-1;
+		if (type>0 && (type==Roi.POLYGON||type==Roi.POLYLINE||type==Roi.ANGLE||type==Roi.LINE) 
+		&& roi.getState()==roi.CONSTRUCTING)
+			roi.mouseMoved(e);
+		else {
 			if (ox<imageWidth && oy<imageHeight) {
 				ImageWindow win = imp.getWindow();
 				// Cursor must move at least 12 pixels before text

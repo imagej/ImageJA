@@ -205,10 +205,9 @@ public class CompositeImage extends ImagePlus {
 				if (!(cm.min==0.0&&cm.max==0.0))
 					ip.setMinAndMax(cm.min, cm.max);
 				if (!IJ.isMacro()) ContrastAdjuster.update();
-				Frame channels = Channels.getInstance();
 				for (int i=0; i<MAX_CHANNELS; i++)
 					active[i] = i==currentChannel?true:false;
-				if (channels!=null) ((Channels)channels).update();
+				Channels.updateChannels();
 			}
 			if (ip!=null)
 				img = ip.createImage();
@@ -437,8 +436,7 @@ public class CompositeImage extends ImagePlus {
 		}
 		if (mode==GRAYSCALE || mode==TRANSPARENT)
 			ip.setColorModel(ip.getDefaultColorModel());
-		Frame channels = Channels.getInstance();
-		if (channels!=null) ((Channels)channels).update();
+		Channels.updateChannels();
 	}
 
 	public int getMode() {
@@ -573,6 +571,8 @@ public class CompositeImage extends ImagePlus {
 		int c = getChannelIndex();
 		lut[c].min = min;
 		lut[c].max = max;
+		if (getWindow()==null && cip!=null && c<cip.length)
+			cip[c].setLut(lut[c]);
 	}
 
 	public double getDisplayRangeMin() {

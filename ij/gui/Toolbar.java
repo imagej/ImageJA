@@ -43,6 +43,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int DOUBLE_CLICK_THRESHOLD = 650;
 
 	public static final int OVAL_ROI=0, ELLIPSE_ROI=1, BRUSH_ROI=2;
+	
+	private static final String[] builtInTools = {"Arrow","Brush","Developer Menu","Flood Filler",
+		"LUT Menu","Overlay Brush","Pencil","Pixel Inspector","Spray Can","Stacks Menu"};
+	private static final String[] builtInTools2 = {"Pixel Inspection Tool","Paintbrush Tool","Flood Fill Tool"};
 
 	private static final int NUM_TOOLS = 23;
 	private static final int NUM_BUTTONS = 21;
@@ -97,7 +101,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private Color triangleColor = new Color(150, 0, 0);
 	private Color toolColor = new Color(0, 25, 45);
 
-
 	public Toolbar() {
 		down = new boolean[NUM_TOOLS];
 		resetButtons();
@@ -110,7 +113,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		names[NUM_TOOLS-1] = "\"More Tools\" menu (switch toolsets or add tools)";
 		icons[NUM_TOOLS-1] = "C900T1c12>T7c12>"; // ">>"
 		addPopupMenus();
-		if (IJ.isMacOSX() || IJ.isVista()) Prefs.antialiasedTools = true;
 	}
 
 	void addPopupMenus() {
@@ -280,6 +282,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					m(1,14); d(14,1); m(6,5); d(14,1); m(10,9); d(14,1); m(6,5); d(10,9);
 				} else {
 					m(0,12); d(17,3);
+					g.fillRect(x,y+11,2,2);
+					g.fillRect(x+17,y+2,2,2);
 				}
 				drawTriangle(12,14);
 				return;
@@ -427,7 +431,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	int v() {
 		if (pc>=icon.length()) return 0;
 		char c = icon.charAt(pc++);
-		//IJ.log("v: "+pc+" "+c+" "+toInt(c));
 		switch (c) {
 			case '0': return 0;
 			case '1': return 1;
@@ -517,8 +520,9 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				IJ.showStatus("Scrolling tool (or press space bar and drag)");
 				return;
 			case DROPPER:
-				IJ.showStatus("Color picker (" + foregroundColor.getRed() + ","
-				+ foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")");
+				String fg = foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue();
+				String bg = backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue();
+				IJ.showStatus("Color picker (" +  fg + "/"+ bg + ")");
 				return;
 			case ANGLE:
 				IJ.showStatus("Angle tool");
@@ -1056,16 +1060,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 
 	private void addPluginTools() {
 		switchPopup.addSeparator();
-		addBuiltInTool("Arrow");
-		addBuiltInTool("Brush");
-		addBuiltInTool("Developer Menu");
-		addBuiltInTool("Flood Filler");
-		addBuiltInTool("LUT Menu");
-		addBuiltInTool("Overlay Brush");
-		addBuiltInTool("Pencil");
-		addBuiltInTool("Pixel Inspector");
-		addBuiltInTool("Spray Can");
-		addBuiltInTool("Stacks Menu");
+		for (int i=0; i<builtInTools.length; i++)
+			addBuiltInTool(builtInTools[i]);
 		MenuBar menuBar = Menus.getMenuBar();
 		if (menuBar==null)
 			return;
@@ -1297,9 +1293,28 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		}
 	}
 	
+	public static void restoreTools() {
+		Toolbar tb = Toolbar.getInstance();
+		if (tb!=null) {
+			if (tb.getToolId()>=SPARE1)
+				tb.setTool(RECTANGLE);
+			tb.installStartupMacros();
+		}
+	}
+
 	private 	void installStartupMacros() {
 		resetTools();
 		String path = IJ.getDirectory("macros")+"StartupMacros.txt";
+		File f = new File(path);
+		if (!f.exists()) {
+			String path2 = IJ.getDirectory("macros")+"StartupMacros.fiji.ijm";
+			f = new File(path2);
+			if (!f.exists()) {
+				IJ.error("StartupMacros not found:\n \n"+path);
+				return;
+			} else
+				path = path2;
+		}
 		if (IJ.shiftKeyDown()) {
 			IJ.open(path);
 			IJ.setKeyUp(KeyEvent.VK_SHIFT);
@@ -1479,15 +1494,39 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	private void setPrefs(int id) {
-		if (!doNotSavePrefs) {
-			int index = id - SPARE2;
-			String key = TOOL_KEY + (index/10)%10 + index%10;
-			Prefs.set(key, instance.names[id]);
+		if (doNotSavePrefs)
+			return;
+		boolean ok = isBuiltInTool(names[id]);
+		if (!ok) {
+			Hashtable commands = Menus.getCommands();
+			String name = names[id];
+			if (name.endsWith("Menu Tool"))
+				name = name.substring(0, name.length()-5);
+			ok = commands!=null && commands.get(name)!=null;
 		}
+		if (!ok)
+			return;
+		int index = id - SPARE2;
+		String key = TOOL_KEY + (index/10)%10 + index%10;
+		Prefs.set(key, instance.names[id]);
+	}
+	
+	private boolean isBuiltInTool(String name) {
+		for (int i=0; i<builtInTools2.length; i++) {
+			if (name.equals(builtInTools2[i]))
+				return true;
+		}
+		for (int i=0; i<builtInTools.length; i++) {
+			if (name.startsWith(builtInTools[i]))
+				return true;
+		}
+		return false;
 	}
 
 	public static void removeMacroTools() {
 		if (instance!=null) {
+			if (instance.getToolId()>=SPARE1)
+				instance.setTool(RECTANGLE);
 			instance.resetTools();
 			instance.repaint();
 		}
