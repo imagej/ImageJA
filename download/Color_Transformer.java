@@ -12,7 +12,22 @@ import java.awt.*;
   * @author barillame@yahoo.co.uk and perezm@eee.bham.ac.uk
   * @version 1.0
   * 
-  */
+  WAHeeschen modifications(2013-Feb-14):
+  The conversion to L*a*b* was missing a step.  The XYZ space calculation generates an output that is
+  nominally based on values of 100, but the L*a*b* algorithm assumes that the XYZ values have been normalized by
+  a white reference. The white reference is dependent on the color temperature (D50, D65, etc.).  I decided to 
+  use the D65 white reference from the ImageJ plugin called Color_Space_Converter: 
+  	Xref=95.0429
+  	Yref=100.0
+  	Zref=108.8900
+  I updated both of the converters that generate an L*a*b* value:   getLAB() and  getLCHLab()
+  I added comments related to these edits that include my initials: WAH 
+  A couple of references:
+  http://www.brucelindbloom.com/
+  http://www.easyrgb.com/  
+  The results match those obtained with Color_Space_Converter for D65 white point.  Results are
+  similar to FIJI output.
+*/
 
 public class Color_Transformer implements PlugInFilter{
     private ImagePlus  imp;             // Original image
@@ -216,7 +231,7 @@ public class Color_Transformer implements PlugInFilter{
             rf[q] = rf[q] * 100f;
             gf[q] = gf[q] * 100f;
             bf[q] = bf[q] * 100f;
-
+//WAH - these are the D65 values per BruceLindbloom, so I decided to stick with D65
             float X = 0.4124f * rf[q] + 0.3576f * gf[q] + 0.1805f * bf[q];
             float Y = 0.2126f * rf[q] + 0.7152f * gf[q] + 0.0722f * bf[q];
             float Z = 0.0193f * rf[q] + 0.1192f * gf[q] + 0.9505f * bf[q];
@@ -418,11 +433,17 @@ public class Color_Transformer implements PlugInFilter{
             float X = 0.4124f * rf[q] + 0.3576f * gf[q] + 0.1805f * bf[q];
             float Y = 0.2126f * rf[q] + 0.7152f * gf[q] + 0.0722f * bf[q];
             float Z = 0.0193f * rf[q] + 0.1192f * gf[q] + 0.9505f * bf[q];
-            
+
+            // XYZ to Lab
             float fX, fY, fZ;
             float La, aa, bb;            
+            //WAH normalize to L*a*b* color space using D65 white reference
+            // from Color_Space_Converter code: public double[] D65 = {95.0429, 100.0, 108.8900};
+ 
+            X = X / 95.0429f;
+            Y = Y / 100.0f;
+            Z = Z / 108.89f;
             
-            // XYZ to Lab
             if ( X > 0.008856f )
                 fX = (new Double(Math.exp(Math.log(X)/3f))).floatValue();
             else
@@ -789,8 +810,14 @@ public class Color_Transformer implements PlugInFilter{
             float Z = 0.0193f * rf[q] + 0.1192f * gf[q] + 0.9505f * bf[q];
             
             float fX, fY, fZ;          
-            
             // XYZ to Lab
+            //WAH normalize to L*a*b* color space using D65 white reference
+            // from Color_Space_Converter code: public double[] D65 = {95.0429, 100.0, 108.8900};
+ 
+            X = X / 95.0429f;
+            Y = Y / 100.0f;
+            Z = Z / 108.89f;
+
             if ( X > 0.008856f )
                 fX = (new Double(Math.exp(Math.log(X)/3f))).floatValue();
             else
@@ -844,4 +871,3 @@ public class Color_Transformer implements PlugInFilter{
   }    
 
 }
-
