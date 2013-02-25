@@ -1,16 +1,32 @@
-package ij.io;
+package ij.plugin;
 import ij.*;
 import ij.gui.*;
+import ij.io.*;
 import java.io.*;
 import java.net.URL;
 import java.net.*;
+import java.util.*;
 
-/** Intalls plugins (.jar and .class files) that have been dragged
-	and dropped on the ImageJ window, or opened using 
-	File/Open or the open() macro function. */
-class PluginInstaller {
+/** Installs plugins dragged and dropped on the "ImageJ" window, or plugins,
+	macros or scripts opened using the Plugins/Install command. */
+public class PluginInstaller implements PlugIn {
+	public static final String[] validExtensions = {".txt",".ijm",".js",".bsh",".class",".jar",".java",".py"};
 
-	boolean install(String path) {
+	public void run(String arg) {
+		OpenDialog od = new OpenDialog("Install Plugin, Macro or Script...", arg);
+		String directory = od.getDirectory();
+		String name = od.getFileName();
+		if (name==null)
+				return;
+		if (!validExtension(name)) {
+			IJ.error("Plugin Installer", errorMessage());
+			return;
+		}
+		String path = directory + name;
+		install(path);
+	}
+	
+	public boolean install(String path) {
 		boolean isURL = path.startsWith("http://");
 		byte[] data = null;
 		String name = path;
@@ -31,13 +47,19 @@ class PluginInstaller {
 			name = f.getName();
 			data = download(f);
 		}
-		if (data==null) return false;
-		SaveDialog sd = new SaveDialog("Save Plugin...", Menus.getPlugInsPath(), name, null);
+		if (data==null)
+			return false;
+		if (name.endsWith(".txt") && !name.contains("_"))
+			name = name.substring(0,name.length()-4) + ".ijm";
+		SaveDialog sd = new SaveDialog("Save Plugin, Macro or Script...", Menus.getPlugInsPath(), name, null);
 		String name2 = sd.getFileName();
 		if (name2==null) return false;
 		String dir = sd.getDirectory();
+		//IJ.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))
 			return false;
+		if (name.endsWith(".java"))
+			IJ.runPlugIn("ij.plugin.Compiler", dir+name);
 		Menus.updateImageJMenus();
 		return true;
 	}
@@ -96,6 +118,30 @@ class PluginInstaller {
 			data = null;
 		}
 		return data;
+	}
+	
+	private boolean validExtension(String name) {
+		name = name.toLowerCase(Locale.US);
+		boolean valid = false;
+		for (int i=0; i<validExtensions.length; i++) {
+			if (name.endsWith(validExtensions[i]))
+				return true;
+		}
+		return false;
+	}
+	
+	private String errorMessage() {
+		String s = "File name must end in ";
+		int len = validExtensions.length;
+		for (int i=0; i<len; i++) {
+			if (i==len-2)
+				s += "\""+validExtensions[i]+"\" or ";
+			else if (i==len-1)
+				s += "\""+validExtensions[i]+"\".";
+			else
+				s += "\""+validExtensions[i]+"\", ";
+		}
+		return s;
 	}
 
 }
