@@ -9,6 +9,12 @@ die () {
 	exit 1
 }
 
+test a--wayne = "a$1" && {
+	git fetch git://fiji.sc/imagej.git master
+	IJ1BRANCH=$(git rev-parse FETCH_HEAD)
+	shift
+}
+
 NEED_TO_UPDATE_WORKING_TREE=
 test $(git config --bool core.bare) = true ||
 test $BRANCH != "$(git symbolic-ref HEAD 2> /dev/null)" || {
