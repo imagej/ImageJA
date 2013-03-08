@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Python (Jython) Interpreter</title>
+<link rel="stylesheet" type="text/css" href="../../docs/ij.css" />
+<style type="text/css">body {max-width: 50em;}</style>
+</head>
+<body bgcolor = "#ffffff">
+
+<p class=navbar> <a href="../../index.html">home</a> | <a href="../../notes.html">news</a> | <a href="../../docs/index.html">docs</a>
+ | <a href="../../download.html">download</a> | <a href="../index.html">plugins</a> | <a href="../../developer/index.html">macros/dev</a>
+ | <a href="../../list.html">list</a> | <a href="../../links.html">links</a></p>
+
+<h1>Python (Jython) Interpreter</h1>
+
+<p>
+
+<blockquote>
+
+<table cellspacing=5 width=650>
+
+<tr valign=top><td ><b>History:</b></td><td >
+2013/02/25: First release<br>
+</td></tr>
+
+<tr valign=top><td ><b>Requires:</b></td><td >
+ImageJ 1.47m or later<br>
+</td></tr>
+
+<tr valign=top><td ><b>Source:</b></td><td >
+<a href="Jython.java">Jython.java</a>
+</td></tr>
+
+<tr valign=top><td ><b>Installation:</b></td><td >
+This 8MB plugin
+(<a href="Jython.jar">Jython.jar</a>), which includes Jython 2.5.3,
+is automatically downloaded to Image/plugins/jars the first time
+you run a Jython (".py") script.
+</td></tr>
+
+<tr valign=top><td ><b>Description:</b></td><td >
+This is the plugin and Jython 2.5.4 interpreter that implement the
+macro editor's <i>Macros&gt;Evaluate Python</i> command.
+For more information about Jython
+(an implementation of Python written in Java), go to
+<a href="http://www.jython.org/">www.jython.org</a>.
+<p>
+The following import statements are automatically added to Jython scripts:
+<pre>
+    from ij import *
+    from ij.gui import *
+    from ij.process import *
+    from ij.measure import *
+    from ij.util import *
+    from ij.plugin import *
+    from ij.plugin.filter import *
+    from ij.plugin.frame import *
+    from ij.io import *
+    from java.lang import *
+    from java.awt import *
+    from java.awt.image import *
+    from java.awt.geom import *
+    from java.util import *
+    from java.io import *
+</pre>
+
+</td></tr>
+
+<tr valign=top><td ><b>See Also:</b></td><td >
+<a href="http://www.ini.uzh.ch/~acardona/fiji-tutorial/">Python Scripting Tutorial</a><br>
+<a href="http://albert.rierol.net/jython_imagej_examples.html">Jython for ImageJ by Example</a><br>
+<a href="http://fiji.sc/wiki/index.php/Jython_Scripting">Jython Scripting</a><br>
+</td></tr>
+
+
+</table>
+
+</blockquote>)
+
+</body>
+</html>
