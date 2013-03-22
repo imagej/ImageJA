@@ -20,13 +20,13 @@ public class bsh extends PlugInInterpreter implements PlugIn, Runnable {
 		"import java.awt.geom.*;"+
 		"import java.util.*;"+
 		"import java.io.*;"+
-		"argument=\"\";"+
-		"print(arg) {IJ.log(\"\"+arg);}";
+		"print(arg){IJ.log(\"\"+arg);} ";
 
+	private static String defaultGetArg = "getArgument(){return \"\";} ";
 	private Thread thread;
 	private String script;
 	private String arg;
-	private String output;
+	private Object result;
 
 	// run script on separate thread
 	public void run(String script) {
@@ -47,7 +47,7 @@ public class bsh extends PlugInInterpreter implements PlugIn, Runnable {
 	}
 
 	public String getReturnValue() {
-		return null;
+		return result!=null?""+result:"";
 	}
 
 	public String getName() {
@@ -55,7 +55,7 @@ public class bsh extends PlugInInterpreter implements PlugIn, Runnable {
 	}
 
 	public String getVersion() {
-		return "1.47m";
+		return "1.47n";
 	}
 
 	public String getImports() {
@@ -65,10 +65,11 @@ public class bsh extends PlugInInterpreter implements PlugIn, Runnable {
 	public void run() {
 		try {
 			Interpreter bsh = new Interpreter();
-			if (arg!=null && !arg.equals(""))
-				bsh.eval(imports+"argument=\""+arg+"\";"+script);
-			else
-				bsh.eval(imports+script);
+			if (arg!=null && !arg.equals("")) {
+				String getArg = "getArgument(){return \""+arg+"\";} ";
+				result = bsh.eval(imports+getArg+script);
+			} else
+				result = bsh.eval(imports+defaultGetArg+script);
 		} catch(Throwable e) {
 			String msg = e.getMessage();
 			if (msg!=null && msg.contains("import ij.*")) {
@@ -79,8 +80,6 @@ public class bsh extends PlugInInterpreter implements PlugIn, Runnable {
 				IJ.log(msg+" in line number "+line);
 			}
 		}
-	}
-
-	
+	}	
 
 }
