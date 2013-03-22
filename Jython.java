@@ -4,6 +4,7 @@ import ij.io.LogStream;
 import java.io.File;
 import java.util.Properties;
 import org.python.util.PythonInterpreter;
+import org.python.core.PyObject;
 
 /** This plugin runs Jython scripts. */
 public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
@@ -22,8 +23,7 @@ public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
 		"from java.awt.image import *\n"+
 		"from java.awt.geom import *\n"+
 		"from java.util import *\n"+
-		"from java.io import *\n"+
-		"argument=\"\"\n";
+		"from java.io import *\n";
 
 	public static final String name = "Jython";
 	private Thread thread;
@@ -31,6 +31,7 @@ public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
 	private String arg;
 	private String output;
 	private static int counter;
+	private PyObject result;
 
 	// run script on separate thread
 	public void run(String script) {
@@ -51,7 +52,7 @@ public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
 	}
 
 	public String getReturnValue() {
-		return null;
+		return result!=null?""+result:"";
 	}
 
 	public String getImports() {
@@ -59,7 +60,7 @@ public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
 	}
 
 	public String getVersion() {
-		return "1.47m";
+		return "1.47n";
 	}
 
 	public String getName() {
@@ -82,9 +83,10 @@ public class Jython extends PlugInInterpreter implements PlugIn, Runnable {
 		py.setErr(stream);
 		try {
 			py.exec(imports);
-			if (arg!=null && !arg.equals(""))
-				py.exec("argument=\""+arg+"\"\n");
-			py.exec(script); 
+			if (arg==null) arg="";
+			py.exec("def getArgument():\n   return \""+arg+"\"");
+			py.exec(script);
+			result = py.get("result");
 		} catch(Throwable e) {
 			String msg = ""+e;
 			if (!msg.contains(Macro.MACRO_CANCELED))
