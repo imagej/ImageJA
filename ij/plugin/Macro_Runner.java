@@ -9,19 +9,24 @@ import ij.gui.GenericDialog;
 import java.io.*;
 import java.lang.reflect.*;
 
-/** Opens and runs a macro file. */
+/** This class runs macros and scripts installed in the Plugins menu as well as
+	macros and scripts opened using the Plugins/Macros/Run command. */
 public class Macro_Runner implements PlugIn {
 	
-	/** Opens and runs the specified macro file, which is assumed to be in the plugins folder,
-		on the current thread. Displays a file open dialog if <code>name</code> is an empty string. */
+	/** Opens and runs the specified macro file (.txt or .ijm) or script file (.js, .bsh or .py)  
+		on the current thread. Displays a file open dialog if <code>name</code> 
+		is an empty string. The macro or script is assumed to be in the ImageJ 
+		plugins folder if  <code>name</code> is not a full path. */
 	public void run(String name) {
+		if (IJ.debugMode)
+			IJ.log("Macro_Runner.run(): "+name);
 		Thread thread = Thread.currentThread();
 		String threadName = thread.getName();
 		if (!threadName.endsWith("Macro$"))
 			thread.setName(threadName+"Macro$");
 		String path = null;
 		if (name.equals("")) {
-			OpenDialog od = new OpenDialog("Run Macro...", path);
+			OpenDialog od = new OpenDialog("Run Macro or Script...", path);
 			String directory = od.getDirectory();
 			name = od.getFileName();
 			if (name!=null) {
@@ -42,15 +47,21 @@ public class Macro_Runner implements PlugIn {
 		|| name.endsWith("Menu.ijm") || name.endsWith("Menu.txt"))
 			(new MacroInstaller()).installTool(Menus.getPlugInsPath()+name);
 		else {
-			path = Menus.getPlugInsPath() + name;
+			boolean fullPath = name.startsWith("/") || name.startsWith("\\") || name.indexOf(":\\")==1;
+			if (fullPath)
+				path = name;
+			else
+				path = Menus.getPlugInsPath() + name;
 			runMacroFile(path, null);
 		}
 	}
         
-    /** Opens and runs the specified macro file on the current thread.
-    	The file is assumed to be in the macros folder unless 
-    	<code>name</code> is a full path. ".txt"  is
-    	added if <code>name</code> does not have an extension. */
+	/** Opens and runs the specified macro or script on the current
+		thread. The file is assumed to be in the ImageJ/macros folder
+		unless 'name' is a full path. ".txt"  is added if 'name' does not
+		have an extension. The macro or script can use the getArgument()
+		function to retrieve the string argument.
+    */
 	public String runMacroFile(String name, String arg) {
 		if (name.startsWith("ij.jar:"))
 			return runMacroFromIJJar(name, arg);
@@ -88,7 +99,9 @@ public class Macro_Runner implements PlugIn {
 			if (name.endsWith(".js"))
 				return runJavaScript(macro, arg);
 			else if (name.endsWith(".bsh"))
-				return runBeanShellScript(macro, arg);
+				return runBeanShell(macro, arg);
+			else if (name.endsWith(".py"))
+				return runPython(macro, arg);
 			else
 				return runMacro(macro, arg);
 		}
@@ -99,9 +112,9 @@ public class Macro_Runner implements PlugIn {
 		}
 	}
 
-    /** Opens and runs the specified macro on the current thread. Macros can
-    	retrieve the optional string argument by calling the getArgument() macro function. 
-    	Returns the String value returned by the macro, null if the macro does not
+    /** Runs the specified macro on the current thread. Macros can retrieve 
+    	the optional string argument by calling the getArgument() macro function. 
+    	Returns the string value returned by the macro, null if the macro does not
     	return a value, or "[aborted]" if the macro was aborted due to an error. */
 	public String runMacro(String macro, String arg) {
 		Interpreter interp = new Interpreter();
@@ -185,52 +198,102 @@ public class Macro_Runner implements PlugIn {
 			return null;
 	}
 	
-	/** Runs a JavaScript script on the current thread, passing 'arg', which
-		the script can retrieve using the getArgument() function.*/
+	/** Runs a JavaScript script on the current thread, passing a string argument, 
+		which the script can retrieve using the getArgument() function. Returns,
+		as a string, the last expression evaluated by the script. */
 	public String runJavaScript(String script, String arg) {
-		if (arg==null) arg = "";
 		Object js = null;
 		if (IJ.isJava16() && !(IJ.isMacOSX()&&!IJ.is64Bit()))
 			js = IJ.runPlugIn("JavaScriptEvaluator", "");
-		else
+		else {
 			js = IJ.runPlugIn("JavaScript", "");
-		if (js==null) IJ.error(Editor.JS_NOT_FOUND);
+			if (js==null) {
+				boolean ok = downloadJar("/download/tools/JavaScript.jar");
+				if (ok)
+					js = IJ.runPlugIn("JavaScript", "");
+			}
+		}
 		script = Editor.getJSPrefix(arg)+script;
-		try {
-			Class c = js.getClass();
-			Method m = c.getMethod("run", new Class[] {script.getClass(), arg.getClass()});
-			String s = (String)m.invoke(js, new Object[] {script, arg});			
-		} catch(Exception e) {
-			String msg = ""+e;
-			if (msg.indexOf("NoSuchMethod")!=0)
-				msg = "\"JavaScript.jar\" ("+IJ.URL+"/download/tools/JavaScript.jar)\nis outdated";
-			IJ.error(msg);
+		if (js!=null)
+			return runScript(js, script, arg);
+		else
 			return null;
-		}
-		return null;
 	}
 	
-	/** Runs a BeanShell script on the current thread.*/
-	public String runBeanShellScript(String script, String arg) {
-		Object bsh = IJ.runPlugIn("bsh", script);
+	private static String runScript(Object plugin, String script, String arg) {
+		if (plugin instanceof PlugInInterpreter) {
+			PlugInInterpreter interp = (PlugInInterpreter)plugin;
+			if (IJ.debugMode)
+				IJ.log("Running "+interp.getName()+" script; arg=\""+arg+"\"");
+			interp.run(script, arg);
+			return interp.getReturnValue();
+		} else { // call run(script,arg) method using reflection
+			try {
+				Class c = plugin.getClass();
+				Method m = c.getMethod("run", new Class[] {script.getClass(), arg.getClass()});
+				String s = (String)m.invoke(plugin, new Object[] {script, arg});			
+			} catch(Exception e) {
+				if ("Jython".equals(plugin.getClass().getName()))
+					IJ.runPlugIn("Jython", script);
+			}
+			return ""+plugin;
+		}
+	}
+	
+	/** Runs a BeanShell script on the current thread, passing a string argument, 
+		which the script can retrieve using the getArgument() function. Returns,
+		as a string, the last expression evaluated by the script.
+		Uses the plugin at http://imagej.nih.gov/ij/plugins/bsh/
+		to run the script.
+	*/
+	public static String runBeanShell(String script, String arg) {
+		if (arg==null)
+			arg = "";
+		Object bsh = IJ.runPlugIn("bsh", "");
 		if (bsh==null) {
-			boolean ok = installBeanShell();
+			boolean ok = downloadJar("/plugins/bsh/BeanShell.jar");
 			if (ok)
-				bsh = IJ.runPlugIn("bsh", script);
+				bsh = IJ.runPlugIn("bsh", "");
 		}
-		return null;
+		if (bsh!=null)
+			return runScript(bsh, script, arg);
+		else
+			return null;
 	}
 	
-	public static boolean installBeanShell() {
+	/** Runs a Prython script on the current thread, passing a string argument, 
+		which the script can retrieve using the getArgument() function. Returns,
+		as a string, the value of the variable 'result'. For example, a Python script  
+		containing the line "result=123" will return the string "123".
+		Uses the plugin at http://imagej.nih.gov/ij/plugins/jython/
+		to run the script.
+	*/
+	public static String runPython(String script, String arg) {
+		if (arg==null)
+			arg = "";
+		Object jython = IJ.runPlugIn("Jython", "");
+		if (jython==null) {
+			boolean ok = downloadJar("/plugins/jython/Jython.jar");
+			if (ok)
+				jython = IJ.runPlugIn("Jython", "");
+		}
+		if (jython!=null)
+			return runScript(jython, script, arg);
+		else
+			return null;
+	}
+
+	public static boolean downloadJar(String url) {
+		String name = url.substring(url.lastIndexOf("/")+1);
 		boolean ok = false;
-		String msg = "BeanShell.jar was not found in the plugins\nfolder. Click \"OK\" to download it from\nthe ImageJ website.";
-		GenericDialog gd = new GenericDialog("BeanShell");
+		String msg = name+" was not found in the plugins\nfolder. Click \"OK\" to download it from\nthe ImageJ website.";
+		GenericDialog gd = new GenericDialog("Download "+name+"?");
 		gd.addMessage(msg);
 		gd.showDialog();
 		if (!gd.wasCanceled()) {
-			ok = (new PluginInstaller()).install(IJ.URL+"/plugins/bsh/BeanShell.jar");
+			ok = (new PluginInstaller()).install(IJ.URL+url);
 			if (!ok)
-				IJ.error("Could not download BeanShell.jar from "+IJ.URL+"/plugins/bsh/");
+				IJ.error("Unable to download "+name+" from "+IJ.URL+url);
 		}
 		return ok;
 	}

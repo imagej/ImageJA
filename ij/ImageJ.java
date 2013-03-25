@@ -33,26 +33,20 @@ The following command line options are recognized by ImageJ:
      Opens a file
      Example 1: blobs.tif
      Example 2: /Users/wayne/images/blobs.tif
-     Example3: e81*.tif
-
-  -ijpath path
-     Specifies the path to the directory containing the plugins directory
-     Example: -ijpath /Applications/ImageJ
-
-  -port<n>
-     Specifies the port ImageJ uses to determine if another instance is running
-     Example 1: -port1 (use default port address + 1)
-     Example 2: -port2 (use default port address + 2)
-     Example 3: -port0 (don't check for another instance)
+     Example 3: e81*.tif
 
   -macro path [arg]
-     Runs a macro or script, passing it an optional argument,
-     which can be retieved using getArgument()
+     Runs a macro or script (JavaScript, BeanShell or Python), passing an
+     optional string argument, which the macro or script can be retrieve
+     using the getArgument() function. The macro or script is assumed to 
+     be in the ImageJ/macros folder if 'path' is not a full directory path.
      Example 1: -macro analyze.ijm
-     Example 2: -macro analyze /Users/wayne/images/stack1
+     Example 2: -macro script.js /Users/wayne/images/stack1
+     Example 2: -macro script.py '1.2 2.4 3.8'
 
   -batch path [arg]
-    Runs a macro or script in batch (no GUI) mode, passing it an optional argument.
+    Runs a macro or script (JavaScript, BeanShell or Python) in
+    batch (no GUI) mode, passing it an optional argument.
     ImageJ exits when the macro finishes.
 
   -eval "macro code"
@@ -64,6 +58,16 @@ The following command line options are recognized by ImageJ:
      Runs an ImageJ menu command
      Example: -run "About ImageJ..."
      
+  -ijpath path
+     Specifies the path to the directory containing the plugins directory
+     Example: -ijpath /Applications/ImageJ
+
+  -port<n>
+     Specifies the port ImageJ uses to determine if another instance is running
+     Example 1: -port1 (use default port address + 1)
+     Example 2: -port2 (use default port address + 2)
+     Example 3: -port0 (don't check for another instance)
+
   -debug
      Runs ImageJ in debug mode
 </pre>
@@ -73,8 +77,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.47m";
-	public static final String BUILD = "4"; 
+	public static final String VERSION = "1.47n";
+	public static final String BUILD = "22"; 
 	public static Color backgroundColor = new Color(220,220,220); //224,226,235
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -357,6 +361,10 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.log("Windows: "+WindowManager.getWindowCount());
 	}
 	
+	public String getInfo() {
+		return version()+System.getProperty("os.name")+" "+System.getProperty("os.version")+"; "+IJ.freeMemory();
+	}
+
 	private String version() {
 		return "ImageJ "+VERSION+BUILD + "; "+"Java "+System.getProperty("java.version")+(IJ.is64Bit()?" [64-bit]; ":" [32-bit]; ");
 	}
@@ -622,7 +630,6 @@ public class ImageJ extends Frame implements ActionListener,
 			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
-		//IJ.debugMode = true;
 		boolean noGUI = false;
 		int mode = STANDALONE;
 		arguments = args;
@@ -637,7 +644,7 @@ public class ImageJ extends Frame implements ActionListener,
 				if (args[i].startsWith("-batch"))
 					noGUI = true;
 				else if (args[i].startsWith("-debug"))
-					IJ.debugMode = true;
+					IJ.setDebugMode(true);
 				else if (args[i].startsWith("-ijpath") && i+1<nArgs) {
 					Prefs.setHomeDir(args[i+1]);
 					commandLine = true;

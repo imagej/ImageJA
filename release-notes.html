@@ -5,17 +5,33 @@
 </head>
 <body>
 
-<li> <u>1.47m 25 February 2013</u>
+<li> <u>1.47n 21 March 2013</u>
 <ul>
-<li> Added the <i>Plugins&gt;Install</i> command.
-<li> <i>Plugins&gt;Utilities&gt;ImageJ Properties</i> now displays
-values returned by IJ.getDirectory() and all Java properties.
-<li> Thanks to Christophe Deroulers, added the roiManager("save selected", path)
-macro function.
-<li> Thanks to Norbert Vischer, fixed a bug that caused the <i>Edit&gt;Selection&gt;Rotate</i>
-command to not work as expected with rounded rectangle selections.
-<li> Thanks to Antti Niemisto and Gabriel Landini, fixed a bug that caused the "Minimum" thresholding
-method to set the wrong threshold for some unusual histograms.
+<li> Added a <i>Macros&gt;Show Log Window</i> command to the macro editor.
+<li> Thanks to Johannes Schindelin, the eval("script",JavaScriptCode) macro function
+now returns, as a string, the value of the last expression evaluated.
+<li> The ImageListener interface triggers an image updated event
+when an image is renamed.
+<li> Added the blurGaussian() and applyMacro()
+methods to the ImageProcessor class
+(<a href="http://imagej.nih.gov/ij/macros/python/Animated_Gaussian_Blur.py">example1</a>,
+<a href="http://imagej.nih.gov/ij/macros/python/Rotational_Animation.py">example2 FIX</a>).
+<li> Added the Overlay.setPosition(c,z,t) and Overlay.drawLabels() (no overlay???) macro functions (DOCS).
+<li> Fixed a bug that caused the Python print statement to not work as expected.
+<li> Thanks to Julian Cooper, fixed a bug that caused bounding box values displayed
+in the Results window, when measuring lines selections, to always be in pixel units.
+<li> Thanks to Curtis Rueden, fixed a bug that caused the ROI Manager to not restore
+hyperstack ROIs to the current CZT position.
+<li> Thanks to Julian Cooper, fixed a bug that caused vertical lines selections at the
+left image edge or horizontal line selections at the top image edge to not
+be restored correctly.
+<li> Thanks to Dimiter Prodanov, fixed a bug that could cause the ROI Manager
+to throw an exception if it contained a zero-point PolygonRoi.
+<li> Thanks to Michael Epping, fixed bugs that caused the Flip Horizontally, 
+Flip Vertically,  Rotate Left and Rotate Right commands to not correctly
+transform the image origin.
+<li> Thanks to Rich VanMetter, fixed a bug that caused some DICOM images
+to open slowly.
 </ul> 
 
 <a href="http://imagej.nih.gov/ij">Home</a>
