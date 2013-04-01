@@ -56,7 +56,6 @@ test -n "$NO_PUSH" && exit
 
 for REMOTE in \
 	git@dev.imagejdev.org:imageja.git \
-	hudson-imagej@fiji.sc:/srv/git/ImageJA.git \
 	git@github.com:fiji/ImageJA \
 	dscho@imageja.git.sourceforge.net:/gitroot/imageja/imageja \
 	hudson-imagej@repo.or.cz:/srv/git/imageja.git
