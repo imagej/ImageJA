@@ -78,4 +78,4 @@ git stash &&
 git checkout master &&
 git stash &&
 mvn clean &&
-mvn deploy || exit
+mvn -DupdateReleaseInfo=true deploy || exit
