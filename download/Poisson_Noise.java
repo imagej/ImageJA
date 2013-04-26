@@ -40,6 +40,12 @@ import java.awt.Rectangle;
  * fundamental physics.
  * <p>
  * Changes: <br>
+ * 25/apr/2013<br>
+ * - Now the input image is converted in Float, then input pixel values are used
+ *   directly without scaling. For example, if a pixel in a 8-bit input has the
+ *   value 10, then the corresponding output pixel will be generated from a
+ *   Poisson distribution with mean 10.<br> 
+ * - Deleted the MEAN_FACTOR constant and the input Dialog
  * 30/nov/2008<br>
  * - subtracted the mean value before adding the noise to the signal. This in
  * order to distribute the noise around the signal.<br>
@@ -53,84 +59,72 @@ import java.awt.Rectangle;
  * @version 1.1
  */
 public class Poisson_Noise implements PlugInFilter {
-	final static double MEAN_FACTOR = 2.0;
-	static double noiseMean = 2;
-	ImagePlus imp;
-	Random random = new Random();
+   ImagePlus imp;
+   Random random = new Random();
 
-	public int setup(String arg, ImagePlus imp) {
-		if (imp == null) {
-			IJ.noImage();
-			return DONE;
-		}
-		this.imp = imp;
-		if (!showDialog())
-			return DONE;
-		return IJ.setupDialog(imp, DOES_ALL | SUPPORTS_MASKING);
-	}
+   public int setup(String arg, ImagePlus imp) {
+      if (imp == null) {
+         IJ.noImage();
+         return DONE;
+      }
+      this.imp = imp;
+      return IJ.setupDialog(imp, DOES_ALL | SUPPORTS_MASKING);
+   }
 
-	public void run(ImageProcessor ip) {
-		FloatProcessor fp = null;
-		for (int i = 0; i < ip.getNChannels(); i++) { // grayscale: once. RBG:
-			// once per color, i.e., 3 times
-			fp = ip.toFloat(i, fp); // convert image or color channel to float
-			addNoise(fp);
-			ip.setPixels(i, fp); // convert back from float
-		}
-	}
+   public void run(ImageProcessor ip) {
+      FloatProcessor fp = null;
+      for (int i = 0; i < ip.getNChannels(); i++) { // grayscale: once. RBG:
+         // once per color, i.e., 3 times
+         fp = ip.toFloat(i, fp); // convert image or color channel to float
 
-	public void addNoise(ImageProcessor ip) {
-		int width = ip.getWidth(); // width of the image
-		int height = ip.getHeight(); // height of the image
-		// double max = ip.getMax();
-		float[] pixels = (float[]) ip.getPixels();
-		int progress = Math.max(height / 25, 1);
-		Rectangle r = ip.getRoi();
+         addNoiseInt(fp);
 
-		for (int y = r.y; y < (r.y + r.height); y++) {
-			if (y % progress == 0)
-				IJ.showProgress(y, height);
-			for (int x = r.x; x < (r.x + r.width); x++) {
-				// Creates additive poisson noise
-				double newVal = (pixels[y * width + x]) + poissonValue()
-						/ MEAN_FACTOR - noiseMean;
-				newVal = Math.max(newVal, 0);
-				// if (newVal <= max)
-				pixels[x + y * width] = (float) newVal;
-			}
-		}
-		IJ.showProgress(1.0);
-		ip.resetMinAndMax();
-	}
+         ip.setPixels(i, fp); // convert back from float
+      }
+   }
 
-	/**
-	 * Algorithm poisson random number (Knuth). While simple, the complexity is
-	 * linear in λ (the mean).
-	 * 
-	 * @return a random Poisson-distributed number.
-	 */
-	private int poissonValue() {
-		// init:
-		double L = Math.exp(-noiseMean * MEAN_FACTOR);
-		int k = 0;
-		double p = 1;
-		do {
-			k++;
-			// Generate uniform random number u in [0,1] and let p ← p × u.
-			p *= random.nextDouble();
-		} while (p >= L);
-		return k - 1;
-	}
+   public void addNoiseInt(ImageProcessor ip) {
+      int width = ip.getWidth(); // width of the image
+      int height = ip.getHeight(); // height of the image
+      // double max = ip.getMax();
+      float[] pixels = (float[]) ip.getPixels();
+      int progress = Math.max(height / 25, 1);
+      Rectangle r = ip.getRoi();
 
-	private boolean showDialog() {
-		GenericDialog gd = new GenericDialog(
-				"Additive Poisson Noise Parameters");
-		gd.addNumericField("Noise Mean (>0):", noiseMean, 2);
-		gd.showDialog();
-		if (gd.wasCanceled())
-			return false;
-		noiseMean = Math.max(gd.getNextNumber(), 0.01);
-		return true;
-	}
+      for (int y = r.y; y < (r.y + r.height); y++) {
+         if (y % progress == 0)
+            IJ.showProgress(y, height);
+         for (int x = r.x; x < (r.x + r.width); x++) {
+            // Creates additive poisson noise
+            float pixVal = pixels[y * width + x];
+            // double newVal = pixVal + poissonValue(pixVal);
+            double newVal = poissonValue(pixVal);
+            // newVal = Math.max(newVal, 0);
+            // if (newVal <= max)
+            pixels[x + y * width] = (float) newVal;
+         }
+      }
+      IJ.showProgress(1.0);
+      ip.resetMinAndMax();
+   }
+
+   /**
+    * Algorithm poisson random number (Knuth). While simple, the complexity is
+    * linear in λ (the mean).
+    * 
+    * @return a random Poisson-distributed number.
+    */
+   private int poissonValue(float pixVal) {
+
+      double L = Math.exp(-(pixVal));
+      int k = 0;
+      double p = 1;
+      do {
+         k++;
+         // Generate uniform random number u in [0,1] and let p ← p × u.
+         p *= random.nextDouble();
+      } while (p >= L);
+      return (k - 1);
+   }
 
 }
