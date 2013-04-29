@@ -57,7 +57,6 @@ test -n "$NO_PUSH" && exit
 for REMOTE in \
 	git@dev.imagejdev.org:imageja.git \
 	git@github.com:fiji/ImageJA \
-	dscho@imageja.git.sourceforge.net:/gitroot/imageja/imageja \
 	hudson-imagej@repo.or.cz:/srv/git/imageja.git
 do
 	ERR="$(git push $REMOTE imagej master 2>&1 &&
