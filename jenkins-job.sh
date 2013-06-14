@@ -59,7 +59,7 @@ for REMOTE in \
 	git@github.com:fiji/ImageJA \
 	hudson-imagej@repo.or.cz:/srv/git/imageja.git
 do
-	ERR="$(git push $REMOTE imagej master 2>&1 &&
+	ERR="$(git push $REMOTE imagej master "v$DOTVERSION" 2>&1 &&
 		cd tools &&
 		git push $REMOTE tools 2>&1)" ||
 	case "$REMOTE $ERR" in
