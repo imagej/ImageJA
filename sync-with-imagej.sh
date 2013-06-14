@@ -98,6 +98,9 @@ NEWHEAD="$(git commit-tree $TREE -p $HEAD -p $IJ1HEAD \
 git update-ref -m "Synchronize with ImageJ1" $BRANCH $NEWHEAD $HEAD ||
 die "Could not update $BRANCH"
 
+git tag -a -m "v$VERSION" "v$VERSION" $NEWHEAD ||
+die "Could not tag $VERSION"
+
 test -z "$NEED_TO_UPDATE_WORKING_TREE" || {
 	echo "Updating work-tree" &&
 	unset GIT_INDEX_FILE &&
