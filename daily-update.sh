@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=imageja-github:fiji/ImageJA
+URL=imageja-github:imagej/ImageJA
 EMAIL=johannes.schindelin@gmx.de
 TOOLS_DIR="$(cd "$(dirname "$0")" && pwd)"
 case "$1,$3" in

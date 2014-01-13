@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=git://github.com/fiji/ImageJA
+URL=git://github.com/imagej/ImageJA
 BRANCH=refs/heads/master
 
 grep Sync .git/hooks/post-merge >/dev/null 2>/dev/null || {

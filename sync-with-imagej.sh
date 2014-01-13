@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=git://github.com/fiji/ImageJA
+URL=git://github.com/imagej/ImageJA
 BRANCH=refs/heads/master
 IJ1BRANCH=refs/heads/imagej
 
@@ -10,7 +10,7 @@ die () {
 }
 
 test a--wayne = "a$1" && {
-	git fetch git://fiji.sc/imagej.git master
+	git fetch git://github.com/imagej/imagej1.git master
 	IJ1BRANCH=$(git rev-parse FETCH_HEAD)
 	shift
 }

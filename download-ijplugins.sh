@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=imageja-github:fiji/ImageJA
+URL=imageja-github:imagej/ImageJA
 BASE_URL=http://rsb.info.nih.gov/ij/plugins
 BRANCH=refs/heads/ijplugins
 VERBOSE=t
