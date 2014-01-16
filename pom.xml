@@ -137,10 +137,10 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://fiji.sc/imagej.git</connection>
-		<developerConnection>scm:git:mob@repo.or.cz/srv/git/imageja.git</developerConnection>
+		<connection>scm:git:git://github.com/imagej/ImageJA</connection>
+		<developerConnection>scm:git:git@github.com:imagej/ImageJA</developerConnection>
 		<tag>HEAD</tag>
-		<url>http://fiji.sc/cgi-bin/gitweb.cgi?p=imagej.git</url>
+		<url>https://github.com/imagej/ImageJA</url>
 	</scm>
 
 	<!-- NB: for project parent -->
