@@ -80,7 +80,6 @@ git stash &&
 git checkout master &&
 git stash &&
 mvn clean &&
-mvn -DupdateReleaseInfo=true -Psonatype-oss-release \
-	deploy nexus-staging:release &&
+mvn -DupdateReleaseInfo=true -Psonatype-oss-release deploy &&
 curl --netrc -i -X DELETE \
 	$SONATYPE_PROXY/net/imagej/ij/maven-metadata.xml
