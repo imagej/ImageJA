@@ -60,7 +60,7 @@ git read-tree $IJ1HEAD ||
 die "Could not read current ImageJ1 tree"
 
 # Obtain newest pom-scijava version
-MAVEN_URL=http://maven.imagej.net/content/repositories/releases
+MAVEN_URL=http://maven.imagej.net/content/groups/public
 POM_SCIJAVA_URL=$MAVEN_URL/org/scijava/pom-scijava
 POM_SCIJAVA_VERSION="$(curl -s $POM_SCIJAVA_URL/maven-metadata.xml |
 	sed -n 's/.*<release>\(.*\)<\/release>.*/\1/p')"
