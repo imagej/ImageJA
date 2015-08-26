@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>net.imagej</groupId>
 		<artifactId>pom-imagej</artifactId>
-		<version>10.0.2</version>
+		<version>11.1.0</version>
 		<relativePath />
 	</parent>
 
 	<groupId>net.imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.50a</version>
+	<version>1.50b</version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
