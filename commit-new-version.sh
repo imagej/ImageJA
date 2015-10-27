@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BRANCHNAME=imagej
-URL=git@git.imagej.net:imageja.git
+URL=git@github.com:imagej/ImageJA
 
 git rev-parse $BRANCHNAME >/dev/null 2>/dev/null ||
 git fetch $URL $BRANCHNAME:refs/heads/$BRANCHNAME || {

@@ -55,9 +55,7 @@ sh -x "$(dirname "$0")"/sync-with-imagej.sh || {
 test -n "$NO_PUSH" && exit
 
 for REMOTE in \
-	git@code.imagej.net:imageja.git \
-	git@github.com:imagej/ImageJA \
-	hudson-imagej@repo.or.cz:/srv/git/imageja.git
+	git@github.com:imagej/ImageJA
 do
 	ERR="$(git push $REMOTE imagej master "v$DOTVERSION" 2>&1 &&
 		cd tools &&
