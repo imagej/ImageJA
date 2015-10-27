@@ -70,14 +70,3 @@ do
 		;;
 	esac
 done
-
-NEXUS_URL=http://maven.imagej.net/
-SONATYPE_PROXY=$NEXUS_URL/service/local/data_cache/repositories/sonatype/content
-
-git stash &&
-git checkout master &&
-git stash &&
-mvn clean &&
-mvn -DupdateReleaseInfo=true -Psonatype-oss-release deploy &&
-curl --netrc -i -X DELETE \
-	$SONATYPE_PROXY/net/imagej/ij/maven-metadata.xml
