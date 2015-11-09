@@ -94,6 +94,34 @@ public class CompositeImage extends ImagePlus {
 			setOpenAsHyperStack(true);
 	}
 
+    public void close() {
+        super.close();
+        rgbPixels = null;
+        imageSource = null;
+        awtImage = null;
+        rgbRaster = null;
+        rgbSampleModel = null;
+        rgbImage = null;
+        rgbCM = null;
+        if (cip != null) {
+            for (int i = 0; i < cip.length; i++) {
+                cip[i] = null;
+            }
+        }
+        
+        if (lut != null) {
+            for (int i = 0; i < lut.length; i++) {
+                lut[i] = null;
+            }
+        }
+        
+        if (channelLuts != null) {
+            for (int i = 0; i < channelLuts.length; i++) {
+                channelLuts[i] = null;
+            }
+        }
+    }
+    
 	public Image getImage() {
 		if (img==null)
 			updateImage();
