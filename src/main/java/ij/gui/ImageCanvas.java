@@ -3,6 +3,7 @@ package ij.gui;
 import java.awt.*;
 import java.util.Properties;
 import java.awt.image.*;
+
 import ij.process.*;
 import ij.measure.*;
 import ij.plugin.WandToolOptions;
@@ -12,6 +13,7 @@ import ij.plugin.tool.PlugInTool;
 import ij.macro.*;
 import ij.*;
 import ij.util.*;
+
 import java.awt.event.*;
 import java.util.*;
 import java.awt.geom.*;
@@ -19,8 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //import javax.swing.JPanel;
 
 
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+
+
 /** This is a Canvas used to display images in a Window. */
-public class ImageCanvas extends Canvas implements MouseListener, MouseMotionListener, Cloneable {
+public class ImageCanvas extends JPanel implements MouseListener, MouseMotionListener, Cloneable {
 
 	protected static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 	protected static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -1234,7 +1240,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			roi.handleMouseUp(x, y); // polygon or polyline selection
 			return;
 		}
-		PopupMenu popup = Menus.getPopupMenu();
+		JPopupMenu popup = Menus.getPopupMenu();
 		if (popup!=null) {
 			add(popup);
 			if (IJ.isMacOSX()) IJ.wait(10);

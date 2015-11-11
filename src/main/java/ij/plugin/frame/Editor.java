@@ -4,6 +4,10 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.awt.datatransfer.*;																																																																																													
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import ij.*;
 import ij.gui.*;
 import ij.util.Tools;
@@ -53,12 +57,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	private static int lineNumber = 1;
 	private static int xoffset, yoffset;
 	private static int nWindows;
-	private Menu fileMenu, editMenu;
+	private JMenu fileMenu, editMenu;
 	private Properties p = new Properties();
 	private int[] macroStarts;
 	private String[] macroNames;
-	private MenuBar mb;
-	private Menu macrosMenu;
+	private JMenuBar mb;
+	private JMenu macrosMenu;
 	private int nMacros;
 	private Program pgm;
 	private int eventCount;
@@ -69,7 +73,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	private boolean dontShowWindow;
     private int[] sizes = {9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72};
     private int fontSize = (int)Prefs.get(FONT_SIZE, 6); // defaults to 16-point
-    private CheckboxMenuItem monospaced;
+    private JCheckBoxMenuItem monospaced;
     private static boolean wholeWords;
     private boolean isMacroWindow;
     private int debugStart, debugEnd;
@@ -110,25 +114,25 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	}
 	
 	void addMenuBar(int options) {
-		mb = new MenuBar();
+		mb = new JMenuBar();
 		if (Menus.getFontSize()!=0) ;
 			mb.setFont(Menus.getFont());
-		Menu m = new Menu("File");
-		m.add(new MenuItem("New...", new MenuShortcut(KeyEvent.VK_N, true)));
-		m.add(new MenuItem("Open...", new MenuShortcut(KeyEvent.VK_O)));
-		m.add(new MenuItem("Save", new MenuShortcut(KeyEvent.VK_S)));
-		m.add(new MenuItem("Save As..."));
-		m.add(new MenuItem("Revert"));
-		m.add(new MenuItem("Print..."));
+		JMenu m = new JMenu("File");
+		m.add(new JMenuItem("New..."));//, new MenuShortcut(KeyEvent.VK_N, true)));
+		m.add(new JMenuItem("Open..."));//, new MenuShortcut(KeyEvent.VK_O)));
+		m.add(new JMenuItem("Save"));//, new MenuShortcut(KeyEvent.VK_S)));
+		m.add(new JMenuItem("Save As..."));
+		m.add(new JMenuItem("Revert"));
+		m.add(new JMenuItem("Print..."));
 		m.addActionListener(this);
 		fileMenu = m;
 		mb.add(m);
 		
-		m = new Menu("Edit");
+		m = new JMenu("Edit");
 		//String key = IJ.isMacintosh()?"  Cmd ":"  Ctrl+";
 		//MenuItem item = new MenuItem("Undo"+key+"Z");
 		//item.setEnabled(false);
-		MenuItem item = new MenuItem("Undo",new MenuShortcut(KeyEvent.VK_Z));
+		JMenuItem item = new JMenuItem("Undo");//,new MenuShortcut(KeyEvent.VK_Z));
 		m.add(item);
 		m.addSeparator();
 		boolean shortcutsBroken = IJ.isWindows()
@@ -136,44 +140,44 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			||System.getProperty("java.version").indexOf("1.5.")>=0);
 		shortcutsBroken = false;
 		if (shortcutsBroken)
-			item = new MenuItem("Cut  Ctrl+X");
+			item = new JMenuItem("Cut  Ctrl+X");
 		else
-			item = new MenuItem("Cut",new MenuShortcut(KeyEvent.VK_X));
+			item = new JMenuItem("Cut");//,new MenuShortcut(KeyEvent.VK_X));
 		m.add(item);
 		if (shortcutsBroken)
-			item = new MenuItem("Copy  Ctrl+C");
+			item = new JMenuItem("Copy  Ctrl+C");
 		else
-			item = new MenuItem("Copy", new MenuShortcut(KeyEvent.VK_C));
+			item = new JMenuItem("Copy");//, new MenuShortcut(KeyEvent.VK_C));
 		m.add(item);
 		if (shortcutsBroken)
-			item = new MenuItem("Paste  Ctrl+V");
+			item = new JMenuItem("Paste  Ctrl+V");
 		else
-			item = new MenuItem("Paste",new MenuShortcut(KeyEvent.VK_V));
+			item = new JMenuItem("Paste");//,new MenuShortcut(KeyEvent.VK_V));
 		m.add(item);
 		m.addSeparator();
-		m.add(new MenuItem("Find...", new MenuShortcut(KeyEvent.VK_F)));
-		m.add(new MenuItem("Find Next", new MenuShortcut(KeyEvent.VK_G)));
-		m.add(new MenuItem("Go to Line...", new MenuShortcut(KeyEvent.VK_L)));
+		m.add(new JMenuItem("Find..."));//, new MenuShortcut(KeyEvent.VK_F)));
+		m.add(new JMenuItem("Find Next"));//, new MenuShortcut(KeyEvent.VK_G)));
+		m.add(new JMenuItem("Go to Line..."));//, new MenuShortcut(KeyEvent.VK_L)));
 		m.addSeparator();
-		m.add(new MenuItem("Select All", new MenuShortcut(KeyEvent.VK_A)));
-		m.add(new MenuItem("Balance", new MenuShortcut(KeyEvent.VK_B,false)));
-		m.add(new MenuItem("Zap Gremlins"));
-		m.add(new MenuItem("Copy to Image Info"));
+		m.add(new JMenuItem("Select All"));//, new MenuShortcut(KeyEvent.VK_A)));
+		m.add(new JMenuItem("Balance"));//, new MenuShortcut(KeyEvent.VK_B,false)));
+		m.add(new JMenuItem("Zap Gremlins"));
+		m.add(new JMenuItem("Copy to Image Info"));
 		m.addActionListener(this);
 		mb.add(m);
 		editMenu = m;
 		if ((options&MENU_BAR)!=0)
-			setMenuBar(mb);
+			setJMenuBar(mb);
 		
-		m = new Menu("Font");
-		m.add(new MenuItem("Make Text Smaller", new MenuShortcut(KeyEvent.VK_N)));
-		m.add(new MenuItem("Make Text Larger", new MenuShortcut(KeyEvent.VK_M)));
+		m = new JMenu("Font");
+		m.add(new JMenuItem("Make Text Smaller"));//, new MenuShortcut(KeyEvent.VK_N)));
+		m.add(new JMenuItem("Make Text Larger"));//, new MenuShortcut(KeyEvent.VK_M)));
 		m.addSeparator();
-		monospaced = new CheckboxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
+		monospaced = new JCheckBoxMenuItem("Monospaced Font", Prefs.get(FONT_MONO, false));
 		if ((options&MONOSPACED)!=0) monospaced.setState(true);
 		monospaced.addItemListener(this);
 		m.add(monospaced);
-		m.add(new MenuItem("Save Settings"));
+		m.add(new JMenuItem("Save Settings"));
 		m.addActionListener(this);
 		mb.add(m);
 		
@@ -209,31 +213,31 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		setWindowTitle(name);
 		boolean macroExtension = name.endsWith(".txt") || name.endsWith(".ijm");
 		if (macroExtension || name.endsWith(".js") || name.endsWith(".bsh") || name.endsWith(".py") || name.indexOf(".")==-1) {
-			macrosMenu = new Menu("Macros");			
-			macrosMenu.add(new MenuItem("Run Macro", new MenuShortcut(KeyEvent.VK_R)));
-			macrosMenu.add(new MenuItem("Evaluate Line", new MenuShortcut(KeyEvent.VK_Y)));
-			macrosMenu.add(new MenuItem("Abort Macro"));
-			macrosMenu.add(new MenuItem("Install Macros", new MenuShortcut(KeyEvent.VK_I)));
-			macrosMenu.add(new MenuItem("Macro Functions...", new MenuShortcut(KeyEvent.VK_M, true)));
-			macrosMenu.add(new MenuItem("Function Finder...", new MenuShortcut(KeyEvent.VK_F, true)));
+			macrosMenu = new JMenu("Macros");			
+			macrosMenu.add(new JMenuItem("Run Macro"));//, new MenuShortcut(KeyEvent.VK_R)));
+			macrosMenu.add(new JMenuItem("Evaluate Line"));//, new MenuShortcut(KeyEvent.VK_Y)));
+			macrosMenu.add(new JMenuItem("Abort Macro"));
+			macrosMenu.add(new JMenuItem("Install Macros"));//, new MenuShortcut(KeyEvent.VK_I)));
+			macrosMenu.add(new JMenuItem("Macro Functions..."));//, new MenuShortcut(KeyEvent.VK_M, true)));
+			macrosMenu.add(new JMenuItem("Function Finder..."));//, new MenuShortcut(KeyEvent.VK_F, true)));
 			macrosMenu.addSeparator();
-			macrosMenu.add(new MenuItem("Evaluate JavaScript", new MenuShortcut(KeyEvent.VK_J, false)));
-			macrosMenu.add(new MenuItem("Evaluate BeanShell", new MenuShortcut(KeyEvent.VK_B, true)));
-			macrosMenu.add(new MenuItem("Evaluate Python", new MenuShortcut(KeyEvent.VK_P, false)));
-			macrosMenu.add(new MenuItem("Show Log Window", new MenuShortcut(KeyEvent.VK_L, true)));
+			macrosMenu.add(new JMenuItem("Evaluate JavaScript"));//, new MenuShortcut(KeyEvent.VK_J, false)));
+			macrosMenu.add(new JMenuItem("Evaluate BeanShell"));//, new MenuShortcut(KeyEvent.VK_B, true)));
+			macrosMenu.add(new JMenuItem("Evaluate Python"));//, new MenuShortcut(KeyEvent.VK_P, false)));
+			macrosMenu.add(new JMenuItem("Show Log Window"));//, new MenuShortcut(KeyEvent.VK_L, true)));
 			macrosMenu.addSeparator();
 			// MACROS_MENU_ITEMS must be updated if items are added to this menu
 			macrosMenu.addActionListener(this);
 			mb.add(macrosMenu);
 			if (!(name.endsWith(".js")||name.endsWith(".bsh")||name.endsWith(".py"))) {
-				Menu debugMenu = new Menu("Debug");			
-				debugMenu.add(new MenuItem("Debug Macro", new MenuShortcut(KeyEvent.VK_D)));
-				debugMenu.add(new MenuItem("Step", new MenuShortcut(KeyEvent.VK_E)));
-				debugMenu.add(new MenuItem("Trace", new MenuShortcut(KeyEvent.VK_T)));
-				debugMenu.add(new MenuItem("Fast Trace", new MenuShortcut(KeyEvent.VK_T,true)));
-				debugMenu.add(new MenuItem("Run"));
-				debugMenu.add(new MenuItem("Run to Insertion Point", new MenuShortcut(KeyEvent.VK_E, true)));
-				debugMenu.add(new MenuItem("Abort"));
+				JMenu debugMenu = new JMenu("Debug");			
+				debugMenu.add(new JMenuItem("Debug Macro"));//, new MenuShortcut(KeyEvent.VK_D)));
+				debugMenu.add(new JMenuItem("Step"));//, new MenuShortcut(KeyEvent.VK_E)));
+				debugMenu.add(new JMenuItem("Trace"));//, new MenuShortcut(KeyEvent.VK_T)));
+				debugMenu.add(new JMenuItem("Fast Trace"));//, new MenuShortcut(KeyEvent.VK_T,true)));
+				debugMenu.add(new JMenuItem("Run"));
+				debugMenu.add(new JMenuItem("Run to Insertion Point"));//, new MenuShortcut(KeyEvent.VK_E, true)));
+				debugMenu.add(new JMenuItem("Abort"));
 				debugMenu.addActionListener(this);
 				mb.add(debugMenu);
 			}
@@ -241,7 +245,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				installMacros(text, false);	
 		} else {
 			fileMenu.addSeparator();
-			fileMenu.add(new MenuItem("Compile and Run", new MenuShortcut(KeyEvent.VK_R)));
+			fileMenu.add(new JMenuItem("Compile and Run"));//, new MenuShortcut(KeyEvent.VK_R)));
 		}
 		if (IJ.getInstance()!=null && !dontShowWindow)
 			show();

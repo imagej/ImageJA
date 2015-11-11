@@ -4,6 +4,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.util.*;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
 import ij.*;
 import ij.plugin.frame.Recorder; 
 import ij.plugin.frame.Editor; 
@@ -1115,21 +1120,21 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		switchPopup.addSeparator();
 		for (int i=0; i<builtInTools.length; i++)
 			addBuiltInTool(builtInTools[i]);
-		MenuBar menuBar = Menus.getMenuBar();
+		JMenuBar menuBar = Menus.getMenuBar();
 		if (menuBar==null)
 			return;
 		int n = menuBar.getMenuCount();
-		Menu pluginsMenu = null;
+		JMenu pluginsMenu = null;
 		if (menuBar.getMenuCount()>=5)
 			pluginsMenu = menuBar.getMenu(5);
 		if (pluginsMenu==null || !"Plugins".equals(pluginsMenu.getLabel()))
 			return;
 		n = pluginsMenu.getItemCount();
-		Menu toolsMenu = null;
+		JMenu toolsMenu = null;
 		for (int i=0; i<n; ++i) {
-			MenuItem m = pluginsMenu.getItem(i);
-			if ("Tools".equals(m.getLabel()) && (m instanceof Menu)) {
-				toolsMenu = (Menu)m;
+			JMenuItem m = pluginsMenu.getItem(i);
+			if ("Tools".equals(m.getLabel()) && (m instanceof JMenu)) {
+				toolsMenu = (JMenu)m;
 				break;
 			}
 		}
@@ -1140,7 +1145,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		n = toolsMenu.getItemCount();
 		boolean separatorAdded = false;
 		for (int i=0; i<n; ++i) {
-			MenuItem m = toolsMenu.getItem(i);
+			JMenuItem m = toolsMenu.getItem(i);
 			String label = m.getLabel();
 			if (label!=null && (label.endsWith(" Tool")||label.endsWith(" Menu"))) {
 				if (!separatorAdded) {

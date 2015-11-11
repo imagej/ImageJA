@@ -20,6 +20,8 @@ import java.applet.Applet;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 
 /** This class consists of static utility methods. */
@@ -2088,11 +2090,11 @@ public class IJ {
 	public static String[] getLuts() {
 		ArrayList list = new ArrayList();
 		Hashtable commands = Menus.getCommands();
-		Menu lutsMenu = Menus.getImageJMenu("Image>Lookup Tables");
+		JMenu lutsMenu = Menus.getImageJMenu("Image>Lookup Tables");
 		if (lutsMenu==null)
 			return new String[0];
 		for (int i=0; i<lutsMenu.getItemCount(); i++) {
-			MenuItem menuItem = lutsMenu.getItem(i);
+			JMenuItem menuItem = lutsMenu.getItem(i);
 			if (menuItem.getActionListeners().length == 0) // separator?
 				continue;
 			String label = menuItem.getLabel();

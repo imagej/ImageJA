@@ -60,13 +60,13 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	}
 
 	class CommandAction {
-		CommandAction(String classCommand, MenuItem menuItem, String menuLocation) {
+		CommandAction(String classCommand, JMenuItem menuItem, String menuLocation) {
 			this.classCommand = classCommand;
 			this.menuItem = menuItem;
 			this.menuLocation = menuLocation;
 		}
 		String classCommand;
-		MenuItem menuItem;
+		JMenuItem menuItem;
 		String menuLocation;
 		public String toString() {
 			return "classCommand: " + classCommand + ", menuItem: "+menuItem+", menuLocation: "+menuLocation;
@@ -291,13 +291,13 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	   commandsHash the location and MenuItem of any items it
 	   finds that aren't submenus. */
 
-	public void parseMenu(String path, Menu menu) {
+	public void parseMenu(String path, JMenu menu) {
 		int n=menu.getItemCount();
 		for (int i=0; i<n; ++i) {
-			MenuItem m=menu.getItem(i);
+			JMenuItem m=menu.getItem(i);
 			String label=m.getActionCommand();
-			if (m instanceof Menu) {
-				Menu subMenu=(Menu)m;
+			if (m instanceof JMenu) {
+				JMenu subMenu=(JMenu)m;
 				parseMenu(path+">"+label,subMenu);
 			} else {
 				String trimmedLabel = label.trim();
@@ -319,10 +319,10 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	   recurses down through each. */
 
 	public void findAllMenuItems() {
-		MenuBar menuBar = Menus.getMenuBar();
+		JMenuBar menuBar = Menus.getMenuBar();
 		int topLevelMenus = menuBar.getMenuCount();
 		for (int i=0; i<topLevelMenus; ++i) {
-			Menu topLevelMenu=menuBar.getMenu(i);
+			JMenu topLevelMenu=menuBar.getMenu(i);
 			parseMenu(topLevelMenu.getLabel(), topLevelMenu);
 		}
 	}
@@ -483,7 +483,7 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	public void windowActivated(WindowEvent e) {
 		if (IJ.isMacintosh() && frame!=null) {
 			IJ.wait(10);
-			frame.setMenuBar(Menus.getMenuBar());
+			frame.setJMenuBar(Menus.getMenuBar());
 		}
 	}
 	

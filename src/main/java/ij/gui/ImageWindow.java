@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.util.Properties;
 import java.awt.event.*;
+import javax.swing.JFrame;
 import ij.*;
 import ij.process.*;
 import ij.io.*;
@@ -12,7 +13,7 @@ import ij.macro.Interpreter;
 import ij.util.*;
 
 /** A frame for displaying images. */
-public class ImageWindow extends Frame implements FocusListener, WindowListener, WindowStateListener, MouseWheelListener {
+public class ImageWindow extends JFrame implements FocusListener, WindowListener, WindowStateListener, MouseWheelListener {
 
 	public static final int MIN_WIDTH = 128;
 	public static final int MIN_HEIGHT = 32;
@@ -550,7 +551,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		boolean quitting = ij!=null && ij.quitting();
 		if (IJ.isMacintosh() && ij!=null && !quitting) {
 			IJ.wait(10); // may be needed for Java 1.4 on OS X
-			setMenuBar(Menus.getMenuBar());
+			setJMenuBar(Menus.getMenuBar());
 		}
 		if (imp==null) return;
 		if (!closed && !quitting && !Interpreter.isBatchMode())

@@ -8,7 +8,7 @@ import ij.io.OpenDialog;
 import java.io.*;
 import java.util.*;
 import java.awt.event.KeyEvent;
-import java.awt.Menu;
+import javax.swing.JMenu;
 
 
 /** Runs ImageJ menu commands in a separate thread.*/
@@ -214,7 +214,7 @@ public class Executer implements Runnable {
     /** Opens a file from the File/Open Recent menu 
  	      and returns 'true' if successful. */
     boolean openRecent(String cmd) {
-		Menu menu = Menus.getOpenRecentMenu();
+		JMenu menu = Menus.getOpenRecentMenu();
 		if (menu==null) return false;
 		for (int i=0; i<menu.getItemCount(); i++) {
 			if (menu.getItem(i).getLabel().equals(cmd)) {

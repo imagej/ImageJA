@@ -1,11 +1,12 @@
 package ij.plugin.frame;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.JFrame;
 import ij.*;
 import ij.plugin.*;
 
 /**  This is a closeable window that plugins can extend. */
-public class PlugInFrame extends Frame implements PlugIn, WindowListener, FocusListener {
+public class PlugInFrame extends JFrame implements PlugIn, WindowListener, FocusListener {
 
 	String title;
 	
@@ -45,7 +46,7 @@ public class PlugInFrame extends Frame implements PlugIn, WindowListener, FocusL
     public void windowActivated(WindowEvent e) {
 		if (IJ.isMacintosh() && IJ.getInstance()!=null) {
 			IJ.wait(10); // may be needed for Java 1.4 on OS X
-			setMenuBar(Menus.getMenuBar());
+			setJMenuBar(Menus.getMenuBar());
 		}
 		WindowManager.setWindow(this);
 	}

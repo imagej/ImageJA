@@ -17,7 +17,10 @@ import java.io.*;
 import java.net.*;
 import java.awt.image.*;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 
 /**
@@ -75,7 +78,7 @@ The following command line options are recognized by ImageJ:
 </pre>
 @author Wayne Rasband (wsr@nih.gov)
 */
-public class ImageJ extends Frame implements ActionListener, 
+public class ImageJ extends JFrame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
@@ -350,14 +353,14 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 	}
 
-	/** Handles CheckboxMenuItem state changes. */
+	/** Handles JCheckBoxMenuItem state changes. */
 	public void itemStateChanged(ItemEvent e) {
-		MenuItem item = (MenuItem)e.getSource();
-		MenuComponent parent = (MenuComponent)item.getParent();
+		JMenuItem item = (JMenuItem)e.getSource();
+		Container parent = item.getParent();
 		String cmd = e.getItem().toString();
 		if ("Autorun".equals(cmd)) // Examples>Autorun
 			Prefs.autoRunExamples = e.getStateChange()==1;
-		else if ((Menu)parent==Menus.window)
+		else if (parent==Menus.window)
 			WindowManager.activateWindow(cmd, item);
 		else
 			doCommand(cmd);
@@ -606,7 +609,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public void windowActivated(WindowEvent e) {
 		if (IJ.isMacintosh() && !quitting) {
 			IJ.wait(10); // may be needed for Java 1.4 on OS X
-			setMenuBar(Menus.getMenuBar());
+			setJMenuBar(Menus.getMenuBar());
 		}
 	}
 	

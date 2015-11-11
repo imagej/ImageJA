@@ -6,8 +6,13 @@ import ij.macro.Interpreter;
 import ij.text.TextWindow;
 import ij.plugin.frame.PlugInFrame;
 import ij.util.Tools;
+
 import java.awt.*;
 import java.util.*;
+
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+
 import ij.gui.*;
 
 /** This class consists of static methods used to manage ImageJ's windows. */
@@ -503,7 +508,7 @@ public class WindowManager {
     }
 
 	/** Activates a window selected from the Window menu. */
-	synchronized static void activateWindow(String menuItemLabel, MenuItem item) {
+	synchronized static void activateWindow(String menuItemLabel, JMenuItem item) {
 		for (int i=0; i<nonImageList.size(); i++) {
 			Object win = nonImageList.elementAt(i);
 			String title = win instanceof Frame?((Frame)win).getTitle():((Dialog)win).getTitle();
@@ -512,7 +517,7 @@ public class WindowManager {
 					toFront((Frame)win);
 				else
 					((Dialog)win).toFront();
-				((CheckboxMenuItem)item).setState(false);
+				((JCheckBoxMenuItem)item).setState(false);
 				if (Recorder.record && !IJ.isMacro())
 					Recorder.record("selectWindow", title);
 				return;
@@ -533,9 +538,9 @@ public class WindowManager {
 		int n = Menus.window.getItemCount();
 		int start = Menus.WINDOW_MENU_ITEMS+Menus.windowMenuItems2;
 		for (int j=start; j<n; j++) {
-			MenuItem mi = Menus.window.getItem(j);
-			if (mi instanceof CheckboxMenuItem)
-				((CheckboxMenuItem)mi).setState((j-start)==index);						
+			JMenuItem mi = Menus.window.getItem(j);
+			if (mi instanceof JCheckBoxMenuItem)
+				((JCheckBoxMenuItem)mi).setState((j-start)==index);						
 		}
 	}
     

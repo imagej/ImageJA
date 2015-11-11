@@ -3,8 +3,12 @@ import ij.*;
 import ij.text.*;
 import ij.util.*;
 import ij.gui.ImageCanvas;
+
 import java.io.*;
 import java.awt.*;
+
+import javax.swing.JPopupMenu;
+
 import ij.plugin.frame.Editor;
 																																																																																																																																																					   
 
@@ -139,7 +143,7 @@ public class MacroRunner implements Runnable {
 				interp.run(macro);
 			else {
 				if ("Popup Menu".equals(name)) {
-					PopupMenu popup = Menus.getPopupMenu();
+					JPopupMenu popup = Menus.getPopupMenu();
 					if (popup!=null) {
 						ImagePlus imp = null;
 						Object parent = popup.getParent();

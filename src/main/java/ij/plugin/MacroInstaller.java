@@ -11,6 +11,10 @@ import ij.io.*;
 import ij.macro.MacroConstants;
 import ij.plugin.frame.*;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 import java.util.*;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 /** This plugin implements the Plugins/Macros/Install Macros command. It is also used by the Editor
 	class to install macro in menus and by the ImageJ class to install macros at startup. */
@@ -23,7 +27,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 	
 	private int[] macroStarts;
 	private String[] macroNames;
-	private MenuBar mb = new MenuBar();
+	private JMenuBar mb = new JMenuBar();
 	private int nMacros;
 	private Program pgm;
 	private boolean firstEvent = true;
@@ -33,7 +37,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 	private int toolCount;
 	private String text;
 	private String anonymousName;
-	private Menu macrosMenu;
+	private JMenu macrosMenu;
 	private int autoRunCount, autoRunAndHideCount;
 	private boolean openingStartupMacrosInEditor;
 	private boolean installTools = true;
@@ -41,7 +45,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 	private static String defaultDir, fileName;
 	private static MacroInstaller instance, listener;
 	private Thread macroToolThread;
-	private ArrayList<Menu> subMenus = new ArrayList();
+	private ArrayList<JMenu> subMenus = new ArrayList<JMenu>();
 	
 	public void run(String path) {
 		if (path==null || path.equals(""))
@@ -127,11 +131,11 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 							int pos = name.indexOf(">");
 							boolean inSubMenu = name.startsWith("<") && (pos>1);
 							if (inSubMenu) {
-								Menu parent = macrosMenu;
-								Menu subMenu = null;
+								JMenu parent = macrosMenu;
+								JMenu subMenu = null;
 								String parentStr = name.substring(1, pos).trim();
 								String childStr = name.substring(pos + 1).trim();
-								MenuItem mnuItem = new MenuItem();
+								JMenuItem mnuItem = new JMenuItem();
 								mnuItem.setActionCommand(name);
 								mnuItem.setLabel(childStr);
 								for (int jj = 0; jj < subMenus.size(); jj++) {
@@ -140,7 +144,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 										subMenu = subMenus.get(jj);
 								}
 								if (subMenu==null) {
-									subMenu = new Menu(parentStr);
+									subMenu = new JMenu(parentStr);
 									subMenu.setName(parentStr);
 									subMenu.addActionListener(this);
 									subMenus.add(subMenu);
@@ -148,7 +152,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 								}
 								subMenu.add(mnuItem);
 							} else
-								macrosMenu.add(new MenuItem(name));
+								macrosMenu.add(new JMenuItem(name));
 						}
 					}
 					//IJ.log(count+" "+name+" "+macroStarts[count]);
@@ -188,7 +192,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 			else
 				anonymousName =fileName;
 			if (macrosMenu!=null)
-				macrosMenu.add(new MenuItem(anonymousName));
+				macrosMenu.add(new JMenuItem(anonymousName));
 			macroNames[0] = anonymousName;
 			nMacros = 1;
 		}
@@ -210,7 +214,7 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 		return nShortcuts;
 	}
 	
-	public int install(String text, Menu menu) {
+	public int install(String text, JMenu menu) {
 		this.text = text;
 		macrosMenu = menu;
 		install();
@@ -273,14 +277,14 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
         if (h==null) return;
         String[] commands = (String[])h.get(name);
         if (commands==null) return;
-        PopupMenu popup = Menus.getPopupMenu();
+        JPopupMenu popup = Menus.getPopupMenu();
         if (popup==null) return;
 		popup.removeAll();
         for (int i=0; i<commands.length; i++) {
 			if (commands[i].equals("-"))
 				popup.addSeparator();
 			else {
-				MenuItem mi = new MenuItem(commands[i]);
+				JMenuItem mi = new JMenuItem(commands[i]);
 				mi.addActionListener(this);
 				popup.add(mi);
 			}
@@ -495,9 +499,9 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 	public void actionPerformed(ActionEvent evt) {
 		String cmd = evt.getActionCommand();
 		ImageJ.setCommandName(cmd);
-		MenuItem item = (MenuItem)evt.getSource();
+		JMenuItem item = (JMenuItem)evt.getSource();
 		MenuContainer parent = item.getParent();
-		if (parent instanceof PopupMenu) {
+		if (parent instanceof JPopupMenu) {
 			for (int i=0; i<nMacros; i++) {
 				if (macroNames[i].equals("Popup Menu")) {
 					new MacroRunner(pgm, macroStarts[i], "Popup Menu", cmd);

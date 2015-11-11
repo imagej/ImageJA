@@ -52,7 +52,7 @@ public class ControlPanel implements PlugIn {
 	private String path=null;
 	private DefaultMutableTreeNode root;
 
-	MenuItem reloadMI = null;
+	JMenuItem reloadMI = null;
 
 	public ControlPanel() {
 		//requireDoubleClick = !(IJ.isWindows() || IJ.isMacintosh());
@@ -89,9 +89,9 @@ public class ControlPanel implements PlugIn {
 	private synchronized DefaultMutableTreeNode doRootFromMenus() {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode("ImageJ Menus");
 		if(argLength==0) node.setUserObject("Control Panel");
-		MenuBar menuBar = Menus.getMenuBar();
+		JMenuBar menuBar = Menus.getMenuBar();
 		for (int i=0; i<menuBar.getMenuCount(); i++) {
-			Menu menu = menuBar.getMenu(i);
+			JMenu menu = menuBar.getMenu(i);
 			DefaultMutableTreeNode menuNode = new DefaultMutableTreeNode(menu.getLabel());
 			recurseSubMenu(menu, menuNode);
 			node.add(menuNode);
@@ -112,17 +112,17 @@ public class ControlPanel implements PlugIn {
 	 * @param menu The Menu instance to be searched recursively for menu items
 	 * @param node The DefaultMutableTreeNode corresponding to the <code>Menu menu</code> argument.
 	 */
-	private void recurseSubMenu(Menu menu, DefaultMutableTreeNode node) {
+	private void recurseSubMenu(JMenu menu, DefaultMutableTreeNode node) {
 		int items = menu.getItemCount();
 		if(items==0) return;
 		for (int i=0; i<items; i++) {
-			MenuItem mItem = menu.getItem(i);
+			JMenuItem mItem = menu.getItem(i);
 			String label = mItem.getActionCommand();
-			if (mItem instanceof Menu) {
+			if (mItem instanceof JMenu) {
 				DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(label);
-				recurseSubMenu((Menu)mItem,subNode);
+				recurseSubMenu((JMenu)mItem,subNode);
 				node.add(subNode);
-			} else if (mItem instanceof MenuItem) {
+			} else if (mItem instanceof JMenuItem) {
 				if (!(label.equals("-"))) {
 					DefaultMutableTreeNode leaf = new DefaultMutableTreeNode(label);
 					node.add(leaf);
