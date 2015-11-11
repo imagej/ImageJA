@@ -659,6 +659,7 @@ public class ImageJ extends JFrame implements ActionListener,
 			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
 			System.exit(0);
 		}
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		boolean noGUI = false;
 		int mode = STANDALONE;
 		arguments = args;
