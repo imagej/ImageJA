@@ -768,9 +768,9 @@ public class Menus {
 				result = new JMenu(menuName);
 				if (mbar == null)
 					mbar = new JMenuBar();
-				if (menuName.equals("Help"))
-					mbar.setHelpMenu(result);
-				else
+//				if (menuName.equals("Help"))
+//					mbar.setHelpMenu(result);
+//				else
 					mbar.add(result);
 				if (menuName.equals("Window"))
 					window = result;
