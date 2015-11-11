@@ -481,10 +481,10 @@ public class CommandFinder implements PlugIn, ActionListener, WindowListener, Ke
 	}
 
 	public void windowActivated(WindowEvent e) {
-		if (IJ.isMacintosh() && frame!=null) {
-			IJ.wait(10);
-			frame.setMenuBar(Menus.getMenuBar());
-		}
+//		if (IJ.isMacintosh() && frame!=null) {
+//			IJ.wait(10);
+//			frame.setMenuBar(Menus.getMenuBar());
+//		}
 	}
 	
 	public void windowDeactivated(WindowEvent e) { }

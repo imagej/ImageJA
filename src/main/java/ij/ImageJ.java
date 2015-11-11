@@ -604,10 +604,10 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public void windowActivated(WindowEvent e) {
-		if (IJ.isMacintosh() && !quitting) {
-			IJ.wait(10); // may be needed for Java 1.4 on OS X
-			setMenuBar(Menus.getMenuBar());
-		}
+//		if (IJ.isMacintosh() && !quitting) {
+//			IJ.wait(10); // may be needed for Java 1.4 on OS X
+//			setMenuBar(Menus.getMenuBar());
+//		}
 	}
 	
 	public void windowClosed(WindowEvent e) {}
