@@ -822,6 +822,7 @@ public class Menus {
 		boolean inserted = false;
 		for (int i=startingIndex; i<count; i++) {
 			JMenuItem mi = menu.getItem(i);
+			if (mi == null) continue;
 			String label = mi.getLabel();
 			//IJ.log(i+ "  "+itemLabel+"  "+label + "  "+(itemLabel.compareTo(label)));
 			if (itemLabel.compareTo(label)<0) {
