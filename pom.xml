@@ -14,7 +14,7 @@
 
 	<groupId>net.imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.51a</version>
+	<version>1.51b-SNAPSHOT</version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
@@ -91,10 +91,7 @@
 		<developer>
 			<id>rasband</id>
 			<name>Wayne Rasband</name>
-			<email>wsr@nih.gov</email>
 			<url>http://imagej.net/Wayne_Rasband</url>
-			<organization>NIH</organization>
-			<organizationUrl>http://rsb.info.nih.gov/</organizationUrl>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -104,7 +101,6 @@
 				<role>support</role>
 				<role>maintainer</role>
 			</roles>
-			<timezone>-5</timezone>
 		</developer>
 	</developers>
 	<contributors>
