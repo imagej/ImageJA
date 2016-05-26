@@ -856,6 +856,7 @@ public class ShapeRoi extends Roi {
 	boolean parsePath(PathIterator pIter, double[] params, Vector segments, Vector rois, Vector handles) {
 		boolean result = true;
 		if (pIter==null) return false;
+		if (pIter.isDone()) return false;
 		double pw = 1.0, ph = 1.0;
 		if (imp!=null) {
 			Calibration cal = imp.getCalibration();
