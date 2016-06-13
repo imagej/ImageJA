@@ -579,8 +579,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		ImageProcessor mask = roi2.getMask();
 		Rectangle bounds = roi2.getBounds();
 		FloatPolygon points = new FloatPolygon();
-		for (int y=0; y<mask.getHeight(); y++) {
-			for (int x=0; x<mask.getWidth(); x++) {
+		for (int y=0; y<bounds.height; y++) {
+			for (int x=0; x<bounds.width; x++) {
 				if (mask==null || mask.getPixel(x,y)!=0)
 					points.addPoint((float)(bounds.x+x),(float)(bounds.y+y));
 			}
@@ -1581,13 +1581,17 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	public void setStrokeWidth(float width) {
 		if (width<0f)
 			width = 0f;
+		boolean notify = listeners.size()>0 && isLine() && getStrokeWidth()!=width;
 		if (width==0)
 			stroke = null;
 		else if (wideLine)
 			this.stroke = new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
 		else
 			this.stroke = new BasicStroke(width);
-		if (width>1f) fillColor = null;
+		if (width>1f)
+			fillColor = null;
+		if (notify)
+			notifyListeners(RoiListener.MODIFIED);
 	}
 
 	/** This is a version of setStrokeWidth() that accepts a double argument. */
