@@ -9,7 +9,7 @@ test -z "$HUDSON_URL" && {
 	exit 1
 }
 
-URL=http://imagej.nih.gov/ij
+URL=https://imagej.nih.gov/ij
 
 SRC_URL=$URL/download/src
 NOTES_URL=$URL/notes.html
