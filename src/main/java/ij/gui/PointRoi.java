@@ -253,6 +253,8 @@ public class PointRoi extends PolygonRoi {
 		if (nPoints==xpf.length)
 			enlargeArrays();
 		addPoint2(imp, ox, oy);
+		resetBoundingRect();
+		width+=1; height+=1;
 	}
 	
 	private void addPoint2(ImagePlus imp, double ox, double oy) {
@@ -340,9 +342,8 @@ public class PointRoi extends PolygonRoi {
 		if (cachedMask!=null && cachedMask.getPixels()!=null)
 			return cachedMask;
 		ImageProcessor mask = new ByteProcessor(width, height);
-		for (int i=0; i<nPoints; i++) {
-			mask.putPixel((int)xpf[i], (int)ypf[i], 255);
-		}
+		for (int i=0; i<nPoints; i++)
+			mask.putPixel((int)Math.round(xpf[i]), (int)Math.round(ypf[i]), 255);
 		cachedMask = mask;
 		return mask;
 	}
