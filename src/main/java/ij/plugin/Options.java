@@ -29,7 +29,7 @@ public class Options implements PlugIn {
 	// Miscellaneous Options
 	void miscOptions() {
 		String key = IJ.isMacintosh()?"command":"control";
-		GenericDialog gd = new GenericDialog("Miscellaneous Options", IJ.getInstance());
+		GenericDialog gd = new GenericDialog("Miscellaneous Options");
 		gd.addStringField("Divide by zero value:", ""+FloatBlitter.divideByZeroValue, 10);
 		gd.addCheckbox("Use pointer cursor", Prefs.usePointerCursor);
 		gd.addCheckbox("Hide \"Process Stack?\" dialog", IJ.hideProcessStackDialog);
@@ -39,6 +39,8 @@ public class Options implements PlugIn {
 			gd.addCheckbox("Run single instance listener", Prefs.runSocketListener);
 		gd.addCheckbox("Enhanced line tool", Prefs.enhancedLineTool);
 		gd.addCheckbox("Reverse CZT order of \">\" and \"<\"", Prefs.reverseNextPreviousOrder);
+		if (IJ.isMacOSX())
+			gd.addCheckbox("Don't set Mac menu bar", !Prefs.setIJMenuBar);
 		gd.addCheckbox("Debug mode", IJ.debugMode);
 		gd.addHelp(IJ.URL+"/docs/menus/edit.html#misc");
 		gd.showDialog();
@@ -69,6 +71,8 @@ public class Options implements PlugIn {
 			Prefs.runSocketListener = gd.getNextBoolean();
 		Prefs.enhancedLineTool = gd.getNextBoolean();
 		Prefs.reverseNextPreviousOrder = gd.getNextBoolean();
+		if (IJ.isMacOSX())
+			Prefs.setIJMenuBar = !gd.getNextBoolean();
 		IJ.setDebugMode(gd.getNextBoolean());
 	}
 

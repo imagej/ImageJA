@@ -90,7 +90,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private static int default16bitDisplayRange;
 	private boolean antialiasRendering = true;
 	private boolean ignoreGlobalCalibration;
-	public boolean setIJMenuBar = true;
+	public boolean setIJMenuBar = Prefs.setIJMenuBar;
 	public boolean typeSet;
 	
 
@@ -444,6 +444,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				if (c>1 || z>1 || t>1)
 					setPosition(c, z, t);
 			}
+			if (setIJMenuBar)
+				IJ.wait(25);
 			notifyListeners(OPENED);
 		}
 	}
@@ -820,10 +822,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		return mask;
 	}
 
-	/** Returns an ImageStatistics object generated using all
-		measurement options. This code demonstrates how
-		to get the area, mean, max and median of the
-		current image or selection:
+	/** Get statistics for this image or ROI, including 
+		 histogram, area, mean, min and max, standard
+		 deviation, mode and median.
+		This code demonstrates how to get the area, mean
+		max and median of the current image or selection:
 		<pre>
          imp = IJ.getImage();
          stats = imp.getStatistics();
@@ -832,22 +835,23 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
          IJ.log("Max: "+stats.max);
          IJ.log("Median: "+stats.median);
 		</pre>
+		@see #getRawStatistics
 		@see ij.process.ImageStatistics
 		@see ij.process.ImageStatistics#getStatistics
 		*/
 	public ImageStatistics getStatistics() {
-		return getStatistics(ALL_STATS);
+		return getStatistics(AREA+MEAN+STD_DEV+MODE+MIN_MAX+RECT+MEDIAN);
 	}
 	
-	/** Returns an ImageStatistics object generated using all 
-		measurement options and ignoring calibration. */
+	/* Returns uncalibrated statistics for this image or ROI, including
+		256 bin histogram, pixelCount, mean, mode, min and max. */
 	public ImageStatistics getRawStatistics() {
 		setupProcessor();
 		if (roi!=null && roi.isArea())
 			ip.setRoi(roi);
 		else
 			ip.resetRoi();
-		return ImageStatistics.getStatistics(ip);
+		return ImageStatistics.getStatistics(ip, AREA+MEAN+MODE+MIN_MAX, null);
 	}
 
 	/** Returns an ImageStatistics object generated using the
@@ -1540,7 +1544,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (stack.isVirtual() && !((stack instanceof FileInfoVirtualStack)||(stack instanceof AVI_Reader))) {
 				ImageProcessor ip2 = stack.getProcessor(currentSlice);
 				overlay2 = ip2.getOverlay();
-				if (overlay2!=null || getOverlay()!=null)
+				if (overlay2!=null)
 					setOverlay(overlay2);
 				pixels = ip2.getPixels();
 			} else
@@ -2686,7 +2690,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     }
     
     public boolean setIJMenuBar() {
-    	return setIJMenuBar;
+    	return setIJMenuBar && Prefs.setIJMenuBar;
     }
     
 }

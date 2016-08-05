@@ -784,10 +784,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 	void autoAdjust(ImagePlus imp, ImageProcessor ip) {
  		if (RGBImage)
 			ip.reset();
-		Calibration cal = imp.getCalibration();
-		imp.setCalibration(null);
-		ImageStatistics stats = imp.getStatistics(); // get uncalibrated stats
-		imp.setCalibration(cal);
+		ImageStatistics stats = imp.getRawStatistics();
 		int limit = stats.pixelCount/10;
 		int[] histogram = stats.histogram;
 		if (autoThreshold<10)
@@ -1021,7 +1018,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			updateScrollBars(null, false);
 			if (RGBImage) doMasking(imp, ip);
 			if (propagate)
-				IJ.runMacroFile("ij.jar:PropagateMinAndMax");
+				propagate(imp);
 			if (Recorder.record) {
 				if (imp.getBitDepth()==32)
 					recordSetMinAndMax(min, max);

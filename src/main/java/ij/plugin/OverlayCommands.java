@@ -248,8 +248,8 @@ public class OverlayCommands implements PlugIn {
 		ImageCanvas ic = imp.getCanvas();
 		if (ic!=null)
 			roiManagerOverlay = ic.getShowAllList();
-		if (overlay==null && imp.getRoi()==null && roiManagerOverlay==null && !imp.isComposite() && !IJ.macroRunning()) {
-			IJ.error("Flatten", "Overlay, selection or multi-channel image required");
+		if (imp.getBitDepth()==24 && overlay==null && imp.getRoi()==null && roiManagerOverlay==null && !imp.isComposite() && !IJ.macroRunning()) {
+			IJ.error("Flatten", "Overlay or selection required to flatten RGB image");
 			return;
 		}
 		int flags = IJ.setupDialog(imp, 0);
@@ -306,20 +306,9 @@ public class OverlayCommands implements PlugIn {
 			IJ.error("Overlay required");
 			return;
 		}
-		RoiManager rm = RoiManager.getInstance();
-		if (rm==null) {
-			if (Macro.getOptions()!=null && Interpreter.isBatchMode())
-				rm = Interpreter.getBatchModeRoiManager();
-			if (rm==null) {
-				Frame frame = WindowManager.getFrame("ROI Manager");
-				if (frame==null)
-					IJ.run("ROI Manager...");
-				frame = WindowManager.getFrame("ROI Manager");
-				if (frame==null || !(frame instanceof RoiManager))
-					return;
-				rm = (RoiManager)frame;
-			}
-		}
+		RoiManager rm = RoiManager.getInstance2();
+		if (rm==null)
+			rm = new RoiManager();
 		if (overlay.size()>=4 && overlay.get(3).getPosition()!=0)
 			Prefs.showAllSliceOnly = true;
 		rm.runCommand("reset");

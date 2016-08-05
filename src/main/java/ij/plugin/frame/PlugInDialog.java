@@ -14,8 +14,10 @@ public class PlugInDialog extends Dialog implements PlugIn, WindowListener, Focu
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		this.title = title;
 		ImageJ ij = IJ.getInstance();
-		if (IJ.isMacOSX() && ij!=null)
+		if (IJ.isMacOSX() && ij!=null) {
 			ij.toFront(); // needed for keyboard shortcuts to work
+			IJ.wait(250);
+		}
 		addWindowListener(this);
  		addFocusListener(this);
 		if (IJ.isLinux()) setBackground(ImageJ.backgroundColor);
@@ -44,8 +46,11 @@ public class PlugInDialog extends Dialog implements PlugIn, WindowListener, Focu
 		WindowManager.removeWindow(this);
     }
 
-    public void windowActivated(WindowEvent e) {
-        WindowManager.setWindow(this);
+	public void windowActivated(WindowEvent e) {
+		ImageJ ij = IJ.getInstance();
+		if (IJ.isMacOSX() && ij!=null && !ij.isActive() && !(this instanceof ThresholdAdjuster))
+			ij.toFront();
+		WindowManager.setWindow(this);
 	}
 
 	public void focusGained(FocusEvent e) {

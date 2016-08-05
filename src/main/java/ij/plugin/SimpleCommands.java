@@ -172,5 +172,5 @@ public class SimpleCommands implements PlugIn {
 		if (ip==null) return;
 		new ImagePlus("Results Table", ip).show();
 	}
-
+		
 }
