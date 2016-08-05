@@ -6,6 +6,7 @@ import ij.gui.*;
 import java.awt.*;
 import ij.measure.*;
 import ij.plugin.filter.*;
+import ij.plugin.frame.Recorder;
 import java.awt.event.*;
 import java.util.*;
 import java.lang.*;
@@ -37,6 +38,8 @@ public class Concatenator implements PlugIn, ItemListener{
 	private int stackSize;
 	private double min = 0, max = Float.MAX_VALUE;
 	private int maxWidth, maxHeight;
+	private boolean showingDialog;
+
 	
 	/** Optional string argument sets the name dialog boxes if called from another plugin. */
 	public void run(String arg) {
@@ -61,13 +64,40 @@ public class Concatenator implements PlugIn, ItemListener{
 	}
 	
 	/** Concatenate two images or stacks. */
-	public ImagePlus concatenate(ImagePlus imp1, ImagePlus imp2, boolean keep) {
-		images = new ImagePlus[2];
-		images[0] = imp1;
-		images[1] = imp2;
-		return concatenate(images, keep);
+	public static ImagePlus run(ImagePlus img1, ImagePlus img2) {
+		ImagePlus[] images = new ImagePlus[2];
+		images[0]=img1; images[1]=img2;
+		return (new Concatenator()).concatenate(images, false);
 	}
-	
+
+	/** Concatenate three images or stacks. */
+	public static ImagePlus run(ImagePlus img1, ImagePlus img2, ImagePlus img3) {
+		ImagePlus[] images = new ImagePlus[3];
+		images[0]=img1; images[1]=img2;  images[2]=img3;
+		return (new Concatenator()).concatenate(images, false);
+	}
+
+	/** Concatenate four images or stacks. */
+	public static ImagePlus run(ImagePlus img1, ImagePlus img2, ImagePlus img3, ImagePlus img4) {
+		ImagePlus[] images = new ImagePlus[4];
+		images[0]=img1; images[1]=img2;  images[2]=img3; images[2]=img4;
+		return (new Concatenator()).concatenate(images, false);
+	}
+
+	/** Concatenate five images or stacks. */
+	public static ImagePlus run(ImagePlus img1, ImagePlus img2, ImagePlus img3, ImagePlus img4, ImagePlus img5) {
+		ImagePlus[] images = new ImagePlus[5];
+		images[0]=img1; images[1]=img2;  images[2]=img3; images[2]=img4; images[5]=img5;
+		return (new Concatenator()).concatenate(images, false);
+	}
+
+	/*
+	// Why does this not work with Java 6?
+	public static ImagePlus run(ImagePlus... args) {
+		return (new Concatenator()).concatenate(args, false);
+	}
+	*/
+
 	/** Concatenate two or more images or stacks. */
 	public ImagePlus concatenate(ImagePlus[] ims, boolean keepIms) {
 		images = ims;
@@ -84,6 +114,14 @@ public class Concatenator implements PlugIn, ItemListener{
 		batch = true;
 		newImp = createHypervol();
 		return newImp;
+	}
+	
+	/** Concatenate two images or stacks. */
+	public ImagePlus concatenate(ImagePlus imp1, ImagePlus imp2, boolean keep) {
+		images = new ImagePlus[2];
+		images[0] = imp1;
+		images[1] = imp2;
+		return concatenate(images, keep);
 	}
 	
 	ImagePlus createHypervol() {
@@ -115,7 +153,10 @@ public class Concatenator implements PlugIn, ItemListener{
 				}
 				
 				// Safety Checks
-				if (currentImp.getNSlices() != stackSize && im4D) {
+				boolean unequalSizes = currentImp.getNSlices()!=stackSize;
+				if (unequalSizes && !showingDialog)
+					im4D = false;
+				if (unequalSizes && im4D) {
 					IJ.error(pluginName, "Cannot create 4D image because stack sizes are not equal.");
 					return null;
 				}
@@ -147,6 +188,12 @@ public class Concatenator implements PlugIn, ItemListener{
 		if (im4D) {
 			imp.setDimensions(1, stackSize, imp.getStackSize()/stackSize);
 			imp.setOpenAsHyperStack(true);
+		}
+		if (Recorder.scriptMode()) {
+			String args = "imp1";
+			for (int i=1; i<images.length; i++)
+				args += ", imp"+(i+1);
+			Recorder.recordCall("imp"+(images.length+1)+" = Concatenator.run("+args+");");
 		}
 		return imp;
 	}
@@ -263,6 +310,7 @@ public class Concatenator implements PlugIn, ItemListener{
 		batch = Interpreter.isBatchMode();
 		macro = macro || (IJ.isMacro()&&Macro.getOptions()!=null);
 		im4D = Menus.commandInUse("Stack to Image5D") && ! batch;
+		showingDialog = Macro.getOptions()==null;
 		if (macro) {
 			String options = Macro.getOptions();
 			if (options.contains("stack1")&&options.contains("stack2"))
@@ -405,6 +453,7 @@ public class Concatenator implements PlugIn, ItemListener{
 	
 	public void setIm5D(boolean bool) {
 		im4D_option = bool;
+		im4D = bool;
 	}
 	
 	private void findMaxDimensions(ImagePlus[] images) {

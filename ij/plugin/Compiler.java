@@ -15,8 +15,8 @@ import javax.tools.*;
 /** Compiles and runs plugins using the javac compiler. */
 public class Compiler implements PlugIn, FilenameFilter {
 
-	private static final int TARGET14=0, TARGET15=1, TARGET16=2,  TARGET17=3,  TARGET18=4;
-	private static final String[] targets = {"1.4", "1.5", "1.6", "1.7", "1.8"};
+	private static final int TARGET14=0, TARGET15=1, TARGET16=2,  TARGET17=3,  TARGET18=4, TARGET19=5;
+	private static final String[] targets = {"1.4", "1.5", "1.6", "1.7", "1.8", "1.9"};
 	private static final String TARGET_KEY = "javac.target";
 	private static CompilerTool compilerTool;
 	private static String dir, name;
@@ -125,7 +125,6 @@ public class Compiler implements PlugIn, FilenameFilter {
 		Vector sources = new Vector();
 		sources.add(path);
 		
-		/*
 		if (IJ.debugMode) {
 			StringBuilder builder = new StringBuilder();
 			builder.append("javac");
@@ -139,7 +138,6 @@ public class Compiler implements PlugIn, FilenameFilter {
 			}
 			IJ.log(builder.toString());
 		}
-		*/
 		
 		boolean errors = true;
 		String s = "not compiled";
@@ -180,16 +178,18 @@ public class Compiler implements PlugIn, FilenameFilter {
 		File f = new File(path);
 		if (f.exists() && f.isDirectory())
 			list = f.list();
-		if (list==null) return;
+		if (list==null)
+			return;
+		boolean isJarsFolder = path.endsWith("jars");
 		if (!path.endsWith(File.separator))
 			path += File.separator;
 		for (int i=0; i<list.length; i++) {
 			File f2 = new File(path+list[i]);
 			if (f2.isDirectory())
 				addJars(path+list[i], sb);
-			else if (list[i].endsWith(".jar")&&(list[i].indexOf("_")==-1||list[i].equals("loci_tools.jar")||list[i].contains("3D_Viewer"))) {
+			else if (list[i].endsWith(".jar")&&(!list[i].contains("_")||isJarsFolder||list[i].equals("loci_tools.jar"))) {
 				sb.append(File.pathSeparator+path+list[i]);
-				//if (IJ.debugMode) IJ.log("javac classpath: "+path+list[i]);
+				//IJ.log("javac classpath: "+path+list[i]);
 			}
 		}
 	}
@@ -274,19 +274,18 @@ public class Compiler implements PlugIn, FilenameFilter {
 	}
 	
 	void validateTarget() {
-		if (target<0 || target>TARGET18)
+		if (target<TARGET16 || target>TARGET19)
 			target = TARGET16;
-		if (target>TARGET15 && !(IJ.isJava16()||IJ.isJava17()||IJ.isJava18()))
-			target = TARGET15;
-		if (target>TARGET16 && !(IJ.isJava17()||IJ.isJava18()))
+		if (target>TARGET16 && !(IJ.isJava17()||IJ.isJava18()||IJ.isJava19()))
 			target = TARGET16;
-		if (target>TARGET17 && !IJ.isJava18())
+		if (target>TARGET17 && !(IJ.isJava18()||IJ.isJava19()))
 			target = TARGET17;
+		if (target>TARGET18 && !IJ.isJava19())
+			target = TARGET18;
 		Prefs.set(TARGET_KEY, target);
 	}
 	
 }
-
 
 class PlugInExecuter implements Runnable {
 	private String plugin;
