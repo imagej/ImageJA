@@ -4200,6 +4200,8 @@ public class Functions implements MacroConstants, Measurements {
 			Prefs.useJFileChooser = state;
 		else if (arg1.startsWith("auto"))
 			Prefs.autoContrast = state;
+		else if (arg1.equals("antialiasedtext"))
+			TextRoi.setAntialiasedText(state);
 		else
 			interp.error("Invalid option");
 	}
@@ -5799,6 +5801,8 @@ public class Functions implements MacroConstants, Measurements {
 			int index = (int)getArg();
 			checkIndex(index, 0, size-1);
 			Roi roi = overlay.get(index);
+			if (roi==null)
+				return Double.NaN;;
 			if (imp.getStackSize()>1) {
 				if (imp.isHyperStack()) {
 					int c = roi.getCPosition();
