@@ -286,8 +286,13 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		String wstr = gd.getNextString();
 		newWidth = (int)Tools.parseDouble(wstr, 0);
 		newHeight = (int)Tools.parseDouble(gd.getNextString(), 0);
-		if (newHeight!=0 && (wstr.equals("-") || wstr.equals("0")))
-				newWidth= (int)(newHeight*(double)r.width/r.height);
+		if (newHeight!=0 && (wstr.equals("-") || wstr.equals("0"))) {
+			newWidth = (int) (newHeight * (double) r.width / r.height);
+		} else {
+			if (newWidth!=0) {
+				newHeight= (int) (newWidth * (double) r.height / r.width);
+			}
+		}
 		if (newWidth==0 || newHeight==0) {
 			IJ.error("Scaler", "Width or height is 0");
 			return false;
