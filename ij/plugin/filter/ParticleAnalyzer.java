@@ -355,8 +355,10 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		double maxc = minAndMax.length==2?gd.parseDouble(minAndMax[1]):Double.NaN;
 		minCircularity = Double.isNaN(minc)?0.0:minc;
 		maxCircularity = Double.isNaN(maxc)?1.0:maxc;
-		if (minCircularity<0.0 || minCircularity>1.0) minCircularity = 0.0;
-		if (maxCircularity<minCircularity || maxCircularity>1.0) maxCircularity = 1.0;
+		if (minCircularity<0.0) minCircularity = 0.0;
+		if (minCircularity>maxCircularity && maxCircularity==1.0) minCircularity = 0.0;
+		if (minCircularity>maxCircularity) minCircularity = maxCircularity;
+		if (maxCircularity<minCircularity) maxCircularity = minCircularity;
 		if (minCircularity==1.0 && maxCircularity==1.0) minCircularity = 0.0;
 		staticMinCircularity = minCircularity;
 		staticMaxCircularity = maxCircularity;
@@ -603,12 +605,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		ip.reset();
 		if (displaySummary && IJ.getInstance()!=null)
 			updateSliceSummary();
-		if (addToManager && roiManager!=null) {
-			if (imp.getWindow()!=null)
-				roiManager.setEditMode(imp, true);
-			else
-				roiManager.runCommand("show all with labels");
-		}
+		if (addToManager && roiManager!=null)
+			roiManager.setEditMode(imp, true);
 		maxParticleCount = (particleCount > maxParticleCount) ? particleCount : maxParticleCount;
 		totalCount += particleCount;
 		if (!canceled)
@@ -866,10 +864,10 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			}
 		}
 		ImageProcessor mask = ip2.getMask();
-		if (minCircularity>0.0 || maxCircularity<1.0) {
+		if (minCircularity>0.0 || maxCircularity!=1.0) {
 			double perimeter = roi.getLength();
 			double circularity = perimeter==0.0?0.0:4.0*Math.PI*(stats.pixelCount/(perimeter*perimeter));
-			if (circularity>1.0) circularity = 1.0;
+			if (circularity>1.0 && maxCircularity<=1.0) circularity = 1.0;
 			if (circularity<minCircularity || circularity>maxCircularity) include = false;
 		}
 		if (stats.pixelCount>=minSize && stats.pixelCount<=maxSize && include) {
@@ -902,9 +900,14 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	}
 
 	/** Saves statistics for one particle in a results table. This is
-		a method subclasses may want to override. */
+		a method subclasses can override. */
 	protected void saveResults(ImageStatistics stats, Roi roi) {
 		analyzer.saveResults(stats, roi);
+		if (maxCircularity>1.0 && rt.columnExists("Circ.") && rt.getValue("Circ.", rt.size()-1)==1.0) {
+			double perimeter = roi.getLength();
+			double circularity = perimeter==0.0?0.0:4.0*Math.PI*(stats.pixelCount/(perimeter*perimeter));
+			rt.addValue("Circ.", circularity);
+		}
 		if (recordStarts) {
 			rt.addValue("XStart", stats.xstart);
 			rt.addValue("YStart", stats.ystart);

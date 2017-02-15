@@ -21,6 +21,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	private ResultsTable rt;
 	private int measurements;
 	private StringBuffer min,max,mean,sd;
+	private boolean disableReset;
 	
 	// Order must agree with order of checkboxes in Set Measurements dialog box
 	private static final int[] list = {AREA,MEAN,STD_DEV,MODE,MIN_MAX,
@@ -63,8 +64,13 @@ public class Analyzer implements PlugInFilter, Measurements {
 		this.imp = imp;
 	}
 	
+	/** Construct a new Analyzer using an ImagePlus object and a ResultsTable. */
+	public Analyzer(ImagePlus imp, ResultsTable rt) {
+		this(imp, Analyzer.getMeasurements(), rt);
+	}
+
 	/** Construct a new Analyzer using an ImagePlus object and private
-		measurement options and results table. */
+		measurement options and a ResultsTable. */
 	public Analyzer(ImagePlus imp, int measurements, ResultsTable rt) {
 		this.imp = imp;
 		this.measurements = measurements;
@@ -79,12 +85,15 @@ public class Analyzer implements PlugInFilter, Measurements {
 		this.arg = arg;
 		this.imp = imp;
 		IJ.register(Analyzer.class);
-		if (arg.equals("set"))
-			{doSetDialog(); return DONE;}
-		else if (arg.equals("sum"))
-			{summarize(); return DONE;}
-		else if (arg.equals("clear")) {
-			if (IJ.macroRunning()) unsavedMeasurements = false;
+		if (arg.equals("set")) {
+			doSetDialog();
+			return DONE;
+		} else if (arg.equals("sum")) {
+			summarize();
+			return DONE;
+		} else if (arg.equals("clear")) {
+			if (IJ.macroRunning())
+				unsavedMeasurements = false;
 			resetCounter();
 			return DONE;
 		} else
@@ -281,7 +290,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	
 	boolean reset() {
 		boolean ok = true;
-		if (rt.size()>0)
+		if (rt.size()>0 && !disableReset)
 			ok = resetCounter();
 		if (ok && rt.getColumnHeading(ResultsTable.LAST_HEADING)==null)
 			rt.setDefaultHeadings();
@@ -686,6 +695,18 @@ public class Analyzer implements PlugInFilter, Measurements {
 			rt.addValue(ResultsTable.MIN_THRESHOLD, stats.lowerThreshold);
 			rt.addValue(ResultsTable.MAX_THRESHOLD, stats.upperThreshold);
 		}
+		if (roi instanceof RotatedRectRoi) {
+			double[] p = ((RotatedRectRoi)roi).getParams();
+			double dx = p[2] - p[0];
+			double dy = p[3] - p[1];
+			double length = Math.sqrt(dx*dx+dy*dy);
+			Calibration cal = imp!=null?imp.getCalibration():null;
+			double pw = 1.0;
+			if (cal!=null && cal.pixelWidth==cal.pixelHeight)
+				pw = cal.pixelWidth;
+			rt.addValue("RRLength", length*pw);
+			rt.addValue("RRWidth", p[4]*pw);
+		}
 	}
 	
 	private void clearSummary() {
@@ -842,7 +863,6 @@ public class Analyzer implements PlugInFilter, Measurements {
 	}
 		
 	void incrementCounter() {
-		//counter++;
 		if (rt==null) rt = systemRT;
 		rt.incrementCounter();
 		unsavedMeasurements = true;
@@ -1023,5 +1043,10 @@ public class Analyzer implements PlugInFilter, Measurements {
 		drawLabels = b;
 	}
 	
+	/** Used by RoiManager.multiMeasure() to suppress save as dialogs. */
+	public void disableReset(boolean b) {
+		disableReset = b;
+	}
+
 }
 	

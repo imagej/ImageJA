@@ -12,7 +12,7 @@ import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 
-/** This plugin implements the commands in the Edit/Section submenu. */
+/** This plugin implements the commands in the Edit/Selection submenu. */
 public class Selection implements PlugIn, Measurements {
 	private ImagePlus imp;
 	private float[] kernel = {1f, 1f, 1f, 1f, 1f};
@@ -730,7 +730,7 @@ public class Selection implements PlugIn, Measurements {
 	}
 	
 	boolean setProperties(String title, Roi roi) {
-		if ((roi instanceof PointRoi) && Toolbar.getMultiPointMode() && !IJ.altKeyDown()) {
+		if ((roi instanceof PointRoi) && Toolbar.getMultiPointMode() && IJ.altKeyDown()) {
 			((PointRoi)roi).displayCounts();
 			return true;
 		}
