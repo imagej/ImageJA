@@ -59,18 +59,18 @@ export GIT_INDEX_FILE="$(git rev-parse --git-dir)"/IJ1INDEX &&
 git read-tree $IJ1HEAD ||
 die "Could not read current ImageJ1 tree"
 
-# Obtain newest pom-imagej version
+# Obtain newest pom-scijava version
 MAVEN_URL=http://maven.imagej.net/content/groups/public
-POM_IMAGEJ_URL=$MAVEN_URL/net/imagej/pom-imagej
-POM_IMAGEJ_VERSION="$(curl -s $POM_IMAGEJ_URL/maven-metadata.xml |
+POM_SCIJAVA_URL=$MAVEN_URL/org/scijava/pom-scijava
+POM_SCIJAVA_VERSION="$(curl -s $POM_SCIJAVA_URL/maven-metadata.xml |
 	sed -n 's/.*<release>\(.*\)<\/release>.*/\1/p')"
 
 # rewrite version in pom.xml
 git show $HEAD:pom.xml > "$GIT_INDEX_FILE.pom" &&
 sed -e '/^\t</s/\(<version>\).*\(<\/version>\)/\1'"$VERSION"'\2/' \
-	-e "/<parent>/,/<\/pa/s/\(<version>\)[^<]*/\1$POM_IMAGEJ_VERSION/" \
-	-e "/<parent>/,/<\/pa/s/\(<groupId>\)[^<]*/\1net.imagej/" \
-	-e "/<parent>/,/<\/pa/s/\(<artifactId>\)[^<]*/\1pom-imagej/" \
+	-e "/<parent>/,/<\/pa/s/\(<version>\)[^<]*/\1$POM_SCIJAVA_VERSION/" \
+	-e "/<parent>/,/<\/pa/s/\(<groupId>\)[^<]*/\1org.scijava/" \
+	-e "/<parent>/,/<\/pa/s/\(<artifactId>\)[^<]*/\1pom-scijava/" \
 	< "$GIT_INDEX_FILE.pom" > "$GIT_INDEX_FILE.pom.new" &&
 POMHASH=$(git hash-object -w "$GIT_INDEX_FILE.pom.new") &&
 printf "100644 $POMHASH 0\tpom.xml\n" > "$GIT_INDEX_FILE.list.new" ||
