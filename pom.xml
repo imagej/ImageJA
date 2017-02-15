@@ -6,9 +6,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>net.imagej</groupId>
-		<artifactId>pom-imagej</artifactId>
-		<version>17.0.0</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>13.2.1</version>
 		<relativePath />
 	</parent>
 
@@ -22,9 +22,12 @@
 	<inceptionYear>1997</inceptionYear>
 
 	<properties>
+		<main-class>ij.ImageJ</main-class>
+		<license.licenseName>N/A</license.licenseName>
+		<license.copyrightOwners>N/A</license.copyrightOwners>
+
 		<scijava.jvm.version>1.6</scijava.jvm.version>
 		<javac.path>${java.home}/../lib/tools.jar</javac.path>
-		<main-class>ij.ImageJ</main-class>
 	</properties>
 
 	<dependencies>
