@@ -822,9 +822,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		return mask;
 	}
 
-	/** Get statistics for this image or ROI, including 
+	/** Get calibrated statistics for this image or ROI, including 
 		 histogram, area, mean, min and max, standard
-		 deviation, mode and median.
+		 deviation and mode.
 		This code demonstrates how to get the area, mean
 		max and median of the current image or selection:
 		<pre>
@@ -833,16 +833,23 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
          IJ.log("Area: "+stats.area);
          IJ.log("Mean: "+stats.mean);
          IJ.log("Max: "+stats.max);
-         IJ.log("Median: "+stats.median);
 		</pre>
+		@see #getAllStatistics
 		@see #getRawStatistics
+		@see ij.process.ImageProcessor#getStats
 		@see ij.process.ImageStatistics
 		@see ij.process.ImageStatistics#getStatistics
 		*/
 	public ImageStatistics getStatistics() {
-		return getStatistics(AREA+MEAN+STD_DEV+MODE+MIN_MAX+RECT+MEDIAN);
+		return getStatistics(AREA+MEAN+STD_DEV+MODE+MIN_MAX+RECT);
 	}
 	
+	/** This method returns complete calibrated statistics for this image or ROI
+		(with "Limit to threshold"), but it is up to 70 times slower than getStatistics().*/
+	public ImageStatistics getAllStatistics() {
+		return getStatistics(ALL_STATS+LIMIT);
+	}
+
 	/* Returns uncalibrated statistics for this image or ROI, including
 		256 bin histogram, pixelCount, mean, mode, min and max. */
 	public ImageStatistics getRawStatistics() {
@@ -1564,7 +1571,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (win!=null && win instanceof StackWindow)
 				((StackWindow)win).updateSliceSelector();
 			if ((Prefs.autoContrast||IJ.shiftKeyDown()) && nChannels==1 && imageType!=COLOR_RGB) {
-				(new ContrastEnhancer()).stretchHistogram(ip,0.35,ip.getStatistics());
+				(new ContrastEnhancer()).stretchHistogram(ip,0.35,ip.getStats());
 				ContrastAdjuster.update();
 				//IJ.showStatus(n+": min="+ip.getMin()+", max="+ip.getMax());
 			}
@@ -1650,8 +1657,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		deleteRoi();
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
-				int cornerDiameter = Toolbar.getRoundRectArcSize();
-				roi = new Roi(sx, sy, this, cornerDiameter);
+				if (Toolbar.getRectToolType()==Toolbar.ROTATED_RECT_ROI)
+					roi = new RotatedRectRoi(sx, sy, this);
+				else
+					roi = new Roi(sx, sy, this, Toolbar.getRoundRectArcSize());
 				break;
 			case Toolbar.OVAL:
 				if (Toolbar.getOvalToolType()==Toolbar.ELLIPSE_ROI)

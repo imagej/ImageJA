@@ -11,6 +11,7 @@ import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.Overlay;
 import ij.Prefs;
+import ij.measure.Measurements;
 
 /**
 This abstract class is the superclass for classes that process
@@ -539,7 +540,7 @@ public abstract class ImageProcessor implements Cloneable {
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
 		}
-		ImageStatistics stats = ip2.getStatistics();
+		ImageStatistics stats = ip2.getStats();
 		AutoThresholder thresholder = new AutoThresholder();
 		int threshold = thresholder.getThreshold(method, stats.histogram);
 		double lower, upper;
@@ -586,7 +587,7 @@ public abstract class ImageProcessor implements Cloneable {
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
 		}
-		ImageStatistics stats = ip2.getStatistics();
+		ImageStatistics stats = ip2.getStats();
 		int[] histogram = stats.histogram;
 		int originalModeCount = histogram[stats.mode];
 		if (method==ISODATA2) {
@@ -1161,6 +1162,13 @@ public abstract class ImageProcessor implements Cloneable {
 			lineTo(x, y);
 		}
 	}
+	
+	/** Fills a rectangle. */
+	public void fillRect(int x, int y, int width, int height) {
+		setRoi(x, y, width, height);
+		fill();
+		resetRoi();
+	}
 
 	/** Draws an elliptical shape. */
 	public void drawOval(int x, int y, int width, int height) {
@@ -1364,7 +1372,7 @@ public abstract class ImageProcessor implements Cloneable {
 	/** Sets the font used by drawString(). */
 	public void setFont(Font font) {
 		this.font = font;
-		fontMetrics	= null;
+		fontMetrics = null;
 		boldFont = font.isBold();
 	}
 	
@@ -2555,15 +2563,26 @@ public abstract class ImageProcessor implements Cloneable {
 	
 	/** Calculates and returns uncalibrated statistics for this image or ROI,
 	 * including histogram, area, mean, min and max, standard deviation,
-	 * mode and median. Use the setRoi(Roi) method to limit statistics to
+	 * and mode. Use the setRoi(Roi) method to limit statistics to
 	 * a non-rectangular area.
-	 * @see ImageProcessor#setRoi	
+	 * @see #setRoi	
+	 * @see #getStatistics	
 	 * @see ImageStatistics	
 	*/
-	public ImageStatistics getStatistics() {
+	public ImageStatistics getStats() {
 		return ImageStatistics.getStatistics(this);
 	}
 		
+	/** This method calculates and returns complete uncalibrated statistics for
+	 * this image or ROI but it is up to 70 times slower than getStats().
+	 * @see #setRoi	
+	 * @see #getStats	
+	 * @see ImageStatistics	
+	*/
+	public ImageStatistics getStatistics() {
+		return ImageStatistics.getStatistics(this, Measurements.ALL_STATS, null);
+	}
+
 	/** Blurs the image by convolving with a Gaussian function. */
 	public void blurGaussian(double sigma) {
 		resetRoi();

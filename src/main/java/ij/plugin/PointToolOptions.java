@@ -19,7 +19,7 @@ public class PointToolOptions implements PlugIn, DialogListener {
 	+"<font size=+1>"
 	+"<ul>"
 	+"<li> Alt-click, or control-click, on a point to delete it.<br>"
-	+"<li> Press 'y' (<i>Edit&gt;Selection&gt;Properties</i>) to display<br>the counts in a results table.<br>"
+	+"<li> Press 'alt+y' (<i>Edit&gt;Selection&gt;Properties</i> plus<br>alt key) to display the counts in a results table.<br>"
 	+"<li> Press 'm' (<i>Analyze&gt;Measure</i>) to list the counter<br>and stack position associated with each point.<br>"
 	+"<li> Use <i>File&gt;Save As&gt;Tiff</i> or <i>File&gt;Save As&gt;Selection</i><br>to save the points and counts.<br>"
 	+"<li> Hold the shift key down and points will be<br>constrained to a horizontal or vertical line.<br>"
@@ -37,12 +37,14 @@ public class PointToolOptions implements PlugIn, DialogListener {
 		
 	void showDialog() {
 		String options = IJ.isMacro()?Macro.getOptions():null;
+		boolean legacyMacro = false;
 		if (options!=null) {
 			options = options.replace("selection=", "color=");
 			options = options.replace("marker=", "size=");
 			Macro.setOptions(options);
+			legacyMacro = options.contains("auto-") || options.contains("add");
 		}
-		multipointTool = IJ.getToolName().equals("multipoint");
+		multipointTool = Toolbar.getMultiPointMode() && !legacyMacro;
 		Color sc =Roi.getColor();
 		String sname = Colors.getColorName(sc, "Yellow");
 		Color cc =PointRoi.getDefaultCrossColor();
@@ -112,9 +114,12 @@ public class PointToolOptions implements PlugIn, DialogListener {
 			if (Prefs.pointAutoNextSlice&&!Prefs.pointAddToManager)
 				Prefs.pointAutoMeasure = true;
 		}
+		boolean updateLabels = false;
 		boolean noPointLabels = !gd.getNextBoolean();
-		if (noPointLabels!=Prefs.noPointLabels)
+		if (noPointLabels!=Prefs.noPointLabels) {
 			redraw = true;
+			updateLabels = true;
+		}
 		Prefs.noPointLabels = noPointLabels;
 		if (multipointTool) {
 			boolean showAllPoints = gd.getNextBoolean();
@@ -128,12 +133,31 @@ public class PointToolOptions implements PlugIn, DialogListener {
 			}
 		}
 		if (redraw) {
-     		PointRoi roi = getPointRoi();
-     		if (roi!=null) {
+			ImagePlus imp = null;
+			PointRoi roi = getPointRoi();
+			if (roi!=null) {
 				roi.setShowLabels(!Prefs.noPointLabels);
-				ImagePlus imp = roi.getImage();
-				if (imp!=null) imp.draw();
+				imp = roi.getImage();
 			}
+			if (updateLabels) {
+				imp = WindowManager.getCurrentImage();
+				Overlay overlay = imp!=null?imp.getOverlay():null;
+				int pointRoiCount = 0;
+				if (overlay!=null) {
+					for (int i=0; i<overlay.size(); i++) {
+						Roi r = overlay.get(i);
+						roi = r!=null && (r instanceof PointRoi)?(PointRoi)r:null;
+						if (roi!=null) {
+							roi.setShowLabels(!Prefs.noPointLabels);
+							pointRoiCount++;
+						}
+					}
+					if (pointRoiCount==0)
+						imp = null;
+				}
+			}
+			if (imp!=null)
+				imp.draw();
 		}
 		return true;
     }

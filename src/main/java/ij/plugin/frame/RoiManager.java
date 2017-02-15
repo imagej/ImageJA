@@ -64,7 +64,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	private boolean firstTime = true;
 	private int[] selectedIndexes;
 	private boolean appendResults;
-	private static ResultsTable mmResults;
+	private static ResultsTable mmResults, mmResults2;
 	private int imageID;
 	private boolean allowRecording;
 	private boolean recordShowAll = true;
@@ -78,8 +78,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			WindowManager.toFront(instance);
 			return;
 		}
-		if (IJ.isMacro() && Interpreter.getBatchModeRoiManager()!=null)
+		if (IJ.isMacro() && Interpreter.getBatchModeRoiManager()!=null) {
+			list = new JList();
+			listModel = new DefaultListModel();
+			list.setModel(listModel);
 			return;
+		}
 		instance = this;
 		list = new JList();
 		showWindow();
@@ -998,7 +1002,10 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (!onePerSlice) {
 			int measurements2 = nSlices>1?measurements|Measurements.SLICE:measurements;
 			ResultsTable rt = new ResultsTable();
+			if (appendResults && mmResults2!=null)
+				rt = mmResults2;
 			Analyzer analyzer = new Analyzer(imp, measurements2, rt);
+			analyzer.disableReset(true);
 			for (int slice=1; slice<=nSlices; slice++) {
 				if (nSlices>1) imp.setSliceWithoutUpdate(slice);
 				for (int i=0; i<indexes.length; i++) {
@@ -1008,6 +1015,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 						break;
 				}
 			}
+			mmResults2 = (ResultsTable)rt.clone();
 			rt.show("Results");
 			if (nSlices>1)
 				imp.setSlice(currentSlice);
@@ -1776,13 +1784,23 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			return new RoiManager();
 	}
 
-	/** Returns a reference to the ROI Manager, or null if it is not open.
+	/** Returns a reference to the ROI Manager, or null if it is not open
+	 * and a batch mode macro is not running. If the ROI Manager 
+	 * is not open and a batch mode macro is running, 
+	 * returns the hidden batch mode RoiManager.
 	 * @see #getRoiManager
 	*/
 	public static RoiManager getInstance() {
-		return (RoiManager)instance;
+		if (instance==null && IJ.isMacro())
+			return Interpreter.getBatchModeRoiManager();
+		else
+			return (RoiManager)instance;
 	}
 	
+	public static RoiManager getRawInstance() {
+		return (RoiManager)instance;
+	}
+
 	/** Returns a reference to the ROI Manager window or to the
 		macro batch mode RoiManager, or null if neither exists. */
 	public static RoiManager getInstance2() {
@@ -1823,7 +1841,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	
 	/** Returns the ROI count. */
 	public int getCount() {
-		return listModel.getSize();
+		return listModel!=null?listModel.getSize():0;
 	}
 
 	/** Returns the index of the specified Roi, or -1 if it is not found. */
@@ -2223,7 +2241,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	public void close() {
 		super.close();
 		instance = null;
-		mmResults = null;
+		mmResults = mmResults2 = null;
 		Prefs.saveLocation(LOC_KEY, getLocation());
 		if (!showAllCheckbox.getState() || IJ.macroRunning())
 			return;
