@@ -562,7 +562,7 @@ public class IJ {
 		Undo.reset();
 		System.gc();
 		lastErrorMessage = "out of memory";
-		String tot = Runtime.getRuntime().totalMemory()/1048576L+"MB";
+		String tot = Runtime.getRuntime().maxMemory()/1048576L+"MB";
 		if (!memMessageDisplayed)
 			log(">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		log("<Out of memory>");
@@ -1333,9 +1333,11 @@ public class IJ {
 				WindowManager.setWindow(win);
 			}
 			long start = System.currentTimeMillis();
-			// timeout after 2 seconds unless current thread is event dispatch thread
+			// timeout after 1 second unless current thread is event dispatch thread
 			String thread = Thread.currentThread().getName();
-			int timeout = thread!=null&&thread.indexOf("EventQueue")!=-1?0:2000;
+			int timeout = thread!=null&&thread.indexOf("EventQueue")!=-1?0:1000;
+			if (IJ.isMacOSX() && IJ.isJava18() && timeout>0)
+				timeout = 250;  //work around OS X/Java 8 window activation bug
 			while (true) {
 				wait(10);
 				imp = WindowManager.getCurrentImage();
