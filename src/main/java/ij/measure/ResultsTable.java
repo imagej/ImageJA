@@ -437,9 +437,8 @@ public class ResultsTable implements Cloneable {
 		if (column==null)
 			throw new IllegalArgumentException("Column is null");
 		int col = getColumnIndex(column);
-		if (col==COLUMN_NOT_FOUND) {
+		if (col==COLUMN_NOT_FOUND)
 			col = getFreeColumn(column);
-		}
 		setValue(col, row, value);
 	}
 
@@ -829,7 +828,7 @@ public class ResultsTable implements Cloneable {
 			TextWindow win;
 			if (frame!=null && frame instanceof TextWindow) {
 				win = (TextWindow)frame;
-				if (windowTitle==null || !windowTitle.startsWith("Counts_"))
+				if (!IJ.isMacro() && (windowTitle==null || !windowTitle.startsWith("Counts_")))
 					win.toFront();
 			} else {
 				int width = getLastColumn()<=0?250:400;
@@ -1129,5 +1128,7 @@ public class ResultsTable implements Cloneable {
 	public String toString() {
 		return ("ctr="+counter+", hdr="+getColumnHeadings());
 	}
+	
+
 		
 }

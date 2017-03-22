@@ -3258,8 +3258,11 @@ public class Functions implements MacroConstants, Measurements {
 			TextWindow tw = (TextWindow)frame;
 			if (isCommand)
 				handleTextWindowCommand(tw, s2);
-			else
+			else {
 				tw.append(s2);
+				TextPanel tp = tw.getTextPanel();
+				if (tp!=null) tp.setResultsTable(null);
+			}
 		}
 	}
 	
@@ -4198,6 +4201,8 @@ public class Functions implements MacroConstants, Measurements {
 			Analyzer.setMeasurement(AREA, state);
 		else if (arg1.equals("mean"))
 			Analyzer.setMeasurement(MEAN, state);
+		else if (arg1.startsWith("perim"))
+			Analyzer.setMeasurement(PERIMETER, state);
 		else if (arg1.equals("stack position"))
 			Analyzer.setMeasurement(STACK_POSITION, state);
 		else if (arg1.startsWith("std"))
@@ -6246,6 +6251,8 @@ public class Functions implements MacroConstants, Measurements {
 			String value = "1";
 			interp.getLeftParen();
 			String key = getString();
+			if (key.contains(" "))
+				interp.error("Keys contain a space");
 			if (interp.nextToken()==',') {
 				interp.getComma();
 				value = getString();

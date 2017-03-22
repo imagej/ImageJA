@@ -1176,7 +1176,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			if (centerDialog) GUI.center(this);
 			setVisible(true);
 			recorderOn = Recorder.record;
-			IJ.wait(50); // work around for Sun/WinNT bug
+			IJ.wait(50);
 		}
 		/* For plugins that read their input only via dialogItemChanged, call it at least once */
 		if (!wasCanceled && dialogListeners!=null && dialogListeners.size()>0) {
