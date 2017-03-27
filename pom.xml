@@ -14,12 +14,75 @@
 
 	<groupId>net.imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.51k</version>
+	<version>1.51l-SNAPSHOT</version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
 	<url>http://imagej.net/</url>
 	<inceptionYear>1997</inceptionYear>
+	<organization>
+		<name>NIH</name>
+		<url>http://nih.gov/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Public domain</name>
+			<url>http://imagej.net/disclaimer.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>rasband</id>
+			<name>Wayne Rasband</name>
+			<url>http://imagej.net/Wayne_Rasband</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor><name>See release notes</name></contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ</name>
+			<subscribe>http://imagej.net/list.html</subscribe>
+			<unsubscribe>http://imagej.net/list.html</unsubscribe>
+			<post>imagej@list.nih.gov</post>
+			<archive>http://list.nih.gov/archives/imagej.html</archive>
+		</mailingList>
+		<mailingList>
+			<name>ImageJ-devel</name>
+			<subscribe>http://imagej.net/mailman/listinfo/imagej-devel</subscribe>
+			<unsubscribe>http://imagej.net/mailman/listinfo/imagej-devel</unsubscribe>
+			<post>imagej-devel@imagej.net</post>
+			<archive>http://imagej.net/pipermail/imagej-devel/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git://github.com/imagej/ImageJA</connection>
+		<developerConnection>scm:git:git@github.com:imagej/ImageJA</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/imagej/ImageJA</url>
+	</scm>
+	<issueManagement>
+		<system>BugZilla</system>
+		<url>http://fiji.sc/bugzilla</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://jenkins.imagej.net/</url>
+	</ciManagement>
 
 	<properties>
 		<main-class>ij.ImageJ</main-class>
@@ -71,73 +134,6 @@
 		</plugins>
 	</build>
 
-	<licenses>
-		<license>
-			<name>Public domain</name>
-			<url>http://imagej.net/disclaimer.html</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-
-	<organization>
-		<name>NIH</name>
-		<url>http://nih.gov/</url>
-	</organization>
-
-	<developers>
-		<developer>
-			<id>rasband</id>
-			<name>Wayne Rasband</name>
-			<url>http://imagej.net/Wayne_Rasband</url>
-			<roles>
-				<role>founder</role>
-				<role>lead</role>
-				<role>developer</role>
-				<role>debugger</role>
-				<role>reviewer</role>
-				<role>support</role>
-				<role>maintainer</role>
-			</roles>
-		</developer>
-	</developers>
-	<contributors>
-		<contributor><name>See release notes</name></contributor>
-	</contributors>
-
-	<issueManagement>
-		<system>BugZilla</system>
-		<url>http://fiji.sc/bugzilla</url>
-	</issueManagement>
-
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/</url>
-	</ciManagement>
-
-	<mailingLists>
-		<mailingList>
-			<name>ImageJ</name>
-			<subscribe>http://imagej.net/list.html</subscribe>
-			<unsubscribe>http://imagej.net/list.html</unsubscribe>
-			<post>imagej@list.nih.gov</post>
-			<archive>http://list.nih.gov/archives/imagej.html</archive>
-		</mailingList>
-		<mailingList>
-			<name>ImageJ-devel</name>
-			<subscribe>http://imagej.net/mailman/listinfo/imagej-devel</subscribe>
-			<unsubscribe>http://imagej.net/mailman/listinfo/imagej-devel</unsubscribe>
-			<post>imagej-devel@imagej.net</post>
-			<archive>http://imagej.net/pipermail/imagej-devel/</archive>
-		</mailingList>
-	</mailingLists>
-
-	<scm>
-		<connection>scm:git:git://github.com/imagej/ImageJA</connection>
-		<developerConnection>scm:git:git@github.com:imagej/ImageJA</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/imagej/ImageJA</url>
-	</scm>
-
 	<profiles>
 		<profile>
 			<id>javac</id>
@@ -158,5 +154,4 @@
 			</dependencies>
 		</profile>
 	</profiles>
-
 </project>
