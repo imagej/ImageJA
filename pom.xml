@@ -18,16 +18,16 @@
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
-	<url>http://imagej.net/</url>
+	<url>https://imagej.net/</url>
 	<inceptionYear>1997</inceptionYear>
 	<organization>
 		<name>NIH</name>
-		<url>http://nih.gov/</url>
+		<url>https://nih.gov/</url>
 	</organization>
 	<licenses>
 		<license>
 			<name>Public domain</name>
-			<url>http://imagej.net/disclaimer.html</url>
+			<url>https://imagej.net/disclaimer.html</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -36,7 +36,7 @@
 		<developer>
 			<id>rasband</id>
 			<name>Wayne Rasband</name>
-			<url>http://imagej.net/Wayne_Rasband</url>
+			<url>https://imagej.net/Wayne_Rasband</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -55,17 +55,17 @@
 	<mailingLists>
 		<mailingList>
 			<name>ImageJ</name>
-			<subscribe>http://imagej.net/list.html</subscribe>
-			<unsubscribe>http://imagej.net/list.html</unsubscribe>
+			<subscribe>https://imagej.net/list.html</subscribe>
+			<unsubscribe>https://imagej.net/list.html</unsubscribe>
 			<post>imagej@list.nih.gov</post>
-			<archive>http://list.nih.gov/archives/imagej.html</archive>
+			<archive>https://list.nih.gov/archives/imagej.html</archive>
 		</mailingList>
 		<mailingList>
 			<name>ImageJ-devel</name>
-			<subscribe>http://imagej.net/mailman/listinfo/imagej-devel</subscribe>
-			<unsubscribe>http://imagej.net/mailman/listinfo/imagej-devel</unsubscribe>
+			<subscribe>https://imagej.net/mailman/listinfo/imagej-devel</subscribe>
+			<unsubscribe>https://imagej.net/mailman/listinfo/imagej-devel</unsubscribe>
 			<post>imagej-devel@imagej.net</post>
-			<archive>http://imagej.net/pipermail/imagej-devel/</archive>
+			<archive>https://imagej.net/pipermail/imagej-devel/</archive>
 		</mailingList>
 	</mailingLists>
 
@@ -77,11 +77,11 @@
 	</scm>
 	<issueManagement>
 		<system>BugZilla</system>
-		<url>http://fiji.sc/bugzilla</url>
+		<url>https://fiji.sc/bugzilla</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/</url>
+		<url>https://jenkins.imagej.net/</url>
 	</ciManagement>
 
 	<properties>
