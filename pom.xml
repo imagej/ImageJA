@@ -76,8 +76,8 @@
 		<url>https://github.com/imagej/ImageJA</url>
 	</scm>
 	<issueManagement>
-		<system>BugZilla</system>
-		<url>https://fiji.sc/bugzilla</url>
+		<system>GitHub Issues</system>
+		<url>https://github.com/imagej/imagej1/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Jenkins</system>
