@@ -159,7 +159,7 @@ public class StackConverter {
 		}
 		IJ.showProgress(1.0);
 		imp.setStack(null, stack2);
-		imp.setCalibration(imp.getCalibration()); //update calibration
+		imp.setCalibration(cal); //update calibration
 		if (type==ImagePlus.COLOR_RGB) {
 			imp.resetDisplayRange();
 			imp.updateAndDraw();
