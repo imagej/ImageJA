@@ -81,6 +81,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	private String name;
 	private int position;
 	private int channel, slice, frame;
+	private boolean hyperstackPosition;
 	private Overlay prototypeOverlay;
 	private boolean subPixel;
 	private boolean activeOverlayRoi;
@@ -544,7 +545,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	
 	/** Returns the coordinates of the pixels inside this ROI as an array of Points.
 	 * @see #getContainedFloatPoints()
-	 * @see #Iterator()
+	 * @see #iterator()
 	 */
 	public Point[] getContainedPoints() {
 		if (isLine()) {
@@ -1013,18 +1014,22 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			case KeyEvent.VK_UP:
 				height--;
 				if (height<1) height = 1;
+				notifyListeners(RoiListener.MODIFIED);
 				break;
 			case KeyEvent.VK_DOWN:
 				height++;
 				if ((y+height) > yMax) height = yMax-y;
+				notifyListeners(RoiListener.MODIFIED);
 				break;
 			case KeyEvent.VK_LEFT:
 				width--;
 				if (width<1) width = 1;
+				notifyListeners(RoiListener.MODIFIED);
 				break;
 			case KeyEvent.VK_RIGHT:
 				width++;
 				if ((x+width) > xMax) width = xMax-x;
+				notifyListeners(RoiListener.MODIFIED);
 				break;
 		}
 		updateClipRect();
@@ -1683,6 +1688,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		if (n<0) n=0;
 		position = n;
 		channel = slice = frame = 0;
+		hyperstackPosition = false;
 	} 
 
 	/** Returns the stack position (image number) of this ROI, or
@@ -1705,6 +1711,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		if (frame<0) frame=0;
 		this.frame = frame;
 		position = 0;
+		hyperstackPosition = true;
+	}
+	
+	/** Returns 'true' if setPosition(C,Z,T) has been called. */
+	public boolean hasHyperStackPosition() {
+		return hyperstackPosition;
 	}
 	
 	/** Returns the channel position of this ROI, or zero
@@ -1718,7 +1730,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	*  if this ROI is not associated with a particular slice.
 	*/
 	public final int getZPosition() {
-		return slice;
+		return slice==0&&!hyperstackPosition?position:slice;
 	}
 	
 	/** Returns the frame position of this ROI, or zero
@@ -2097,7 +2109,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			}
 		}
 	}
-
+	
 	public static void addRoiListener(RoiListener listener) {
 		listeners.addElement(listener);
 	}
@@ -2117,53 +2129,18 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	 * @see #getContainedPoints()
 	 * @see #getContainedFloatPoints()
 	 * @author Wilhelm Burger
-	 */
+	*/
 	public Iterator<Point> iterator() {
-		if (isLine() && getStrokeWidth()<=1.0)
-			return new RoiPointsIteratorLine();
-		else
-			return new RoiPointsIteratorMask();
+		// Returns the default (mask-based) point iterator. Note that 'Line' overrides the 
+		// iterator() method and returns a specific point iterator.
+		return new RoiPointsIteratorMask();
 	}
 	
-
-	/**
-	 * Custom iterator over points contained in a straight line-type {@link Roi}.
-	 * @author W. Burger
-	 */
-	private class RoiPointsIteratorLine implements Iterator<Point> {
-		private final FloatPolygon p;
-		private int next = 0;
-
-		RoiPointsIteratorLine() {
-			p = getInterpolatedPolygon();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return next<p.npoints;
-		}
-
-		@Override
-		public Point next() {
-			if (next >= p.npoints)
-				throw new NoSuchElementException();
-			int x = (int)Math.round(p.xpoints[next]);
-			int y = (int)Math.round(p.ypoints[next]);
-			next = next + 1;
-			return new Point(x, y);
-		}
-		
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-
-	}
 	
 	/**
-	 * Custom iterator over points contained in a mask-backed {@link Roi}.
-	 * @author W. Burger
-	 */
+	 * Default iterator over points contained in a mask-backed {@link Roi}.
+	 * Author: W. Burger
+	*/
 	private class RoiPointsIteratorMask implements Iterator<Point> {
 		private final ImageProcessor mask;
 		private final Rectangle bounds;

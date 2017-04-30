@@ -7,9 +7,6 @@ import ij.util.*;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.Binner;
 import ij.process.AutoThresholder.Method;
-import ij.gui.Roi;
-import ij.gui.ShapeRoi;
-import ij.gui.Overlay;
 import ij.Prefs;
 import ij.measure.Measurements;
 
@@ -164,6 +161,8 @@ public abstract class ImageProcessor implements Cloneable {
 	public void setColorModel(ColorModel cm) {
 		if (cm!=null && !(cm instanceof IndexColorModel))
 			throw new IllegalArgumentException("IndexColorModel required");
+		if (cm!=null && cm instanceof LUT)
+			cm = ((LUT)cm).getColorModel();
 		this.cm = cm;
 		baseCM = null;
 		rLUT1 = rLUT2 = null;
@@ -182,9 +181,13 @@ public abstract class ImageProcessor implements Cloneable {
 	}
 	
 	public void setLut(LUT lut) {
-		setColorModel(lut);
-		if (lut!=null && (lut.min!=0.0||lut.max!=0.0))
-			setMinAndMax(lut.min, lut.max);
+		if (lut==null)
+			setColorModel(null);
+		else {
+			setColorModel(lut.getColorModel());
+			if (lut.min!=0.0 || lut.max!=0.0)
+				setMinAndMax(lut.min, lut.max);
+		}
 	}
 
 
@@ -962,18 +965,18 @@ public abstract class ImageProcessor implements Cloneable {
     }
 
 	/**
-		Returns an array containing the pixel values along the
-		line starting at (x1,y1) and ending at (x2,y2). For byte
-		and short images, returns calibrated values if a calibration
-		table has been set using setCalibrationTable().
-		@see ImageProcessor#setInterpolate
+	 * Returns an array containing the pixel values along the
+	 * line starting at (x1,y1) and ending at (x2,y2). For byte
+	 * and short images, returns calibrated values if a calibration
+	 * table has been set using setCalibrationTable().
+	 * @see ImageProcessor#setInterpolate
 	*/
 	public double[] getLine(double x1, double y1, double x2, double y2) {
 		double dx = x2-x1;
 		double dy = y2-y1;
 		int n = (int)Math.round(Math.sqrt(dx*dx + dy*dy));
-		double xinc = dx/n;
-		double yinc = dy/n;
+		double xinc = n>0?dx/n:0;
+		double yinc = n>0?dy/n:0;
 		if (!((xinc==0&&n==height) || (yinc==0&&n==width)))
 			n++;
 		double[] data = new double[n];
@@ -2010,7 +2013,7 @@ public abstract class ImageProcessor implements Cloneable {
     	mean 0.0 and the specified standard deviation, to this image or ROI. */
     public abstract void noise(double standardDeviation);
     
-	/** Creates a new processor containing an image
+	/** Returns a new processor containing an image
 		that corresponds to the current ROI. */
 	public abstract ImageProcessor crop();
 	
@@ -2028,18 +2031,18 @@ public abstract class ImageProcessor implements Cloneable {
 	*/
 	public abstract void scale(double xScale, double yScale);
 	
-	/** Creates a new ImageProcessor containing a scaled copy of this image or ROI.
+	/** Returns a new ImageProcessor containing a scaled copy of this image or ROI.
 		@see ij.process.ImageProcessor#setInterpolate
 	*/
 	public abstract ImageProcessor resize(int dstWidth, int dstHeight);
 	
-	/** Creates a new ImageProcessor containing a scaled copy 
+	/** Returns a new ImageProcessor containing a scaled copy 
 		of this image or ROI, with the aspect ratio maintained. */
 	public ImageProcessor resize(int dstWidth) {
 		return resize(dstWidth, (int)(dstWidth*((double)roiHeight/roiWidth)));
 	}
 
-	/** Creates a new ImageProcessor containing a scaled copy of this image or ROI.
+	/** Returns a new ImageProcessor containing a scaled copy of this image or ROI.
 		@param dstWidth   Image width of the resulting ImageProcessor
 		@param dstHeight  Image height of the resulting ImageProcessor
 		@param useAverging  True means that the averaging occurs to avoid
