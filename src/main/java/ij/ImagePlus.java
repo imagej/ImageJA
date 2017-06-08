@@ -361,7 +361,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 		
 	/** ImageCanvas.paint() calls this method when the
-		ImageProcessor has generated new image. */
+		ImageProcessor has generated a new image. */
 	public void updateImage() {
 		if (ip!=null)
 			img = ip.createImage();
@@ -1562,6 +1562,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				overlay2 = ip2.getOverlay();
 				if (overlay2!=null)
 					setOverlay(overlay2);
+				Properties props = ((VirtualStack)stack).getProperties();
+				if (props!=null)
+					setProperty("FHT", props.get("FHT"));
 				pixels = ip2.getPixels();
 			} else
 				pixels = stack.getPixels(currentSlice);
@@ -1739,9 +1742,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				if (rm!=null)
 					rm.deselect(roi);
 			}
-			roi.notifyListeners(RoiListener.DELETED);
-			if (roi instanceof PointRoi)
-				((PointRoi)roi).resetCounters();
+			if (roi!=null) {
+				roi.notifyListeners(RoiListener.DELETED);
+				if (roi instanceof PointRoi)
+					((PointRoi)roi).resetCounters();
+			}
 			roi = null;
 			if (ip!=null)
 				ip.resetRoi();
@@ -2488,6 +2493,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Returns a "flattened" version of this image, in RGB format. */
 	public ImagePlus flatten() {
 		if (IJ.debugMode) IJ.log("flatten");
+		IJ.wait(50); // wait for screen to be refreshed
 		ImagePlus imp2 = createImagePlus();
 		imp2.setTitle(flattenTitle);
 		ImageCanvas ic2 = new ImageCanvas(imp2);

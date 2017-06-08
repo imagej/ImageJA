@@ -311,7 +311,6 @@ public class ByteProcessor extends ImageProcessor {
 
 	/** Sets the foreground drawing color. */
 	public void setColor(Color color) {
-		//if (ij.IJ.altKeyDown()) throw new IllegalArgumentException("setColor: "+color);
 		drawingColor = color;
 		fgColor = getBestIndex(color);
 	}
