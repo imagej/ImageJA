@@ -243,9 +243,15 @@ public abstract class ImageProcessor implements Cloneable {
 		int minDistance = Integer.MAX_VALUE;
 		int distance;
 		int minIndex = 0;
-		int r1=c.getRed();
-		int g1=c.getGreen();
-		int b1=c.getBlue();
+		int r1 = c.getRed();
+		int g1 = c.getGreen();
+		int b1 = c.getBlue();	
+		if (!(r1==g1&&g1==b1&&r1==b1) && icm==defaultColorModel) {
+			double[] w = ColorProcessor.getWeightingFactors();
+			r1 = (int)Math.round(3*r1*w[0]);
+			g1 = (int)Math.round(3*g1*w[1]);
+			b1 = (int)Math.round(3*b1*w[2]);
+		}		
 		int r2,b2,g2;
     	for (int i=0; i<mapSize; i++) {
 			r2 = rLUT[i]&0xff; g2 = gLUT[i]&0xff; b2 = bLUT[i]&0xff;
@@ -559,14 +565,7 @@ public abstract class ImageProcessor implements Cloneable {
 				{lower=0.0; upper=threshold;}
 		}
 		if (lower>255) lower = 255;
-		if (notByteData) {
-			if (max>min) {
-				lower = min + (lower/255.0)*(max-min);
-				upper = min + (upper/255.0)*(max-min);
-			} else
-				lower = upper = min;
-		}
-		setThreshold(lower, upper, lutUpdate);
+		scaleAndSetThreshold(lower, upper, lutUpdate);
 	}
 
 	/** Automatically sets the lower and upper threshold levels, where 'method'
@@ -578,14 +577,12 @@ public abstract class ImageProcessor implements Cloneable {
 			throw new IllegalArgumentException("Invalid thresholding method");
 		if (this instanceof ColorProcessor)
 			return;
-		double min=0.0, max=0.0;
 		boolean notByteData = !(this instanceof ByteProcessor);
 		ImageProcessor ip2 = this;
 		if (notByteData) {
 			ImageProcessor mask = ip2.getMask();
 			Rectangle rect = ip2.getRoi();
 			resetMinAndMax();
-			min = getMin(); max = getMax();
 			ip2 = convertToByte(true);
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
@@ -636,16 +633,33 @@ public abstract class ImageProcessor implements Cloneable {
 			else
 				{lower=0.0; upper=threshold;}
 		}
-		if (notByteData) {
+		scaleAndSetThreshold(lower, upper, lutUpdate);
+
+	}
+	
+	/** Set the threshold using a 0-255 range. */
+	public void scaleAndSetThreshold(double lower, double upper, int lutUpdate) {
+		int bitDepth = getBitDepth();
+		if (bitDepth!=8 && lower!=NO_THRESHOLD) {
+			double min = getMin();
+			double max = getMax();
 			if (max>min) {
-				lower = min + (lower/255.0)*(max-min);
-				upper = min + (upper/255.0)*(max-min);
+				if (bitDepth==16 && lower==0.0)
+					lower = 0.0;
+				else if (bitDepth==32 && lower==0.0)
+					lower = -Float.MAX_VALUE;
+				else
+					lower = min + (lower/255.0)*(max-min);
+				if (bitDepth==16 && upper==255.0)
+					upper = 65535;
+				else if (bitDepth==32 && upper==255.0)
+					upper = Float.MAX_VALUE;
+				else
+					upper = min + (upper/255.0)*(max-min);
 			} else
 				lower = upper = min;
 		}
 		setThreshold(lower, upper, lutUpdate);
-		//if (notByteData && lutUpdate!=NO_LUT_UPDATE)
-		//	setLutAnimation(true);
 	}
 
 	/** Disables thresholding. */
@@ -966,10 +980,16 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/**
 	 * Returns an array containing the pixel values along the
-	 * line starting at (x1,y1) and ending at (x2,y2). For byte
-	 * and short images, returns calibrated values if a calibration
-	 * table has been set using setCalibrationTable().
+	 * line starting at (x1,y1) and ending at (x2,y2). Pixel
+	 * values are sampled using getInterpolatedValue(double,double)
+	 * if interpolatiion is enabled or getPixelValue(int,int) if it is not.
+	 * For byte and short images, returns calibrated values if a 
+	 * calibration table has been set using setCalibrationTable().
+	 * The length of the returned array, minus one, is approximately 
+	 * equal to the length of the line.
 	 * @see ImageProcessor#setInterpolate
+	 * @see ImageProcessor#getPixelValue
+	 * @see ImageProcessor#getInterpolatedValue
 	*/
 	public double[] getLine(double x1, double y1, double x2, double y2) {
 		double dx = x2-x1;
@@ -989,8 +1009,9 @@ public abstract class ImageProcessor implements Cloneable {
 				ry += yinc;
 			}
 		} else {
+			rx-=0.5; ry-=0.5; 
 			for (int i=0; i<n; i++) {
-				data[i] = getPixelValue((int)(rx+0.5), (int)(ry+0.5));
+				data[i] = getPixelValue((int)Math.round(rx), (int)Math.round(ry));
 				rx += xinc;
 				ry += yinc;
 			}
@@ -1562,7 +1583,7 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Draws the specified ROI on this image using the stroke
 		width, stroke color and fill color defined by roi.setStrokeWidth,
-		roi.setStrokeColor() and roi.setFillColor(). Works best with RGB
+		roi.setStrokeColor() and roi.setFillColor(). Works   with RGB
 		images. Does not work with 16-bit and float images.
 		Requires Java 1.6.
 		@see ImageProcessor#draw

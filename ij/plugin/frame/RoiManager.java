@@ -2233,7 +2233,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	public void close() {
 		super.close();
 		instance = null;
-		mmResults = mmResults2 = null;
+		resetMultiMeasureResults();
 		Prefs.saveLocation(LOC_KEY, getLocation());
 		if (!showAllCheckbox.getState() || IJ.macroRunning())
 			return;
@@ -2446,6 +2446,10 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				imageID = 0;
     		}
     	}
+	}
+	
+	public static void resetMultiMeasureResults() {
+		mmResults = mmResults2 = null;
 	}
 	
 	// This class runs the "Multi Measure" command in a separate thread

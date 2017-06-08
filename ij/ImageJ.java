@@ -79,7 +79,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.51n";
+	public static final String VERSION = "1.51o";
 	public static final String BUILD = "";
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
@@ -192,10 +192,21 @@ public class ImageJ extends Frame implements ActionListener,
 			setAlwaysOnTop(Prefs.alwaysOnTop);
 			pack();
 			setVisible(true);
-			if (IJ.isMacOSX()) {
-				Rectangle maxBounds = GUI.getMaxWindowBounds();
-				if (loc.x+getSize().width>maxBounds.x+maxBounds.width)
-					setLocation(loc.x, loc.y);
+			Dimension size = getSize();
+			if (size!=null) {
+				if (IJ.debugMode) IJ.log("size: "+size);
+				if (IJ.isWindows() && size.height>108) {
+					// workaround for IJ window layout and FileDialog freeze problems with Windows 10 Creators Update
+					IJ.wait(10);
+					pack();
+					if (IJ.debugMode) IJ.log("pack()");
+					if (!Prefs.jFileChooserSettingChanged)
+						Prefs.useJFileChooser = true;
+				} else if (IJ.isMacOSX()) {
+					Rectangle maxBounds = GUI.getMaxWindowBounds();
+					if (loc.x+size.width>maxBounds.x+maxBounds.width)
+						setLocation(loc.x, loc.y);
+				}
 			}
 		}
 		if (err1!=null)
