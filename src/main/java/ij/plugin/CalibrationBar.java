@@ -319,7 +319,8 @@ public class CalibrationBar implements PlugIn {
 			}
 			String todisplay = d2s(grayLabel)+" "+s;
 			if (overlay!=null) {
-				TextRoi label = new TextRoi(todisplay, x + 5, yLabel + fontHeight/2, font);				label.setStrokeColor(c);
+				TextRoi label = new TextRoi(todisplay, x + 5, yLabel + fontHeight/2, font);				
+				label.setStrokeColor(c);
 				overlay.add(label, CALIBRATION_BAR);
 			}
 			int iLength = metrics.stringWidth(todisplay);
