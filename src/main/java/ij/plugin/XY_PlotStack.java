@@ -1,3 +1,8 @@
+//Jérôme Parent 20.07.2017
+//This plugin generates a stack of plots with the same vertical scale
+//Source image is a stack or hyperstack
+//Line or rectangle ROI is required 
+
 package ij.plugin;
 import ij.*;
 import ij.gui.*;
