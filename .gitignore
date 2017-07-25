@@ -4,3 +4,4 @@
 target/classes
 target/maven-archiver
 target/test-classes
+target/ij*sources.jar
