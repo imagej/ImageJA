@@ -301,6 +301,7 @@ public class CalibrationBar implements PlugIn {
 			int yLabel = (int)(Math.round( y + BAR_LENGTH*zoom - i*barStep - 1));
 			Calibration cal = imp.getCalibration();
 			//s = cal.getValueUnit();
+			String s = cal.getValueUnit();
 			ImageProcessor ipOrig = imp.getProcessor();
 			double min = ipOrig.getMin();
 			double max = ipOrig.getMax();
@@ -316,14 +317,15 @@ public class CalibrationBar implements PlugIn {
 				if (!decimalPlacesChanged && decimalPlaces==0 && ((int)cmax!=cmax||(int)cmin!=cmin))
 					decimalPlaces = 2;
 			}
+			String todisplay = d2s(grayLabel)+" "+s;
 			if (overlay!=null) {
-				TextRoi label = new TextRoi(d2s(grayLabel), x + 5, yLabel + fontHeight/2, font);
+				TextRoi label = new TextRoi(todisplay, x + 5, yLabel + fontHeight/2, font);				
 				label.setStrokeColor(c);
 				overlay.add(label, CALIBRATION_BAR);
 			}
-			int iLength = metrics.stringWidth(d2s(grayLabel));
+			int iLength = metrics.stringWidth(todisplay);
 			if (iLength > maxLength)
-				maxLength = iLength;
+				maxLength = iLength+5;
 		}
 		return maxLength;
 	}
