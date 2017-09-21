@@ -145,7 +145,6 @@ public class Interpreter implements MacroConstants {
 		pc = macroLoc-1;
 		previousInstance = instance;
 		instance = this;
-		//IJ.showStatus("interpreting");
 		pushGlobals();
 		if (func==null)
 			func = new Functions(this, pgm);
@@ -233,8 +232,10 @@ public class Interpreter implements MacroConstants {
 
 	final void doStatement() {
 		getToken();
-		if (debugMode!=Debugger.NOT_DEBUGGING && debugger!=null && !done && token!=';' && token!=FUNCTION)
+		if (debugMode!=Debugger.NOT_DEBUGGING && debugger!=null && !done && token!=';' && token!=FUNCTION) {
 			debugger.debug(this, debugMode);
+			if (done) return;
+		}
 		switch (token) {
 			case VAR:
 				doVar();
