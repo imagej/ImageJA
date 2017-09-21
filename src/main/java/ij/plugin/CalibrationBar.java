@@ -56,6 +56,7 @@ public class CalibrationBar implements PlugIn {
 	int userPadding = 0;
 	int fontHeight = 0;
 	boolean boldText;
+	boolean showUnit;
 	static boolean staticFlatten;
 	boolean flatten = staticFlatten;
 	Object backupPixels;
@@ -151,10 +152,10 @@ public class CalibrationBar implements PlugIn {
 		gd.addNumericField("Decimal places:", decimalPlaces, 0);
 		gd.addNumericField("Font size:", fontSize, 0);
 		gd.addNumericField("Zoom factor:", zoom, 1);
-		String[] labels = {"Bold text", "Overlay"};
-		boolean[] states = {boldText, !flatten};
+		String[] labels = {"Bold text", "Overlay", "Show unit"};
+		boolean[] states = {boldText, !flatten, showUnit};
 		gd.setInsets(10, 30, 0);
-		gd.addCheckboxGroup(1, 2, labels, states);
+		gd.addCheckboxGroup(2, 2, labels, states);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
@@ -167,6 +168,7 @@ public class CalibrationBar implements PlugIn {
 		zoom = (double)gd.getNextNumber();
 		boldText = gd.getNextBoolean();
 		flatten = !gd.getNextBoolean();
+		showUnit = gd.getNextBoolean();
 		if (!IJ.isMacro())
 			staticFlatten = flatten;
 		return true;
@@ -300,8 +302,14 @@ public class CalibrationBar implements PlugIn {
 			double yLabelD = (int)(YMARGIN*zoom + BAR_LENGTH*zoom - i*barStep - 1);
 			int yLabel = (int)(Math.round( y + BAR_LENGTH*zoom - i*barStep - 1));
 			Calibration cal = imp.getCalibration();
+<<<<<<< HEAD
 			//s = cal.getValueUnit();
 			String s = cal.getValueUnit();
+=======
+			String s = "";
+			if (showUnit)
+				s = cal.getValueUnit();
+>>>>>>> fdca9a4df935bb5ab40135682b2db309994f3710
 			ImageProcessor ipOrig = imp.getProcessor();
 			double min = ipOrig.getMin();
 			double max = ipOrig.getMax();
@@ -329,7 +337,7 @@ public class CalibrationBar implements PlugIn {
 		}
 		return maxLength;
 	}
-	
+		
 	String d2s(double d) {
 			return IJ.d2s(d,decimalPlaces);
 	}
@@ -443,6 +451,7 @@ public class CalibrationBar implements PlugIn {
 			textColor = ( (Choice)(choice.elementAt(2)) ).getSelectedItem();
 			boldText = ( (Checkbox)(checkbox.elementAt(0)) ).getState();
 			flatten = !( (Checkbox)(checkbox.elementAt(1)) ).getState();
+			showUnit = ( (Checkbox)(checkbox.elementAt(2)) ).getState();
 			updateColorBar();
 		}
 

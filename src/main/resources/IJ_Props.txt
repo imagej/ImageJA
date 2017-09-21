@@ -153,7 +153,11 @@ stacks10="Reslice [/]...",ij.plugin.Slicer
 stacks11="Orthogonal Views[H]",ij.plugin.Orthogonal_Views
 stacks12="Z Project...",ij.plugin.ZProjector
 stacks13="3D Project...",ij.plugin.Projector
+<<<<<<< HEAD
 stacks14="Plot XY Profile",ij.plugin.XY_PlotStack
+=======
+stacks14="Plot XY Profile",ij.plugin.StackPlotter
+>>>>>>> fdca9a4df935bb5ab40135682b2db309994f3710
 stacks15="Plot Z-axis Profile",ij.plugin.ZAxisProfiler
 stacks16="Label...",ij.plugin.filter.StackLabeler
 stacks17="Statistics",ij.plugin.Stack_Statistics

@@ -609,7 +609,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 						setCursor(crosshairCursor);
 				} else if (roi!=null && roi.getState()!=roi.CONSTRUCTING && roi.isHandle(sx, sy)>=0) {
 					setCursor(handCursor);
-				} else if ((overlay!=null||showAllOverlay!=null) && overOverlayLabel(sx,sy,ox,oy)) {
+				} else if ((overlay!=null||showAllOverlay!=null) && overOverlayLabel(sx,sy,ox,oy) && (roi==null||roi.getState()!=roi.CONSTRUCTING)) {
 					overOverlayLabel = true;
 					setCursor(handCursor);
 				} else if (Prefs.usePointerCursor || (roi!=null && roi.getState()!=roi.CONSTRUCTING && roi.contains(ox, oy)))
@@ -1162,6 +1162,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				}
 				setRoiModState(e, roi, -1);
 				String mode = WandToolOptions.getMode();
+				if (Prefs.smoothWand)
+					mode = mode + " smooth";
 				int npoints = IJ.doWand(ox, oy, tolerance, mode);
 				if (Recorder.record && npoints>0) {
 					if (Recorder.scriptMode())
