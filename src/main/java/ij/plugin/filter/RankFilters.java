@@ -459,6 +459,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 			float median = Float.isNaN(cache[cacheLineP]) ? 0 : cache[cacheLineP];	// a first guess
 			boolean fullCalculation = true;
 			for (int x=0; x<roi.width; x++, valuesP++) {							// x is with respect to roi.x
+				 median = Float.isNaN(values[valuesP]) ? Float.NaN : values[valuesP];	// a first guess
 				if (fullCalculation) {
 					fullCalculation = smallKernel;	//for small kernel, always use the full area, not incremental algorithm
 					if (minOrMaxOrOutliers)
@@ -498,7 +499,7 @@ public class RankFilters implements ExtendedPlugInFilter, DialogListener {
 						values[valuesP] = value;
 					}
 				} else if (filterType == MEDIAN) {
-					median = getMedian(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, median);
+					median = getNaNAwareMedian(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, median);
 					values[valuesP] = median;
 				} else if (filterType == OUTLIERS) {
 					float v = cache[cacheLineP+x];
