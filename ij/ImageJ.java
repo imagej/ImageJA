@@ -79,7 +79,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.51q";
+	public static final String VERSION = "1.51r";
 	public static final String BUILD = "";
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
@@ -216,8 +216,10 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		}
 		if (IJ.isMacintosh()&&applet==null) { 
-			Object qh = null; 
-			qh = IJ.runPlugIn("MacAdapter", ""); 
+			Object qh = null;
+			try {
+				qh = IJ.runPlugIn("MacAdapter", ""); 
+			} catch(Throwable e) {}
 			if (qh==null) 
 				IJ.runPlugIn("QuitHandler", ""); 
 		} 
@@ -678,10 +680,6 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 
 	public static void main(String args[]) {
-		if (System.getProperty("java.version").substring(0,3).compareTo("1.5")<0) {
-			javax.swing.JOptionPane.showMessageDialog(null,"ImageJ "+VERSION+" requires Java 1.5 or later.");
-			System.exit(0);
-		}
 		boolean noGUI = false;
 		int mode = STANDALONE;
 		arguments = args;
