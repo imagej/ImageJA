@@ -13,7 +13,7 @@ public class FontUtil {
 		Font font = new Font(fontFamilyName, style, (int)size);
 		if (!font.getFamily().startsWith(fontFamilyName)) {
 			String[] similarFonts = getSimilarFontsList(fontFamilyName);
-			font = getFont(fontFamilyName, style, (int)size);
+			font = getFont(similarFonts, style, (int)size);
 		}
 		if (size != (int)size)
 			font = font.deriveFont(size);

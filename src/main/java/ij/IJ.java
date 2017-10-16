@@ -75,13 +75,15 @@ public class IJ {
 		isWin = osname.startsWith("Windows");
 		isMac = !isWin && osname.startsWith("Mac");
 		isLinux = osname.startsWith("Linux");
-		String version = System.getProperty("java.version").substring(0,3);
-		if (version.compareTo("2.9")<=0) {  // JVM on Sharp Zaurus PDA claims to be "3.1"!
-			isJava16 = version.compareTo("1.5")>0;
-			isJava17 = version.compareTo("1.6")>0;
-			isJava18 = version.compareTo("1.7")>0;
-			isJava19 = version.compareTo("1.8")>0;
-		}
+		String version = System.getProperty("java.version");
+		if (version.startsWith("1.9")||version.startsWith("9"))
+			isJava16=isJava17=isJava18=isJava19 = true;
+		else if (!isJava18&&version.startsWith("1.8"))
+				isJava16=isJava17=isJava18 = true;
+		else if (!isJava17&&version.startsWith("1.7"))
+				isJava16=isJava17 = true;
+		else if (!isJava16&&version.startsWith("1.6"))
+				isJava16 = true;
 		dfs = new DecimalFormatSymbols(Locale.US);
 		df = new DecimalFormat[10];
 		df[0] = new DecimalFormat("0", dfs);
@@ -1327,6 +1329,7 @@ public class IJ {
 			if (impC!=null && impC!=imp && impT!=null)
 				impC.saveRoi();
             WindowManager.setTempCurrentImage(imp);
+            Interpreter.activateImage(imp);
             WindowManager.setWindow(null);
 		} else {
 			ImageWindow win = imp.getWindow();
