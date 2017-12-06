@@ -302,6 +302,7 @@ public class Menus {
 		addExample(submenu, "Gamma Adjuster", "Gamma_Adjuster.js");
 		addExample(submenu, "Custom Measurement", "Custom_Measurement.js");
 		addExample(submenu, "Terabyte VirtualStack", "Terabyte_VirtualStack.js");
+		addExample(submenu, "Event Listener", "Event_Listener.js");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		submenu = new Menu("BeanShell");
@@ -1522,17 +1523,6 @@ public class Menus {
 	}
 	
 	void installStartupMacroSet() {
-		if (applet!=null) {
-			String docBase = ""+applet.getDocumentBase();
-			if (!docBase.endsWith("/")) {
-				int index = docBase.lastIndexOf("/");
-				if (index!=-1)
-					docBase = docBase.substring(0, index+1);
-			}
-			IJ.runPlugIn("ij.plugin.URLOpener", docBase+"StartupMacros.txt");
-			return;
-		}
-
 		if (macrosPath==null) {
 			try {
 				(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
@@ -1548,6 +1538,9 @@ public class Menus {
 				(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
 				return;
 			}
+		} else {
+			if ("StartupMacros.fiji.ijm".equals(f.getName()))
+				path = f.getPath();
 		}
 		String libraryPath = macrosPath + "Library.txt";
 		f = new File(libraryPath);
@@ -1555,7 +1548,7 @@ public class Menus {
 		try {
 			MacroInstaller mi = new MacroInstaller();
 			if (isLibrary) mi.installLibrary(libraryPath);
-			mi.installFile(path);
+			mi.installStartupMacros(path);
 			nMacros += mi.getMacroCount();
 		} catch (Exception e) {}
 	}

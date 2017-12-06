@@ -70,6 +70,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	private boolean recordShowAll = true;
 		
 	/** Opens the "ROI Manager" window, or activates it if it is already open.
+	 * @see #RoiManager(boolean)
 	 * @see #getRoiManager
 	*/
 	public RoiManager() {
@@ -89,7 +90,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		showWindow();
 	}
 	
-	/* Constructs an ROIManager without displaying it. */
+	/** Constructs an ROIManager without displaying it. The boolean argument is ignored. */
 	public RoiManager(boolean b) {
 		super("ROI Manager");
 		list = new JList();
@@ -2097,14 +2098,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			roi.setLocation(r.getX()+dx, r.getY()+dy);
 		}
 		ImagePlus imp = WindowManager.getCurrentImage();
-		if (imp!=null) {
-			Roi roi = imp.getRoi();
-			if (roi!=null && !(rois.length==1 && rois[0]==roi)) {
-				Rectangle2D r = roi.getFloatBounds();
-				roi.setLocation(r.getX()+dx, r.getY()+dy);
-			}
+		if (imp!=null)
 			imp.draw();
-		}
 	}
 
 	private boolean save(String name, boolean saveSelected) {
