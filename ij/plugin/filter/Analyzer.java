@@ -235,7 +235,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			else
 				systemMeasurements &= ~list[i];
 		}
-		if (rt!=null && rt.size()>1 && !IJ.isResultsWindow())
+		if (rt!=null && rt.size()>1 && !IJ.isResultsWindow() && IJ.getInstance()!=null)
 			rt.reset();
 		if ((oldMeasurements&(~SCIENTIFIC_NOTATION))!=(systemMeasurements&(~SCIENTIFIC_NOTATION))&&IJ.isResultsWindow()) {
 				rt.setPrecision((systemMeasurements&SCIENTIFIC_NOTATION)!=0?-precision:precision);
@@ -449,6 +449,15 @@ public class Analyzer implements PlugInFilter, Measurements {
 				clearSummary();
 				rt.update(measurements, imp2, roi);
 			}
+		}
+		if ((measurements&(AREA+MEAN+STD_DEV+MODE+MIN_MAX+CENTROID))==0) {
+			incrementCounter();
+			rt.addValue("Length", roi.getLength());
+			if (roi.getType()==Roi.LINE && showAngle) {
+				Line line = (Line)roi;
+				rt.addValue("Angle", line.getAngle(line.x1,line.y1,line.x2,line.y2));
+			}
+			return;
 		}
 		boolean straightLine = roi.getType()==Roi.LINE;
 		int lineWidth = (int)Math.round(roi.getStrokeWidth());
@@ -682,10 +691,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 			if (roi.isLine()) {
 				rt.addValue("Length", roi.getLength());
 				if (roi.getType()==Roi.LINE && showAngle) {
-					double angle = 0.0;
-					Line l = (Line)roi;
-					angle = roi.getAngle(l.x1, l.y1, l.x2, l.y2);
-					rt.addValue("Angle", angle);
+					Line line = (Line)roi;
+					rt.addValue("Angle", line.getAngle(line.x1,line.y1,line.x2,line.y2));
 				}
 			} else if (roi.getType()==Roi.ANGLE) {
 				double angle = ((PolygonRoi)roi).getAngle();
@@ -905,7 +912,6 @@ public class Analyzer implements PlugInFilter, Measurements {
 		rt.incrementCounter(); rt.setLabel("Max", n+3);
 		for (int col=first; col<columns; col++) {
 			rt.setValue(headings[col], n+0, sum[col]/n);
-			//IJ.log(col+"  "+sum2[col]+"  "+sum[col]+"  "+n);
 			rt.setValue(headings[col], n+1, Math.sqrt((sum2[col]-sum[col]*sum[col]/n)/(n-1)));
 			rt.setValue(headings[col], n+2, min[col]);
 			rt.setValue(headings[col], n+3, max[col]);
