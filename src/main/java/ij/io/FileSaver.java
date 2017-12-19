@@ -205,7 +205,7 @@ public class FileSaver {
 		DataOutputStream out = null;
 		try {
 			TiffEncoder file = new TiffEncoder(fi);
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path), 1024*1024*2));
 			file.write(out);
 			out.close();
 		} catch (IOException e) {
