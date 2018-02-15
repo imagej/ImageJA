@@ -47,6 +47,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	static final String DEFAULT_DIR= "editor.dir";
 	static final String INSERT_SPACES= "editor.spaces";
 	static final String TAB_INC= "editor.tab-inc";
+	public static Editor currentMacroEditor;
 	private TextArea ta;
 	private String path;
 	protected boolean changes;
@@ -80,7 +81,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
     private int previousLine;
     private static Editor instance;
     private int runToLine;
-    private boolean fixedLineEndings;
     private String downloadUrl;
     private boolean downloading;
     private FunctionFinder functionFinder;
@@ -214,7 +214,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	}
 	
 	public void create(String name, String text) {
-		if (text!=null && text.length()>0) fixedLineEndings = true;
 		ta.append(text);
 		if (IJ.isMacOSX()) IJ.wait(25); // needed to get setCaretPosition() on OS X
 		ta.setCaretPosition(0);
@@ -250,8 +249,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 				debugMenu.addActionListener(this);
 				mb.add(debugMenu);
 			}
-			//if (macroExtension && text.indexOf("macro \"")!=-1)
-			//	installMacros(text, false);	
 		} else {
 			fileMenu.addSeparator();
 			fileMenu.add(new MenuItem("Compile and Run", new MenuShortcut(KeyEvent.VK_R)));
@@ -285,6 +282,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		if (installInPluginsMenu || nShortcutsOrTools>0)
 			installer.install(null);
 		dontShowWindow = installer.isAutoRunAndHide();
+		currentMacroEditor = this;
 	}
 		
 	/** Opens a file and replaces the text (if any) by the contents of the file. */
@@ -420,12 +418,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			changes = true;
 			checkForCurlyQuotes = false;
 		}
+		currentMacroEditor = this;
 		new MacroRunner(text, debug?this:null);
 	}
 	
 	void evaluateMacro() {
 		String title = getTitle();
-		if (title.endsWith(".js")||title.endsWith("..bsh")||title.endsWith(".py"))
+		if (title.endsWith(".js")||title.endsWith(".bsh")||title.endsWith(".py"))
 			setTitle(title.substring(0,title.length()-3)+".ijm");
 		runMacro(false);
 	}
@@ -659,9 +658,6 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		catch  (Exception e)  {
 			s  = e.toString( );
 		}
-		if (!fixedLineEndings && IJ.isWindows())
-			fixLineEndings();
-		fixedLineEndings = true;
 		int start = ta.getSelectionStart( );
 		int end = ta.getSelectionEnd( );
 		ta.replaceRange(s, start, end);

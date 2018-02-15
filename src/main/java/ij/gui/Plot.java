@@ -20,7 +20,7 @@ import ij.measure.ResultsTable;
  *
  * @author Wayne Rasband
  * @author Philippe CARL, CNRS, philippe.carl (AT) unistra.fr (log axes, arrows, ArrayList data)
- * @author Norbert Vischer (overlay range arrows and 'R'eset range, ...)
+ * @author Norbert Vischer (overlay range arrows, 'R'eset range, filled plots, dynamic plots, boxes and whiskers)
  * @author Michael Schmid (axis grid/ticks, resizing/panning/changing range, high-resolution, serialization)
  */
 public class Plot implements Cloneable {
@@ -57,14 +57,19 @@ public class Plot implements Cloneable {
 	public static final int DIAMOND = 8;
 	/** Draw shape using macro code */
 	public static final int CUSTOM = 9;
-
+	/** Fill area between line plot and x-axis at y=0. */
+	public static final int FILLED = 10;
+	/** Draw a bar for each point. */
+	public static final int BAR = 11;
+	
 	/** Names for the shapes as an array */
 	final static String[] SHAPE_NAMES = new String[] {
-			"Circle", "X", "Line", "Box", "Triangle", "+", "Dot", "Connected Circles", "Diamond", "Custom"};
+			"Circle", "X", "Line", "Box", "Triangle", "+", "Dot", "Connected Circles", "Diamond", "Custom", "Filled", "Bar"};
 	/** Names in nicely sorting order for menus */
 	final static String[] SORTED_SHAPES = new String[] {
-			SHAPE_NAMES[LINE], SHAPE_NAMES[CONNECTED_CIRCLES], SHAPE_NAMES[CIRCLE], SHAPE_NAMES[BOX], SHAPE_NAMES[TRIANGLE],
-			SHAPE_NAMES[CROSS], SHAPE_NAMES[DIAMOND], SHAPE_NAMES[X], SHAPE_NAMES[DOT]};
+			SHAPE_NAMES[LINE], SHAPE_NAMES[CONNECTED_CIRCLES], SHAPE_NAMES[FILLED], SHAPE_NAMES[BAR],
+			SHAPE_NAMES[CIRCLE], SHAPE_NAMES[BOX], SHAPE_NAMES[TRIANGLE], SHAPE_NAMES[CROSS],
+			SHAPE_NAMES[DIAMOND], SHAPE_NAMES[X], SHAPE_NAMES[DOT]};
 	/** flag for numeric labels of x-axis ticks */
 	public static final int X_NUMBERS = 0x1;
 	/** flag for numeric labels of x-axis ticks */
@@ -148,11 +153,10 @@ public class Plot implements Cloneable {
 	private static final int MAX_ARROWHEAD_LENGTH = 20;
 	private static Font	 DEFAULT_FONT = FontUtil.getFont("Arial", Font.PLAIN, PlotWindow.fontSize);
 
-	static final int ZOOM_AS_PREVIOUS = -20202020;	//when zooming at this coordinate, it rather uses the previous zoom center
-
 	PlotProperties pp = new PlotProperties();		//size, range, formatting etc, for easy serialization
 	Vector<PlotObject> allPlotObjects = new Vector<PlotObject>();	//all curves, labels etc., also serialized for saving/reading
-
+	private PlotVirtualStack stack;
+	private boolean grayscaleStack;
 	/** For high-resolution plots, everything will be scaled with this number. Otherwise, must be 1.0.
 	 *  (creating margins, saving PlotProperties etc only supports scale=1.0) */
 	float scale = 1.0f;
@@ -178,8 +182,6 @@ public class Plot implements Cloneable {
 	Font currentFont = defaultFont;					//font as changed by setFont or setFontSize, must never be null
 	private double xScale, yScale;					//pixels per data unit
 	private int xBasePxl, yBasePxl;					//pixel coordinates corresponding to 0
-	private double previousXZoom = Double.NaN;
-	private double previousYZoom = Double.NaN;
 	private int maxIntervals = 12;					//maximum number of intervals between ticks or grid lines
 	private int tickLength = 7;						//length of major ticks
 	private int minorTickLength = 3;				//length of minor ticks
@@ -196,7 +198,9 @@ public class Plot implements Cloneable {
 	float currentLineWidth;
 	private int currentJustification = LEFT;
 	private boolean ignoreForce2Grid;				// after explicit setting of range (limits), ignore 'FORCE2GRID' flags
-	//private boolean snapToMinorGrid;				// snap to grid when zooming to selection
+	//private boolean snapToMinorGrid;			// snap to grid when zooming to selection
+	private double barWidth=0.5;						// 0.1-1.0
+	private double barWidthInPixels;
 
 	/** Constructs a new Plot.
 	 *	Note that the data xValues, yValues passed with the constructor are plotted last,
@@ -241,6 +245,19 @@ public class Plot implements Cloneable {
 		if (yValues != null && yValues.length>0) {
 			addPoints(xValues, yValues, /*yErrorBars=*/null, LINE, /*label=*/null);
 			allPlotObjects.get(0).flags = PlotObject.CONSTRUCTOR_DATA;
+		}	
+		
+		String[] xCats = labelsInBraces(xLabel);
+		String[] yCats = labelsInBraces(yLabel);
+		if (xCats.length > 0){
+		    xMin = -0.5;
+		    xMax = xCats.length - 0.5;
+			draw();
+		}
+		if (yCats.length > 0){
+		    yMin = -0.5;
+		    yMax = yCats.length - 0.5;
+			draw();
 		}
 	}
 
@@ -327,6 +344,9 @@ public class Plot implements Cloneable {
 	 *  Accepts NaN values to indicate auto-range.
 	 */
 	public void setLimits(double xMin, double xMax, double yMin, double yMax) {
+		
+		String[] xCats = labelsInBraces(this.getLabel('x'));
+		String[] yCats = labelsInBraces(this.getLabel('y'));	
 		boolean containsNaN = (Double.isNaN(xMin + xMax + yMin + yMax));
 		if (containsNaN && allPlotObjects.isEmpty())//can't apply auto-range without data
 			return;
@@ -339,7 +359,7 @@ public class Plot implements Cloneable {
 				if (Double.isNaN(range[jj])) {
 					range[jj] = extrema[jj];
 					auto[jj] = true;
-				}
+				}		
 			double left = range[0];
 			double right = range[1];
 			double bottom = range[2];
@@ -391,7 +411,6 @@ public class Plot implements Cloneable {
 		if (plotDrawn)
 			setLimitsToDefaults(true);
 	}
-	//n__ end setLimits
 
 	/** Returns the current limits as an array xMin, xMax, yMin, yMax.
 	 *	Note that future versions might return a longer array (e.g. for y2 axis limits) */
@@ -680,6 +699,8 @@ public class Plot implements Cloneable {
 			shape = Plot.LINE;
 		if (str.contains("connected"))
 			shape = Plot.CONNECTED_CIRCLES;
+		else if (str.contains("filled"))
+			shape = Plot.FILLED;
 		else if (str.contains("box"))
 			shape = Plot.BOX;
 		else if (str.contains("triangle"))
@@ -696,6 +717,8 @@ public class Plot implements Cloneable {
 			shape = -1;
 		else if (str.contains("x"))
 			shape = Plot.X;
+		else if (str.contains("bar"))
+			shape = Plot.BAR;
 		if (str.startsWith("code:"))
 			shape = CUSTOM;
 		return shape;
@@ -739,6 +762,18 @@ public class Plot implements Cloneable {
 	public void drawVectors(double[] x1, double[] y1, double[] x2, double[] y2) {
 		allPlotObjects.add(new PlotObject(Tools.toFloat(x1), Tools.toFloat(y1),
 				Tools.toFloat(x2), Tools.toFloat(y2), currentLineWidth, currentColor));
+	}
+
+
+	/**
+	 * Adds a set of 'shapes' such as boxes and whiskers
+	 *
+	 * @param shapeType e.g. "boxes width=20"
+	 * @param floatCoords eg[6][3] holding 1 Xval + 5 Yvals for 3 boxes
+	 */
+	public void drawShapes(String shapeType, ArrayList floatCoords) {
+			allPlotObjects.add(new PlotObject(shapeType, floatCoords, currentLineWidth, currentColor, currentColor2));
+
 	}
 
 	public static double calculateDistance(int x1, int y1, int x2, int y2) {
@@ -866,7 +901,7 @@ public class Plot implements Cloneable {
 	}
 
 	public void setColor(String color) {
-		setColor(Colors.getColor(color, Color.black));
+		setColor(Colors.decode(color, Color.black));
 	}
 
 	/** Changes the drawing color for the next objects that will be added to the plot.
@@ -1009,7 +1044,7 @@ public class Plot implements Cloneable {
 
 	/** Gets the label String of the xLabel ('x'), yLabel('y') or the legend ('l').
 	 *	Returns null if the given PlotObject does not exist or its label is null */
-	String getLabel(char c) {
+	public String getLabel(char c) {
 		PlotObject plotObject = pp.getPlotObject(c);
 		if (plotObject != null)
 			return plotObject.label;
@@ -1031,8 +1066,8 @@ public class Plot implements Cloneable {
 		return p==null ? null : p.yValues;
 	}
 
-	/** Get an array with human-readable designations of the non-hidden PlotObjects (curves, labels, ...)
-	 *	in the sequence they are plotted (i.e., foreground last). **/
+	/** Get an array with human-readable designations of the PlotObjects (curves, labels, ...)
+	 *	in the sequence they are plotted (i.e., foreground last). Hidden PlotObjects are included. **/
 	public String[] getPlotObjectDesignations() {
 		int nObjects = allPlotObjects.size();
 		String[] names = new String[nObjects];
@@ -1040,13 +1075,12 @@ public class Plot implements Cloneable {
 		String[] legendLabels = null;
 		if (pp.legend != null && pp.legend.label != null)
 			legendLabels = pp.legend.label.split("[\t\n]");
-		int iData = 1, iArrow = 1, iLine = 1, iText = 1;                //Human readable counters of each object type
+		int iData = 1, iArrow = 1, iLine = 1, iText = 1,  iBox = 1, iShape = 1; //Human readable counters of each object type
 		int firstObject = allPlotObjects.get(0).hasFlag(PlotObject.CONSTRUCTOR_DATA) ? 1 : 0; //PlotObject passed with constructor is plotted last
 		for (int i=0, p=firstObject; i<nObjects; i++, p++) {
 			if (p >= allPlotObjects.size())                             //the PlotObject passed with Constructor comes last
 				p = 0;
 			PlotObject plotObject = allPlotObjects.get(p);
-			if (plotObject.hasFlag(PlotObject.HIDDEN)) continue;
 			int type = plotObject.type;
 			String label = plotObject.label;
 			switch (type) {
@@ -1073,6 +1107,12 @@ public class Plot implements Cloneable {
 					if (text.length()>45) text = text.substring(0, 40)+"...";
 					names[i] = "Text "+iText+": \""+text+'"';
 					iText++;
+					break;
+				case PlotObject.SHAPES:
+					String s = plotObject.shapeType;
+					String[] words = s.split(" ");
+					names[i] = "Shapes (" + words[0] +") " + iShape;
+					iShape++;
 					break;
 			}
 		}
@@ -1225,6 +1265,12 @@ public class Plot implements Cloneable {
 	 *  Note that the PlotWindow might get closed immediately if its 'listValues' and 'autoClose'
 	 *  flags are set */
 	public PlotWindow show() {
+		PlotVirtualStack stack = getStack();
+		if (stack!=null && stack.size()>1) {
+			stack.setBitDepth(grayscaleStack?8:24);
+			new ImagePlus("Plot Stack",stack).show();
+			return null;
+		}
 		if ((IJ.macroRunning() && IJ.getInstance()==null) || Interpreter.isBatchMode()) {
 			imp = getImagePlus();
 			WindowManager.setTempCurrentImage(imp);
@@ -1248,7 +1294,33 @@ public class Plot implements Cloneable {
 			IJ.selectWindow(imp.getID());
 		return pw;
 	}
-
+	
+	/**
+	 * Appends the current plot to a virtual stack and resets allPlotObjects
+	 * for next slice 
+	 * N. Vischer
+	 */
+	public void addToStack() {
+		if (stack==null) {
+			stack = new PlotVirtualStack(getSize().width,getSize().height);
+			grayscaleStack = true;
+		}
+		draw();
+		stack.addPlot(this);
+		if (isColored())
+			grayscaleStack = false;
+		IJ.showStatus("addToStack: "+stack.size());
+		allPlotObjects.clear();
+	}
+	
+	public void appendToStack() { addToStack(); }
+	
+	/** Returns the virtual stack created by addToStack(). */
+	public PlotVirtualStack getStack() {
+		IJ.showStatus("");
+		return stack;
+	}
+	
 	/** Draws the plot specified for the first time. Does nothing if the plot has been drawn already.
 	 *	Call getProcessor to retrieve the ImageProcessor with it.
 	 *	Does no action with respect to the ImagePlus (if any) */
@@ -1581,10 +1653,10 @@ public class Plot implements Cloneable {
 		bottomMargin = sc(BOTTOM_MARGIN*marginScale);
 		//IJ.log("marginScale="+marginScale+" left margin="+leftMargin);
 	}
-
+	double[] steps;  //for redrawing the grid
 	/** Calculate the actual range, major step interval and set variables for data <-> pixels scaling */
 	double[] makeRangeGetSteps() {
-		double[] steps = new double[2];
+		steps = new double[2];
 		logXAxis = hasFlag(X_LOG_NUMBERS);
 		logYAxis = hasFlag(Y_LOG_NUMBERS);
 
@@ -1688,6 +1760,13 @@ public class Plot implements Cloneable {
 		return steps;
 	}
 
+
+	public void redrawGrid(){
+		if(ip != null){
+			drawAxesTicksGridNumbers(steps);
+			ip.setColor(Color.black);
+		}
+	}
 	void getInitialMinAndMax() {
 		int axisRangeFlags = 0;
 		if (Double.isNaN(defaultMinMax[0])) axisRangeFlags |= X_RANGE;
@@ -1709,7 +1788,7 @@ public class Plot implements Cloneable {
 				allMinMax[i] = defaultMinMax[i];
 		enlargeRange = new int[allMinMax.length];
 		for (PlotObject plotObject : allPlotObjects) {
-			if (plotObject.type == PlotObject.XY_DATA || plotObject.type == PlotObject.ARROWS) {
+			if ((plotObject.type == PlotObject.XY_DATA || plotObject.type == PlotObject.ARROWS) && !plotObject.hasFlag(PlotObject.HIDDEN)) {
 				getMinAndMax(allMinMax, enlargeRange, plotObject, axisRangeFlags);
 				if (!allObjects) break;
 			}
@@ -1866,55 +1945,57 @@ public class Plot implements Cloneable {
 		updateImage();
 	}
 
-	/** Zooms in or out on a point x, y in screen coordinates. If x>0, default in both directions,
-	 *	if the cursor is below the x axis, only in x direction, if the cursor is left of the y axis, only in y direction.
-	 *	If x < 0, zooms on center; if x == ZOOM_AS_PREVIOUS, zooms on the center of the previous zoom
-	 *	operation */
-	void zoom(int x, int y, double zoomFactor) {
-		boolean zoomIn = zoomFactor > 1.0;
-		boolean zoomAsPrevious = x==ZOOM_AS_PREVIOUS && (!Double.isNaN(previousXZoom) || !Double.isNaN(previousYZoom));
-		if (!zoomAsPrevious) {
-			previousXZoom = Double.NaN;
-			previousYZoom = Double.NaN;
-			saveMinMax();
+	/** 
+	 * Zooms in or out  active plots while keeping focus on cursor position
+	 * Above or below frame: zoom x only
+	 * Left or right of frame: zoom y only
+	 * Corners: focus is in center 
+	 *  N. Vischer
+	*/
+	void zoom(int x, int y, double zoomFactor) {		
+		boolean wasLogX = logXAxis;
+		boolean wasLogY = logYAxis;			
+		double plotX = descaleX(x);
+		double plotY = descaleY(y);
+		IJ.showStatus ("" + plotX);
+		boolean insideX = x > frame.x && x < frame.x + frame.width;
+		boolean insideY = y > frame.y && y < frame.y + frame.height;
+		if (!insideX && !insideY) {
+			insideX = true;
+			insideY = true;
+			x = frame.x + frame.width / 2;
+			y = frame.y + frame.height / 2;
 		}
-		boolean cursorLeft = x >= 0 && x<leftMargin-1;
-		boolean cursorBottom = y>topMargin+frameHeight+1;
-		boolean zoomX = (!cursorLeft && !zoomAsPrevious) || (!Double.isNaN(previousXZoom) && zoomAsPrevious);
-		boolean zoomY = cursorLeft || !cursorBottom || (!Double.isNaN(previousYZoom) && zoomAsPrevious);
-		if (cursorLeft && cursorBottom) // if cursor is in bottom left corner, zoom in y as if cursor was outside
-			x = -1;
-		//IJ.log("x,y="+x+","+y+" zx="+zoomX+" zy="+zoomY+" zPrev="+zoomAsPrevious);
-		for (int axisIndex = 0; axisIndex<currentMinMax.length; axisIndex+=2) {
-			if (axisIndex==0 && !zoomX) continue;
-			if (axisIndex==2 && !zoomY) continue;
-			boolean logAxis = axisIndex==0 ? logXAxis : logYAxis;
-			double min = axisIndex==0 ? xMin : yMin;
-			double max = axisIndex==0 ? xMax : yMax;
-			double mid = 0.5 * (min + max);
-			if (zoomAsPrevious) {
-				mid = axisIndex==0 ? previousXZoom : previousYZoom;
-				if (logAxis) mid = Math.log10(mid);
-			}
-			double span = max - min;
-			if (x >= 0) { //cursor inside? zoom on cursor
-				mid = axisIndex==0 ? descaleX(x) : descaleY(y);
-				if (logAxis) mid = Math.log10(mid);
-			}
-			if (axisIndex==0)
-				previousXZoom = logAxis ? Math.pow(10, mid) : mid;
-			else
-				previousYZoom = logAxis ? Math.pow(10, mid) : mid;
-			//IJ.log("d="+(axisIndex==0 ? "X":"Y")+" x,y="+x+","+y+" mid="+(float)mid);
-			double newHalfSpan = 0.5 * span / zoomFactor;
-			currentMinMax[axisIndex] = mid - newHalfSpan;
-			currentMinMax[axisIndex+1] = mid + newHalfSpan;
-			if (logAxis) {
-				currentMinMax[axisIndex] = Math.pow(10, currentMinMax[axisIndex]);
-				currentMinMax[axisIndex+1] = Math.pow(10, currentMinMax[axisIndex+1]);
-			}
+		int leftPart = x - frame.x;
+		int rightPart = frame.x + frame.width - x;
+		int highPart = y - frame.y;
+		int lowPart = frame.y + frame.height - y;
+
+		if (insideX) {
+			currentMinMax[0] = descaleX((int) (x - leftPart / zoomFactor));
+			currentMinMax[1] = descaleX((int) (x + rightPart / zoomFactor));
+		}
+		if (insideY) {
+			currentMinMax[2] = descaleY((int) (y + lowPart / zoomFactor));
+			currentMinMax[3] = descaleY((int) (y - highPart / zoomFactor));
 		}
 		updateImage();
+		if (wasLogX != logXAxis ){//log-lin was automatically changed
+			int changedX = (int) scaleXtoPxl(plotX);
+			int left = changedX - leftPart;
+			int right = changedX + rightPart;
+			currentMinMax[0] = descaleX(left);
+			currentMinMax[1] = descaleX(right);
+			updateImage();
+		}
+		if (wasLogY != logYAxis){//log-lin was automatically changed
+			int changedY = (int) scaleYtoPxl(plotY);
+			int bottom = changedY + lowPart;
+			int top = changedY + highPart;
+			currentMinMax[2] = descaleY(bottom);
+			currentMinMax[3] = descaleY(top);
+			updateImage();
+		}
 	}
 
 	/** Moves the plot range by a given number of pixels and updates the image */
@@ -1948,6 +2029,9 @@ public class Plot implements Cloneable {
 	/** Draws ticks, grid and axis label for each tick/grid line.
 	 *	The grid or major tick spacing in each direction is given by steps */
 	void drawAxesTicksGridNumbers(double[] steps) {
+		
+		String[] xCats = labelsInBraces(this.getLabel('x'));
+		String[] yCats = labelsInBraces(this.getLabel('y'));	
 		Font scFont = scFont(pp.frame.getFont());
 		Font scFontMedium = scFont.deriveFont(scFont.getSize2D()*10f/12f); //for axis numbers if full size does not fit
 		Font scFontSmall = scFont.deriveFont(scFont.getSize2D()*9f/12f);   //for subscripts
@@ -1961,6 +2045,7 @@ public class Plot implements Cloneable {
 			Font baseFont = scFont;
 			boolean majorTicks = logXAxis ? hasFlag(X_LOG_TICKS) : hasFlag(X_TICKS);
 			boolean minorTicks = hasFlag(X_MINOR_TICKS);
+			minorTicks = minorTicks && (xCats.length == 0);
 			double step = steps[0];
 			int i1 = (int)Math.ceil (Math.min(xMin, xMax)/step-1.e-10);
 			int i2 = (int)Math.floor(Math.max(xMin, xMax)/step+1.e-10);
@@ -1987,6 +2072,23 @@ public class Plot implements Cloneable {
 				for (int i=0; i<=(i2-i1); i++) {
 					double v = (i+i1)*step;
 					int x = (int)Math.round((v - xMin)*xScale) + leftMargin;
+					
+					if (xCats.length > 0) {										
+						int index = (int) v;
+						double remainder =  Math.abs(v - Math.round(v));
+						if(index >= 0 && index < xCats.length  && remainder < 1e-9){
+							String s = xCats[index];
+							String[] parts = s.split("\n");//n__
+							int w = 0;
+							for(int jj = 0; jj < parts.length; jj++)
+								w = Math.max(w, ip.getStringWidth(parts[jj]));
+							
+							ip.drawString(s, x-w/2, yOfXAxisNumbers);
+							//ip.drawString(s, x-ip.getStringWidth(s)/2, yOfXAxisNumbers);
+						}		
+						continue;
+					}
+																	
 					if (hasFlag(X_GRID)) {
 						ip.setColor(gridColor);
 						ip.drawLine(x, y1, x, y2);
@@ -2048,6 +2150,7 @@ public class Plot implements Cloneable {
 			Font baseFont = scFont;
 			boolean majorTicks = logYAxis ? hasFlag(Y_LOG_TICKS) : hasFlag(Y_TICKS);
 			boolean minorTicks = logYAxis ? hasFlag(Y_LOG_TICKS) : hasFlag(Y_MINOR_TICKS);
+			minorTicks = minorTicks && (yCats.length == 0);
 			double step = steps[1];
 			int i1 = (int)Math.ceil (Math.min(yMin, yMax)/step-1.e-10);
 			int i2 = (int)Math.floor(Math.max(yMin, yMax)/step+1.e-10);
@@ -2080,6 +2183,22 @@ public class Plot implements Cloneable {
 				for (int i=i1; i<=i2; i++) {
 					double v = step==0 ? yMin : i*step;
 					int y = topMargin + frameHeight - (int)Math.round((v - yMin)*yScale);
+		
+					if(yCats.length > 0){												
+						int index = (int) v;
+						double remainder =  Math.abs(v - Math.round(v));
+						if(index >= 0 && index < yCats.length  && remainder < 1e-9){
+							String s = yCats[index];
+							int multiLineOffset = 0;//n__ multi-line cat labels
+							for(int jj = 0; jj < s.length(); jj++)
+								if(s.charAt(jj) == '\n')
+									multiLineOffset -= rect.height/2;
+										
+							ip.drawString(s, xNumberRight, y+yNumberOffset+ multiLineOffset);
+						}		
+						continue;
+					}
+					
 					if (hasFlag(Y_GRID)) {
 						ip.setColor(gridColor);
 						ip.drawLine(x1, y, x2, y);
@@ -2168,12 +2287,25 @@ public class Plot implements Cloneable {
 		} else
 			y += sc(1);
 		// --- Write x and y axis text labels
-		ip.setFont(pp.xLabel.getFont() == null ? scFont : scFont(pp.xLabel.getFont()));
-		ip.drawString(xLabelToDraw, leftMargin+(frame.width-ip.getStringWidth(xLabelToDraw))/2, y+ip.getFontMetrics().getHeight());
-		if (yLabelToDraw.length() > 0) {
+		if(xCats.length == 0){
+			ip.setFont(pp.xLabel.getFont() == null ? scFont : scFont(pp.xLabel.getFont()));
+			ip.drawString(xLabelToDraw, leftMargin+(frame.width-ip.getStringWidth(xLabelToDraw))/2, y+ip.getFontMetrics().getHeight());
+		}
+		if (yCats.length == 0 && yLabelToDraw.length() > 0) {
 			int xRightOfYLabel = xNumberRight - maxNumWidth - sc(2);
 			Font yLabelFont = pp.yLabel.getFont() == null ? scFont : scFont(pp.yLabel.getFont());
 			drawYLabel(yLabelToDraw, xRightOfYLabel, topMargin, frame.height, yLabelFont);
+		}
+	}
+	
+	//returns array of labels
+	String[] labelsInBraces(String s) {
+		if (s.startsWith("{") && s.endsWith("}")) {
+			String inBraces = s.substring(1, s.length() - 1);
+			String[] catLabels = inBraces.split(",");
+			return catLabels;
+		} else {
+			return new String[0];
 		}
 	}
 
@@ -2266,12 +2398,13 @@ public class Plot implements Cloneable {
 
 	private void drawPlotObject(PlotObject plotObject, ImageProcessor ip) {
 		//IJ.log("DRAWING type="+plotObject.type+" lineWidth="+plotObject.lineWidth+" shape="+plotObject.shape);
+		if (plotObject.hasFlag(PlotObject.HIDDEN)) return;
 		ip.setColor(plotObject.color);
 		ip.setLineWidth(sc(plotObject.lineWidth));
 		int type = plotObject.type;
 		switch (type) {
 			case PlotObject.XY_DATA:
-				if (plotObject.hasFlag(PlotObject.HIDDEN)) break;
+				barWidthInPixels = 0.0;
 				ip.setClipRect(frame);
 				if (plotObject.yEValues != null)
 					drawVerticalErrorBars(plotObject.xValues, plotObject.yValues, plotObject.yEValues);
@@ -2281,10 +2414,26 @@ public class Plot implements Cloneable {
 				boolean drawLine = plotObject.hasCurve();
 				if (plotObject.shape == CONNECTED_CIRCLES)
 					ip.setColor(plotObject.color2 == null ? Color.black : plotObject.color2);
-				if (drawLine)
-					//draw line
-					drawFloatPolyline(ip, plotObject.xValues, plotObject.yValues,
-							Math.min(plotObject.xValues.length, plotObject.yValues.length));
+				if (drawLine) {
+					int shortLen = Math.min(plotObject.xValues.length, plotObject.yValues.length);
+					if (plotObject.shape == FILLED) {
+						//ip.setColor(plotObject.color);
+						boolean twoColors = plotObject.color2 != null;
+						if (twoColors) {
+							ip.setColor(plotObject.color2);
+							ip.setLineWidth(1);
+						} else
+							ip.setColor(plotObject.color);
+						drawFloatPolyLineFilled(ip, plotObject.xValues, plotObject.yValues, shortLen);
+						if (twoColors){
+							ip.setColor(plotObject.color);
+							ip.setClipRect(frame);
+							ip.setLineWidth(sc(plotObject.lineWidth));
+							drawFloatPolyline(ip, plotObject.xValues, plotObject.yValues, shortLen);
+						}
+					} else
+					    drawFloatPolyline(ip, plotObject.xValues, plotObject.yValues, shortLen);
+				}
 				if (drawMarker) {
 					int markSize = plotObject.getMarkerSize();
 					if (plotObject.hasFilledMarker()) {
@@ -2307,6 +2456,8 @@ public class Plot implements Cloneable {
 					if (plotObject.shape==CUSTOM)
 						ip.setFont(saveFont);
 				}
+				if (plotObject.shape==BAR)
+					drawBarChart(plotObject);
 				ip.setClipRect(null);
 				break;
 			case PlotObject.ARROWS:
@@ -2330,6 +2481,115 @@ public class Plot implements Cloneable {
 				}
 				ip.setClipRect(null);
 				break;
+
+			case PlotObject.SHAPES:
+				int iBoxWidth = 20;
+				ip.setClipRect(frame);
+				String shType = plotObject.shapeType.toLowerCase();						
+				if (shType.contains("rectangles")) {
+					int nShapes = plotObject.shapeData.size();
+				
+				
+						for (int i = 0; i < nShapes; i++) {
+							float[] corners = (float[])(plotObject.shapeData.get(i));							
+							int x1 = scaleX(corners[0]);
+							int y1 = scaleY(corners[1]);
+							int x2 = scaleX(corners[2]);
+							int y2 = scaleY(corners[3]);
+						
+						ip.setLineWidth(sc(plotObject.lineWidth));
+							int left = Math.min(x1, x2);
+							int right = Math.max(x1, x2);
+							int top = Math.min(y1, y2);
+							int bottom = Math.max(y1, y2);
+							
+							Rectangle r1 = new Rectangle(left, top, right-left, bottom - top);
+							Rectangle cBox = frame.intersection(r1);
+							if (plotObject.color2 != null) {
+								ip.setColor(plotObject.color2);
+								ip.fillRect(cBox.x, cBox.y, cBox.width, cBox.height);
+							}
+							ip.setColor(plotObject.color);
+							ip.drawRect(cBox.x, cBox.y, cBox.width, cBox.height);						
+						}
+					ip.setClipRect(null);
+					break;
+				}
+				if (shType.equals("redraw_grid")) {
+				ip.setLineWidth(sc(1));
+					redrawGrid();
+					ip.setClipRect(null);
+					break;
+				}
+				if (shType.contains("boxes")) {
+
+					String[] parts = Tools.split(shType);
+					for (int jj = 0; jj < parts.length; jj++) {
+						String[] pairs = parts[jj].split("=");
+						if ((pairs.length == 2) && pairs[0].equals("width")) {
+							iBoxWidth = Integer.parseInt(pairs[1]);
+						}
+					}
+					boolean horizontal = shType.contains("boxesx");
+					int nShapes = plotObject.shapeData.size();
+					int halfWidth = Math.round(sc(iBoxWidth / 2));
+					for (int i = 0; i < nShapes; i++) {
+						
+						float[] coords = (float[])(plotObject.shapeData.get(i));
+						
+					
+					if (!horizontal) {
+					
+							int x = scaleX(coords[0]);
+							int y1 = scaleY(coords[1]);
+							int y2 = scaleY(coords[2]);
+							int y3 = scaleY(coords[3]);
+							int y4 = scaleY(coords[4]);
+							int y5 = scaleY(coords[5]);
+							ip.setLineWidth(sc(plotObject.lineWidth));
+
+							Rectangle r1 = new Rectangle(x - halfWidth, y4, halfWidth * 2, y2 - y4);
+							Rectangle cBox = frame.intersection(r1);
+							if (y1 != y2 || y4 != y5)//otherwise omit whiskers
+							{
+								ip.drawLine(x, y1, x, y5);//whiskers
+							}
+							if (plotObject.color2 != null) {
+								ip.setColor(plotObject.color2);
+								ip.fillRect(cBox.x, cBox.y, cBox.width, cBox.height);
+							}
+							ip.setColor(plotObject.color);
+							ip.drawRect(cBox.x, cBox.y, cBox.width, cBox.height);
+							ip.setClipRect(frame);
+							ip.drawLine(x - halfWidth, y3, x + halfWidth - 1, y3);
+						}
+					
+					if (horizontal) {
+						
+							int y = scaleY(coords[0]);
+							int x1 = scaleX(coords[1]);
+							int x2 = scaleX(coords[2]);
+							int x3 = scaleX(coords[3]);
+							int x4 = scaleX(coords[4]);
+							int x5 = scaleX(coords[5]);
+							ip.setLineWidth(sc(plotObject.lineWidth));
+							if(x1 !=x2 || x4 != x5)//otherwise omit whiskers
+								ip.drawLine(x1, y, x5, y);//whiskers
+							Rectangle r1 = new Rectangle(x2, y - halfWidth, x4 - x2, halfWidth * 2);
+							Rectangle cBox = frame.intersection(r1);
+							if (plotObject.color2 != null) {
+								ip.setColor(plotObject.color2);
+								ip.fillRect(cBox.x, cBox.y, cBox.width, cBox.height);
+							}
+							ip.setColor(plotObject.color);
+							ip.drawRect(cBox.x, cBox.y, cBox.width, cBox.height);
+							ip.setClipRect(frame);
+							ip.drawLine(x3, y - halfWidth, x3, y + halfWidth - 1);
+						}
+					}
+					ip.setClipRect(null);
+					break;
+				}
 			case PlotObject.LINE:
 				ip.setClipRect(frame);
 				ip.drawLine(scaleX(plotObject.x), scaleY(plotObject.y), scaleX(plotObject.xEnd), scaleY(plotObject.yEnd));
@@ -2370,7 +2630,51 @@ public class Plot implements Cloneable {
 				break;
 		}
 	}
-
+	
+	/** Draw a bar at each point */
+	void drawBarChart(PlotObject plotObject) {
+		String[] xCats = labelsInBraces(this.getLabel('x'));
+		plotObject.pointIndex = 0;
+		int n = Math.min(plotObject.xValues.length, plotObject.yValues.length);
+		int frameWidth = (int) Math.round(getDrawingFrame().width * xScale);
+		barWidthInPixels = n > 1 ? (plotObject.xValues[1] - plotObject.xValues[0]) * xScale : frameWidth;
+		int theWidth = (int) Math.round(barWidthInPixels);
+		int y0 = scaleY(0);
+		int prevY = y0;
+		if (xCats.length > 0) {
+			theWidth = (int) Math.round(theWidth * barWidth);
+		}
+		for (int bar = 0; bar < n; bar++) {
+			int x = scaleX(plotObject.xValues[bar]);
+			int y = scaleY(plotObject.yValues[bar]);
+			int left = x - theWidth / 2;
+			int right = left + theWidth;
+			if (plotObject.color2 != null) {
+				ip.setColor(plotObject.color2);
+				ip.setLineWidth(1);
+				for (int x2 = left; x2 <= right; x2++) {
+					ip.drawLine(x2, y0, x2, y);
+				}
+			}
+			ip.setColor(plotObject.color);
+			ip.setLineWidth(sc(plotObject.lineWidth));
+			if (xCats.length > 0) {
+				ip.drawLine(left, y0, left, y);//up
+				ip.drawLine(left, y, right, y);//right
+				ip.drawLine(right, y, right, y0);//down
+			}
+			if (xCats.length == 0) {
+				ip.drawLine(left, prevY, left, y);//up or down
+				ip.drawLine(left, y, right, y);//right
+				if (bar == n - 1) {
+					ip.drawLine(right, y, right, y0);//last down
+				}
+				prevY = y;
+			}
+		}
+		barWidthInPixels = 0.0;
+	}	
+	
 	/** Draw the symbols for data points */
 	void drawShape(PlotObject plotObject, int x, int y, int size) {
 		int shape = plotObject.shape;
@@ -2552,6 +2856,52 @@ public class Plot implements Cloneable {
 		}
 	}
 
+	/**
+	 * Fills space between polyline and y=0 with secondary color.
+	 * author: Norbert Vischer
+	 */
+	void drawFloatPolyLineFilled(ImageProcessor ip, float[] xF, float[] yF, int len) {
+		if (xF == null || len == 0) {
+			return;
+		}
+		double[] xD = new double[len];
+		double[] yD = new double[len];
+		double minX = Double.MAX_VALUE;
+		double maxX = -Double.MAX_VALUE;
+		for (int i = 0; i < len; i++) {
+			xD[i] = xF[i];
+			yD[i] = yF[i];
+			if (xF[i] < minX) {
+				minX = xF[i];
+			}
+			if (xF[i] > maxX) {
+				maxX = xF[i];
+			}
+		}
+		double dx = maxX - minX;
+		int stretchedLen = (int) Math.abs((dx * xScale * 10) + 1);
+		double[] stretchedArrX = Tools.resampleArray(xD, stretchedLen);
+		double[] stretchedArrY = Tools.resampleArray(yD, stretchedLen);
+		int yZero = scaleY(0);
+		int prevX = 0;
+		if (logYAxis) {
+			yZero = 999999;
+		}
+		for (int i = 0; i < stretchedLen; i++) {
+			if (Double.isNaN(stretchedArrY[i])) {
+				continue;
+			}
+			int intX = scaleX(stretchedArrX[i]);
+			int intY = scaleY(stretchedArrY[i]);
+			if (intX != prevX) {//don't paint twice
+				ip.drawLine(intX, intY, intX, yZero);
+			}
+			prevX = intX;
+		}
+		ip.setLineWidth((int) scale);
+		ip.setColor(Color.black);
+	}
+
 	/** Vertical text for y axis label */
 	void drawYLabel(String yLabel, int xRight, int yFrameTop, int frameHeight, Font scaledFont) {
 		if (yLabel.equals(""))
@@ -2617,7 +2967,7 @@ public class Plot implements Cloneable {
 			for (int y=y0; y<y0+height; y++)
 				for (int x=x0; x<x0+width; x++)
 					if ((ip.getPixel(x, y) & 0xffffff) == grid)
-						ip.drawDot(x, y);
+						ip.drawPixel(x, y);
 		}
 		ip.setLineWidth(frameThickness);
 		ip.setColor(legendObject.color);
@@ -2717,22 +3067,31 @@ public class Plot implements Cloneable {
 						yBest = p.yValues[i];
 					}
 				}
-				if (xScale != 0 && bestDx*xScale < 50) {	//ignore points more than 50 pixels away in x
+				if (Math.abs(scaleXtoPxl(xBest)-x) < 50) {	//ignore points more than 50 pixels away in x
 					xv = xBest;
 					yv = yBest;
 					yIsValue = true;
-				} else
-					xv = Double.NaN;
+				}
+			}
+			if (barWidthInPixels>0.0) {
+				int index = (int)((x-scaleXtoPxl(p.xValues[0]))/barWidthInPixels);
+				if (index<0) index=0;
+				if (index>=p.xValues.length) index=p.xValues.length-1;
+				xv = p.xValues[index];
+				yv = p.yValues[index];
 			}
 		}
 		if (!Double.isNaN(xv)) {
-			text =	"X=" + IJ.d2s(xv, getDigits(xv, 0.001*(xMax-xMin), 6))+", Y";
+			int significantDigits = logXAxis ? -2 : getDigits(xv, 0.001*(xMax-xMin), 6);
+			text =	"X=" + IJ.d2s(xv, significantDigits)+", Y";
 			if (yIsValue) text += "(X)";
-			text +="="+ IJ.d2s(yv, getDigits(yv, 0.001*(yMax-yMin), 6));
+			significantDigits = logYAxis ? -2 : getDigits(yv, 0.001*(yMax-yMin), 6);
+			text +="="+ IJ.d2s(yv, significantDigits);
 		}
 		return text;
 		//}catch(Exception e){IJ.handleException(e);return "ERR";}
 	}
+
 
 	/** Returns a reference to the PlotObject having the data passed with the constructor or (if that was null)
 	 *	the first x & y data added later. Otherwise returns null. */
@@ -2775,8 +3134,8 @@ public class Plot implements Cloneable {
 		return plotMaker;
 	}
 
-	/** Returns the labels of the datasets as linefeed-delimited String.
-	 *	If the label is not set, a blank line is added */
+	/** Returns the labels of the (non-hidden) datasets as linefeed-delimited String.
+	 *	If the label is not set, a blank line is added. */
 	String getDataLabels() {
 		String labels = "";
 		boolean first = true;
@@ -2875,13 +3234,23 @@ public class Plot implements Cloneable {
 			int dataSetNumber, boolean writeX, boolean writeY, boolean multipleSets) {
 		if (writeX) {
 			String label = plotObject.type == PlotObject.ARROWS ? "XStart" : "X";
-			if (multipleSets) label += dataSetNumber;
+			if (multipleSets) label += dataSetNumber;			
+			if (dataSetNumber==0 && plotObject.type!=PlotObject.ARROWS) {
+				String plotXLabel = getLabel('x');
+				if (plotXLabel!=null && plotXLabel.startsWith(" ") && plotXLabel.endsWith(" "))
+					label = plotXLabel.substring(1,plotXLabel.length()-1);
+			}
 			headings.add(label);
 			data.add(plotObject.xValues);
 		}
 		if (writeY) {
 			String label = plotObject.type == PlotObject.ARROWS ? "YStart" : "Y";
 			if (multipleSets) label += dataSetNumber;
+			if (dataSetNumber==0 && plotObject.type!=PlotObject.ARROWS) {
+				String plotYLabel = getLabel('y');
+				if (plotYLabel!=null && plotYLabel.startsWith(" ") && plotYLabel.endsWith(" "))
+					label = plotYLabel.substring(1,plotYLabel.length()-1);
+			}
 			headings.add(label);
 			data.add(plotObject.yValues);
 		}
@@ -2985,7 +3354,7 @@ class PlotObject implements Cloneable, Serializable {
 	static final long serialVersionUID = 1L;
 	/** constants for the type of objects */
 	public final static int XY_DATA = 0, ARROWS = 1, LINE = 2, NORMALIZED_LINE = 3, DOTTED_LINE = 4,
-			LABEL = 5, NORMALIZED_LABEL = 6, LEGEND = 7, AXIS_LABEL = 8, FRAME = 9;
+			LABEL = 5, NORMALIZED_LABEL = 6, LEGEND = 7, AXIS_LABEL = 8, FRAME = 9, SHAPES = 10;
 	/** mask for recovering font style from the flags */
 	final static int FONT_STYLE_MASK = 0x0f;
 	/** flag for the data set passed with the constructor. Note that 0 to 0x0f are reserved for fonts modifiers, 0x010-0x800 are reserved for legend modifiers */
@@ -2999,6 +3368,9 @@ class PlotObject implements Cloneable, Serializable {
 	/** The x and y data arrays and the error bars (if non-null). These arrays also serve as x0, y0, x1, y1
 	 *	arrays for plotting arrays of arrows */
 	public float[] xValues, yValues, xEValues, yEValues;
+	/** For Shapes such as boxplots */
+	public ArrayList shapeData;
+	public String shapeType;//e.g. "boxes width=20"	
 	/** Type of the points, such as Plot.LINE, Plot.CROSS etc. (for type = XY_DATA) */
 	public int shape;
 	/** The line width in pixels for 'small' plots */
@@ -3060,6 +3432,16 @@ class PlotObject implements Cloneable, Serializable {
 		this.color = color;
 	}
 
+	/** Constructor for a set of shapes */
+	PlotObject(String shapeType, ArrayList shapeData, float lineWidth,  Color color, Color color2) {
+		this.type = SHAPES;
+		this.shapeData = shapeData;
+		this.shapeType = shapeType;
+		this.lineWidth = lineWidth;
+		this.color = color;
+		this.color2 = color2;
+	}
+
 	/** Constructor for a line */
 	PlotObject(double x, double y, double xEnd, double yEnd, float lineWidth, int step, Color color, int type) {
 		this.type = type;
@@ -3117,13 +3499,14 @@ class PlotObject implements Cloneable, Serializable {
 
 	/** Whether an XY_DATA object has a curve to draw */
 	boolean hasCurve() {
-		return type == XY_DATA && (shape == Plot.LINE || shape == Plot.CONNECTED_CIRCLES);
+		return type == XY_DATA && (shape == Plot.LINE || shape == Plot.CONNECTED_CIRCLES || shape == Plot.FILLED);
 	}
 
 	/** Whether an XY_DATA object has markers to draw */
 	boolean hasMarker() {
-		return type == XY_DATA && (shape == Plot.CIRCLE || shape == Plot.X || shape == Plot.BOX || shape == Plot.TRIANGLE ||
-				shape == Plot.CROSS || shape == Plot.DIAMOND || shape == Plot.DOT || shape == Plot.CONNECTED_CIRCLES || shape == Plot.CUSTOM);
+		return type == XY_DATA && (shape == Plot.CIRCLE || shape == Plot.X || shape == Plot.BOX || shape == Plot.TRIANGLE
+				|| shape == Plot.CROSS || shape == Plot.DIAMOND || shape == Plot.DOT || shape == Plot.CONNECTED_CIRCLES
+				|| shape == Plot.CUSTOM);
 	}
 
 	/** Whether an XY_DATA object has markers that can be filled */

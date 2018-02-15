@@ -926,7 +926,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		if (recorderOn) {
 			String s = theText;
 			if (s!=null&&s.length()>=3&&Character.isLetter(s.charAt(0))&&s.charAt(1)==':'&&s.charAt(2)=='\\')
-				s = s.replaceAll("\\\\", "\\\\\\\\");  // replace "\" with "\\" in Windows file paths
+				s = s.replaceAll("\\\\", "/");  // replace "\" with "/" in Windows file paths
+			s = Recorder.fixString(s);
 			if (!smartRecording || !s.equals((String)defaultStrings.elementAt(sfIndex)))
 				recordOption(tf, s);
 			else if (Recorder.getCommandOptions()==null)
@@ -1072,35 +1073,29 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		return item;
 	}
     
-  	/** Returns the contents of the next textarea. */
+  	/** Returns the contents of the next text area. */
 	public String getNextText() {
-		String text;
+		String text = null;
+		String key = "text1";
 		if (textAreaIndex==0 && textArea1!=null) {
-			//textArea1.selectAll();
 			text = textArea1.getText();
-			textAreaIndex++;
 			if (macro)
 				text = Macro.getValue(macroOptions, "text1", text);
-			if (recorderOn) {
-				String text2 = text;
-				String cmd = Recorder.getCommand();
-				if (cmd!=null && cmd.equals("Convolve...")) {
-					text2 = text.replaceAll("\n","\\\\n");
-					if (!text.endsWith("\n")) text2 = text2 + "\\n";
-				} else
-					text2 = text.replace('\n',' ');
-				Recorder.recordOption("text1", text2);
-			}
 		} else if (textAreaIndex==1 && textArea2!=null) {
-			textArea2.selectAll();
 			text = textArea2.getText();
-			textAreaIndex++;
 			if (macro)
 				text = Macro.getValue(macroOptions, "text2", text);
-			if (recorderOn)
-				Recorder.recordOption("text2", text.replace('\n',' '));
-		} else
-			text = null;
+			key = "text2";
+		}
+		textAreaIndex++;
+		if (recorderOn && text!=null) {
+			String text2 = text;
+			String cmd = Recorder.getCommand();
+			if (cmd!=null && cmd.equals("Calibrate..."))
+				text2 = text2.replace('\n',' ');
+			text2 = Recorder.fixString(text2);
+			Recorder.recordOption(key, text2);
+		}
 		return text;
 	}
 
