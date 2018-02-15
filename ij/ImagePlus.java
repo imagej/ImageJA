@@ -422,7 +422,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if ((img!=null) && (width>=0) && (height>=0)) {
 			activated = false;
 			int stackSize = getStackSize();
-			//if (compositeImage) stackSize /= nChannels;
 			if (stackSize>1)
 				win = new StackWindow(this);
 			else if (getProperty(Plot.PROPERTY_KEY) != null)
@@ -1571,7 +1570,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			Overlay overlay2 = null;
 			if (stack.isVirtual() && !((stack instanceof FileInfoVirtualStack)||(stack instanceof AVI_Reader))) {
 				ImageProcessor ip2 = stack.getProcessor(currentSlice);
-				overlay2 = ip2.getOverlay();
+				overlay2 = ip2!=null?ip2.getOverlay():null;
 				if (overlay2!=null)
 					setOverlay(overlay2);
 				if (stack instanceof VirtualStack) {
@@ -1579,7 +1578,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 					if (props!=null)
 						setProperty("FHT", props.get("FHT"));
 				}
-				pixels = ip2.getPixels();
+				if (ip2!=null) pixels=ip2.getPixels();
 			} else
 				pixels = stack.getPixels(currentSlice);
 			if (ip!=null && pixels!=null) {
@@ -2186,8 +2185,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     	Called by ImageCanvas when the mouse moves. Can be overridden by
     	ImagePlus subclasses.
     */
-    public void mouseMoved(int x, int y) {
-    	if (ij!=null)
+	public void mouseMoved(int x, int y) {
+		Roi roi2 = getRoi();
+		if (ij!=null && (roi2==null || roi2.getState()==Roi.NORMAL))
 			ij.showStatus(getLocationAsString(x,y) + getValueAsString(x,y));
 		savex=x; savey=y;
 	}
@@ -2224,21 +2224,21 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		Calibration cal = getCalibration();
 		if (getProperty("FHT")!=null)
 			return getFFTLocation(x, height-y, cal);
-		if (!(IJ.altKeyDown()||IJ.shiftKeyDown())) {
-			String s = " x="+d2s(cal.getX(x)) + ", y=" + d2s(cal.getY(y,height));
-			if (getStackSize()>1) {
-				int z = isDisplayedHyperStack()?getSlice()-1:getCurrentSlice()-1;
-				s += ", z="+d2s(cal.getZ(z));
-			}
-			return s;
-		} else {
-			String s =  " x="+x+", y=" + y;
-			if (getStackSize()>1) {
-				int z = isDisplayedHyperStack()?getSlice()-1:getCurrentSlice()-1;
-				s += ", z=" + z;
-			}
-			return s;
+		String xx="", yy="";
+		if (cal.scaled()) {
+			xx = " ("+x+")";
+			yy = " ("+y+")";
 		}
+		String s = " x="+d2s(cal.getX(x)) + xx + ", y=" + d2s(cal.getY(y,height)) + yy;
+		if (getStackSize()>1) {
+			Roi roi2 = getRoi();
+			if (roi2==null || roi2.getState()==Roi.NORMAL) {
+				int z = isDisplayedHyperStack()?getSlice()-1:getCurrentSlice()-1;
+				String zz = cal.scaled()&&cal.getZ(z)!=z?" ("+z+")":"";
+				s += ", z="+d2s(cal.getZ(z))+zz;
+			}
+		}
+		return s;
     }
     
     private String d2s(double n) {

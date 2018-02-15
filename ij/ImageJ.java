@@ -9,7 +9,6 @@ import ij.text.*;
 import ij.macro.Interpreter;
 import ij.io.Opener;
 import ij.util.*;
-import ij.macro.MacroRunner;
 import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
@@ -79,7 +78,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.51s";
+	public static final String VERSION = "1.51u";
 	public static final String BUILD = "";
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
@@ -118,6 +117,7 @@ public class ImageJ extends Frame implements ActionListener,
 	private boolean embedded;
 	private boolean windowClosed;
 	private static String commandName;
+	private static boolean batchMode;
 		
 	boolean hotkey;
 	
@@ -228,15 +228,8 @@ public class ImageJ extends Frame implements ActionListener,
 		configureProxy();
 		if (applet==null)
 			loadCursors();
-		runStartupMacro();
-		MacroInstaller.autoRun();
+		(new ij.macro.StartupRunner()).run(batchMode); // run RunAtStartup and AutoRun macros
 		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
- 	}
- 	
- 	private void runStartupMacro() {
- 		String macro = (new Startup()).getStartupMacro();
- 		if (macro!=null && macro.length()>4)
- 			IJ.runMacro(macro);
  	}
  	
  	private void loadCursors() {
@@ -376,7 +369,7 @@ public class ImageJ extends Frame implements ActionListener,
 		MenuItem item = (MenuItem)e.getSource();
 		MenuComponent parent = (MenuComponent)item.getParent();
 		String cmd = e.getItem().toString();
-		if ("Autorun".equals(cmd)) // Examples>Autorun
+		if ("Autorun Examples".equals(cmd)) // Examples>Autorun Examples
 			Prefs.autoRunExamples = e.getStateChange()==1;
 		else if ((Menu)parent==Menus.window)
 			WindowManager.activateWindow(cmd, item);
@@ -458,7 +451,13 @@ public class ImageJ extends Frame implements ActionListener,
 			}
 		}
 
-		if ((!Prefs.requireControlKey || control || meta) && keyChar!='+') {
+		if (keyCode==KeyEvent.VK_SEPARATOR)
+			keyCode = KeyEvent.VK_DECIMAL;
+		boolean functionKey = keyCode>=KeyEvent.VK_F1 && keyCode<=KeyEvent.VK_F12;
+		boolean numPad = keyCode==KeyEvent.VK_DIVIDE || keyCode==KeyEvent.VK_MULTIPLY
+			|| keyCode==KeyEvent.VK_DECIMAL
+			|| (keyCode>=KeyEvent.VK_NUMPAD0 && keyCode<=KeyEvent.VK_NUMPAD9);			
+		if ((!Prefs.requireControlKey||control||meta||functionKey||numPad) && keyChar!='+') {
 			Hashtable shortcuts = Menus.getShortcuts();
 			if (shift)
 				cmd = (String)shortcuts.get(new Integer(keyCode+200));
@@ -480,7 +479,7 @@ public class ImageJ extends Frame implements ActionListener,
 		if (cmd==null) {
 			switch (keyCode) {
 				case KeyEvent.VK_TAB: WindowManager.putBehind(); return;
-				case KeyEvent.VK_BACK_SPACE: // delete
+				case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE: 
 					if (deleteOverlayRoi(imp))
 						return;
 					if (imp!=null&&imp.getOverlay()!=null&&imp==GelAnalyzer.getGelImage())
@@ -684,30 +683,30 @@ public class ImageJ extends Frame implements ActionListener,
 		boolean noGUI = false;
 		int mode = STANDALONE;
 		arguments = args;
-		//System.setProperty("file.encoding", "UTF-8");
 		int nArgs = args!=null?args.length:0;
 		boolean commandLine = false;
 		for (int i=0; i<nArgs; i++) {
 			String arg = args[i];
 			if (arg==null) continue;
-			if (args[i].startsWith("-")) {
-				if (args[i].startsWith("-batch"))
-					noGUI = true;
-				else if (args[i].startsWith("-debug"))
-					IJ.setDebugMode(true);
-				else if (args[i].startsWith("-ijpath") && i+1<nArgs) {
-					if (IJ.debugMode) IJ.log("-ijpath: "+args[i+1]);
-					Prefs.setHomeDir(args[i+1]);
-					commandLine = true;
-					args[i+1] = null;
-				} else if (args[i].startsWith("-port")) {
-					int delta = (int)Tools.parseDouble(args[i].substring(5, args[i].length()), 0.0);
-					commandLine = true;
-					if (delta==0)
-						mode = EMBEDDED;
-					else if (delta>0 && DEFAULT_PORT+delta<65536)
-						port = DEFAULT_PORT+delta;
-				}
+			if (arg.startsWith("-batch")) {
+				noGUI = true;
+				batchMode = true;
+			} else if (arg.startsWith("-macro") || arg.endsWith(".ijm") || arg.endsWith(".txt"))
+				batchMode = true;
+			else if (arg.startsWith("-debug"))
+				IJ.setDebugMode(true);
+			else if (arg.startsWith("-ijpath") && i+1<nArgs) {
+				if (IJ.debugMode) IJ.log("-ijpath: "+args[i+1]);
+				Prefs.setHomeDir(args[i+1]);
+				commandLine = true;
+				args[i+1] = null;
+			} else if (arg.startsWith("-port")) {
+				int delta = (int)Tools.parseDouble(arg.substring(5, arg.length()), 0.0);
+				commandLine = true;
+				if (delta==0)
+					mode = EMBEDDED;
+				else if (delta>0 && DEFAULT_PORT+delta<65536)
+					port = DEFAULT_PORT+delta;
 			} 
 		}
   		// If existing ImageJ instance, pass arguments to it and quit.

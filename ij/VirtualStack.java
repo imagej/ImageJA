@@ -21,6 +21,10 @@ public class VirtualStack extends ImageStack {
 	
 	/** Default constructor. */
 	public VirtualStack() { }
+	
+	public VirtualStack(int width, int height) {
+		super(width, height);
+	}
 
 	/** Creates an empty virtual stack. */
 	public VirtualStack(int width, int height, ColorModel cm, String path) {
@@ -78,13 +82,13 @@ public class VirtualStack extends ImageStack {
 	public void deleteSlice(int n) {
 		if (n<1 || n>nSlices)
 			throw new IllegalArgumentException("Argument out of range: "+n);
-			if (nSlices<1)
-				return;
-			for (int i=n; i<nSlices; i++)
-				names[i-1] = names[i];
-			names[nSlices-1] = null;
-			nSlices--;
-		}
+		if (nSlices<1)
+			return;
+		for (int i=n; i<nSlices; i++)
+			names[i-1] = names[i];
+		names[nSlices-1] = null;
+		nSlices--;
+	}
 	
 	/** Deletes the last slice in the stack. */
 	public void deleteLastSlice() {

@@ -1086,6 +1086,7 @@ public class Functions implements MacroConstants, Measurements {
 					if (seed!=dseed)
 						interp.error("Seed not integer");
 					ran = new Random(seed);
+					ImageProcessor.setRandomSeed(seed);
 				} else if (arg.equals("gaussian"))
 					gaussian = true;
 				else
@@ -1094,6 +1095,7 @@ public class Functions implements MacroConstants, Measurements {
 			interp.getRightParen();
 			if (!Double.isNaN(dseed)) return Double.NaN;
 		}
+		ImageProcessor.setRandomSeed(Double.NaN);
 		interp.getParens();
  		if (ran==null)
 			ran = new Random();
@@ -1102,14 +1104,6 @@ public class Functions implements MacroConstants, Measurements {
 		else
 			return ran.nextDouble();
 	}
-
-	//void setSeed() {
-	//	long seed = (long)getArg();
-	//	if (ran==null)
-	//		ran = new Random(seed);
-	//	else
-	//		ran.setSeed(seed);
-	//}
 
 	double getResult() {
 		interp.getLeftParen();
@@ -1379,26 +1373,6 @@ public class Functions implements MacroConstants, Measurements {
 			return new Variable(array).getArray();
 	}
 
-	Variable[] newArray() {
-		if (interp.nextToken()!='(' || interp.nextNextToken()==')') {
-			interp.getParens();
-			return new Variable[0];
-		}
-		interp.getLeftParen();
-		int next = interp.nextToken();
-		int nextNext = interp.nextNextToken();
-		if (next==STRING_CONSTANT || nextNext==','
-		|| nextNext=='[' || next=='-' || next==PI)
-			return initNewArray();
-		int size = (int)interp.getExpression();
-		if (size<0) interp.error("Negative array size");
-		interp.getRightParen();
-    	Variable[] array = new Variable[size];
-    	for (int i=0; i<size; i++)
-    		array[i] = new Variable();
-    	return array;
-	}
-
 	Variable[] split() {
 		String s1 = getFirstString();
 		String s2 = null;
@@ -1430,8 +1404,8 @@ public class Functions implements MacroConstants, Measurements {
 		String[] list = f.list();
 		if (list==null)
 			return new Variable[0];
-		if (System.getProperty("os.name").indexOf("Linux")!=-1)
-			ij.util.StringSorter.sort(list);
+		if (!IJ.isWindows())
+			Arrays.sort(list);
     	File f2;
     	int hidden = 0;
     	for (int i=0; i<list.length; i++) {
@@ -1462,7 +1436,14 @@ public class Functions implements MacroConstants, Measurements {
     	return array;
 	}
 
-	Variable[] initNewArray() {
+	Variable[] newArray() {
+		if (interp.nextToken()!='(' || interp.nextNextToken()==')') {
+			interp.getParens();
+			return new Variable[0];
+		}
+		interp.getLeftParen();
+		int next = interp.nextToken();
+		int nextNext = interp.nextNextToken();
 		Vector vector = new Vector();
 		int size = 0;
 		do {
@@ -2155,6 +2136,12 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.equals("drawVectors")) {
 			drawPlotVectors();
 			return;
+		} else if (name.equals("drawShapes")) {
+			drawShapes();
+			return;
+		} else if (name.equals("drawGrid")) {
+			plot.drawShapes("redraw_grid", null);	
+			return;
 		} else if (name.startsWith("setLineWidth")) {
 			plot.setLineWidth((float)getArg());
 			return;
@@ -2165,6 +2152,9 @@ public class Functions implements MacroConstants, Measurements {
 			String arg = getFirstString();
 			int what = Plot.toShape(arg);
 			addToPlot(what, arg);
+			return;
+		} else if (name.equals("appendToStack")) {
+			plot.appendToStack();
 			return;
 		} else
 			interp.error("Unrecognized plot function");
@@ -2293,6 +2283,61 @@ public class Functions implements MacroConstants, Measurements {
 		plot.drawVectors(x1, y1, x2, y2);
 	}
 
+	//Example 10 boxes: ArrayList has 10 elements, each holding a float[6] for coordinates
+	//Example 10 rectangles: ArrayList has 10 elements, each holding a float[4] for the corners
+	void drawShapes() {
+		String type = getFirstString().toLowerCase();
+		double[][] arr2D = null;
+		int nBoxes = 0;
+		int nCoords = 0;
+		if (type.contains("rectangles")) {
+			nCoords = 4;//lefts, tops, rights, bottoms
+		} else if (type.contains("boxes")) {
+			nCoords = 6;//centers, Q1s, Q2s, Q3s, Q4s, Q5s (Q= quartile border)
+		} else {
+			interp.error("Must contain 'rectangles' or 'boxes'");
+			return;
+		}
+		double[] arr = null;
+		for (int jj = 0; jj < nCoords; jj++) {
+			interp.getToken();
+			if (interp.token == ',') {
+				if (!isArrayArg()) {
+					interp.putTokenBack();
+					double singleVal = getNextArg();
+					arr = new double[]{singleVal};//only 1 box
+				} else {
+					arr = getNextArray();//>= 2 boxes
+				}
+				nBoxes = arr.length;
+				if (jj > 0 && arr2D[0].length != nBoxes) {
+					interp.error("Arrays must have same length (" + nBoxes + ")");
+					return;
+				}
+				if (arr2D == null) {
+					arr2D = new double[nCoords][nBoxes];
+				}
+				for (int boxNo = 0; boxNo < nBoxes; boxNo++) {
+					arr2D[jj][boxNo] = arr[boxNo];
+				}
+			}
+		}
+		interp.getRightParen();
+		float[][] floatArr = new float[nCoords][nBoxes];
+		for (int row = 0; row < nCoords; row++) {
+			floatArr[row] = Tools.toFloat(arr2D[row]);
+		}
+		ArrayList shapeData = new ArrayList();
+		for (int box = 0; box < nBoxes; box++) {
+			float[] coords = new float[nCoords];
+			for (int coord = 0; coord < nCoords; coord++) {
+				coords[coord] = (float) (arr2D[coord][box]);
+			}
+			shapeData.add(coords);
+		}
+		plot.drawShapes(type, shapeData);
+	}
+	
 	void setPlotColor(Plot plot) {
 		interp.getLeftParen();
 		Color color = getColor();
@@ -2938,58 +2983,154 @@ public class Functions implements MacroConstants, Measurements {
 
 	void close() {
 		String pattern = null;
-		if (interp.nextToken()=='(') {
+		boolean keep = false;
+
+		if (interp.nextToken() == '(') {
 			interp.getLeftParen();
-			if (interp.nextToken() != ')')
+			if (interp.nextToken() != ')') {
 				pattern = getString();
+			}
+			if (interp.nextToken() == ',') {
+				interp.getComma();
+				keep = getString().equalsIgnoreCase("keep");
+			}
+
 			interp.getRightParen();
 		}
-		if (pattern != null) {//Norbert
-			WildcardMatch wm = new WildcardMatch();
-			wm.setCaseSensitive(false);
-			ImagePlus currentImp = WindowManager.getCurrentImage();
-			int[] ids = WindowManager.getIDList();
-			if (ids==null) {
-				resetImage();
-				return;
-			}
-			boolean currentImpClosed = false;
-			for (int img = ids.length-1; img >=0; img--) {
-				int id = ids[img];
-				ImagePlus imp = WindowManager.getImage(id);
-				if (imp!=null) {
-					String title = imp.getTitle();
-					boolean flagOthers = (pattern.equals("\\Others") && currentImp != imp);
-					if (wm.match(title, pattern) || flagOthers) {
-						ImageWindow win = imp.getWindow();
-						if (win!=null) {
-							imp.changes = false;
-							win.close();
-						} else {
-							imp.saveRoi();
-							WindowManager.setTempCurrentImage(null);
-							interp.removeBatchModeImage(imp);
-						}
-						imp.changes = false;
-						imp.close();
-						if (imp==currentImp)
-							currentImpClosed = true;
-					}
-				}
-			}
-			if (!currentImpClosed && currentImp!=null)
-				IJ.selectWindow(currentImp.getID());
-			resetImage();
-		} else {//Wayne
+		if (pattern == null) {//Wayne close front image
 			ImagePlus imp = getImage();
 			ImageWindow win = imp.getWindow();
-			if (win!=null) {
+			if (win != null) {
 				imp.changes = false;
 				win.close();
 			} else {
 				imp.saveRoi();
 				WindowManager.setTempCurrentImage(null);
 				interp.removeBatchModeImage(imp);
+			}
+			resetImage();
+			return;
+		}
+
+		if (pattern != null) {//Norbert
+			WildcardMatch wm = new WildcardMatch();
+			wm.setCaseSensitive(false);
+			//Frame frontWindow = WindowManager.getFrontWindow();
+			String otherStr = "\\\\Others";
+			boolean others = pattern.equals(otherStr);
+			boolean hasWildcard = pattern.contains("*") || pattern.contains("?");
+			if (!others) {
+				//S c a n   N o n - i m a g e s
+				Window[] windows = WindowManager.getAllNonImageWindows();
+				String[] textExtension = ".txt .ijm .js .java .py .bs .csv".split(" ");
+				boolean isTextPattern = false;
+				for (int jj = 0; jj < textExtension.length; jj++) {
+					isTextPattern |= pattern.endsWith(textExtension[jj]);
+				}
+
+				if (!hasWildcard || isTextPattern) {//e.g. "Roi Manager", "Demo*.txt")
+					for (int win = 0; win < windows.length; win++) {
+						Window thisWin = windows[win];
+						if (thisWin instanceof ContrastAdjuster) {//B&C
+							if (pattern.equalsIgnoreCase("b&c")) {
+								((ContrastAdjuster) thisWin).close();
+							}
+						}
+						if (thisWin instanceof ColorPicker) {//CP
+							if (pattern.equalsIgnoreCase("cp")) {
+								((ColorPicker) thisWin).close();
+							}
+						}
+						if (thisWin instanceof Editor) {//macros editor, loaded text files
+							Editor ed = (Editor) thisWin;
+							String title = ed.getTitle();
+							if (wm.match(title, pattern)) {
+								boolean leaveIt = false;
+								leaveIt = leaveIt || (ed.fileChanged() && keep);
+								leaveIt = leaveIt || !isTextPattern;
+								leaveIt = leaveIt || ed == Editor.currentMacroEditor;
+								if (!leaveIt) {
+									ed.close();
+								}
+							}
+						}
+
+						if (thisWin instanceof TextWindow) {//e.g.Results, Log
+							TextWindow txtWin = (TextWindow) thisWin;
+							String title = txtWin.getTitle();
+							if (wm.match(title, pattern)) {
+								if(title.equals("Results"))
+									IJ.run("Clear Results");
+								txtWin.close();
+							}
+
+						}
+						if (thisWin instanceof RoiManager) {//ROI Manager
+							RoiManager rm = (RoiManager) thisWin;
+							rm.close();
+
+						}
+					}
+				}
+			}
+
+			//S c a n  i m a g e s	
+			ImagePlus frontImp = WindowManager.getCurrentImage();
+			int[] ids = WindowManager.getIDList();
+			if (ids == null) {
+				resetImage();
+				return;
+			}
+			int nPics = ids.length;
+			String[] flaggedNames = new String[nPics];
+
+			for (int jj = 0; jj < nPics; jj++) {//add flags to names for debug
+				ImagePlus imp = WindowManager.getImage(ids[jj]);
+				String flags = "fcm_";//fcm = flags for  front, changed, match
+				String title = imp.getTitle();
+				if (imp.changes) {
+					flags = flags.replace("c", "C");
+				}
+				if (imp == WindowManager.getCurrentImage()) {
+					flags = flags.replace("f", "F");
+				}
+				if (others || wm.match(title, pattern)) {
+					flags = flags.replace("m", "M");
+				}
+				String fName = flags + imp.getTitle();
+				flaggedNames[jj] = fName;
+			}
+			boolean currentImpClosed = false;
+			for (int jj = 0; jj < nPics; jj++) {
+				String flags = flaggedNames[jj].substring(0, 4);
+				boolean M = flags.contains("M");//match
+				boolean F = flags.contains("F");//front
+				boolean C = flags.contains("C");//changed
+				boolean kill = M && !(C && keep);
+				if (others) {
+					kill = !F && !(C && keep);
+				}
+
+				if (kill) {
+					ImagePlus imp = WindowManager.getImage(ids[jj]);
+					ImageWindow win = imp.getWindow();
+					if (win != null) {
+						imp.changes = false;
+						win.close();
+					} else {
+						imp.saveRoi();
+						WindowManager.setTempCurrentImage(null);
+						interp.removeBatchModeImage(imp);
+					}
+					imp.changes = false;
+					imp.close();
+					if (imp == frontImp) {
+						currentImpClosed = true;
+					}
+				}
+			}
+			if (!currentImpClosed && frontImp != null) {
+				IJ.selectWindow(frontImp.getID());
 			}
 			resetImage();
 		}
@@ -3027,10 +3168,10 @@ public class Functions implements MacroConstants, Measurements {
 			displayBatchModeImage(imp2);
 		} else if (sarg.equalsIgnoreCase("show")) {
 			if (imp2!=null) {
+				Interpreter.removeBatchModeImage(imp2);
 				Interpreter.setTempShowMode(true);
 				displayBatchModeImage(imp2);
 				Interpreter.setTempShowMode(false);
-				Interpreter.removeBatchModeImage(imp2);
 			}
 		} else if (sarg.equalsIgnoreCase("hide")) {
 			interp.setBatchMode(true);
@@ -5630,41 +5771,11 @@ public class Functions implements MacroConstants, Measurements {
 		double[] d1 = new double[len1];
 		for (int i=0; i<len1; i++)
 			d1[i] = a1[i].getValue();
-		double[] d2 = resampleArray(d1, len2);
+		double[] d2 = Tools.resampleArray(d1, len2);
 		Variable[] a2 = new Variable[len2];
 		for (int i=0; i<len2; i++)
 			a2[i] = new Variable(d2[i]);
 		return a2;
-	}
-
-	private static double[] resampleArray(double[] y1, int len2) {
-		int len1 = y1.length;
-		double factor =  (double)(len2-1)/(len1-1);
-		double[] y2 = new double[len2];
-		if(len1 == 0){
-		    return y2;
-		}
-		if(len1 == 1){
-		    for (int jj=0; jj<len2; jj++)
-			    y2[jj] = y1[0];
-		    return(y2);
-		}
-		double[] f1 = new double[len1];//fractional positions
-		double[] f2 = new double[len2];
-		for (int jj=0; jj<len1; jj++)
-			f1[jj] = jj*factor;
-		for (int jj=0; jj<len2; jj++)
-			f2[jj] = jj/factor;
-		for (int jj=0; jj<len2-1; jj++) {
-			double pos = f2[jj];
-			int leftPos = (int)Math.floor(pos);
-			int rightPos = (int)Math.floor(pos)+1;
-			double fraction = pos-Math.floor(pos);
-			double value = y1[leftPos] + fraction*(y1[rightPos]-y1[leftPos]);
-			y2[jj] = value;
-		}
-		y2[len2-1] = y1[len1-1];
-		return y2;
 	}
 
 	Variable[] reverseArray() {
