@@ -15,7 +15,9 @@ public class Overlay {
     private boolean drawBackgrounds;
     private Color labelColor;
     private Font labelFont;
+    private boolean scalableLabels;
     private boolean isCalibrationBar;
+    private boolean selectable = true;
     
     /** Constructs an empty Overlay. */
     public Overlay() {
@@ -285,7 +287,7 @@ public class Overlay {
 	}
 	
 	public String toString() {
-    	return list.toString();
+    	return "Overlay[size="+size()+"]";
     }
     
     public void drawLabels(boolean b) {
@@ -324,12 +326,15 @@ public class Overlay {
     }
 
     public void setLabelFont(Font font) {
-    	labelFont = font;
+    	setLabelFont(font, false);
     }
     
+    public void setLabelFont(Font font, boolean scalable) {
+    	labelFont = font;
+    	scalableLabels = scalable;
+    }
+
     public Font getLabelFont() {
-    	//if (labelFont==null && labelFontSize!=0)
-    	//	labelFont = new Font("SansSerif", Font.PLAIN, labelFontSize);
     	return labelFont;
     }
 
@@ -345,4 +350,20 @@ public class Overlay {
         
     Vector getVector() {return list;}
     
+    /** Set 'false' to prevent ROIs in this overlay from being activated 
+		by clicking on their labels or by a long clicking. */ 
+    public void selectable(boolean selectable) {
+    	this.selectable = selectable;
+    }
+    
+    /** Returns 'true' if ROIs in this overlay can be activated
+		by clicking on their labels or by a long press. */ 
+	public boolean isSelectable() {
+		return selectable;
+	}
+	
+ 	public boolean scalableLabels() {
+		return scalableLabels;
+	}
+
 }
