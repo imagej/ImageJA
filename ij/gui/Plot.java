@@ -221,7 +221,7 @@ public class Plot implements Cloneable {
 		this(title, xLabel, yLabel, xValues!=null?Tools.toFloat(xValues):null, yValues!=null?Tools.toFloat(yValues):null, getDefaultFlags());
 	}
 
-	/** This is a constructor that works with JavaScript. */
+	/* Obsolete, replaced by new Plot(title,xLabel,yLabel); add(shape,x,y);. */
 	public Plot(String dummy, String title, String xLabel, String yLabel, float[] xValues, float[] yValues) {
 		this(title, xLabel, yLabel, xValues, yValues, getDefaultFlags());
 	}
@@ -650,6 +650,27 @@ public class Plot implements Cloneable {
 		return defaultFlags;
 	}
 
+	/** Adds a curve or set of points to this plot, where 'shape' is
+		"line", "filled", "bars, "circles", "boxes", "triangles", "crosses",
+		 "dots", "diamonds", "x" or "connected". */
+	public void add(String shape, double[] xvalues, double[] yvalues) {
+		int iShape = toShape(shape);
+		addPoints(Tools.toFloat(xvalues), Tools.toFloat(yvalues), null, iShape, iShape==CUSTOM?shape.substring(5, shape.length()):null);
+	}
+
+	/** Adds a curve, set of points or error bars to this plot, where 'shape' is
+		"line", "filled", "bars, "circles", "boxes", "triangles", "crosses", "dots",
+		"diamonds", "x", "connected", "error bars" or "xerror bars". */
+	public void add(String shape, double[] yvalues) {
+		int iShape = toShape(shape);
+		if (iShape==-1)
+			addErrorBars(yvalues);
+		else if (iShape==-2)
+			addHorizontalErrorBars(yvalues);
+		else
+			addPoints(null, Tools.toFloat(yvalues), null, iShape, iShape==CUSTOM?shape.substring(5, shape.length()):null);
+	}
+
 	/** Adds a set of points to the plot or adds a curve if shape is set to LINE.
 	 * @param xValues	the x coordinates, or null. If null, integers starting at 0 will be used for x.
 	 * @param yValues	the y coordinates (must not be null)
@@ -679,16 +700,6 @@ public class Plot implements Cloneable {
 	/** Adds a set of points to the plot using double arrays. */
 	public void addPoints(double[] x, double[] y, int shape) {
 		addPoints(Tools.toFloat(x), Tools.toFloat(y), shape);
-	}
-
-	/** This a version of addPoints that works with JavaScript. */
-	public void addPoints(String dummy, float[] x, float[] y, int shape) {
-		addPoints(x, y, shape);
-	}
-
-	public void add(String shape, double[] x, double[] y) {
-		int iShape = toShape(shape);
-		addPoints(Tools.toFloat(x), Tools.toFloat(y), null, iShape, iShape==CUSTOM?shape.substring(5, shape.length()):null);
 	}
 
 	/** Returns the number for a given plot symbol shape, -1 for xError and -2 for yError (all case-insensitive) */
@@ -798,11 +809,6 @@ public class Plot implements Cloneable {
 	/** Adds vertical error bars to the last data passed to the plot (via the constructor or addPoints). */
 	public void addErrorBars(double[] errorBars) {
 		addErrorBars(Tools.toFloat(errorBars));
-	}
-
-	/** This is a version of addErrorBars that works with JavaScript. */
-	public void addErrorBars(String dummy, float[] errorBars) {
-		addErrorBars(errorBars);
 	}
 
 	/** Adds horizontal error bars to the last data passed to the plot (via the constructor or addPoints). */
@@ -1018,11 +1024,6 @@ public class Plot implements Cloneable {
 	/** Determines whether to use antialiased text (default true) */
 	public void setAntialiasedText(boolean antialiasedText) {
 		pp.antialiasedText = antialiasedText;
-	}
-
-	/** Obsolete; replaced by setFont(). */
-	public void changeFont(Font font) {
-		setFont(font);
 	}
 
 	/** Gets the font for xLabel ('x'), yLabel('y'), numbers ('f' for 'frame') or the legend ('l').
@@ -2441,7 +2442,8 @@ public class Plot implements Cloneable {
 						ip.setColor(plotObject.color2);
 						ip.setLineWidth(1);
 						for (int i=0; i<Math.min(plotObject.xValues.length, plotObject.yValues.length); i++)
-							if ((!logXAxis || plotObject.xValues[i]>0) && (!logYAxis || plotObject.yValues[i]>0))
+							if ((!logXAxis || plotObject.xValues[i]>0) && (!logYAxis || plotObject.yValues[i]>0)
+							&& !Double.isNaN(plotObject.xValues[i]) && !Double.isNaN(plotObject.yValues[i]))
 								fillShape(plotObject.shape, scaleX(plotObject.xValues[i]), scaleY(plotObject.yValues[i]), markSize);
 						ip.setLineWidth(sc(plotObject.lineWidth));
 					}
@@ -2450,7 +2452,8 @@ public class Plot implements Cloneable {
 					plotObject.pointIndex = 0;
 					Font saveFont = ip.getFont();
 					for (int i=0; i<Math.min(plotObject.xValues.length, plotObject.yValues.length); i++) {
-						if ((!logXAxis || plotObject.xValues[i]>0) && (!logYAxis || plotObject.yValues[i]>0))
+						if ((!logXAxis || plotObject.xValues[i]>0) && (!logYAxis || plotObject.yValues[i]>0)
+						&& !Double.isNaN(plotObject.xValues[i]) && !Double.isNaN(plotObject.yValues[i]))
 							drawShape(plotObject, scaleX(plotObject.xValues[i]), scaleY(plotObject.yValues[i]), markSize);
 					}
 					if (plotObject.shape==CUSTOM)
@@ -2713,22 +2716,37 @@ public class Plot implements Cloneable {
 				ip.drawDot(x, y); //uses current line width
 				break;
 			case CUSTOM:
-				if (plotObject.macroCode==null || frame==null || x<frame.x || y<frame.y
-				|| x>frame.x+frame.width || y>frame.y+frame.height)
+				if (plotObject.macroCode==null || frame==null)
+				    break;				
+				if (x<frame.x || y<frame.y || x>frame.x+frame.width || y>frame.y+frame.height){
+					plotObject.pointIndex++;
 					break;
+				}
 				ImagePlus imp = new ImagePlus("", ip);
 				WindowManager.setTempCurrentImage(imp);
+				int index = plotObject.pointIndex++;				
 				StringBuilder sb = new StringBuilder(140+plotObject.macroCode.length());
 				sb.append("x="); sb.append(x);
 				sb.append(";y="); sb.append(y);
 				sb.append(";setColor("); sb.append(plotObject.color.getRGB());
 				sb.append(");s="); sb.append(sc(1));
-				sb.append(";i="); sb.append(plotObject.pointIndex++);
-				sb.append(";");
+				sb.append(";i="); sb.append(index);				
+				boolean inRange = index < plotObject.xValues.length && index < plotObject.yValues.length;
+				double xVal =0;//when the symbol is needed for the legend, index is beyond range
+				double yVal =0;
+				if (inRange) {
+				    xVal = plotObject.xValues[index];	
+				    yVal = plotObject.yValues[index];	
+				}
+				sb.append(";xval=" + xVal);
+				sb.append(";yval=" + yVal);
+				sb.append(";");				
 				sb.append(plotObject.macroCode);
-				String rtn = IJ.runMacro(sb.toString());
-				if ("[aborted]".equals(rtn))
+				if (inRange ||!sb.toString().contains("d2s") ){//a graphical symbol won't contain "d2s" ..
+				    String rtn = IJ.runMacro(sb.toString());//.. so it can go to the legend
+				    if ("[aborted]".equals(rtn))
 					plotObject.macroCode = null;
+				}				
 				WindowManager.setTempCurrentImage(null);
 				break;
 			default: // CIRCLE, CONNECTED_CIRCLES: 5x5 oval approximated by 5x5 square without corners
@@ -3300,6 +3318,22 @@ public class Plot implements Cloneable {
 	boolean hasFlag(int what) {
 		return (pp.axisFlags&what) != 0;
 	}
+	
+	/* Obsolete, replaced by add(shape,x,y). */
+	public void addPoints(String dummy, float[] x, float[] y, int shape) {
+		addPoints(x, y, shape);
+	}
+	
+	/* Obsolete, replaced by add("error bars",errorBars). */
+	public void addErrorBars(String dummy, float[] errorBars) {
+		addErrorBars(errorBars);
+	}
+	
+	/* Obsolete; replaced by setFont(). */
+	public void changeFont(Font font) {
+		setFont(font);
+	}
+
 }
 
 /** This class contains the properties of the plot, such as size, format, range, etc, except for the data+format (plot contents) */
@@ -3343,7 +3377,7 @@ class PlotProperties implements Cloneable, Serializable {
 		}
 	}
 
-}
+} // class PlotProperties
 
 /** This class contains the data and properties for displaying a curve, a set of arrows, a line or a label in a plot,
  *	as well as the legend, axis labels, and frame (including background and fonts of axis numbering).
@@ -3547,4 +3581,5 @@ class PlotObject implements Cloneable, Serializable {
 			return null;
 		}
 	}
-}
+	
+} // class PlotObject 
