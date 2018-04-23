@@ -62,8 +62,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private boolean addToSameRowCalled;
 	private int topInset, leftInset, bottomInset;
 	private boolean customInsets;
-	private Vector sliderIndexes;
-	private Vector sliderScales;
+	private Vector sliderIndexes, sliderScales, sliderDigits;
 	private Checkbox previewCheckbox;    // the "Preview" Checkbox, if any
 	private Vector dialogListeners;             // the Objects to notify on user input
 	private PlugInFilterRunner pfr;      // the PlugInFilterRunner for automatic preview
@@ -602,8 +601,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	/**
 	* Adds a slider (scroll bar) to the dialog box.
-	* Floating point values will be used if (maxValue-minValue)<=5.0
-	* and either minValue or maxValue are non-integer.
+	* Floating point values are used if (maxValue-minValue)<=5.0
+	* and either defaultValue or minValue are non-integer.
 	* @param label	 the label
 	* @param minValue  the minimum value of the slider
 	* @param maxValue  the maximum value of the slider
@@ -612,16 +611,45 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	public void addSlider(String label, double minValue, double maxValue, double defaultValue) {
 		if (defaultValue<minValue) defaultValue=minValue;
 		if (defaultValue>maxValue) defaultValue=maxValue;
-		int columns = 4;
 		int digits = 0;
 		double scale = 1.0;
 		if ((maxValue-minValue)<=5.0 && (minValue!=(int)minValue||maxValue!=(int)maxValue||defaultValue!=(int)defaultValue)) {
-			scale = 20.0;
+			scale = 50.0;
 			minValue *= scale;
 			maxValue *= scale;
 			defaultValue *= scale;
 			digits = 2;
 		}
+		addSlider( label, minValue, maxValue, defaultValue, scale, digits);
+	}
+	
+	/** This vesion of addSlider() adds a 'stepSize' argument.<br>
+	 * Example: http://wsr.imagej.net/macros/SliderDemo.txt
+	*/
+	public void addSlider(String label, double minValue, double maxValue, double defaultValue, double stepSize) {
+		if ( stepSize <= 0 ) stepSize  = 1;
+		int digits = digits(stepSize);		
+		double scale = 1.0 / Math.abs( stepSize );
+		if ( scale <= 0 ) scale = 1;
+		if ( defaultValue < minValue ) defaultValue = minValue;
+		if ( defaultValue > maxValue ) defaultValue = maxValue;
+		minValue *= scale;
+		maxValue *= scale;
+		defaultValue *= scale;
+		addSlider(label, minValue, maxValue, defaultValue, scale, digits);
+	}
+	
+	private int digits( double d ) {
+		if ( d == (int) d ) return 0;
+		String s = Double.toString(d);
+		s = s.substring(s.indexOf(".") + 1);
+		return s.length();
+	}
+
+	private void addSlider(String label, double minValue, double maxValue, double defaultValue, double scale, int digits) {
+		int columns = 4 + digits - 2;
+		if ( columns < 4 ) columns = 4;
+		if (minValue<0.0) columns++;
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
@@ -642,6 +670,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			slider = new Vector(5);
 			sliderIndexes = new Vector(5);
 			sliderScales = new Vector(5);
+			sliderDigits = new Vector(5);	
 		}
 		Scrollbar s = new Scrollbar(Scrollbar.HORIZONTAL, (int)defaultValue, 1, (int)minValue, (int)maxValue+1);
 		slider.addElement(s);
@@ -655,6 +684,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		if (IJ.isWindows()) columns -= 2;
 		if (columns<1) columns = 1;
+		//IJ.log("scale=" + scale + ", columns=" + columns + ", digits=" + digits);
 		TextField tf = new TextField(IJ.d2s(defaultValue/scale, digits), columns);
 		if (IJ.isLinux()) tf.setBackground(Color.white);
 		tf.addActionListener(this);
@@ -664,6 +694,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		numberField.addElement(tf);
 		sliderIndexes.add(new Integer(numberField.size()-1));
 		sliderScales.add(new Double(scale));
+		sliderDigits.add(new Integer(digits));
 		defaultValues.addElement(new Double(defaultValue/scale));
 		defaultText.addElement(tf.getText());
 		tf.setEditable(true);
@@ -1173,7 +1204,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				help.addActionListener(this);
 				help.addKeyListener(this);
 			}
-			if (IJ.isWindows()) {
+			if (IJ.isWindows() || Prefs.dialogCancelButtonOnRight) {
 				buttons.add(okay);
 				if (yesNoCancel) buttons.add(no);;
 				if (!hideCancelButton)
@@ -1430,7 +1461,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				int index = ((Integer)sliderIndexes.get(i)).intValue();
 				TextField tf = (TextField)numberField.elementAt(index);
 				double scale = ((Double)sliderScales.get(i)).doubleValue();
-				int digits = scale==1.0?0:2;
+				int digits = ((Integer)sliderDigits.get(i)).intValue();
 				tf.setText(""+IJ.d2s(sb.getValue()/scale,digits));
 			}
 		}

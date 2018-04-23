@@ -424,10 +424,17 @@ public class ShortProcessor extends ImageProcessor {
 	/** Copies the image contained in 'ip' to (xloc, yloc) using one of
 		the transfer modes defined in the Blitter interface. */
 	public void copyBits(ImageProcessor ip, int xloc, int yloc, int mode) {
-		ip = ip.convertToShort(false);
-		new ShortBlitter(this).copyBits(ip, xloc, yloc, mode);
+		boolean temporaryFloat = ip.getBitDepth()==32 && (mode==Blitter.MULTIPLY || mode==Blitter.DIVIDE);
+		if (temporaryFloat) {
+			FloatProcessor ipFloat = this.convertToFloatProcessor();
+			new FloatBlitter(ipFloat).copyBits(ip, xloc, yloc, mode);
+			setPixels(1, ipFloat);
+		} else {
+			ip = ip.convertToShort(false);
+			new ShortBlitter(this).copyBits(ip, xloc, yloc, mode);
+		}
 	}
-
+	
 	/** Transforms the pixel data using a 65536 entry lookup table. */
 	public void applyTable(int[] lut) {
 		if (lut.length!=65536)
@@ -962,6 +969,8 @@ public class ShortProcessor extends ImageProcessor {
 	public int[] getHistogram() {
 		if (mask!=null)
 			return getHistogram(mask);
+		int roiX=this.roiX, roiY=this.roiY;
+		int roiWidth=this.roiWidth, roiHeight=this.roiHeight;
 		int[] histogram = new int[65536];
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y*width + roiX;
@@ -974,6 +983,8 @@ public class ShortProcessor extends ImageProcessor {
 	int[] getHistogram(ImageProcessor mask) {
 		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
 			throw new IllegalArgumentException(maskSizeError(mask));
+		int roiX=this.roiX, roiY=this.roiY;
+		int roiWidth=this.roiWidth, roiHeight=this.roiHeight;
 		byte[] mpixels = (byte[])mask.getPixels();
 		int[] histogram = new int[65536];
 		for (int y=roiY, my=0; y<(roiY+roiHeight); y++, my++) {
@@ -988,6 +999,63 @@ public class ShortProcessor extends ImageProcessor {
 		return histogram;
 	}
 
+	int[] getHistogram2() {
+		if (mask!=null)
+			return getHistogram2(mask);
+		int roiX=this.roiX, roiY=this.roiY;
+		int roiWidth=this.roiWidth, roiHeight=this.roiHeight;
+		int max = 0;
+		int value;
+		for (int y=roiY; y<(roiY+roiHeight); y++) {
+			int index = y*width + roiX;
+			for (int i=0; i<roiWidth; i++) {
+				value = pixels[index++]&0xffff;
+				if (value>max)
+					max = value;
+			}
+		}
+		int size = max + 1;
+		if (size<256) size = 256;
+		int[] histogram = new int[size];
+		for (int y=roiY; y<(roiY+roiHeight); y++) {
+			int index = y*width + roiX;
+			for (int i=0; i<roiWidth; i++)
+					histogram[pixels[index++]&0xffff]++;
+		}
+		return histogram;
+	}
+
+	private int[] getHistogram2(ImageProcessor mask) {
+		if (mask.getWidth()!=roiWidth||mask.getHeight()!=roiHeight)
+			throw new IllegalArgumentException(maskSizeError(mask));
+		int roiX=this.roiX, roiY=this.roiY;
+		int roiWidth=this.roiWidth, roiHeight=this.roiHeight;
+		byte[] mpixels = (byte[])mask.getPixels();		
+		int max = 0;
+		int value;
+		for (int y=roiY; y<(roiY+roiHeight); y++) {
+			int index = y*width + roiX;
+			for (int i=0; i<roiWidth; i++) {
+				value = pixels[index++]&0xffff;
+				if (value>max)
+					max = value;
+			}
+		}
+		int size = max + 1;
+		if (size<256) size = 256;
+		int[] histogram = new int[size];
+		for (int y=roiY, my=0; y<(roiY+roiHeight); y++, my++) {
+			int index = y * width + roiX;
+			int mi = my * roiWidth;
+			for (int i=0; i<roiWidth; i++) {
+				if (mpixels[mi++]!=0)
+					histogram[pixels[index]&0xffff]++;
+				index++;
+			}
+		}
+		return histogram;
+	}
+	
 	public void setThreshold(double minThreshold, double maxThreshold, int lutUpdate) {
 		if (minThreshold==NO_THRESHOLD)
 			{resetThreshold(); return;}

@@ -450,6 +450,14 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			roi.setName(label);
 		rois.add((Roi)roi.clone());
 	}
+	
+	/** Replaces the ROI at the specified index. */
+	public void setRoi(Roi roi, int index) {
+    	if (index<0 || index>=rois.size())
+    		throw new IllegalArgumentException("setRoi: Index out of range");
+		rois.set(index, (Roi)roi.clone());
+		updateShowAll();
+	}
 
 	boolean isStandardName(String name) {
 		if (name==null)
@@ -731,6 +739,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (name==null) name = o.getName(path);
 		Roi roi = o.openRoi(path);
 		if (roi!=null) {
+			if (roi.getName()!=null)
+				name = roi.getName();
 			if (name.endsWith(".roi"))
 				name = name.substring(0, name.length()-4);
 			listModel.addElement(name);
@@ -788,32 +798,37 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		int[] indexes = getIndexes();
 		if (indexes.length>1)
 			return saveMultiple(indexes, null);
-		String name = (String) listModel.getElementAt(indexes[0]);
-		Macro.setOptions(null);
-		SaveDialog sd = new SaveDialog("Save Selection...", name, ".roi");
-		String name2 = sd.getFileName();
-		if (name2 == null)
-			return false;
-		String dir = sd.getDirectory();
+		else
+			return saveOne(indexes, null);
+	}
+	
+	boolean saveOne(int[] indexes, String path) {
+		if (indexes.length==0)
+			return error("The list is empty");
 		Roi roi = (Roi)rois.get(indexes[0]);
-		if (!name2.endsWith(".roi")) name2 = name2+".roi";
-		String newName = name2.substring(0, name2.length()-4);
-		rois.set(indexes[0], roi);
-		roi.setName(newName);
-		listModel.setElementAt(newName, indexes[0]);
-		RoiEncoder re = new RoiEncoder(dir+name2);
+		if (path==null) {
+			Macro.setOptions(null);
+			String name = (String) listModel.getElementAt(indexes[0]);
+			SaveDialog sd = new SaveDialog("Save Selection...", name, ".roi");
+			String name2 = sd.getFileName();
+			if (name2 == null)
+				return false;
+			String dir = sd.getDirectory();
+			if (!name2.endsWith(".roi")) name2 = name2+".roi";
+			String newName = name2.substring(0, name2.length()-4);
+			rois.set(indexes[0], roi);
+			roi.setName(newName);
+			listModel.setElementAt(newName, indexes[0]);
+			path = dir+name2;
+		}
+		RoiEncoder re = new RoiEncoder(path);
 		try {
 			re.write(roi);
 		} catch (IOException e) {
 			IJ.error("ROI Manager", e.getMessage());
 		}
-		if (record()) {
-			String path = dir+name2;
-			if (Recorder.scriptMode())
-				Recorder.recordCall("IJ.saveAs(imp, \"Selection\", \""+path+"\");");
-			else
-				Recorder.record("saveAs", "Selection", path);
-		}
+		if (Recorder.record && !IJ.isMacro())
+			Recorder.record("roiManager", "Save", path);
 		return true;
 	}
 
@@ -2017,9 +2032,15 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			macro = false;
 			return true;
 		} else if (cmd.equals("save")) {
-			save(name, false);
+			if (name!=null && name.endsWith(".roi"))
+				saveOne(getIndexes(), name);
+			else
+				save(name, false);
 		} else if (cmd.equals("save selected")) {
-			save(name, true);
+			if (name!=null && name.endsWith(".roi"))
+				saveOne(getIndexes(), name);
+			else
+				save(name, true);
 		} else if (cmd.equals("rename")) {
 			rename(name);
 			macro = false;
@@ -2106,7 +2127,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (!name.endsWith(".zip") && !name.equals(""))
 			return error("Name must end with '.zip'");
 		if (getCount()==0)
-			return error("The selection list is empty.");
+			return error("The list is empty");
 		int[] indexes = null;
 		if (saveSelected)
 			indexes = getIndexes();
@@ -2314,6 +2335,17 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			return indexes;
 		} else
 			return list.getSelectedIndices();
+	}
+	
+	/** This is a macro-callable version of getSelectedIndexes().
+	 * Example: indexes=split(call("ij.plugin.frame.RoiManager.getIndexesAsString"));
+	*/
+	public static String getIndexesAsString() {
+		RoiManager rm = RoiManager.getInstance();
+		if (rm==null) return "";
+		String str = Arrays.toString(rm.getSelectedIndexes());
+		str = str.replaceAll(",","");
+		return str.substring(1,str.length()-1);
 	}
 	
 	/** Returns an array of the selected indexes or all indexes if none are selected. */
