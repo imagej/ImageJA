@@ -31,7 +31,6 @@ class TextCanvas extends Canvas {
 		paint(g);
 	}
   
-static int count;
 	public void paint(Graphics g) {
 		if (tp==null || g==null) return;
 		Dimension d = getSize();
@@ -42,7 +41,7 @@ static int count;
 		g.setColor(Color.lightGray);
 		if (iImage==null)
 			makeImage(iWidth,iHeight);
-		if (tp.iRowHeight==0 || (tp.iColWidth[0]==0&&tp.iRowCount>0)) {
+		if (tp.iRowHeight==0 || (tp.iColWidth.length>0 && tp.iColWidth[0]==0&&tp.iRowCount>0)) {
 			tp.iRowHeight=fMetrics.getHeight()+2;
 			for(int i=0;i<tp.iColCount;i++)
 				calcAutoWidth(i);
@@ -66,7 +65,7 @@ static int count;
 			for (int i=0;i<tp.iColCount;i++) {
 				int w=tp.iColWidth[i];
 				Color b=Color.white,t=Color.black;
-				if(j>=tp.selStart && j<=tp.selEnd) {
+				if (j>=tp.selStart && j<=tp.selEnd) {
 					int w2 = w;
 					if (tp.iColCount==1)
 						w2 = iWidth;
@@ -129,8 +128,8 @@ static int count;
 			return null;
 		if (row>=tp.vData.size())
 			return null;
-		char[] chars = (char[])(tp.vData.elementAt(row));
-		if (chars.length==0)
+		char[] chars = row<tp.vData.size()?(char[])(tp.vData.elementAt(row)):null;
+		if (chars==null || chars.length==0)
 			return null;
 		
 		if (tp.iColCount==1)

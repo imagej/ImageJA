@@ -78,7 +78,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.51w";
+	public static final String VERSION = "1.52a";
 	public static final String BUILD = "";
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
@@ -478,15 +478,17 @@ public class ImageJ extends Frame implements ActionListener,
 
 		if (cmd==null) {
 			switch (keyCode) {
-				case KeyEvent.VK_TAB: WindowManager.putBehind(); return;
-				case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE: 
-					if (deleteOverlayRoi(imp))
-						return;
-					if (imp!=null&&imp.getOverlay()!=null&&imp==GelAnalyzer.getGelImage())
-						return;
-					cmd="Clear";
-					hotkey=true;
-					break; 
+				case KeyEvent.VK_TAB: WindowManager.putBehind(); return;				
+				case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE:
+					if (!(shift||control||alt||meta)) {
+						if (deleteOverlayRoi(imp))
+							return;
+						if (imp!=null&&imp.getOverlay()!=null&&imp==GelAnalyzer.getGelImage())
+							return;
+						cmd="Clear";
+						hotkey=true;
+					}
+					break;
 				//case KeyEvent.VK_BACK_SLASH: cmd=IJ.altKeyDown()?"Animation Options...":"Start Animation"; break;
 				case KeyEvent.VK_EQUALS: cmd="In [+]"; break;
 				case KeyEvent.VK_MINUS: cmd="Out [-]"; break;

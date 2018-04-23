@@ -14,7 +14,7 @@ public interface MacroConstants {
 	// Token types
 	public static final int EOF=128, WORD=129, NUMBER=130, NOP=131, /*EOL=132,*/ STRING_CONSTANT=133, 
 		PREDEFINED_FUNCTION=134, NUMERIC_FUNCTION=135, STRING_FUNCTION=136, ARRAY_FUNCTION=137, 
-		USER_FUNCTION=138, ARRAY=139;
+		USER_FUNCTION=138, ARRAY=139, VARIABLE_FUNCTION=140;
 
 	// Keywords
 	static final String[] keywords = {"macro", "var", "if", "else", "while", "do", "for", "function",
@@ -105,7 +105,7 @@ public interface MacroConstants {
 		IS_KEY_DOWN, GET_SLICE_NUMBER, SCREEN_WIDTH, SCREEN_HEIGHT, CALIBRATE,
 		ASIN, ACOS, ROI_MANAGER, TOOL_ID, IS, GET_VALUE, STACK, MATCHES,
 		GET_STRING_WIDTH, FIT, OVERLAY, SELECTION_CONTAINS};
-
+		
 	// String functions
 	static final int D2S=2000, TO_HEX=2001, TO_BINARY=2002, GET_TITLE=2003, GET_STRING=2004, SUBSTRING=2005,
 		FROM_CHAR_CODE=2006, GET_INFO=2007, GET_DIRECTORY=2008, GET_ARGUMENT=2009, GET_IMAGE_INFO=2010,
@@ -133,5 +133,10 @@ public interface MacroConstants {
 		"getFontList", "newMenu", "getList", "Array"};
 	static final int[] arrayFunctionIDs = {GET_PROFILE, NEW_ARRAY, SPLIT, GET_FILE_LIST,
 		GET_FONT_LIST, NEW_MENU, GET_LIST, ARRAY_FUNC};
+
+	// functions that return a Variable
+	static final int TABLE=4000;
+	static final String[] variableFunctions = {"Table"};
+	static final int[] variableFunctionIDs = {TABLE};
 
 }  // interface MacroConstants

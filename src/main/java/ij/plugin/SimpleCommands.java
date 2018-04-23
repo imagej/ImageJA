@@ -162,13 +162,12 @@ public class SimpleCommands implements PlugIn {
 		ImagePlus imp = IJ.getImage();
 		ImageProcessor ip = imp.getProcessor();
 		ResultsTable rt = ResultsTable.createTableFromImage(ip);
-		rt.showRowNumbers(false);
 		rt.show("Results");
 	}
 	
 	private void resultsToImage() {
 		ResultsTable rt = ResultsTable.getResultsTable();
-		if (rt==null || rt.getCounter()==0) {
+		if (rt==null || rt.size()==0) {
 			IJ.error("Results to Image", "The Results table is empty");
 			return;
 		}

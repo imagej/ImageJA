@@ -11,7 +11,7 @@ public class ResultsSorter implements PlugIn {
 
 	public void run(String arg) {
 		ResultsTable rt = ResultsTable.getResultsTable();
-		int count = rt.getCounter();
+		int count = rt.size();
 		if (count==0) {
 			IJ.error("Sort", "The \"Results\" table is empty");
 			return;
