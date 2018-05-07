@@ -78,7 +78,7 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.52a";
+	public static final String VERSION = "1.52b";
 	public static final String BUILD = "";
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
@@ -194,7 +194,7 @@ public class ImageJ extends Frame implements ActionListener,
 			Dimension size = getSize();
 			if (size!=null) {
 				if (IJ.debugMode) IJ.log("size: "+size);
-				if (IJ.isWindows() && size.height>108) {
+				if (IJ.isWindows() && (size.height>108||IJ.javaVersion()>=10)) {
 					// workaround for IJ window layout and FileDialog freeze problems with Windows 10 Creators Update
 					IJ.wait(10);
 					pack();
