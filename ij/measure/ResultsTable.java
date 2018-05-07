@@ -478,10 +478,8 @@ public class ResultsTable implements Cloneable {
 		columns[column][row] = value;
 		if (headings[column]==null)
 			headings[column] = "C"+(column+1);
-		if (counter<25) {
-			if ((int)value!=value && !Double.isNaN(value))
-				decimalPlaces[column] = (short)precision;
-		}
+		if ((int)value!=value && !Double.isNaN(value))
+			decimalPlaces[column] = (short)precision;
 	}
 
 	/** Sets the string value of the given column and row, where
@@ -1107,6 +1105,7 @@ public class ResultsTable implements Cloneable {
 			firstColumn = 1;
 		}
 		ResultsTable rt = new ResultsTable();
+		rt.showRowNumbers(true);
 		for (int i=firstRow; i<lines.length; i++) {
 			rt.incrementCounter();
 			String[] items=lines[i].split(cellSeparator);
