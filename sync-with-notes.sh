@@ -16,6 +16,10 @@ NOTES_URL=$URL/notes.html
 VERSION="$(curl $SRC_URL/ | \
 	sed -n "s/^.*ij\([0-9a-z]*\)-src.zip.*$/\1/p" | \
 	tail -n 1)"
+test "$VERSION" || {
+	echo "Could not extract version from $SRC_URL" >&2
+	exit 1
+}
 DOTVERSION=$(echo $VERSION | sed "s/^./&./")
 git log | grep "^      .[^ ]\? $DOTVERSION,\? " && {
 	echo "Already have $DOTVERSION"
