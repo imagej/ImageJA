@@ -107,10 +107,10 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if (roi==null || roi.getType()!=Roi.POINT)
 			displayResults();
 		if ((measurements&ADD_TO_OVERLAY)!=0)
-			addToOverlay();
+			addRoiToOverlay();
 	}
 	
-	void addToOverlay() {
+	private void addRoiToOverlay() {
 		Roi roi = imp.getRoi();
 		if (roi==null)
 			return;
@@ -400,7 +400,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			ImageStatistics stats = ImageStatistics.getStatistics(ip, measurements, imp2.getCalibration());
 			PointRoi point = new PointRoi(p.xpoints[i], p.ypoints[i]);
 			point.setPosition(position);
-			if (pointRoi!=null) {
+			if (pointRoi!=null && pointRoi.getNCounters()>1) {
 				int[] counters = pointRoi.getCounters();
 				if (counters!=null && i<counters.length) {
 					int counter = counters[i]&0xff;
@@ -1037,6 +1037,10 @@ public class Analyzer implements PlugInFilter, Measurements {
 			showMin = b;
 		else if (option.contains("angle"))
 			showAngle = b;
+	}
+	
+	public static boolean addToOverlay() {
+		return ((getMeasurements()&ADD_TO_OVERLAY)!=0);
 	}
 	
 	public static void setResultsTable(ResultsTable rt) {

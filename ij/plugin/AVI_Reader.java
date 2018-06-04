@@ -134,7 +134,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	private final static int   FOURCC_RIFF = 0x46464952;   //'RIFF'
 	private final static int   FOURCC_AVI =	 0x20495641;   //'AVI '
 	private final static int   FOURCC_AVIX = 0x58495641;   //'AVIX'	 // extended AVI
-	private final static int   FOURCC_00ix = 0x78693030;   //'00ix'	 // index within
+	private final static int   FOURCC_ix00 = 0x30307869;   //'ix00'  // index within
 	private final static int   FOURCC_indx = 0x78646e69;   //'indx'	 // main index
 	private final static int   FOURCC_idx1 = 0x31786469;   //'idx1'	 // index of single 'movi' block
 	private final static int   FOURCC_LIST = 0x5453494c;   //'LIST'
@@ -623,7 +623,6 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 			}
 			long size = readInt() & SIZE_MASK;
 			nextPos = raFile.getFilePointer() + size;
-
 			if (nextPos>endPosition || nextPos>fileSize) {
 				errorText = "AVI File Error: '"+fourccString(type)+"' @ 0x"+Long.toHexString(raFile.getFilePointer()-8)+" has invalid length. File damaged/truncated?";
 				IJ.log(errorText);		// this text is also remembered as error message for showing in message box
@@ -707,7 +706,7 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				readBitMapInfo(endPosition);
 				return true;
 			case FOURCC_indx:
-			case FOURCC_00ix:
+			case FOURCC_ix00:
 				readAvi2Index(endPosition);
 				return true;
 			case FOURCC_idx1:
@@ -816,8 +815,8 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 				if (verbose)
 					IJ.log("   indx entry: '" +fourccString(dwChunkId)+"' incl header "+posSizeString(qwOffset,dwSize)+timeString());
 				long nextIndxEntryPointer = raFile.getFilePointer();
-				raFile.seek(qwOffset);					//qwOffset & dwSize here include chunk header of ix00
-				findFourccAndRead(FOURCC_00ix, false, qwOffset+dwSize, true);
+				raFile.seek(qwOffset);					//qwOffset & dwSize here include chunk header of ix00	
+				findFourccAndRead(FOURCC_ix00, false, qwOffset+dwSize, false);				
 				raFile.seek(nextIndxEntryPointer);
 				if (frameNumber>lastFrameToRead) break;
 			}
@@ -1140,8 +1139,8 @@ public class AVI_Reader extends VirtualStack implements PlugIn {
 	 *	return the pixels array of the resulting image
 	 */
 	private Object readFixedLengthFrame (RandomAccessFile rFile, int size)	throws Exception, IOException {
-		if (size < scanLineSize*biHeight) //check minimum size (fixed frame length format)
-			throw new Exception("Data chunk size "+size+" too short ("+(scanLineSize*biHeight)+" required)");
+		if (size < scanLineSize*biHeight)
+			size = scanLineSize*biHeight; // bugfix for RGB odd-width files
 		byte[] rawData = new byte[size];
 		int	 n	= rFile.read(rawData, 0, size);
 		if (n < rawData.length)
