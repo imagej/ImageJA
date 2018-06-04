@@ -685,7 +685,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     	if (this.stack==null)
     	    newStack.viewers(+1);
     	this.stack = newStack;
-		oneSliceStack = false;
+    	oneSliceStack = false;
     	setProcessor2(title, ip, newStack);
 		if (win==null) {
 			if (resetCurrentSlice) setSlice(currentSlice);
@@ -1396,6 +1396,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			s.addSlice(label, ip2);
 			s.update(ip2);
 			setStack(s);
+			ip = ip2;
 			oneSliceStack = true;
 		} else {
 			s = stack;
@@ -1649,8 +1650,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	
 	/** Assigns 'newRoi'  to this image and displays it if 'updateDisplay' is true. */
 	public void setRoi(Roi newRoi, boolean updateDisplay) {
-		if (newRoi==null)
-			{deleteRoi(); return;}
+		if (newRoi==null) {
+			deleteRoi();
+			return;
+		}
 		if (Recorder.record) {
 			Recorder recorder = Recorder.getInstance();
 			if (recorder!=null) recorder.imageUpdated(this);

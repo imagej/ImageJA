@@ -1231,8 +1231,10 @@ public class Interpreter implements MacroConstants {
 			if (line.length()>120)
 				line = line.substring(0,119)+"...";			
 			StringSelection ss = new StringSelection("" + lineNumber);
-			java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			clipboard.setContents(ss, null);
+			try {
+				java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(ss, null);
+			} catch(Exception e) {}
 			Frame f = WindowManager.getFrame("Debug");			
 			TextPanel panel = null;
 			if (showVariables && f!=null && (f instanceof TextWindow)) { //clear previous content
@@ -1507,6 +1509,10 @@ public class Interpreter implements MacroConstants {
 					value = getArrayLength(v);
 					next = nextToken();
 				} else {
+					if (v.getArray()!=null) {
+						getToken();
+						error("'[' or '.' expected");
+					}
 					if (prefixValue!=0 && !checkingType) {
 						v.setValue(v.getValue()+prefixValue);
 						prefixValue = 0;

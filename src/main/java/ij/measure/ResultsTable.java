@@ -1393,5 +1393,32 @@ public class ResultsTable implements Cloneable {
 	public boolean columnDeleted() {
 		return columnDeleted;
 	}
+	
+	/** Selects the row in the "Results" table assocuiated with the specified Roi.
+		The row number is obtained from the roi name..
+	*/
+	public static boolean selectRow(Roi roi) {
+		if (roi==null)
+			return false;	
+		String name = roi.getName();
+		if (name==null || name.length()>8)
+			return false ;
+		Frame frame = WindowManager.getFrame("Results");
+		if (frame==null)
+			return false;
+		if (!(frame instanceof TextWindow))
+			return false ;
+		ResultsTable rt = ((TextWindow)frame).getResultsTable();
+		if (rt==null || rt!=Analyzer.getResultsTable())
+			return false ;
+		double n = Tools.parseDouble(name);
+		if (Double.isNaN(n))
+			return false;
+		int index = (int)n - 1;
+		if (index<0 || index>=rt.size())
+			return false;
+		((TextWindow)frame).getTextPanel().setSelection(index, index);
+    	return true;	
+    }
 		
 }
