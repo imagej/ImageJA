@@ -999,6 +999,9 @@ public class ShortProcessor extends ImageProcessor {
 		return histogram;
 	}
 
+	/** Creates a histogram of length maxof(max+1,256). For small 
+		images or selections, computations using these histograms 
+		are faster compared to 65536 element histograms. */
 	int[] getHistogram2() {
 		if (mask!=null)
 			return getHistogram2(mask);
@@ -1181,6 +1184,22 @@ public class ShortProcessor extends ImageProcessor {
 	/** Returns 'true' if this is a signed 16-bit image. */
 	public boolean isSigned16Bit() {
 		return cTable!=null && cTable[0]==-32768f && cTable[1]==-32767f;
+	}
+	
+	/** Returns a binary mask, or null if a threshold is not set. */
+	public ByteProcessor createMask() {
+		if (getMinThreshold()==NO_THRESHOLD)
+			return null;
+		int minThreshold = (int)getMinThreshold();
+		int maxThreshold = (int)getMaxThreshold();
+		ByteProcessor mask = new ByteProcessor(width, height);
+		byte[] mpixels = (byte[])mask.getPixels();
+		for (int i=0; i<pixels.length; i++) {
+			int value = pixels[i]&0xffff;
+			if (value>=minThreshold && value<=maxThreshold)
+				mpixels[i] = (byte)255;
+		}
+		return mask;
 	}
 
 	/** Not implemented. */
