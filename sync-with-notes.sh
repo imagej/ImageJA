@@ -9,10 +9,10 @@ test -z "$HUDSON_URL" && {
 	exit 1
 }
 
-URL=https://wsr.imagej.net/
-
-SRC_URL=$URL/download/src
+URL=https://wsr.imagej.net
+SRC_URL=$URL/src
 NOTES_URL=$URL/notes.html
+
 VERSION="$(curl $SRC_URL/ | \
 	sed -n "s/^.*ij\([0-9a-z]*\)-src.zip.*$/\1/p" | \
 	tail -n 1)"
