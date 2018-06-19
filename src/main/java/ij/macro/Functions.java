@@ -1062,7 +1062,10 @@ public class Functions implements MacroConstants, Measurements {
 		for (int y=ymin; y<ymax; y++) {
 			for (int x=xmin; x<xmax; x++) {
 				v = isFloat?ip.getPixelValue(x,y):ip.getPixel(x,y)&0xffffff;
-				if (v>=darg1 && v<=darg2) {
+				boolean replace = v>=darg1 && v<=darg2;
+				if (Double.isNaN(darg1) && Double.isNaN(darg2) && Double.isNaN(v))
+					replace = true;
+				if (replace) {
 					if (isFloat)
 						ip.putPixelValue(x, y, darg3);
 					else
@@ -3898,10 +3901,12 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		if (metadata!=null && metadata.length()==0)
 			metadata = null;
-		if (isInfo) {
+		if (isInfo || oneArg) {
 			imp.setProperty("Info", metadata);
 		} else {
 			imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
+			if (imp.getStackSize()==1)
+					imp.setProperty("Label", metadata);
 			if (!Interpreter.isBatchMode()) imp.repaintWindow();
 		}
 	}
@@ -4143,7 +4148,7 @@ public class Functions implements MacroConstants, Measurements {
 			String title = defaultName!=null?path:"openFile";
 			defaultName = defaultName!=null?defaultName:"log.txt";
 			SaveDialog sd = new SaveDialog(title, defaultName, ".txt");
-			if(sd.getFileName()==null) return "";
+			if (sd.getFileName()==null) return "";
 			path = sd.getDirectory()+sd.getFileName();
 		} else {
 			File file = new File(path);
@@ -6131,7 +6136,13 @@ public class Functions implements MacroConstants, Measurements {
 			return Double.NaN;
 		} else if (name.equals("measure")) {
 			ResultsTable rt = overlay.measure(imp);
-			rt.show("Results");
+			if (IJ.getInstance()==null)
+				Analyzer.setResultsTable(rt);
+			else
+				rt.show("Results");
+		} else if (name.equals("flatten")) {
+			IJ.runPlugIn("ij.plugin.OverlayCommands", "flatten");
+			return Double.NaN;
 		} else
 			interp.error("Unrecognized function name");
 		return Double.NaN;
@@ -6763,6 +6774,10 @@ public class Functions implements MacroConstants, Measurements {
 			return setSplineAnchors(imp, false);
 		else if (name.equals("setPolylineSplineAnchors"))
 			return setSplineAnchors(imp, true);
+		else if (name.equals("remove")) {
+			getImage().deleteRoi();
+			return null;
+		}
 		Roi roi = imp.getRoi();
 		if (roi==null)
 			interp.error("No selection");

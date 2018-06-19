@@ -170,10 +170,10 @@ public class Overlay {
 	public ResultsTable measure(ImagePlus imp) {
 		ResultsTable rt = new ResultsTable();
 		rt.showRowNumbers(true);
+		Analyzer analyzer = new Analyzer(imp, rt);
 		for (int i=0; i<size(); i++) {
 			Roi roi = get(i);
 			imp.setRoi(roi);
-			Analyzer analyzer = new Analyzer(imp, rt);
 			analyzer.measure();
 		}
 		imp.deleteRoi();
@@ -283,6 +283,8 @@ public class Overlay {
 		overlay2.drawBackgrounds(drawBackgrounds);
 		overlay2.setLabelColor(labelColor);
 		overlay2.setLabelFont(labelFont);
+		overlay2.setIsCalibrationBar(isCalibrationBar);
+		overlay2.selectable(selectable);
 		return overlay2;
 	}
 	
