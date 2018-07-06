@@ -13,7 +13,7 @@ import java.awt.geom.Rectangle2D;
 	
 	0-3		"Iout"
 	4-5		version (>=217)
-	6-7		roi type
+	6-7		roi type (encoded as one byte)
 	8-9		top
 	10-11	left
 	12-13	bottom
@@ -160,7 +160,7 @@ public class RoiDecoder {
 		int right = getShort(RIGHT);
 		int width = right-left;
 		int height = bottom-top;
-		int n = getShort(N_COORDINATES);
+		int n = getUnsignedShort(N_COORDINATES);
 		int options = getShort(OPTIONS);
 		int position = getInt(POSITION);
 		int hdr2Offset = getInt(HEADER2_OFFSET);
@@ -247,13 +247,12 @@ public class RoiDecoder {
 					roi = new Line(x1, y1, x2, y2);
 					roi.setDrawOffset(drawOffset);
 				}
-				//IJ.write("line roi: "+x1+" "+y1+" "+x2+" "+y2);
 				break;
 			case polygon: case freehand: case traced: case polyline: case freeline: case angle: case point:
 					//IJ.log("type: "+type);
 					//IJ.log("n: "+n);
 					//IJ.log("rect: "+left+","+top+" "+width+" "+height);
-					if (n==0) break;
+					if (n==0 || n<0) break;
 					int[] x = new int[n];
 					int[] y = new int[n];
 					float[] xf = null;
@@ -268,7 +267,6 @@ public class RoiDecoder {
 						if (ytmp<0) ytmp = 0;
 						x[i] = left+xtmp;
 						y[i] = top+ytmp;
-						//IJ.write(i+" "+getShort(base1+i*2)+" "+getShort(base2+i*2));
 					}
 					if (subPixelResolution) {
 						xf = new float[n];
@@ -328,6 +326,8 @@ public class RoiDecoder {
 			default:
 				throw new IOException("Unrecognized ROI type: "+type);
 		}
+		if (roi==null)
+			return null;
 		roi.setName(getRoiName());
 		
 		// read stroke width, stroke color and fill color (1.43i or later)
@@ -534,6 +534,12 @@ public class RoiDecoder {
 		return n;		
 	}
 	
+	int getUnsignedShort(int base) {
+		int b0 = data[base]&255;
+		int b1 = data[base+1]&255;
+		return (b0<<8) + b1;	
+	}
+
 	int getInt(int base) {
 		int b0 = data[base]&255;
 		int b1 = data[base+1]&255;

@@ -448,7 +448,6 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 	/** Returns the histogram values as a ResultsTable. */
 	public ResultsTable getResultsTable() {
 		ResultsTable rt = new ResultsTable();
-		rt.showRowNumbers(false);
 		rt.setPrecision(digits);
 		String vheading = stats.binSize==1.0?"value":"bin start";
 		if (cal.calibrated() && !cal.isSigned16Bit()) {
@@ -459,6 +458,8 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			}
 		} else {
 			for (int i=0; i<stats.nBins; i++) {
+				if (stats.binSize!=1.0)
+					rt.setValue("index", i, i);
 				rt.setValue(vheading, i, cal.getCValue(stats.histMin+i*stats.binSize));
 				rt.setValue("count", i, histogram[i]);
 			}

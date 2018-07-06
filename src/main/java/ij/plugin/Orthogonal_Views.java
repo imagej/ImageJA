@@ -96,9 +96,13 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		double calx=cal.pixelWidth;
 		double caly=cal.pixelHeight;
 		double calz=cal.pixelDepth;
-		ax=1.0;
-		ay=caly/calx;
-		az=calz/calx;
+		ax = 1.0;
+		ay = caly/calx;
+		az = calz/calx;
+		if (az>100) {
+			IJ.error("Z spacing ("+(int)az+") is too large.");
+			return;
+		}
 		win = imp.getWindow();
 		canvas = win.getCanvas();
 		addListeners(canvas);
@@ -233,6 +237,7 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 		double arat=az/ax;
 		int width2 = fp1.getWidth();
 		int height2 = (int)Math.round(fp1.getHeight()*az);
+		if (height2<1) height2=1;
 		if (width2!=fp1.getWidth()||height2!=fp1.getHeight()) {
 			fp1.setInterpolate(true);
 			ImageProcessor sfp1=fp1.resize(width2, height2);
@@ -249,11 +254,13 @@ public class Orthogonal_Views implements PlugIn, MouseListener, MouseMotionListe
 			updateZYView(p, is);
 				
 		width2 = (int)Math.round(fp2.getWidth()*az);
+		if (width2<1) width2=1;
 		height2 = fp2.getHeight();
 		String title = "YZ ";
 		if (rotateYZ) {
 			width2 = fp2.getWidth();
 			height2 = (int)Math.round(fp2.getHeight()*az);
+			if (height2<1) height2=1;
 			title = "ZY ";
 		}
 		if (width2!=fp2.getWidth()||height2!=fp2.getHeight()) {

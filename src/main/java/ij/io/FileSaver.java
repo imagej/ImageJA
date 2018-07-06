@@ -106,6 +106,10 @@ public class FileSaver {
 			fi.sliceLabels[0] = (String)label;
 		}
 		fi.description = getDescriptionString();
+		if (imp.getProperty(Plot.PROPERTY_KEY) != null) {
+			Plot plot = (Plot)(imp.getProperty(Plot.PROPERTY_KEY));
+			fi.plot = plot.toByteArray();
+		}
 		fi.roi = RoiEncoder.saveAsByteArray(imp.getRoi());
 		fi.overlay = getOverlay(imp);
 		DataOutputStream out = null;
@@ -225,6 +229,10 @@ public class FileSaver {
 		fi.description = getDescriptionString();
 		saveName = false;
 		fi.sliceLabels = imp.getStack().getSliceLabels();
+		if (imp.getProperty(Plot.PROPERTY_KEY) != null) {
+			Plot plot = (Plot)(imp.getProperty(Plot.PROPERTY_KEY));
+			fi.plot = plot.toByteArray();
+		}
 		fi.roi = RoiEncoder.saveAsByteArray(imp.getRoi());
 		fi.overlay = getOverlay(imp);
 		if (imp.isComposite()) saveDisplayRangesAndLuts(imp, fi);
@@ -289,6 +297,10 @@ public class FileSaver {
 			name = name+".tif";
 		fi.description = getDescriptionString();
 		fi.info = imp.getInfoProperty();
+		if (imp.getProperty(Plot.PROPERTY_KEY) != null) {
+			Plot plot = (Plot)(imp.getProperty(Plot.PROPERTY_KEY));
+			fi.plot = plot.toByteArray();
+		}
 		fi.roi = RoiEncoder.saveAsByteArray(imp.getRoi());
 		fi.overlay = getOverlay(imp);
 		fi.sliceLabels = imp.getStack().getSliceLabels();
@@ -316,14 +328,9 @@ public class FileSaver {
 	}
 
 	public static boolean okForGif(ImagePlus imp) {
-		int type = imp.getType();
-		if (type==ImagePlus.COLOR_RGB) {
-			String msg = "To save as GIF, the image ";
-			if (imp.getStackSize()>1)
-				msg = "To save as Animated GIF, the stack ";
-			IJ.error(msg+"must be converted to 8-bit\nindexed color by the Image>Type>8-bit Color command.");
+		if (imp.getType()==ImagePlus.COLOR_RGB)
 			return false;
-		} else
+		else
 			return true;
 	}
 
@@ -331,8 +338,6 @@ public class FileSaver {
 		dialog. Returns false if the user selects cancel
 		or the image is not 8-bits. */
 	public boolean saveAsGif() {
-		if (!okForGif(imp))
-			return false;
 		String path = getPath("GIF", ".gif");
 		if (path==null)
 			return false;
@@ -343,7 +348,6 @@ public class FileSaver {
 	/** Save the image in Gif format using the specified path. Returns
 		false if the image is not 8-bits or there is an I/O error. */
 	public boolean saveAsGif(String path) {
-		if (!okForGif(imp)) return false;
 		IJ.runPlugIn(imp, "ij.plugin.GifWriter", path);
 		updateImp(fi, FileInfo.GIF_OR_JPG);
 		return true;
@@ -514,7 +518,7 @@ public class FileSaver {
 	/** Save the stack as raw data using the specified path. */
 	public boolean saveAsRawStack(String path) {
 		if (fi.nImages==1)
-			{IJ.write("This is not a stack"); return false;}
+			{IJ.log("This is not a stack"); return false;}
 		fi.intelByteOrder = Prefs.intelByteOrder;
 		boolean signed16Bit = false;
 		Object[] stack = null;

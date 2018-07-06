@@ -89,7 +89,8 @@ public class ImageReader {
 					last = b % fi.width == fi.width - 1 ? 0 : byteArray[b];
 				}
 			}
-			if (current+length>pixels.length) length = pixels.length-current;
+			if (current+length>pixels.length)
+				length = pixels.length-current;
 			System.arraycopy(byteArray, 0, pixels, current, length);
 			current += length;
 			showProgress(i+1, fi.stripOffsets.length);
@@ -116,8 +117,7 @@ public class ImageReader {
 			while (bufferCount<bufferSize) { // fill the buffer
 				count = in.read(buffer, bufferCount, bufferSize-bufferCount);
 				if (count==-1) {
-					if (bufferCount>0)
-						for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
+					for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
 					totalRead = byteCount;
 					eofError();
 					break;
@@ -216,8 +216,7 @@ public class ImageReader {
 			while (bufferCount<bufferSize) { // fill the buffer
 				count = in.read(buffer, bufferCount, bufferSize-bufferCount);
 				if (count==-1) {
-					if (bufferCount>0)
-						for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
+					for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
 					totalRead = byteCount;
 					eofError();
 					break;
@@ -333,8 +332,7 @@ public class ImageReader {
 			while (bufferCount<bufferSize) { // fill the buffer
 				count = in.read(buffer, bufferCount, bufferSize-bufferCount);
 				if (count==-1) {
-					if (bufferCount>0)
-						for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
+					for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
 					totalRead = byteCount;
 					eofError();
 					break;
@@ -382,8 +380,7 @@ public class ImageReader {
 			while (bufferCount<bufferSize) { // fill the buffer
 				count = in.read(buffer, bufferCount, bufferSize-bufferCount);
 				if (count==-1) {
-					if (bufferCount>0)
-						for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
+					for (int i=bufferCount; i<bufferSize; i++) buffer[i] = 0;
 					totalRead = byteCount;
 					eofError();
 					break;
@@ -508,7 +505,7 @@ public class ImageReader {
 	}
 
 	int[] readPlanarRGB(InputStream in) throws IOException {
-		if (fi.compression>FileInfo.COMPRESSION_NONE)
+		if (fi.compression>FileInfo.COMPRESSION_NONE || (fi.stripOffsets!=null&&fi.stripOffsets.length>1))
 			return readCompressedPlanarRGBImage(in);
 		DataInputStream dis = new DataInputStream(in);
 		int planeSize = nPixels; // 1/3 image size
@@ -697,7 +694,6 @@ public class ImageReader {
 		int b1, b2, b3;
 		DataInputStream dis = new DataInputStream(in);
 		for (int y=0; y<height; y++) {
-			//IJ.log("read24bitImage: ");
 			dis.readFully(buffer);
 			int b = 0;
 			for (int x=0; x<width; x++) {
@@ -745,7 +741,6 @@ public class ImageReader {
 				skipAttempts++;
 				if (count==-1 || skipAttempts>5) break;
 				bytesRead += count;
-				//IJ.log("skip: "+skipCount+" "+count+" "+bytesRead+" "+skipAttempts);
 			}
 		}
 		byteCount = ((long)width)*height*bytesPerPixel;
@@ -807,6 +802,8 @@ public class ImageReader {
 					pixels = (Object)readChunkyRGB(in);
 					break;
 				case FileInfo.RGB_PLANAR:
+					if (!(in instanceof RandomAccessStream) && fi.stripOffsets!=null && fi.stripOffsets.length>1)
+						in = new RandomAccessStream(in);
 					bytesPerPixel = 3;
 					skip(in);
 					pixels = (Object)readPlanarRGB(in);
@@ -1046,7 +1043,6 @@ class ByteVector {
     }
 
 	void doubleCapacity() {
-		//IJ.log("double: "+data.length*2);
 		byte[] tmp = new byte[data.length*2 + 1];
 		System.arraycopy(data, 0, tmp, 0, data.length);
 		data = tmp;

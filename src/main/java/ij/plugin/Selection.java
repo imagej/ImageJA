@@ -224,7 +224,7 @@ public class Selection implements PlugIn, Measurements {
 		int type = roi.getType();
 		boolean segmentedSelection = type==Roi.POLYGON||type==Roi.POLYLINE;
 		if (!(segmentedSelection||type==Roi.FREEROI||type==Roi.TRACED_ROI||type==Roi.FREELINE))
-			{IJ.error("Spline", "Polygon or polyline selection required"); return;}
+			{IJ.error("Spline Fit", "Polygon or polyline selection required"); return;}
 		if (roi instanceof EllipseRoi)
 			return;
 		PolygonRoi p = (PolygonRoi)roi;
@@ -629,8 +629,8 @@ public class Selection implements PlugIn, Measurements {
 		} else {
 			roi = (Roi)roi.clone();
 			int lwidth = (int)roi.getStrokeWidth();
-			if (lwidth<5)
-				lwidth = 5;
+			if (lwidth<1)
+				lwidth = 1;
 			Rectangle bounds = roi.getBounds();
 			int width = bounds.width + lwidth*2;
 			int height = bounds.height + lwidth*2;

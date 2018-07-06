@@ -227,11 +227,14 @@ public class GelAnalyzer implements PlugIn {
 		if (nLanes<MAX_LANES)
 			nLanes += 1;
 		IJ.showStatus("Lane " + nLanes + " selected");
-
-		if(isVertical)
+		if (isVertical)
 			x[nLanes] = rect.x;
 		else
 			x[nLanes] = rect.y;
+		if(x[nLanes]==x[nLanes-1]){
+			nLanes--; //avoid duplicate
+			return;
+		}
 		if (isVertical && rect.y!=firstRect.y) {
 			rect.y = firstRect.y;
 			gel.setRoi(rect);
@@ -556,7 +559,6 @@ class PlotsCanvas extends ImageCanvas {
 		rt.incrementCounter();
 		rt.addValue("Area", area);
 		rt.show("Results");
-		// IJ.write((counter+1)+"\t"+IJ.d2s(area, places)+error);
 		measured[counter] = area;
 		if (counter<MAX_PEAKS)
 			counter++;
@@ -609,7 +611,6 @@ class PlotsCanvas extends ImageCanvas {
 			if (!fits)
 				y = r.y - 2;
 			ip.drawString(s, x, y);
-			//IJ.write(i+": "+x+" "+y+" "+s+" "+ip.StringWidth(s)/2);
 		}
 		imp.updateAndDraw();
 		displayPercentages();
@@ -633,7 +634,6 @@ class PlotsCanvas extends ImageCanvas {
 			rt.incrementCounter();
 			rt.addValue("Area", measured[i]);
 			rt.addValue("Percent", percent);
-			//IJ.write((i+1)+"\t"+IJ.d2s(measured[i],3)+"\t"+IJ.d2s(percent,3));
 		}
 		rt.show("Results");
 	}
@@ -642,9 +642,6 @@ class PlotsCanvas extends ImageCanvas {
 		for (int i=0; i<counter; i++) {
 			double a = (actual[i]/actual[0])*100;
 			double m = (measured[i]/measured[0])*100;
-			IJ.write(IJ.d2s(a, 4)+" "
-					 +IJ.d2s(m, 4)+" "
-					 +IJ.d2s(((m-a)/m)*100, 4));
 		}
 	}
 	

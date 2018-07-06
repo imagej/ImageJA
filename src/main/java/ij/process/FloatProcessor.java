@@ -707,7 +707,11 @@ public class FloatProcessor extends ImageProcessor {
 	}
 	
 	public void noise(double standardDeviation) {
-		Random rnd=new Random();
+		if (rnd==null)
+			rnd = new Random();
+		if (!Double.isNaN(seed))
+			rnd.setSeed((int) seed);
+		seed = Double.NaN;
 		for (int y=roiY; y<(roiY+roiHeight); y++) {
 			int i = y * width + roiX;
 			for (int x=roiX; x<(roiX+roiWidth); x++) {
@@ -1026,14 +1030,17 @@ public class FloatProcessor extends ImageProcessor {
 		new ij.plugin.filter.Convolver().convolve(this, kernel, kernelWidth, kernelHeight);
 	}
 
+	/** Returns a 256 bin histogram of the current ROI or of the entire image if there is no ROI. */
+	public int[] getHistogram() {
+		return getStatistics().histogram;
+	}
+
 	/** Not implemented. */
 	public void threshold(int level) {}
 	/** Not implemented. */
 	public void autoThreshold() {}
 	/** Not implemented. */
 	public void medianFilter() {}
-	/** Not implemented. */
-	public int[] getHistogram() {return null;}
 	/** Not implemented. */
 	public void erode() {}
 	/** Not implemented. */
@@ -1071,6 +1078,21 @@ public class FloatProcessor extends ImageProcessor {
 	
 	public int getBitDepth() {
 		return 32;
+	}
+	
+	/** Returns a binary mask, or null if a threshold is not set. */
+	public ByteProcessor createMask() {
+		if (getMinThreshold()==NO_THRESHOLD)
+			return null;
+		float minThreshold = (float)getMinThreshold();
+		float maxThreshold = (float)getMaxThreshold();
+		ByteProcessor mask = new ByteProcessor(width, height);
+		byte[] mpixels = (byte[])mask.getPixels();
+		for (int i=0; i<pixels.length; i++) {
+			if (pixels[i]>=minThreshold && pixels[i]<=maxThreshold)
+				mpixels[i] = (byte)255;
+		}
+		return mask;
 	}
 
 }

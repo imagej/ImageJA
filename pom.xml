@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>16.2.0</version>
+		<version>22.3.0</version>
 		<relativePath />
 	</parent>
 
 	<groupId>net.imagej</groupId>
 	<artifactId>ij</artifactId>
-	<version>1.51p</version>
+	<version>1.52d</version>
 
 	<name>ImageJ</name>
 	<description>ImageJ is an open source Java image processing program inspired by NIH Image for the Macintosh.</description>
@@ -90,6 +90,7 @@
 		<license.copyrightOwners>N/A</license.copyrightOwners>
 
 		<scijava.jvm.version>1.6</scijava.jvm.version>
+		<scijava.jvm.build.version>1.6</scijava.jvm.build.version>
 		<javac.path>${java.home}/../lib/tools.jar</javac.path>
 	</properties>
 

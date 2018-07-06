@@ -103,12 +103,14 @@ public class Analyzer implements PlugInFilter, Measurements {
 
 	public void run(ImageProcessor ip) {
 		measure();
-		displayResults();
+		Roi roi = imp.getRoi();
+		if (roi==null || roi.getType()!=Roi.POINT)
+			displayResults();
 		if ((measurements&ADD_TO_OVERLAY)!=0)
-			addToOverlay();
+			addRoiToOverlay();
 	}
 	
-	void addToOverlay() {
+	private void addRoiToOverlay() {
 		Roi roi = imp.getRoi();
 		if (roi==null)
 			return;
@@ -121,7 +123,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 		}
 		if (roi.getName()==null)
 			roi.setName(""+rt.size());
-		//roi.setName(IJ.getString("Label:", "m"+rt.getCounter()));
+		//roi.setName(IJ.getString("Label:", "m"+rt.size()));
 		roi.setIgnoreClipRect(true);
 		Overlay overlay = imp.getOverlay();
 		if (overlay==null)
@@ -235,6 +237,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 			else
 				systemMeasurements &= ~list[i];
 		}
+		if (rt!=null && rt.size()>1 && !IJ.isResultsWindow() && IJ.getInstance()!=null)
+			rt.reset();
 		if ((oldMeasurements&(~SCIENTIFIC_NOTATION))!=(systemMeasurements&(~SCIENTIFIC_NOTATION))&&IJ.isResultsWindow()) {
 				rt.setPrecision((systemMeasurements&SCIENTIFIC_NOTATION)!=0?-precision:precision);
 				clearSummary();
@@ -396,7 +400,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			ImageStatistics stats = ImageStatistics.getStatistics(ip, measurements, imp2.getCalibration());
 			PointRoi point = new PointRoi(p.xpoints[i], p.ypoints[i]);
 			point.setPosition(position);
-			if (pointRoi!=null) {
+			if (pointRoi!=null && pointRoi.getNCounters()>1) {
 				int[] counters = pointRoi.getCounters();
 				if (counters!=null && i<counters.length) {
 					int counter = counters[i]&0xff;
@@ -408,7 +412,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				}
 			}
 			saveResults(stats, point);
-			if (i!=p.npoints-1) displayResults();
+			displayResults();
 		}
 	}
 	
@@ -447,6 +451,15 @@ public class Analyzer implements PlugInFilter, Measurements {
 				clearSummary();
 				rt.update(measurements, imp2, roi);
 			}
+		}
+		if ((measurements&(AREA+MEAN+STD_DEV+MODE+MIN_MAX+CENTROID))==0) {
+			incrementCounter();
+			rt.addValue("Length", roi.getLength());
+			if (roi.getType()==Roi.LINE && showAngle) {
+				Line line = (Line)roi;
+				rt.addValue("Angle", line.getAngle(line.x1,line.y1,line.x2,line.y2));
+			}
+			return;
 		}
 		boolean straightLine = roi.getType()==Roi.LINE;
 		int lineWidth = (int)Math.round(roi.getStrokeWidth());
@@ -538,7 +551,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			reset();
 		clearSummary();
 		incrementCounter();
-		int counter = rt.getCounter();
+		int counter = rt.size();
 		if (counter<=MAX_STANDARDS && !(stats.umean==0.0&&counter==1&&umeans!=null && umeans[0]!=0f)) {
 			if (umeans==null) umeans = new float[MAX_STANDARDS];
 			umeans[counter-1] = (float)stats.umean;
@@ -680,10 +693,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 			if (roi.isLine()) {
 				rt.addValue("Length", roi.getLength());
 				if (roi.getType()==Roi.LINE && showAngle) {
-					double angle = 0.0;
-					Line l = (Line)roi;
-					angle = roi.getAngle(l.x1, l.y1, l.x2, l.y2);
-					rt.addValue("Angle", angle);
+					Line line = (Line)roi;
+					rt.addValue("Angle", line.getAngle(line.x1,line.y1,line.x2,line.y2));
 				}
 			} else if (roi.getType()==Roi.ANGLE) {
 				double angle = ((PolygonRoi)roi).getAngle();
@@ -830,10 +841,12 @@ public class Analyzer implements PlugInFilter, Measurements {
 		}
 		return s;
 	}
-
+	
 	/** Writes the last row in the system results table to the Results window. */
 	public void displayResults() {
-		int counter = rt.getCounter();
+		if (rt.columnDeleted())
+			return;
+		int counter = rt.size();
 		if (counter==1)
 			IJ.setColumnHeadings(rt.getColumnHeadings());
 		TextPanel tp = IJ.isResultsWindow()?IJ.getTextPanel():null;
@@ -843,7 +856,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			int index = lineCount;
 			for (int i=0; i<n; i++)
 				rt.deleteRow(index);
-			counter = rt.getCounter();
+			counter = rt.size();
 		}
 		IJ.write(rt.getRowAsString(counter-1));
 	}
@@ -903,7 +916,6 @@ public class Analyzer implements PlugInFilter, Measurements {
 		rt.incrementCounter(); rt.setLabel("Max", n+3);
 		for (int col=first; col<columns; col++) {
 			rt.setValue(headings[col], n+0, sum[col]/n);
-			//IJ.log(col+"  "+sum2[col]+"  "+sum[col]+"  "+n);
 			rt.setValue(headings[col], n+1, Math.sqrt((sum2[col]-sum[col]*sum[col]/n)/(n-1)));
 			rt.setValue(headings[col], n+2, min[col]);
 			rt.setValue(headings[col], n+3, max[col]);
@@ -923,7 +935,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 	*/
 	public synchronized static boolean resetCounter() {
 		TextPanel tp = IJ.isResultsWindow()?IJ.getTextPanel():null;
-		int counter = systemRT.getCounter();
+		int counter = systemRT.size();
 		int lineCount = tp!=null?IJ.getTextPanel().getLineCount():0;
 		ImageJ ij = IJ.getInstance();
 		boolean macro = (IJ.macroRunning()&&!switchingModes) || Interpreter.isBatchMode();
@@ -1025,6 +1037,10 @@ public class Analyzer implements PlugInFilter, Measurements {
 			showMin = b;
 		else if (option.contains("angle"))
 			showAngle = b;
+	}
+	
+	public static boolean addToOverlay() {
+		return ((getMeasurements()&ADD_TO_OVERLAY)!=0);
 	}
 	
 	public static void setResultsTable(ResultsTable rt) {

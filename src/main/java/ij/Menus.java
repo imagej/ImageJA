@@ -231,6 +231,7 @@ public class Menus {
 		addPlugInItem(help, "Macros...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/macros/\")", 0, false);
 		addPlugInItem(help, "Macro Functions...", "ij.plugin.BrowserLauncher(\""+IJ.URL+"/developer/macro/functions.html\")", 0, false);
 		Menu examplesMenu = getExamplesMenu(ij);
+		addPlugInItem(examplesMenu, "Open as Panel", "ij.plugin.SimpleCommands(\"opencp\")", 0, false);
 		help.add(examplesMenu);
 		help.addSeparator();
 		addPlugInItem(help, "Update ImageJ...", "ij.plugin.ImageJ_Updater", 0, false);
@@ -264,12 +265,23 @@ public class Menus {
 	
 	public static Menu getExamplesMenu(ActionListener listener) {
 		Menu menu = new Menu("Examples");
-		Menu submenu = new Menu("Macro");
+		Menu submenu = new Menu("Plots");
+		addExample(submenu, "Example Plot", "Example_Plot_.ijm");
+		addExample(submenu, "Semi-log Plot", "Semi-log_Plot_.ijm");
+		addExample(submenu, "Arrow Plot", "Arrow_Plot_.ijm");
+		addExample(submenu, "Damped Wave Plot", "Damped_Wave_Plot_.ijm");
+		addExample(submenu, "Dynamic Plot", "Dynamic_Plot_.ijm");
+		addExample(submenu, "Dynamic Plot 2D", "Dynamic_Plot_2D_.ijm");
+		addExample(submenu, "Custom Plot Symbols", "Custom_Plot_Symbols_.ijm");
+		addExample(submenu, "Histograms", "Histograms_.ijm");
+		addExample(submenu, "Bar Charts", "Bar_Charts_.ijm");
+		addExample(submenu, "Shapes", "Plot_Shapes_.ijm");
+		submenu.addActionListener(listener);
+		menu.add(submenu);
+		
+		submenu = new Menu("Macro");
 		addExample(submenu, "Sphere", "Sphere.ijm");
 		addExample(submenu, "Dialog Box", "Dialog_Box.ijm");
-		addExample(submenu, "Example Plot", "Example_Plot.ijm");
-		addExample(submenu, "Semi-log Plot", "Semi-log_Plot.ijm");
-		addExample(submenu, "Arrow Plot", "Arrow_Plot.ijm");
 		addExample(submenu, "Process Folder", "Batch_Process_Folder.ijm");
 		addExample(submenu, "OpenDialog Demo", "OpenDialog_Demo.ijm");
 		addExample(submenu, "Sine/Cosine Table", "Sine_Cosine_Table.ijm");
@@ -280,18 +292,24 @@ public class Menus {
 		addExample(submenu, "Dual Progress Bars", "Dual_Progress_Bars.ijm");
 		addExample(submenu, "Grab Viridis Colormap", "Grab_Viridis_Colormap.ijm");
 		addExample(submenu, "Custom Measurement", "Custom_Measurement.ijm");
+		addExample(submenu, "Synthetic Images", "Synthetic_Images.ijm");
+		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.ijm");
 		submenu.addSeparator();
 		addExample(submenu, "Circle Tool", "Circle_Tool.ijm");
 		addExample(submenu, "Star Tool", "Star_Tool.ijm");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
+
 		submenu = new Menu("JavaScript");
 		addExample(submenu, "Sphere", "Sphere.js");
 		addExample(submenu, "Plasma Cloud", "Plasma_Cloud.js");
 		addExample(submenu, "Cloud Debugger", "Cloud_Debugger.js");
+		addExample(submenu, "Synthetic Images", "Synthetic_Images.js");
+		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.js");
 		addExample(submenu, "Example Plot", "Example_Plot.js");
 		addExample(submenu, "Semi-log Plot", "Semi-log_Plot.js");
 		addExample(submenu, "Arrow Plot", "Arrow_Plot.js");
+		addExample(submenu, "Dynamic Plot", "Dynamic_Plot.js");
 		addExample(submenu, "Process Folder", "Batch_Process_Folder.js");
 		addExample(submenu, "Sine/Cosine Table", "Sine_Cosine_Table.js");
 		addExample(submenu, "Non-numeric Table", "Non-numeric_Table.js");
@@ -301,6 +319,7 @@ public class Menus {
 		addExample(submenu, "Gamma Adjuster", "Gamma_Adjuster.js");
 		addExample(submenu, "Custom Measurement", "Custom_Measurement.js");
 		addExample(submenu, "Terabyte VirtualStack", "Terabyte_VirtualStack.js");
+		addExample(submenu, "Event Listener", "Event_Listener.js");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		submenu = new Menu("BeanShell");
@@ -314,7 +333,7 @@ public class Menus {
 		submenu = new Menu("Python");
 		addExample(submenu, "Sphere", "Sphere.py");
 		addExample(submenu, "Animated Gaussian Blur", "Animated_Gaussian_Blur.py");
-		addExample(submenu, "Rotational Animation.py", "Rotational_Animation.py");
+		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.py");
 		addExample(submenu, "Overlay", "Overlay.py");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
@@ -329,7 +348,7 @@ public class Menus {
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		menu.addSeparator();
-		CheckboxMenuItem item = new CheckboxMenuItem("Autorun");
+		CheckboxMenuItem item = new CheckboxMenuItem("Autorun Examples");
 		menu.add(item);
 		item.addItemListener(ij);
 		item.setState(Prefs.autoRunExamples);
@@ -427,7 +446,8 @@ public class Menus {
 		if (applet==null && f.exists() && f.isDirectory())
 			list = f.list();
 		if (list==null) return;
-		if (IJ.isLinux()) StringSorter.sort(list);
+		if (IJ.isLinux() || IJ.isMacOSX())
+			Arrays.sort(list);
 		submenu.addSeparator();
  		for (int i=0; i<list.length; i++) {
  			String name = list[i];
@@ -463,7 +483,6 @@ public class Menus {
 				boolean functionKey = keyCode>=KeyEvent.VK_F1 && keyCode<=KeyEvent.VK_F12;
 				if (keyCode>0 && !functionKey)
 					command = command.substring(0,openBracket);
-				//IJ.write(command+": "+shortcut);
 			}
 		}
 		if (keyCode>=KeyEvent.VK_F1 && keyCode<=KeyEvent.VK_F12) {
@@ -1044,7 +1063,6 @@ public class Menus {
 				v.addElement(dir+name);
 				classCount++;
 				className = name;
-				//IJ.write("File: "+f+"/"+name);
 			} else if (hasUnderscore && (name.endsWith(".jar") || name.endsWith(".zip"))) {
 				if (jarFiles==null) jarFiles = new Vector();
 				jarFiles.addElement(f.getPath() + File.separator + name);
@@ -1305,7 +1323,6 @@ public class Menus {
 			window.insertSeparator(WINDOW_MENU_ITEMS+windowMenuItems2);
 			windowMenuItems2++;
 		}
-		//IJ.write("insertWindowMenuItem: "+windowMenuItems2);
 	}
 
 	/** Adds one image to the end of the Window menu. */
@@ -1521,17 +1538,6 @@ public class Menus {
 	}
 	
 	void installStartupMacroSet() {
-		if (applet!=null) {
-			String docBase = ""+applet.getDocumentBase();
-			if (!docBase.endsWith("/")) {
-				int index = docBase.lastIndexOf("/");
-				if (index!=-1)
-					docBase = docBase.substring(0, index+1);
-			}
-			IJ.runPlugIn("ij.plugin.URLOpener", docBase+"StartupMacros.txt");
-			return;
-		}
-
 		if (macrosPath==null) {
 			try {
 				(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
@@ -1547,6 +1553,9 @@ public class Menus {
 				(new MacroInstaller()).installFromIJJar("/macros/StartupMacros.txt");
 				return;
 			}
+		} else {
+			if ("StartupMacros.fiji.ijm".equals(f.getName()))
+				path = f.getPath();
 		}
 		String libraryPath = macrosPath + "Library.txt";
 		f = new File(libraryPath);
@@ -1554,7 +1563,7 @@ public class Menus {
 		try {
 			MacroInstaller mi = new MacroInstaller();
 			if (isLibrary) mi.installLibrary(libraryPath);
-			mi.installFile(path);
+			mi.installStartupMacros(path);
 			nMacros += mi.getMacroCount();
 		} catch (Exception e) {}
 	}

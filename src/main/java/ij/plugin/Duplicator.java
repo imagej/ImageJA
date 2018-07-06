@@ -35,6 +35,13 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 
 	public void run(String arg) {
 		imp = IJ.getImage();
+		Roi roiA = imp.getRoi();
+		ImagePlus impA = imp;
+		boolean isRotatedRect = (roiA!=null &&  roiA instanceof RotatedRectRoi);
+		if (isRotatedRect) {
+			Rectangle bounds = imp.getRoi().getBounds();
+			imp.setRoi(bounds);
+		}
 		int stackSize = imp.getStackSize();
 		String title = imp.getTitle();
 		String newTitle = WindowManager.getUniqueName(title);
@@ -42,26 +49,32 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		duplicateStack = staticDuplicateStack && !IJ.isMacro();
 		if (!IJ.altKeyDown()||stackSize>1) {
 			if (imp.isHyperStack() || imp.isComposite()) {
-				duplicateHyperstack(imp, newTitle);
+				duplicateHyperstack(imp, newTitle);			
+				if (isRotatedRect) {
+					straightenRotatedRect(impA, roiA, IJ.getImage());	
+				}								
 				return;
 			} else
 				newTitle = showDialog(imp, "Duplicate...", "Title: ");
 		}
-		if (newTitle==null)
+		if (newTitle==null) {
+			if (isRotatedRect)
+				imp.setRoi(roiA);
 			return;
-		ImagePlus imp2;
-		Roi roi = imp.getRoi();
-		if (duplicateStack && (first>1||last<stackSize))
-			imp2 = run(imp, first, last);
-		else if (duplicateStack || imp.getStackSize()==1)
-			imp2 = run(imp);
-		else
-			imp2 = crop(imp);
-		Calibration cal = imp2.getCalibration();
-		if (roi!=null && (cal.xOrigin!=0.0||cal.yOrigin!=0.0)) {
-			cal.xOrigin -= roi.getBounds().x;
-			cal.yOrigin -= roi.getBounds().y;
 		}
+		ImagePlus imp2;
+		Roi roi = imp.getRoi();		
+			if (duplicateStack && (first>1||last<stackSize))
+				imp2 = run(imp, first, last);
+			else if (duplicateStack || imp.getStackSize()==1)
+				imp2 = run(imp);
+			else
+				imp2 = crop(imp);
+			Calibration cal = imp2.getCalibration();
+			if (roi!=null && (cal.xOrigin!=0.0||cal.yOrigin!=0.0)) {
+				cal.xOrigin -= roi.getBounds().x;
+				cal.yOrigin -= roi.getBounds().y;
+			}	
 		imp2.setTitle(newTitle);
 		if (roi!=null && roi.isArea() && roi.getType()!=Roi.RECTANGLE) {
 			Roi roi2 = (Roi)cropRoi(imp, roi).clone();
@@ -71,8 +84,98 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		imp2.show();
 		if (stackSize>1 && imp2.getStackSize()==stackSize)
 			imp2.setSlice(imp.getCurrentSlice());
+		if (isRotatedRect)
+			straightenRotatedRect(impA, roiA, imp2);		
 	}
-                
+	
+ /** Rotates duplicated part of image
+	- impA is original image,
+	- roiA is orig rotatedRect
+	- impB contains duplicated overlapping bounding rectangle	
+	processing steps:
+	- increase canvas of impB before rotation
+	- rotate impB
+	- calculate excentricity
+	- translate to compensate excentricity 
+	- create orthogonal rectangle in center
+	- crop to impC	
+	Author: N. Vischer
+	*/
+	private void straightenRotatedRect(ImagePlus impA, Roi roiA, ImagePlus impB) {
+		impB.deleteRoi(); //we have it in roiA
+		Color colorBack = Toolbar.getBackgroundColor();	
+		IJ.setBackgroundColor(0,0,0);
+		String title = impB.getTitle();
+		if(impB.getOverlay() != null)
+			impB.getOverlay().clear();
+		int boundLeft = roiA.getBounds().x;
+		int boundTop = roiA.getBounds().y;
+		int boundWidth = roiA.getBounds().width;
+		int boundHeight = roiA.getBounds().height;
+
+		float[] xx = roiA.getFloatPolygon().xpoints;
+		float[] yy = roiA.getFloatPolygon().ypoints;
+
+		double dx1 = xx[1] - xx[0];//calc sides and angle
+		double dy1 = yy[1] - yy[0];
+		double dx2 = xx[2] - xx[1];
+		double dy2 = yy[2] - yy[1];
+
+		double rrWidth = Math.sqrt(dx1 * dx1 + dy1 * dy1);//width of rot rect
+		double rrHeight = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+		double rrDia = Math.sqrt(rrWidth * rrWidth + rrHeight * rrHeight);
+
+		double phi1 = -Math.atan2(dy1, dx1);
+		double phi0 = phi1 * 180 / Math.PI;
+
+		double usedL = Math.max(boundLeft, 0); //usedrect is orthogonal rect to be rotated
+		double usedR = Math.min(boundLeft + boundWidth, impA.getWidth());
+		double usedT = Math.max(boundTop, 0);
+		double usedB = Math.min(boundTop + boundHeight, impA.getHeight());
+		double usedCX = (usedL + usedR) / 2;
+		double usedCY = (usedT + usedB) / 2; //Center of UsedRect
+
+		double boundsCX = boundLeft + boundWidth / 2;//Center of Bound = center of RotRect
+		double boundsCY = boundTop + boundHeight / 2;
+
+		double dx3 = boundsCX - usedCX;//calculate excentricity
+		double dy3 = boundsCY - usedCY;
+		double rad3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
+		double phi3 = Math.atan2(dy3, dx3);
+		double phi4 = phi3 + phi1;
+		double dx4 = -rad3 * Math.cos(phi4);
+		double dy4 = -rad3 * Math.sin(phi4);
+
+		//Increase canvas to a square large enough for rotation
+		ImageStack stackOld = impB.getStack();
+		int currentSlice = impB.getCurrentSlice();
+		double xOff = (rrDia - (usedR - usedL)) / 2;//put img in center
+		double yOff = (rrDia - (usedB - usedT)) / 2;
+
+		ImageStack stackNew = (new CanvasResizer()).expandStack(stackOld, (int) rrDia, (int) rrDia, (int) xOff, (int) yOff);
+		impB.setStack(stackNew);
+		ImageProcessor ip = impB.getProcessor();
+		ip.setInterpolationMethod(ImageProcessor.BILINEAR);
+		ip.setBackgroundValue(0);
+
+		for (int slc = 0; slc < stackNew.size(); slc++) {
+			impB.setSlice(slc+1);
+			ip.rotate(phi0); //Rotate
+			ip.translate(dx4, dy4); //Translate
+		}
+
+		int x = (impB.getWidth() - (int) rrWidth) / 2;
+		int y = (impB.getHeight() - (int) rrHeight) / 2;
+
+		impB.setStack(impB.getStack().crop(x, y, 0, (int) rrWidth, (int) rrHeight, impB.getStack().getSize()));//Crop
+		impB.setSlice(currentSlice);
+		impB.setTitle(title);
+		impB.show();
+		impB.updateAndDraw();
+		impA.setRoi(roiA); //restore rotated rect in source image
+		Toolbar.setBackgroundColor(colorBack);
+	}	
+	                
 	/** Returns a copy of the image, stack or hyperstack contained in the specified ImagePlus.
 	* @see ij.ImagePlus#duplicate
 	*/
@@ -85,6 +188,9 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		if (roi2!=null && roi2.isArea())
 			rect = roi2.getBounds();
 		ImageStack stack = imp.getStack();
+		boolean virtualStack = stack.isVirtual();
+		double min = imp.getDisplayRangeMin();
+		double max = imp.getDisplayRangeMax();
 		ImageStack stack2 = null;
 		int n = stack.getSize();
 		for (int i=1; i<=n; i++) {
@@ -108,6 +214,8 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 			imp2 = new CompositeImage(imp2, 0);
 			((CompositeImage)imp2).copyLuts(imp);
 		}
+		if (virtualStack)
+			imp2.setDisplayRange(min, max);
 		if (imp.isHyperStack())
 			imp2.setOpenAsHyperStack(true);
 		Overlay overlay = imp.getOverlay();
@@ -129,15 +237,23 @@ public class Duplicator implements PlugIn, TextListener, ItemListener {
 		String info = (String)imp.getProperty("Info");
 		if (info!=null)
 			imp2.setProperty("Info", info);
-		if (imp.getStackSize()>1) {
+		if (imp.isStack()) {
 			ImageStack stack = imp.getStack();
 			String label = stack.getSliceLabel(imp.getCurrentSlice());
-			if (label!=null && label.indexOf('\n')>0)
-				imp2.setProperty("Info", label);
+			if (label!=null) {
+				if (label.length()>250 && label.indexOf('\n')>0 && label.contains("0002,"))
+					imp2.setProperty("Info", label); // DICOM metadata
+				else
+					imp2.setProperty("Label", label);					
+			}
 			if (imp.isComposite()) {
 				LUT lut = ((CompositeImage)imp).getChannelLut();
 				imp2.getProcessor().setColorModel(lut);
 			}
+		} else {
+			String label = (String)imp.getProperty("Label");
+			if (label!=null)
+				imp2.setProperty("Label", label);
 		}
 		Overlay overlay = imp.getOverlay();
 		if (overlay!=null && !imp.getHideOverlay()) {

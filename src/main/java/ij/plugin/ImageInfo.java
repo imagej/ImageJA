@@ -214,7 +214,9 @@ public class ImageInfo implements PlugIn {
     		ImageStack stack = imp.getStack();
     		int slice = imp.getCurrentSlice();
     		String number = slice + "/" + stackSize;
-    		String label = stack.getShortSliceLabel(slice);
+    		String label = stack.getSliceLabel(slice);
+    		if (label!=null && label.contains("\n"))
+    			label = stack.getShortSliceLabel(slice);
     		if (label!=null && label.length()>0)
     			label = " (" + label + ")";
     		else
@@ -331,10 +333,11 @@ public class ImageInfo implements PlugIn {
 
 	    Overlay overlay = imp.getOverlay();
 		if (overlay!=null) {
-			String hidden = imp.getHideOverlay()?" (hidden)":" ";
 			int n = overlay.size();
 			String elements = n==1?" element":" elements";
-			s += "Overlay: " + n + elements + (imp.getHideOverlay()?" (hidden)":"") + "\n";
+			String selectable = overlay.isSelectable()?" selectable ":" non-selectable ";
+			String hidden = imp.getHideOverlay()?" (hidden)":"";
+			s += "Overlay: " + n + selectable + elements + hidden + "\n";
 		} else
 	    	s += "No overlay\n";
 

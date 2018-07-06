@@ -13,7 +13,7 @@ import ij.plugin.frame.*;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 import java.util.*;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 
 /** This plugin implements the Plugins/Macros/Install Macros command. It is also used by the Editor
-	class to install macro in menus and by the ImageJ class to install macros at startup. */
+	class to install macros in menus and by the ImageJ class to install macros at startup. */
 public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 
 	public static final int MAX_SIZE = 28000, MAX_MACROS=100, XINC=10, YINC=18;
@@ -42,6 +42,11 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 	private static MacroInstaller instance, listener;
 	private Thread macroToolThread;
 	private ArrayList<Menu> subMenus = new ArrayList();
+	
+	private static Program autoRunPgm;
+	private static int autoRunAddress;
+	private static String autoRunName;
+	private boolean autoRunOnCurrentThread;
 	
 	public void run(String path) {
 		if (path==null || path.equals(""))
@@ -112,8 +117,13 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 						tools.add(name);
 						toolCount++;
 					} else if (name.startsWith("AutoRun")) {
-						if (autoRunCount==0 && !openingStartupMacrosInEditor) {
-							new MacroRunner(pgm, macroStarts[count], name, (String)null);
+						if (autoRunCount==0 && !openingStartupMacrosInEditor && !IJ.isMacro()) {
+							if (autoRunOnCurrentThread) { //autoRun() method will run later
+								autoRunPgm = pgm;
+								autoRunAddress = macroStarts[count];
+								autoRunName = name;
+							} else
+								new MacroRunner(pgm, macroStarts[count], name, (String)null); // run on separate thread
 							if (name.equals("AutoRunAndHide"))
 								autoRunAndHideCount++;
 						}
@@ -392,10 +402,6 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 		  return text;
 	}
 	
-	//void runMacro() {
-	// new MacroRunner(text);
-	//}
-
 	public boolean runMacroTool(String name) {
 		for (int i=0; i<nMacros; i++) {
 			if (macroNames[i].startsWith(name)) {
@@ -506,6 +512,20 @@ public class MacroInstaller implements PlugIn, MacroConstants, ActionListener {
 			}
 		}
 		runMacro(cmd);
+	}
+	
+	/** Installs startup macros and runs AutoRun macro on current thread. */
+	public void installStartupMacros(String path) {
+		autoRunOnCurrentThread = true;
+		installFile(path);
+		autoRunOnCurrentThread = false;
+	}
+	
+	/** Runs the StartupMacros AutoRun macro on the current thread. */
+	public static void autoRun() {
+		if (autoRunPgm!=null)
+			(new MacroRunner()).run(autoRunPgm, autoRunAddress, autoRunName);
+		autoRunPgm = null;
 	}
 
 } 

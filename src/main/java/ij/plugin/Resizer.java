@@ -26,6 +26,9 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 		ImagePlus imp = IJ.getImage();
 		ImageProcessor ip = imp.getProcessor();
 		Roi roi = imp.getRoi();
+		int bitDepth = imp.getBitDepth();
+		double min = ip.getMin();
+		double max = ip.getMax();	
 		if ((roi==null||!roi.isArea()) && crop) {
 			IJ.error(crop?"Crop":"Resize", "Area selection required");
 			return;
@@ -47,8 +50,12 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 				ShapeRoi shape1 = new ShapeRoi(roi);
 				ShapeRoi shape2 = new ShapeRoi(new Roi(0, 0, w, h));
 				roi = shape2.and(shape1);
-				if (roi.getBounds().width==0 || roi.getBounds().height==0)
-					throw new IllegalArgumentException("Selection is outside the image");
+				if (roi.getBounds().width==0 || roi.getBounds().height==0) {
+					if (IJ.isMacro())
+						IJ.log("Selection is outside image");
+					else
+						throw new IllegalArgumentException("Selection is outside image");
+				}
 				if (restoreRoi) imp.setRoi(roi);
 			}
 		}
@@ -204,6 +211,9 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			imp.changes = false;
 			imp.close();
 			imp2.show();
+		} else if (crop && (bitDepth==16 || bitDepth==32)) {
+			imp.setDisplayRange(min, max);
+			imp.updateAndDraw();
 		}
 	}
 

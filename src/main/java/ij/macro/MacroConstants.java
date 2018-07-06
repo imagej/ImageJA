@@ -14,7 +14,7 @@ public interface MacroConstants {
 	// Token types
 	public static final int EOF=128, WORD=129, NUMBER=130, NOP=131, /*EOL=132,*/ STRING_CONSTANT=133, 
 		PREDEFINED_FUNCTION=134, NUMERIC_FUNCTION=135, STRING_FUNCTION=136, ARRAY_FUNCTION=137, 
-		USER_FUNCTION=138, ARRAY=139;
+		USER_FUNCTION=138, ARRAY=139, VARIABLE_FUNCTION=140;
 
 	// Keywords
 	static final String[] keywords = {"macro", "var", "if", "else", "while", "do", "for", "function",
@@ -41,7 +41,7 @@ public interface MacroConstants {
 		GET_DATE_AND_TIME=382, SET_METADATA=383, CALCULATOR=384, SET_RGB_WEIGHTS=385, MAKE_POLYGON=386, SET_SELECTION_NAME=387,
 		DRAW_RECT=388, DRAW_OVAL=389, FILL_OVAL=390, SET_OPTION=391, SHOW_TEXT=392, SET_SELECTION_LOC=393, GET_DIMENSIONS=394,
 		WAIT_FOR_USER=395, MAKE_POINT=396, MAKE_TEXT=397, MAKE_ELLIPSE=398, GET_DISPLAYED_AREA=399,
-		TO_SCALED=400, TO_UNSCALED=401, MAKE_ARROW=402;
+		TO_SCALED=400, TO_UNSCALED=401, MAKE_ARROW=402, MAKE_ROTATED_RECT=403;
 	static final String[] functions = {"run","invert","selectWindow","wait", "beep", "resetMinAndMax", "resetThreshold",
 		"print", "write", "doWand", "setMinAndMax", "setThreshold", "setTool",
 		"setForegroundColor", "setBackgroundColor", "makeLine", "makeOval", "makeRectangle",
@@ -58,7 +58,7 @@ public interface MacroConstants {
 		"getDateAndTime", "setMetadata", "imageCalculator", "setRGBWeights", "makePolygon", "setSelectionName",
 		"drawRect", "drawOval", "fillOval", "setOption", "showText", "setSelectionLocation", "getDimensions",
 		"waitForUser", "makePoint", "makeText", "makeEllipse", "getDisplayedArea",
-		"toScaled", "toUnscaled", "makeArrow"};
+		"toScaled", "toUnscaled", "makeArrow", "makeRotatedRectangle"};
 	static final int[] functionIDs = {RUN, INVERT, SELECT, WAIT, BEEP, RESET_MIN_MAX, RESET_THRESHOLD,
 		PRINT, WRITE, DO_WAND, SET_MIN_MAX, SET_THRESHOLD, SET_TOOL,
 		SET_FOREGROUND, SET_BACKGROUND, MAKE_LINE, MAKE_OVAL, MAKE_RECTANGLE,
@@ -75,7 +75,7 @@ public interface MacroConstants {
 		GET_DATE_AND_TIME, SET_METADATA, CALCULATOR, SET_RGB_WEIGHTS, MAKE_POLYGON, SET_SELECTION_NAME,
 		DRAW_RECT, DRAW_OVAL, FILL_OVAL, SET_OPTION, SHOW_TEXT, SET_SELECTION_LOC, GET_DIMENSIONS,
 		WAIT_FOR_USER, MAKE_POINT, MAKE_TEXT, MAKE_ELLIPSE, GET_DISPLAYED_AREA,
-		TO_SCALED, TO_UNSCALED, MAKE_ARROW};
+		TO_SCALED, TO_UNSCALED, MAKE_ARROW, MAKE_ROTATED_RECT};
 
 	// Numeric functions
 	static final int GET_PIXEL=1000, ABS=1001, COS=1002, EXP=1003, FLOOR=1004, LOG=1005, MAX_OF=1006, MIN_OF=1007, POW=1008,
@@ -105,7 +105,7 @@ public interface MacroConstants {
 		IS_KEY_DOWN, GET_SLICE_NUMBER, SCREEN_WIDTH, SCREEN_HEIGHT, CALIBRATE,
 		ASIN, ACOS, ROI_MANAGER, TOOL_ID, IS, GET_VALUE, STACK, MATCHES,
 		GET_STRING_WIDTH, FIT, OVERLAY, SELECTION_CONTAINS};
-
+		
 	// String functions
 	static final int D2S=2000, TO_HEX=2001, TO_BINARY=2002, GET_TITLE=2003, GET_STRING=2004, SUBSTRING=2005,
 		FROM_CHAR_CODE=2006, GET_INFO=2007, GET_DIRECTORY=2008, GET_ARGUMENT=2009, GET_IMAGE_INFO=2010,
@@ -133,5 +133,10 @@ public interface MacroConstants {
 		"getFontList", "newMenu", "getList", "Array"};
 	static final int[] arrayFunctionIDs = {GET_PROFILE, NEW_ARRAY, SPLIT, GET_FILE_LIST,
 		GET_FONT_LIST, NEW_MENU, GET_LIST, ARRAY_FUNC};
+
+	// functions that return a Variable
+	static final int TABLE=4000;
+	static final String[] variableFunctions = {"Table"};
+	static final int[] variableFunctionIDs = {TABLE};
 
 }  // interface MacroConstants

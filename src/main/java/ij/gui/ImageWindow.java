@@ -393,11 +393,17 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	public boolean close() {
 		boolean isRunning = running || running2;
 		running = running2 = false;
+		if (imp==null) return true;
 		boolean virtual = imp.getStackSize()>1 && imp.getStack().isVirtual();
 		if (isRunning) IJ.wait(500);
+		if (imp==null) return true;
+		boolean changes = imp.changes;
+		Roi roi = imp.getRoi();
+		if (roi!=null && (roi instanceof PointRoi) && ((PointRoi)roi).promptBeforeDeleting())
+			changes = true;
 		if (ij==null || ij.quittingViaMacro() || IJ.getApplet()!=null || Interpreter.isBatchMode() || IJ.macroRunning() || virtual)
-			imp.changes = false;
-		if (imp.changes) {
+			changes = false;
+		if (changes) {
 			String msg;
 			String name = imp.getTitle();
 			if (name.length()>22)

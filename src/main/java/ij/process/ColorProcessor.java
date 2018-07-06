@@ -8,7 +8,7 @@ import ij.ImageStack;
 
 /**
 This is an 32-bit RGB image and methods that operate on that image.. Based on the ImageProcessor class from
-"KickAss Java Programming" by Tonny Espeset (http://www.sn.no/~espeset).
+"KickAss Java Programming" by Tonny Espeset (1996).
 */
 public class ColorProcessor extends ImageProcessor {
 
@@ -769,9 +769,9 @@ public class ColorProcessor extends ImageProcessor {
 		return null;
 	}
 
-   public void noise(double range) {
-    	filterRGB(RGB_NOISE, range);
-    }
+	public void noise(double range) {
+		filterRGB(RGB_NOISE, range);
+	}
 
 	public void medianFilter() {
     	filterRGB(RGB_MEDIAN, 0.0);

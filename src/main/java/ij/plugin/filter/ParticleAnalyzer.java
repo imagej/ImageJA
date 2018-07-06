@@ -47,7 +47,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	/** Display a progress bar. */
 	public static final int SHOW_PROGRESS = 32;
 	
-	/** Clear ImageJ console before starting. */
+	/** Clear "Results" window before starting. */
 	public static final int CLEAR_WORKSHEET = 64;
 	
 	/** Record starting coordinates so outline can be recreated later using doWand(x,y). */
@@ -529,7 +529,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				rt = Analyzer.getResultsTable();
 		}
 		analyzer = new Analyzer(imp, measurements, rt);
-		if (resetCounter && slice==1 && rt.getCounter()>0) {
+		if (resetCounter && slice==1 && rt.size()>0) {
 			if (!Analyzer.resetCounter())
 				return false;
 		}
@@ -598,7 +598,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		}
 		if (showProgress)
 			IJ.showProgress(1.0);
-		if (showResults && showResultsWindow && rt.getCounter()>0)
+		if (showResults && showResultsWindow && rt.size()>0)
 			rt.updateResults();
 		imp.deleteRoi();
 		ip.resetRoi();
@@ -633,10 +633,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 					summaryTable = table;
 			}
 		}
-		if (summaryTable==null) {
+		if (summaryTable==null)
 			summaryTable = new ResultsTable();
-			summaryTable.showRowNumbers(false);
-		}
 		float[] areas = rt.getColumn(ResultsTable.AREA);
 		if (areas==null)
 			areas = new float[0];
@@ -938,7 +936,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			}
 			if (lineWidth!=1)
 				roi.setStrokeWidth(lineWidth);
-			roiManager.add(imp, roi, rt.getCounter());
+			roiManager.add(imp, roi, rt.size());
 		}
 		if (showResultsWindow && showResults)
 			rt.addResults();
@@ -951,9 +949,9 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		switch (showChoice) {
 			case MASKS: drawFilledParticle(drawIP, roi, mask); break;
 			case OUTLINES: case BARE_OUTLINES: case OVERLAY_OUTLINES: case OVERLAY_MASKS:
-				drawOutline(drawIP, roi, rt.getCounter()); break;
-			case ELLIPSES: drawEllipse(drawIP, stats, rt.getCounter()); break;
-			case ROI_MASKS: drawRoiFilledParticle(drawIP, roi, mask, rt.getCounter()); break;
+				drawOutline(drawIP, roi, rt.size()); break;
+			case ELLIPSES: drawEllipse(drawIP, stats, rt.size()); break;
+			case ROI_MASKS: drawRoiFilledParticle(drawIP, roi, mask, rt.size()); break;
 			default:
 		}
 	}
@@ -983,6 +981,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				} else
 					roi2.setPosition(slice);
 			}
+			if (showResults)
+				roi2.setName(""+count);
 			overlay.add(roi2);
 		} else {
 			Rectangle r = roi.getBounds();
@@ -1018,7 +1018,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	}
 
 	void showResults() {
-		int count = rt.getCounter();
+		int count = rt.size();
 		// if (count==0) return;
 		boolean lastSlice = !processStack||slice==imp.getStackSize();
 		if ((showChoice==OVERLAY_OUTLINES||showChoice==OVERLAY_MASKS) && count>0 && (!processStack||slice==imp.getStackSize()))
@@ -1047,7 +1047,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				outputImage.show();
 		}
 		if (showResults && !processStack) {
-			if (showResultsWindow && rt.getCounter()>0) {
+			if (showResultsWindow && rt.size()>0) {
 				TextPanel tp = IJ.getTextPanel();
 				if (beginningCount>0 && tp!=null && tp.getLineCount()!=count)
 					rt.show("Results");
@@ -1056,7 +1056,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			Analyzer.lastParticle = Analyzer.getCounter()-1;
 		} else
 			Analyzer.firstParticle = Analyzer.lastParticle = 0;
-		if (showResults && rt.getCounter()==0 && !(IJ.isMacro()||calledByPlugin) && (!processStack||slice==imp.getStackSize())) {
+		if (showResults && rt.size()==0 && !(IJ.isMacro()||calledByPlugin) && (!processStack||slice==imp.getStackSize())) {
 			int digits = (int)level1==level1&&(int)level2==level2?0:2;
 			String range = IJ.d2s(level1,digits)+"-"+IJ.d2s(level2,digits);
 			String assummed = noThreshold?"assumed":"";

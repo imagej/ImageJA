@@ -23,8 +23,12 @@ public class Macro_Runner implements PlugIn {
 			IJ.log("Macro_Runner.run(): "+name);
 		Thread thread = Thread.currentThread();
 		String threadName = thread.getName();
-		if (!threadName.endsWith("Macro$"))
-			thread.setName(threadName+"Macro$");
+		if (!threadName.endsWith("Macro$")) {
+			if (name.endsWith(".js")||name.endsWith(".bsh")||name.endsWith(".py"))
+				thread.setName(threadName+"_Script_Macro$");
+			else
+				thread.setName(threadName+"_Macro$");
+		}
 		String path = null;
 		if (name.equals("")) {
 			OpenDialog od = new OpenDialog("Run Macro or Script...", path);
@@ -129,6 +133,8 @@ public class Macro_Runner implements PlugIn {
 			in.read(buffer, 0, size);
 			String macro = new String(buffer, 0, size, "ISO8859_1");
 			in.close();
+			OpenDialog.setLastDirectory(f.getParent()+File.separator);
+			OpenDialog.setLastName(f.getName());
 			if (name.endsWith(".js"))
 				return runJavaScript(macro, arg);
 			else if (name.endsWith(".bsh"))

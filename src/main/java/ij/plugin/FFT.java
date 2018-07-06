@@ -38,7 +38,10 @@ public class FFT implements  PlugIn, Measurements {
     public void run(String arg) {
         if (arg.equals("options")) {
             showDialog();
-            if (doFFT) arg="fft"; else return;
+            if (doFFT)
+            	arg="fft";
+            else
+            	return;
         }
         imp = IJ.getImage();
         if (arg.equals("fft") && imp.isComposite()) {
@@ -126,12 +129,13 @@ public class FFT implements  PlugIn, Measurements {
         showStatus("Forward transform");
         fht.transform();
         showStatus("Calculating power spectrum");
+        long t0 = System.currentTimeMillis();
         ImageProcessor ps = fht.getPowerSpectrum();
         if (!(displayFHT||displayComplex||displayRawPS))
         	displayFFT = true;
         if (displayFFT) {
             ImagePlus imp2 = new ImagePlus("FFT of "+imp.getTitle(), ps);
-            imp2.show();
+            imp2.show((System.currentTimeMillis()-t0)+" ms");
             imp2.setProperty("FHT", fht);
             imp2.setCalibration(imp.getCalibration());
             String properties = "Fast Hartley Transform\n";
@@ -174,6 +178,10 @@ public class FFT implements  PlugIn, Measurements {
         }
         maxN = i;
         showStatus("Padding to "+ maxN + "x" + maxN);
+        if (maxN>=65536) {
+        	IJ.error("FFT", "Padded image is too large ("+maxN+"x"+maxN+")");
+        	return null;
+        }
         ImageStatistics stats = ImageStatistics.getStatistics(ip, MEAN, null);
         ImageProcessor ip2 = ip.createProcessor(maxN, maxN);
         ip2.setValue(stats.mean);
@@ -359,7 +367,7 @@ public class FFT implements  PlugIn, Measurements {
     }
     
     /** Complex to Complex Inverse Fourier Transform
-    *   @author Joachim Wesner
+    *   Author: Joachim Wesner
     */
     void c2c2DFFT(float[] rein, float[] imin, int maxN, float[] reout, float[] imout) {
             FHT fht = new FHT(new FloatProcessor(maxN,maxN));
@@ -380,7 +388,7 @@ public class FFT implements  PlugIn, Measurements {
       }
 
     /** Build FHT input for equivalent inverse FFT
-    *   @author Joachim Wesner
+    *   Author: Joachim Wesner
     */
     void cplxFHT(int row, int maxN, float[] re, float[] im, boolean reim, float[] fht) {
             int base = row*maxN;

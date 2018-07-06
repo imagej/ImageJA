@@ -820,11 +820,6 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			return;
 		}
 		updateScrollBars(null, false);
-		//if (roi!=null) { ???
-		//	ImageProcessor mask = roi.getMask();
-		//	if (mask!=null)
-		//		ip.reset(mask);
-		//}
 		if (Recorder.record) {
 			if (Recorder.scriptMode())
 				Recorder.recordCall("IJ.run(imp, \"Enhance Contrast\", \"saturated=0.35\");");
@@ -1092,7 +1087,6 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		ip = imp.getProcessor();
 		if (RGBImage && !imp.lock())
 			{imp=null; return;}
-		//IJ.write("setup: "+(imp==null?"null":imp.getTitle()));
 		switch (action) {
 			case RESET:
 				reset(imp, ip);

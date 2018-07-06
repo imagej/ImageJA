@@ -45,7 +45,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int OVAL_ROI=0, ELLIPSE_ROI=1, BRUSH_ROI=2;
 	
 	private static final String[] builtInTools = {"Arrow","Brush","Command Finder", "Developer Menu","Flood Filler",
-		"LUT Menu","Overlay Brush","Pencil","Pixel Inspector","Selection Rotator", "Spray Can","Stacks Menu"};
+		"LUT Menu","Overlay Brush","Pencil","Pixel Inspector","Selection Rotator", "Smooth Wand",
+		"Spray Can","Stacks Menu"};
 	private static final String[] builtInTools2 = {"Pixel Inspection Tool","Paintbrush Tool","Flood Fill Tool"};
 
 	private static final int NUM_TOOLS = 23;
@@ -777,8 +778,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		}
 		if (legacyMode)
 			repaint();
-		if (!previousName.equals(getToolName()))
-			IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);
+		if (!previousName.equals(getToolName())) {
+			IJ.notifyEventListeners(IJEventListener.TOOL_CHANGED);;
+			repaint();
+		}
 	}
 	
 	boolean isValidTool(int tool) {
@@ -1101,7 +1104,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	void showSwitchPopupMenu(MouseEvent e) {
-		String path = IJ.getDirectory("macros")+"toolsets/";
+		String path = IJ.getDir("macros")+"toolsets/";
 		if (path==null)
 			return;
 		boolean applet = IJ.getApplet()!=null;
@@ -1113,8 +1116,12 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		} else
 			list = new String[0];
 		switchPopup.removeAll();
-        path = IJ.getDirectory("macros") + "StartupMacros.txt";
+        path = IJ.getDir("macros") + "StartupMacros.txt";
 		f = new File(path);
+		if (!f.exists()) {
+			path = IJ.getDir("macros") + "StartupMacros.ijm";
+			f = new File(path);
+		}
 		if (!applet && f.exists())
             addItem("Startup Macros");
         else
@@ -1334,25 +1341,21 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
                 MacroInstaller mi = new MacroInstaller();
                 label = label.substring(0, label.length()-1) + ".txt";
                 path = "/macros/"+label;
-				if (IJ.shiftKeyDown()) {
-					String macros = mi.openFromIJJar(path);
-                    Editor ed = new Editor();
-                    ed.setSize(350, 300);
-                    ed.create(label, macros);
-                	IJ.setKeyUp(KeyEvent.VK_SHIFT);
-				} else {
-					resetTools();
-					mi.installFromIJJar(path);
-				}
+                if (IJ.shiftKeyDown())
+				    showCode(label, mi.openFromIJJar(path));
+				else {
+				    resetTools();
+				    mi.installFromIJJar(path);
+                }
             } else {
                 // load from ImageJ/macros/toolsets
                 if (label.equals("Startup Macros")) {
                 	installStartupMacros();
                 	return;
                 } else if (label.endsWith(" "))
-                    path = IJ.getDirectory("macros")+"toolsets"+File.separator+label.substring(0, label.length()-1)+".ijm";
+                    path = IJ.getDir("macros")+"toolsets"+File.separator+label.substring(0, label.length()-1)+".ijm";
                 else
-                    path = IJ.getDirectory("macros")+"toolsets"+File.separator+label+".txt";
+                    path = IJ.getDir("macros")+"toolsets"+File.separator+label+".txt";
                 try {
                     if (IJ.shiftKeyDown()) {
                         IJ.open(path);
@@ -1399,16 +1402,19 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 
 	private 	void installStartupMacros() {
 		resetTools();
-		String path = IJ.getDirectory("macros")+"StartupMacros.txt";
+		String path = IJ.getDir("macros")+"StartupMacros.txt";
 		File f = new File(path);
 		if (!f.exists()) {
-			String path2 = IJ.getDirectory("macros")+"StartupMacros.fiji.ijm";
-			f = new File(path2);
-			if (!f.exists()) {
-				IJ.error("StartupMacros not found:\n \n"+path);
-				return;
-			} else
-				path = path2;
+			path = IJ.getDir("macros")+"StartupMacros.ijm";
+			f = new File(path);
+		}
+		if (!f.exists()) {
+			path = IJ.getDir("macros")+"StartupMacros.fiji.ijm";
+			f = new File(path);
+		}
+		if (!f.exists()) {
+			IJ.error("StartupMacros not found in\n \n"+IJ.getDir("macros"));
+			return;
 		}
 		if (IJ.shiftKeyDown()) {
 			IJ.open(path);
@@ -1726,10 +1732,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	
 	// install tool from ImageJ/macros/toolsets
 	private boolean installToolsetTool(String name) {
-		String path = IJ.getDirectory("macros")+"toolsets"+File.separator+name+".ijm";
+		String path = IJ.getDir("macros")+"toolsets"+File.separator+name+".ijm";
 		if (!((new File(path)).exists())) {
 			name = name.replaceAll(" ", "_");
-			path = IJ.getDirectory("macros")+"toolsets"+File.separator+name+".ijm";
+			path = IJ.getDir("macros")+"toolsets"+File.separator+name+".ijm";
 		}
 		String text = IJ.openAsString(path);
 		if (text==null || text.startsWith("Error"))
@@ -1745,36 +1751,65 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (label.startsWith("Arrow")) {
 			tool = new ij.plugin.tool.ArrowTool();
 			if (tool!=null) tool.run("");
+			showSource("Arrow");
 		} else if (label.startsWith("Overlay Brush")) {
 			tool = new ij.plugin.tool.OverlayBrushTool();
 			if (tool!=null) tool.run("");
+			showSource("OverlayBrush");
 		} else if (label.startsWith("Pixel Inspect")) {
 			tool = new ij.plugin.tool.PixelInspectionTool();
 			if (tool!=null) tool.run("");
+			showSource("PixelInspection");
 		} else if (label.startsWith("Brush")||label.startsWith("Paintbrush")) {
 			tool = new ij.plugin.tool.BrushTool();
 			if (tool!=null) tool.run("");
+			showSource("Brush");
 		} else if (label.startsWith("Pencil")) {
 			tool = new ij.plugin.tool.BrushTool();
 			if (tool!=null) tool.run("pencil");
+			showSource("Brush");
 		} else if (label.startsWith("Selection Rotator")) {
 			tool = new ij.plugin.tool.RoiRotationTool();
 			if (tool!=null) tool.run("");
-		} else if (label.startsWith("Flood Fill")) {
-			(new MacroInstaller()).installFromIJJar("/macros/FloodFillTool.txt");
-		} else if (label.startsWith("Spray Can")) {
-			(new MacroInstaller()).installFromIJJar("/macros/SprayCanTool.txt");
-		} else if (label.startsWith("Developer Menu")) {
-			(new MacroInstaller()).installFromIJJar("/macros/DeveloperMenuTool.txt");
-		} else if (label.startsWith("Stacks Menu")) {
-			(new MacroInstaller()).installFromIJJar("/macros/StacksMenuTool.txt");
-		} else if (label.startsWith("LUT Menu")) {
-			(new MacroInstaller()).installFromIJJar("/macros/LUTMenuTool.txt");
-		} else if (label.startsWith("Command Finder")) {
-			(new MacroInstaller()).installFromIJJar("/macros/CommandFinderTool.txt");
-		} else
+			showSource("RoiRotation");
+		} else if (label.startsWith("Flood Fill"))
+			installMacroFromJar("/macros/FloodFillTool.txt");
+		else if (label.startsWith("Spray Can"))
+			installMacroFromJar("/macros/SprayCanTool.txt");
+		else if (label.startsWith("Developer Menu"))
+			installMacroFromJar("/macros/DeveloperMenuTool.txt");
+		else if (label.startsWith("Stacks Menu"))
+			installMacroFromJar("/macros/StacksMenuTool.txt");
+		else if (label.startsWith("LUT Menu"))
+			installMacroFromJar("/macros/LUTMenuTool.txt");
+		else if (label.startsWith("Command Finder"))
+			installMacroFromJar("/macros/CommandFinderTool.txt");
+		else if (label.startsWith("Smooth Wand"))
+			installMacroFromJar("/macros/SmoothWandTool.txt");
+		else
 			ok = false;
 		return ok;
+	}
+	
+	private void showSource(String name) {
+		if (IJ.shiftKeyDown()) {
+			IJ.runPlugIn("ij.plugin.BrowserLauncher", IJ.URL+"/source/ij/plugin/tool/"+name+"Tool.java");
+			IJ.setKeyUp(KeyEvent.VK_SHIFT);
+		}
+	}
+	
+	private void installMacroFromJar(String path) {
+		if (IJ.shiftKeyDown())
+			showCode(path, (new MacroInstaller()).openFromIJJar(path));
+		else
+			(new MacroInstaller()).installFromIJJar(path);
+	}
+	
+	private void showCode(String title, String code) {
+		Editor ed = new Editor();
+		ed.setSize(550, 450);
+		ed.create(title, code);
+		IJ.setKeyUp(KeyEvent.VK_SHIFT);
 	}
 	
 	private boolean isMacroSet(int id) {
