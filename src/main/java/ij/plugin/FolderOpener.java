@@ -17,9 +17,11 @@ public class FolderOpener implements PlugIn {
 
 	private static String[] excludedTypes = {".txt", ".lut", ".roi", ".pty", ".hdr", ".java", ".ijm", ".py", ".js", ".bsh", ".xml"};
 	private static boolean staticSortFileNames = true;
+	private static boolean staticSortByMetaData = true;
 	private static boolean staticOpenAsVirtualStack;
 	private boolean convertToRGB;
 	private boolean sortFileNames = true;
+	private boolean sortByMetaData = true;
 	private boolean openAsVirtualStack;
 	private double scale = 100.0;
 	private int n, start, increment;
@@ -65,6 +67,7 @@ public class FolderOpener implements PlugIn {
 		} else {
 			if (!isMacro) {
 				sortFileNames = staticSortFileNames;
+				sortByMetaData = staticSortByMetaData;
 				openAsVirtualStack = staticOpenAsVirtualStack;
 			}
 			arg = null;
@@ -219,8 +222,12 @@ public class FolderOpener implements PlugIn {
 				String label = imp.getTitle();
 				if (stackSize==1) {
 					String info = (String)imp.getProperty("Info");
-					if (info!=null)
-						label += "\n" + info;
+					if (info!=null) {
+						if (info.length()>100 && info.indexOf('\n')>0)
+							label += "\n" + info;   // multi-line metadata
+						else
+							label = info;
+					}
 				}
 				if (Math.abs(imp.getCalibration().pixelWidth-cal.pixelWidth)>0.0000000001)
 					allSameCalibration = false;
@@ -322,7 +329,8 @@ public class FolderOpener implements PlugIn {
 				imp2.setCalibration(cal);
 			}
 			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0) {
-				stack = DicomTools.sort(stack);
+				if (sortByMetaData) 
+					stack = DicomTools.sort(stack);
 				imp2.setStack(stack);
 				double voxelDepth = DicomTools.getVoxelDepth(stack);
 				if (voxelDepth>0.0) {
@@ -380,6 +388,7 @@ public class FolderOpener implements PlugIn {
 		gd.addMessage("(enclose regex in parens)", null, Color.darkGray);
 		gd.addCheckbox("Convert_to_RGB", convertToRGB);
 		gd.addCheckbox("Sort names numerically", sortFileNames);
+		gd.addCheckbox("Sort by meta data (DICOM, etc.)", sortByMetaData);
 		gd.addCheckbox("Use virtual stack", openAsVirtualStack);
 		gd.addMessage("10000 x 10000 x 1000 (100.3MB)");
 		gd.addHelp(IJ.URL+"/docs/menus/file.html#seq1");
@@ -400,11 +409,13 @@ public class FolderOpener implements PlugIn {
 			filter = "("+legacyRegex+")";
 		convertToRGB = gd.getNextBoolean();
 		sortFileNames = gd.getNextBoolean();
+		sortByMetaData = gd.getNextBoolean();
 		openAsVirtualStack = gd.getNextBoolean();
 		if (openAsVirtualStack)
 			scale = 100.0;
 		if (!IJ.macroRunning()) {
 			staticSortFileNames = sortFileNames;
+			staticSortByMetaData = sortByMetaData;
 			staticOpenAsVirtualStack = openAsVirtualStack;
 		}
 		return true;
