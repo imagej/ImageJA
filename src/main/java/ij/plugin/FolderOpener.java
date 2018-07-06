@@ -388,7 +388,7 @@ public class FolderOpener implements PlugIn {
 		gd.addMessage("(enclose regex in parens)", null, Color.darkGray);
 		gd.addCheckbox("Convert_to_RGB", convertToRGB);
 		gd.addCheckbox("Sort names numerically", sortFileNames);
-		gd.addCheckbox("Sort by meta data (DICOM, etc.)", sortByMetaData);
+		gd.addCheckbox("Sort_by_meta data (DICOM, etc.)", sortByMetaData);
 		gd.addCheckbox("Use virtual stack", openAsVirtualStack);
 		gd.addMessage("10000 x 10000 x 1000 (100.3MB)");
 		gd.addHelp(IJ.URL+"/docs/menus/file.html#seq1");
