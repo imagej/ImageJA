@@ -102,19 +102,9 @@ public class ByteProcessor extends ImageProcessor {
 	}
 
 	public Image createImage() {
-		if (cm==null) cm = getDefaultColorModel();
-		if (ij.IJ.isJava16()) return createBufferedImage();
-		if (source==null) {
-			source = new MemoryImageSource(width, height, cm, pixels, 0, width);
-			source.setAnimated(true);
-			source.setFullBufferUpdates(true);
-			img = Toolkit.getDefaultToolkit().createImage(source);
-		} else if (newPixels) {
-			source.newPixels(pixels, cm, 0, width);
-			newPixels = false;
-		} else
-			source.newPixels();
-		return img;
+		if (cm==null)
+			cm = getDefaultColorModel();
+		return createBufferedImage();
 	}
 
 	Image createBufferedImage() {
@@ -446,8 +436,6 @@ public class ByteProcessor extends ImageProcessor {
 			}
 		}
 		cm = new IndexColorModel(8, 256, rLUT2, gLUT2, bLUT2);
-		newPixels = true;
-		if (min==0.0 && max==255.0) source = null;
 		minThreshold = NO_THRESHOLD;
 	}
 

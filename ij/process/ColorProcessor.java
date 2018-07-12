@@ -62,19 +62,7 @@ public class ColorProcessor extends ImageProcessor {
 	}
 	
 	public Image createImage() {
-		if (ij.IJ.isJava16())
-			return createBufferedImage();
-		if (source==null) {
-			source = new MemoryImageSource(width, height, cm, pixels, 0, width);
-			source.setAnimated(true);
-			source.setFullBufferUpdates(true);
-			img = Toolkit.getDefaultToolkit().createImage(source);
-		} else if (newPixels) {
-			source.newPixels(pixels, cm, 0, width);
-			newPixels = false;
-		} else
-			source.newPixels();
-		return img;
+		return createBufferedImage();
 	}
 
 	Image createBufferedImage() {
@@ -101,8 +89,6 @@ public class ColorProcessor extends ImageProcessor {
 		if (cm!=null && (cm instanceof IndexColorModel))
 			throw new IllegalArgumentException("DirectColorModel required");
 		this.cm = cm;
-		newPixels = true;
-		source = null;
 		rgbSampleModel = null;
 		rgbRaster = null;
 	}

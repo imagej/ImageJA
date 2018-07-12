@@ -114,6 +114,8 @@ public class Macro {
 
 	public static String getValue(String options, String key, String defaultValue) {
 		key = trimKey(key);
+		if (!options.endsWith(" "))
+			options = options + " ";
         key += '=';
 		int index=-1;
 		do { // Require that key not be preceded by a letter
@@ -128,8 +130,20 @@ public class Macro {
 			else
 				return options.substring(1, index);
 		} else if (options.charAt(0)=='[') {
-			index = options.indexOf("]",1);
-			if (index<=1)
+			int count = 1;
+			index = -1;
+			for (int i=1; i<options.length(); i++) {
+				char ch = options.charAt(i);
+				if (ch=='[')
+					count++;
+				else if (ch==']')
+					count--;
+				if (count==0) {
+					index = i;
+					break;
+				}
+			}
+			if (index<0)
 				return defaultValue;
 			else
 				return options.substring(1, index);
