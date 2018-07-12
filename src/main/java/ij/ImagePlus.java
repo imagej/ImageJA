@@ -69,6 +69,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private	String url;
 	private FileInfo fileInfo;
 	private int imageType = GRAY8;
+	private boolean typeSet;
 	private ImageStack stack;
 	private static int currentID = -1;
 	private int ID;
@@ -693,10 +694,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if (newStackSize>1 && !(win instanceof StackWindow)) {
 			if (isDisplayedHyperStack())
 				setOpenAsHyperStack(true);
+			activated = false;
 			win = new StackWindow(this, getCanvas());   // replaces this window
+			if (IJ.isMacro()) { // wait for stack window to be activated
+				long start = System.currentTimeMillis();
+				while (!activated) {
+					IJ.wait(5);
+					if ((System.currentTimeMillis()-start)>200)
+						break; // 0.2 second timeout
+				}
+			}
 			setPosition(1, 1, 1);
-			if (Interpreter.getInstance()!=null)
-				IJ.wait(25);
 		} else if (newStackSize>1 && invalidDimensions) {
 			if (isDisplayedHyperStack())
 				setOpenAsHyperStack(true);
@@ -1118,8 +1126,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     	is unknown. RGB images actually use 32 bits per pixel. */
     public int getBitDepth() {
     	ImageProcessor ip2 = ip;
-    	if (ip2==null)
-    		return 0;
+    	if (ip2==null) {
+			int bitDepth = 0;
+			switch (imageType) {
+				case GRAY8: bitDepth=typeSet?8:0; break;
+				case COLOR_256: bitDepth=8; break;
+				case GRAY16: bitDepth=16; break;
+				case GRAY32: bitDepth=32; break;
+				case COLOR_RGB: bitDepth=24; break;
+			}
+			return bitDepth;
+    	}
     	if (ip2 instanceof ByteProcessor)
     		return 8;
     	else if (ip2 instanceof ShortProcessor)
@@ -1150,6 +1167,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				Menus.updateMenus();
 			getLocalCalibration().setImage(this);
 		}
+		typeSet = true;
 	}
 		
  	/** Returns the string value from the "Info" property string  
@@ -1785,13 +1803,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		deleteRoi();
 	}
 
-	public synchronized void saveRoi() {
-		if (roi!=null) {
-			roi.endPaste();
-			Rectangle r = roi.getBounds();
+	public void saveRoi() {
+		Roi roi2 = roi;
+		if (roi2!=null) {
+			roi2.endPaste();
+			Rectangle r = roi2.getBounds();
 			if ((r.width>0 || r.height>0)) {
-				Roi.previousRoi = (Roi)roi.clone();
-				if (IJ.debugMode) IJ.log("saveRoi: "+roi);
+				Roi.previousRoi = (Roi)roi2.clone();
+				if (IJ.debugMode) IJ.log("saveRoi: "+roi2);
 			}
 		}
 	}
@@ -2568,8 +2587,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	 */
 	public void flattenStack() {
 		if (IJ.debugMode) IJ.log("flattenStack");
-		if (getStackSize()==1 || !IJ.isJava16())
-			throw new UnsupportedOperationException("Image stack and Java 1.6 required");
+		if (getStackSize()==1)
+			throw new UnsupportedOperationException("Image stack required");
 		boolean composite = isComposite();
 		if (getBitDepth()!=24)
 			new ImageConverter(this).convertToRGB();

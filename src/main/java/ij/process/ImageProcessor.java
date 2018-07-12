@@ -68,6 +68,7 @@ public abstract class ImageProcessor implements Cloneable {
 	private static boolean useBicubic;
 	private int sliceNumber;
 	private Overlay overlay;
+	private boolean noReset;
 		
     ProgressBar progressBar;
 	protected int width, snapshotWidth;
@@ -87,9 +88,9 @@ public abstract class ImageProcessor implements Cloneable {
 	protected double histogramMin, histogramMax;
 	protected float[] cTable;
 	protected boolean lutAnimation;
-	protected MemoryImageSource source;
+	protected MemoryImageSource source; //unused
 	protected Image img;
-	protected boolean newPixels;
+	protected boolean newPixels; // unused
 	protected Color drawingColor = Color.black;
 	protected int clipXMin, clipXMax, clipYMin, clipYMax; // clip rect used by drawTo, drawLine, drawDot and drawPixel 
 	protected int justification = LEFT_JUSTIFY;
@@ -154,6 +155,16 @@ public abstract class ImageProcessor implements Cloneable {
 			return cm;
 	}
 	
+	private IndexColorModel getIndexColorModel() {
+		ColorModel cm2 = baseCM;
+		if (cm2==null)
+			cm2 = cm;
+		if (cm2!=null && (cm2 instanceof IndexColorModel))
+			return (IndexColorModel)cm2;
+		else
+			return null;
+	}
+	
 	/** Returns the current color model, which may have
 		been modified by setMinAndMax() or setThreshold(). */
 	public ColorModel getCurrentColorModel() {
@@ -171,10 +182,8 @@ public abstract class ImageProcessor implements Cloneable {
 		this.cm = cm;
 		baseCM = null;
 		rLUT1 = rLUT2 = null;
-		newPixels = true;
 		inversionTested = false;
 		minThreshold = NO_THRESHOLD;
-		source = null;
 	}
 
 	public LUT getLut() {
@@ -280,12 +289,9 @@ public abstract class ImageProcessor implements Cloneable {
 	public boolean isInvertedLut() {
 		if (inversionTested)
 			return invertedLut;
-		if (cm==null || !(cm instanceof IndexColorModel)) {
-			invertedLut = false;
-			inversionTested = true;
-			return invertedLut;
-		}
-		IndexColorModel icm = (IndexColorModel)cm;
+		IndexColorModel icm = getIndexColorModel();
+		if (icm==null)
+			return false;
 		boolean hasAscendingStep = false;
 		int v1, v2;
 		for (int i=1; i<255; i++) {
@@ -310,9 +316,9 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Returns true if this image uses a color LUT. */
 	public boolean isColorLut() {
-		if (cm==null || !(cm instanceof IndexColorModel))
+		IndexColorModel icm = getIndexColorModel();
+		if (icm==null)
 			return false;
-    	IndexColorModel icm = (IndexColorModel)cm;
 		int mapSize = icm.getMapSize();
 		byte[] reds = new byte[mapSize];
 		byte[] greens = new byte[mapSize];
@@ -333,11 +339,11 @@ public abstract class ImageProcessor implements Cloneable {
 	/** Returns true if this image uses a pseudocolor or grayscale LUT, 
 		in other words, is this an image that can be filtered. */
     public boolean isPseudoColorLut() {
-		if (cm==null || !(cm instanceof IndexColorModel))
+		IndexColorModel icm = getIndexColorModel();
+		if (icm==null)
 			return false;
 		if (getMinThreshold()!=NO_THRESHOLD)
 			return true;
-    	IndexColorModel icm = (IndexColorModel)cm;
 		int mapSize = icm.getMapSize();
 		if (mapSize!=256)
 			return false;
@@ -373,9 +379,9 @@ public abstract class ImageProcessor implements Cloneable {
 	public boolean isDefaultLut() {
 		if (cm==null)
 			makeDefaultColorModel();
-		if (!(cm instanceof IndexColorModel))
-			return false;
-    	IndexColorModel icm = (IndexColorModel)cm;
+    	IndexColorModel icm = getIndexColorModel();
+    	if (icm==null)
+    		return false;
 		int mapSize = icm.getMapSize();
 		if (mapSize!=256)
 			return false;
@@ -509,8 +515,6 @@ public abstract class ImageProcessor implements Cloneable {
 			}
 		}
 		cm = new IndexColorModel(8, 256, rLUT2, gLUT2, bLUT2);
-		newPixels = true;
-		source = null;
 	}
 	
 	/** Automatically sets the lower and upper threshold levels, where 'method'
@@ -519,7 +523,8 @@ public abstract class ImageProcessor implements Cloneable {
 	 * "Percentile", "RenyiEntropy", "Shanbhag", "Triangle" or "Yen". The
 	 * 'method' string may also include the keywords 'dark' (dark background)
 	 * 'red' (red LUT, the default), 'b&w' (black and white LUT), 'over/under' (over/under LUT) or
-	 * 'no-lut' (no LUT changes), for example "Huang dark b&w".
+	 * 'no-lut' (no LUT changes), for example "Huang dark b&w". The display range
+	 * of 16-bit and 32-bit images is not reset if the 'method' string contains 'no-reset'.
 	 * @see ImageProcessor#resetThreshold
 	 * @see ImageProcessor#setThreshold
 	 * @see ImageProcessor#createMask
@@ -528,17 +533,19 @@ public abstract class ImageProcessor implements Cloneable {
 		if (method==null)
 			throw new IllegalArgumentException("Null method");
 		boolean darkBackground = method.contains("dark");
+		noReset = method.contains("no-reset");
 		int lut = RED_LUT;
 		if (method.contains("b&w"))
 			lut = BLACK_AND_WHITE_LUT;
 		if (method.contains("over"))
 			lut = OVER_UNDER_LUT;
-		if (method.contains("no"))
+		if (method.contains("no-lut"))
 			lut = NO_LUT_UPDATE;
 		int index = method.indexOf(" ");
 		if (index!=-1)
 			method = method.substring(0, index);
 		setAutoThreshold(method, darkBackground, lut);
+		noReset = false;
 	}
 	
 	public void setAutoThreshold(String mString, boolean darkBackground, int lutUpdate) {
@@ -566,9 +573,11 @@ public abstract class ImageProcessor implements Cloneable {
 		if (notByteData) {
 			ImageProcessor mask = ip2.getMask();
 			Rectangle rect = ip2.getRoi();
-			resetMinAndMax();
-			min = getMin(); max = getMax();
-			ip2 = convertToByte(true);
+			if (!noReset || lutUpdate==OVER_UNDER_LUT)
+				ip2.resetMinAndMax();
+			noReset = false;
+			min = ip2.getMin(); max = ip2.getMax();
+			ip2 = ip2.convertToByte(true);
 			ip2.setMask(mask);
 			ip2.setRoi(rect);	
 		}
@@ -673,6 +682,8 @@ public abstract class ImageProcessor implements Cloneable {
 					lower = min + (lower/255.0)*(max-min);
 				if (bitDepth==16 && upper==255.0)
 					upper = 65535;
+				else if (bitDepth==32 && upper==255.0)
+					upper = getStats().max;
 				else
 					upper = min + (upper/255.0)*(max-min);
 			} else
@@ -690,8 +701,6 @@ public abstract class ImageProcessor implements Cloneable {
 		}
 		rLUT1 = rLUT2 = null;
 		inversionTested = false;
-		newPixels = true;
-		source = null;
 	}
 
 	/** Returns the lower threshold level. Returns NO_THRESHOLD
@@ -2266,8 +2275,6 @@ public abstract class ImageProcessor implements Cloneable {
 		of the image. */
 	public void setLutAnimation(boolean lutAnimation) {
 		this.lutAnimation = lutAnimation;
-		newPixels = true;
-		source = null;
 	}
 	
 	void resetPixels(Object pixels) {
@@ -2276,10 +2283,7 @@ public abstract class ImageProcessor implements Cloneable {
 				img.flush();
 				img = null;
 			}
-			source = null;
 		}
-		newPixels = true;
-		source = null;
 	}
 
 	/** Returns an 8-bit version of this image as a ByteProcessor. */
@@ -2722,4 +2726,19 @@ public abstract class ImageProcessor implements Cloneable {
 		return null;
 	}
 	
+	protected IndexColorModel getThresholdColorModel() {
+		byte[] r = new byte[256];
+		byte[] g = new byte[256];
+		byte[] b = new byte[256];
+		for(int i=0; i<255; i++) {
+			r[i]=(byte)i;
+			g[i]=(byte)i;
+			b[i]=(byte)i;
+		}
+		r[255] = (byte)255;
+		g[255] = (byte)0;
+		b[255] = (byte)0;
+		return new IndexColorModel(8, 256, r, g, b);
+	}
+		
 }

@@ -46,10 +46,16 @@ public class PointRoi extends PolygonRoi {
 	private int[] counterInfo;
 	private boolean promptBeforeDeleting;
 	private boolean promptBeforeDeletingCalled;
+	private int nMarkers;
 	
 	static {
 		setDefaultType((int)Prefs.get(TYPE_KEY, HYBRID));
 		setDefaultSize((int)Prefs.get(SIZE_KEY, 1));
+	}
+	
+	public PointRoi() {
+		this(0.0, 0.0);
+		deletePoint(0);
 	}
 	
 	/** Creates a new PointRoi using the specified int arrays of offscreen coordinates. */
@@ -276,6 +282,12 @@ public class PointRoi extends PolygonRoi {
 		width+=1; height+=1;
 	}
 	
+
+	public void addUserPoint(ImagePlus imp, double ox, double oy) {
+		addPoint(imp, ox, oy);
+		nMarkers++;
+	}
+
 	private void addPoint2(ImagePlus imp, double ox, double oy) {
 		double xbase = getXBase();
 		double ybase = getYBase();
@@ -512,8 +524,8 @@ public class PointRoi extends PolygonRoi {
 	    if (promptBeforeDeletingCalled)
 	    	return promptBeforeDeleting;
 	    else
-			return getNCounters()>1 || counts[0]>1;
-	}
+			return nMarkers>10  && imp!=null && imp.getWindow()!=null;
+	} 
 
 	public void promptBeforeDeleting(Boolean prompt) {
 		promptBeforeDeleting = prompt;

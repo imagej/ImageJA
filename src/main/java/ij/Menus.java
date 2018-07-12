@@ -305,6 +305,7 @@ public class Menus {
 		addExample(submenu, "Plasma Cloud", "Plasma_Cloud.js");
 		addExample(submenu, "Cloud Debugger", "Cloud_Debugger.js");
 		addExample(submenu, "Synthetic Images", "Synthetic_Images.js");
+		addExample(submenu, "Points", "Points.js");
 		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.js");
 		addExample(submenu, "Example Plot", "Example_Plot.js");
 		addExample(submenu, "Semi-log Plot", "Semi-log_Plot.js");
@@ -320,6 +321,7 @@ public class Menus {
 		addExample(submenu, "Custom Measurement", "Custom_Measurement.js");
 		addExample(submenu, "Terabyte VirtualStack", "Terabyte_VirtualStack.js");
 		addExample(submenu, "Event Listener", "Event_Listener.js");
+		addExample(submenu, "FFT Filter", "FFT_Filter.js");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		submenu = new Menu("BeanShell");
@@ -782,6 +784,8 @@ public class Menus {
 
 	/** Returns the specified ImageJ menu (e.g., "File>New") or null if it is not found. */
 	public static Menu getImageJMenu(String menuPath) {
+		if (menus==null)
+			return null;
 		if (menus.get(menuPath)!=null)
 			return getMenu(menuPath, false);
 		else

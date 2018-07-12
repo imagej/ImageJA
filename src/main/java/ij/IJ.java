@@ -435,8 +435,17 @@ public class IJ {
 		if (logPanel!=null) {
 			if (s.startsWith("\\"))
 				handleLogCommand(s);
-			else
+			else {
+				if (s.endsWith("\n")) {
+					if (s.equals("\n\n"))
+						s= "\n \n ";
+					else if (s.endsWith("\n\n"))
+						s = s.substring(0, s.length()-2)+"\n \n ";
+					else
+						s = s+" ";
+				}
 				logPanel.append(s);
+			}
 		} else {
 			LogStream.redirectSystem(false);
 			System.out.println(s);
@@ -1702,7 +1711,10 @@ public class IJ {
 		Use IJ.open() to display a file open dialog box.
 	*/
 	public static ImagePlus openImage(String path) {
-		return (new Opener()).openImage(path);
+		macroRunning = true;
+		ImagePlus imp = (new Opener()).openImage(path);
+		macroRunning = false;
+		return imp;
 	}
 
 	/** Opens the nth image of the specified tiff stack. */
@@ -1896,11 +1908,9 @@ public class IJ {
 		if (path==null)
 			run(format);
 		else {
-			if (path.contains(" ")) {
-				if (path.contains("]"))
-					error("ImageJ cannot save when file path contains both \" \" and \"]\"");
+			if (path.contains(" "))
 				run(imp, format, "save=["+path+"]");
-			} else
+			else
 				run(imp, format, "save="+path);
 		}
 	}
@@ -2192,7 +2202,7 @@ public class IJ {
 		ArrayList list = new ArrayList();
 		Hashtable commands = Menus.getCommands();
 		Menu lutsMenu = Menus.getImageJMenu("Image>Lookup Tables");
-		if (lutsMenu==null)
+		if (commands==null || lutsMenu==null)
 			return new String[0];
 		for (int i=0; i<lutsMenu.getItemCount(); i++) {
 			MenuItem menuItem = lutsMenu.getItem(i);
