@@ -768,6 +768,7 @@ public class Functions implements MacroConstants, Measurements {
 			updateRoi(roi);
 		resetImage();
 		shiftKeyDown = altKeyDown = false;
+		IJ.setKeyUp(IJ.ALL_KEYS);
 	}
 
 	void makeRectangle() {
@@ -2185,7 +2186,26 @@ public class Functions implements MacroConstants, Measurements {
 			String arg = getFirstString();
 			int what = Plot.toShape(arg);
 			addToPlot(what, arg);
-			return;
+			return;			
+		} else if (name.equals("addHistogram")) {
+			interp.getLeftParen();
+			Variable[] arrV = getArray();
+			interp.getComma();
+			double binWidth = interp.getExpression();
+			double binCenter = 0;
+			interp.getToken();
+			if (interp.token == ',') 
+				 binCenter = interp.getExpression();
+			else
+				interp.putTokenBack();
+			interp.getRightParen();
+			
+			int len1 = arrV.length;
+			double[] arrD = new double[len1];
+			for (int i=0; i<len1; i++)
+				arrD[i] = arrV[i].getValue();		
+			plot.addHistogram(arrD, binWidth, binCenter);			
+			return;	
 		} else if (name.equals("appendToStack")) {
 			plot.appendToStack();
 			return;
@@ -4779,6 +4799,13 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (key.equals("results.count")) {
 			ResultsTable rt = getResultsTable(false);
 			return rt!=null?rt.size():0;
+		} else if (key.equals("hashCode")) {
+			return interp.hashCode();
+		} else if (key.equals("instance")) {
+			Interpreter instance = interp.getInstance();
+			return instance!=null?instance.hashCode():0;
+		} else if (key.equals("done")) {
+			return interp.done?1:0;
 		} else {
 			interp.error("Invalid key");
 			return 0.0;
@@ -6170,6 +6197,11 @@ public class Functions implements MacroConstants, Measurements {
 		Roi roi = imp.getRoi();
 		if (roi==null)
 			interp.error("No selection");
+		if (offscreenOverlay!=null) {
+			imp.setOverlay(offscreenOverlay);
+			offscreenOverlay = null;
+			overlay = imp.getOverlay();
+		}
 		if (overlay==null)
 			overlay = new Overlay();
 		if (strokeColor!=null && !strokeColor.equals("")) {
@@ -6292,10 +6324,15 @@ public class Functions implements MacroConstants, Measurements {
 		boolean nullFont = font==null;
 		if (nullFont)
 			font = imp.getProcessor().getFont();
-		TextRoi roi = new TextRoi(text, x, y, font);
+		TextRoi roi = null;
+		if (justification!=ImageProcessor.LEFT_JUSTIFY)
+			roi = new TextRoi(x, y-font.getSize(), text, font);
+		else
+			roi = new TextRoi(text, x, y, font);
 		if (!nullFont && !antialiasedText)
 			roi.setAntialiased(false);
 		roi.setAngle(angle);
+		roi.setJustification(justification);
 		addRoi(imp, roi);
 		return Double.NaN;
 	}

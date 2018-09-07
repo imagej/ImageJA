@@ -21,6 +21,7 @@ public class FolderOpener implements PlugIn {
 	private static boolean staticOpenAsVirtualStack;
 	private boolean convertToRGB;
 	private boolean sortFileNames = true;
+	private boolean sortByMetaData = true;
 	private boolean openAsVirtualStack;
 	private double scale = 100.0;
 	private int n, start, increment;
@@ -40,15 +41,21 @@ public class FolderOpener implements PlugIn {
 
 	/** Opens the images in the specified directory as a stack. Opens
 		the images as a virtual stack if the 'options' string contains
-		"virtual" or "use". Add " file=abc" to 'options' to only open
-		images with, for example, "abc" in their name. Displays directory
-		chooser and options dialogs if the the 'path' argument is null. */
+		'virtual' or 'use'. Add ' file=abc' to the options string to only open
+		images with, for example, 'abc' in their name. Add ' noMetaSort' to
+		disable sorting of DICOM stacks by series number (0020,0011).
+		Displays directory chooser and options dialogs if the the 'path'
+		argument is null. */
 	public static ImagePlus open(String path, String options) {
 		if (options==null)
 			options = "";
 		FolderOpener fo = new FolderOpener();
 		fo.saveImage = true;
-		fo.openAsVirtualStack = options!=null && (options.contains("virtual")||options.contains("use"));
+		if (options!=null) {
+			fo.openAsVirtualStack = options.contains("virtual") || options.contains("use");
+			if (options.contains("noMetaSort")) 
+				fo.sortByMetaData = false;
+		}
 		fo.filter = Macro.getValue(options, "file", "");
 		fo.run(path);
 		return fo.image;
@@ -101,13 +108,21 @@ public class FolderOpener implements PlugIn {
 		if (directory==null)
 			return;
 		String[] list = (new File(directory)).list();
-		if (list==null)
+		if (list==null) {
+			IJ.error("File>Import>Image Sequence", "Directory not found: "+directory);
 			return;
+		}
 		String title = directory;
 		if (title.endsWith(File.separator) || title.endsWith("/"))
 			title = title.substring(0, title.length()-1);
 		int index = title.lastIndexOf(File.separatorChar);
-		if (index!=-1) title = title.substring(index + 1);
+		if (index!=-1)
+			title = title.substring(index + 1);
+		else {
+			index = title.lastIndexOf("/");
+			if (index!=-1)
+				title = title.substring(index + 1);
+		}
 		if (title.endsWith(":"))
 			title = title.substring(0, title.length()-1);
 		
@@ -126,34 +141,33 @@ public class FolderOpener implements PlugIn {
 		n = list.length;
 		start = 1;
 		increment = 1;
+		boolean dicomImages = false;
 		try {
-			if (isMacro) {
-				if (!showDialog(null, list))
-					return;
-			} else {
-				for (int i=0; i<list.length; i++) {
-					Opener opener = new Opener();
-					opener.setSilentMode(true);
-					IJ.redirectErrorMessages(true);
-					ImagePlus imp = opener.openImage(directory, list[i]);
-					IJ.redirectErrorMessages(false);
-					if (imp!=null) {
-						width = imp.getWidth();
-						height = imp.getHeight();
-						bitDepth = imp.getBitDepth();
-						if (arg==null) {
-							if (!showDialog(imp, list))
-								return;
-						}
-						break;
+			for (int i=0; i<list.length; i++) {
+				Opener opener = new Opener();
+				opener.setSilentMode(true);
+				IJ.redirectErrorMessages(true);
+				ImagePlus imp = opener.openImage(directory, list[i]);
+				IJ.redirectErrorMessages(false);
+				if (imp!=null) {
+					width = imp.getWidth();
+					height = imp.getHeight();
+					bitDepth = imp.getBitDepth();
+					String info = (String)imp.getProperty("Info");
+					if (info!=null && info.contains("7FE0,0010"))
+						dicomImages = true;
+					if (arg==null) {
+						if (!showDialog(imp, list))
+							return;
 					}
+					break;
 				}
-				if (width==0) {
-					IJ.error("Sequence Reader", "This folder does not appear to contain\n"
-					+ "any TIFF, JPEG, BMP, DICOM, GIF, FITS or PGM files.\n \n"
-					+ "   \""+directory+"\"");
-					return;
-				}
+			}
+			if (width==0) {
+				IJ.error("Sequence Reader", "This folder does not appear to contain\n"
+				+ "any TIFF, JPEG, BMP, DICOM, GIF, FITS or PGM files.\n \n"
+				+ "   \""+directory+"\"");
+				return;
 			}
 			String pluginName = "Sequence Reader";
 			if (legacyRegex!=null)
@@ -163,7 +177,7 @@ public class FolderOpener implements PlugIn {
 				return;
 			IJ.showStatus("");
 			t0 = System.currentTimeMillis();
-			if (sortFileNames)
+			if (sortFileNames || dicomImages)
 				list = StringSorter.sortNumerically(list);
 
 			if (n<1)
@@ -331,7 +345,8 @@ public class FolderOpener implements PlugIn {
 				imp2.setCalibration(cal);
 			}
 			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0) {
-				stack = DicomTools.sort(stack);
+				if (sortByMetaData)
+					stack = DicomTools.sort(stack);
 				imp2.setStack(stack);
 				double voxelDepth = DicomTools.getVoxelDepth(stack);
 				if (voxelDepth>0.0) {
@@ -365,6 +380,8 @@ public class FolderOpener implements PlugIn {
 					filter = "["+filter+"]";
 				options = options + " file=" + filter;
 			}
+			if (!sortByMetaData)
+				options = options + " noMetaSort";
    			Recorder.recordCall("imp = FolderOpener.open(\""+directory+"\", \""+options+"\");");
 		}
 
@@ -419,6 +436,8 @@ public class FolderOpener implements PlugIn {
 			filter = "("+legacyRegex+")";
 		convertToRGB = gd.getNextBoolean();
 		sortFileNames = gd.getNextBoolean();
+		if (!sortFileNames)
+			sortByMetaData = false;
 		openAsVirtualStack = gd.getNextBoolean();
 		if (openAsVirtualStack)
 			scale = 100.0;
@@ -533,6 +552,10 @@ public class FolderOpener implements PlugIn {
 		sortFileNames = b;
 	}
 	
+	public void sortByMetaData(boolean b) {
+		sortByMetaData = b;
+	}
+
 	/** Sorts file names containing numerical components.
 	* @see ij.util.StringSorter#sortNumerically
 	* Author: Norbert Vischer

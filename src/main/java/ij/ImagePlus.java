@@ -659,6 +659,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Replaces the image with the specified stack and updates 
 		the display. Set 'title' to null to leave the title unchanged. */
     public void setStack(String title, ImageStack newStack) {
+		int previousStackSize = getStackSize();
 		int newStackSize = newStack.getSize();
 		//IJ.log("setStack: "+newStackSize+" "+this);
 		if (newStackSize==0)
@@ -721,7 +722,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			}
 			repaintWindow();
 		}
-		if (resetCurrentSlice) setSlice(currentSlice);
+		if (resetCurrentSlice)
+			setSlice(currentSlice);
+		if (isComposite() && previousStackSize!=newStackSize)
+			compositeImage = false;
     }
     
 	public void setStack(ImageStack newStack, int channels, int slices, int frames) {
@@ -838,7 +842,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 	
 	/** For images with irregular ROIs, returns a byte mask, otherwise, returns
-		null. Mask pixels have a non-zero value. */
+	 * null. Mask pixels have a non-zero value.and the dimensions of the 
+	 * mask are equal to the width and height of the ROI.
+	 * @see ij.ImagePlus#createRoiMask
+	 * @see ij.ImagePlus#createThresholdMask
+	*/
 	public ImageProcessor getMask() {
 		if (roi==null) {
 			if (ip!=null) ip.resetRoi();
@@ -852,6 +860,34 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			ip.setRoi(roi.getBounds());
 		}
 		return mask;
+	}
+	
+	/** Returns an 8-bit binary (0 and 255) ROI or overlay mask
+	 *  that has the same dimensions as this image.
+	 * @see ij.gui.Roi#getMask
+	*/
+	public ByteProcessor createRoiMask() {
+		Roi roi2 = getRoi();
+		Overlay overlay2 = getOverlay();
+		if (roi2==null && overlay2==null)
+			throw new IllegalArgumentException("ROI or overlay required");
+		ByteProcessor mask = new ByteProcessor(getWidth(),getHeight());
+		mask.setColor(255);
+		if (overlay2!=null) {
+			for (int i=0; i<overlay2.size(); i++)
+				mask.fill(overlay2.get(i));			
+		} else if (roi2!=null)
+			mask.fill(roi2);
+		return mask;
+	}
+
+	/** Returns an 8-bit binary (0 and 255) threshold mask
+	 * that has the same dimensions as this image.
+	 * @see ij.plugin.Thresholder#createMask
+	 * @see ij.process.ImageProcessor#createMask
+	*/
+	public ByteProcessor createThresholdMask() {
+		return Thresholder.createMask(this);
 	}
 
 	/** Get calibrated statistics for this image or ROI, including 
@@ -990,7 +1026,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			return 1;
 		else {
 			int slices = stack.getSize();
-			//if (compositeImage) slices /= nChannels;
 			if (slices<=0) slices = 1;
 			return slices;
 		}
@@ -1933,9 +1968,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     		fi.nImages = getImageStackSize();
     	fi.whiteIsZero = isInvertedLut();
 		fi.intelByteOrder = false;
-    	if (fi.nImages==1)
-    		fi.pixels = ip.getPixels();
-    	else
+		if (fi.nImages==1 && ip!=null)
+			fi.pixels = ip.getPixels();
+		else if (stack!=null)
 			fi.pixels = stack.getImageArray();
 		Calibration cal = getCalibration();
     	if (cal.scaled()) {
@@ -2408,7 +2443,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				ip.reset(ip.getMask());
 			}
 			updateAndDraw();
-			//deleteRoi();
 		} else if (roi!=null) {
 			roi.startPaste(clipboard);
 			Undo.setup(Undo.PASTE, this);

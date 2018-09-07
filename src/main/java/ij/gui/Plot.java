@@ -1820,6 +1820,11 @@ public class Plot implements Cloneable {
 				else if (plotObject.shape != LINE)
 					suggestedEnlarge = USUALLY_ENLARGE;
 				getMinAndMax(allMinAndMax, enlargeRange, suggestedEnlarge, 0, plotObject.xValues, plotObject.xEValues);
+				if (plotObject.shape == BAR && plotObject.xValues.length > 1) {
+					int n = plotObject.xValues.length;
+					allMinAndMax[0] -= 0.5 * Math.abs(plotObject.xValues[1] - plotObject.xValues[0]);
+					allMinAndMax[1] += 0.5 * Math.abs(plotObject.xValues[n - 1] - plotObject.xValues[n - 2]);
+				}
 			}
 			if ((axisRangeFlags & Y_RANGE) != 0) {
 				int suggestedEnlarge = 0;
@@ -2081,7 +2086,7 @@ public class Plot implements Cloneable {
 						double remainder =  Math.abs(v - Math.round(v));
 						if(index >= 0 && index < xCats.length  && remainder < 1e-9){
 							String s = xCats[index];
-							String[] parts = s.split("\n");//n__
+							String[] parts = s.split("\n");
 							int w = 0;
 							for(int jj = 0; jj < parts.length; jj++)
 								w = Math.max(w, ip.getStringWidth(parts[jj]));
@@ -2192,7 +2197,7 @@ public class Plot implements Cloneable {
 						double remainder =  Math.abs(v - Math.round(v));
 						if(index >= 0 && index < yCats.length  && remainder < 1e-9){
 							String s = yCats[index];
-							int multiLineOffset = 0;//n__ multi-line cat labels
+							int multiLineOffset = 0; // multi-line cat labels
 							for(int jj = 0; jj < s.length(); jj++)
 								if(s.charAt(jj) == '\n')
 									multiLineOffset -= rect.height/2;
@@ -3325,6 +3330,88 @@ public class Plot implements Cloneable {
 		addPoints(x, y, shape);
 	}
 	
+	/** Plots a histogram from an array using auto-binning.
+	 *  @param values	array containing the population
+	 *  N.Vischer
+	 */
+	public void addHistogram(double[] values) {
+		addHistogram(values, 0, 0);
+	}
+
+	/** Plots a histogram from an array using the specified bin width.
+	 *  @param values	array containing the population
+	 *  @param binWidth	set zero for auto-binning
+	 *  N.Vischer
+	 */
+	public void addHistogram(double[] values, double binWidth) {
+		addHistogram(values, binWidth, 0);
+	}
+
+	/** Plots a histogram from an array
+	 *  @param values	array containing the population
+	 *  @param binWidth	set zero for auto-binning
+	 *  @param binCenter any x value can be the center of a bin
+	 *  N.Vischer
+	 */
+	public void addHistogram(double[] values, double binWidth, double binCenter) {
+		int len = values.length;
+		double min = Double.POSITIVE_INFINITY;
+		double max = Double.NEGATIVE_INFINITY;
+		double[] cleanVals = new double[len];
+		int count = 0;
+		double sum = 0, sum2 = 0;
+		for (int i = 0; i < len; i++) {
+			double val = values[i];
+			if (!Double.isNaN(val)) {
+				cleanVals[count++] = val;
+				sum += val;
+				sum2 += val * val;
+				if (val < min)
+					min = val;
+				if (val > max)
+					max = val;
+			}
+		}
+		if (binWidth <= 0) {//autobinning
+			double stdDev = Math.sqrt(((count * sum2 - sum * sum) / count) / count);//not count - 1
+			// use Scott's method (1979 Biometrika, 66:605-610) for optimal binning: 3.49*sd*N^-1/3
+			binWidth = 3.49 * stdDev * (Math.pow(count, -1.0 / 3));
+
+		}		
+		double modCenter = binCenter % binWidth;
+		double modMin = min % binWidth;
+		double diff = modMin - modCenter;
+		double firstBin = min-diff;
+		while(firstBin  - binWidth * 0.499 > min)
+			firstBin -= binWidth;		
+		int nBins =  (int) ((max - firstBin)/binWidth);
+		double lastBin = firstBin + nBins * binWidth;		
+		while(lastBin  + binWidth * 0.499 < max)
+			lastBin += binWidth;
+		nBins = (int) Math.round((lastBin - firstBin)/binWidth) + 1;
+		if (nBins == 1)
+			nBins = 2;
+		if (nBins > 9999) {
+			IJ.error("max bins > 9999");
+			return;
+		}
+		double[] histo = new double[nBins];
+		double[] xValues = new double[nBins];
+		for (int i = 0; i < nBins; i++)
+			xValues[i] = firstBin + i * binWidth;
+		for (int i = 0; i < count; i++) {
+			double val = cleanVals[i];
+			double indexD = (val - firstBin) / binWidth;
+			int index = (int) Math.round(indexD);
+			if (index < 0 || index >= nBins) {
+			    IJ.error("index out of range");
+			    return;
+			} else
+			    histo[index]++;
+		}
+		add("bar", xValues, histo);
+	}
+		
 	/* Obsolete, replaced by add("error bars",errorBars). */
 	public void addErrorBars(String dummy, float[] errorBars) {
 		addErrorBars(errorBars);

@@ -68,6 +68,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	private int imageID;
 	private boolean allowRecording;
 	private boolean recordShowAll = true;
+	private boolean allowDuplicates;
 		
 	/** Opens the "ROI Manager" window, or activates it if it is already open.
 	 * @see #RoiManager(boolean)
@@ -326,6 +327,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	
 	/** Adds the specified ROI. */
 	public void addRoi(Roi roi) {
+		allowDuplicates = true;
 		addRoi(roi, false, null, -1);
 	}
 	
@@ -369,7 +371,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			imp.setSliceWithoutUpdate(position);
 		else
 			position = 0;
-		if (n>0 && !IJ.isMacro() && imp!=null) {
+		if (n>0 && !IJ.isMacro() && imp!=null && !allowDuplicates) {
 			// check for duplicate
 			Roi roi2 = (Roi)rois.get(n-1);
 			if (roi2!=null) {
@@ -382,6 +384,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				}
 			}
 		}
+		allowDuplicates = false;
 		prevID = imp!=null?imp.getID():0;
 		String name = roi.getName();
 		if (isStandardName(name))
@@ -430,7 +433,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	}
 	
 	/** Adds the specified ROI to the list. The third argument ('n') will 
-		be used to form the first part of the ROI label if it is >= 0. */
+	 * be used to form the first part of the ROI label if it is zero or greater.
+	 * @param imp	the image associated with the ROI, or null
+	 * @param roi		the Roi to be added
+	 * @param n		if zero or greater, will be used to form the first part of the label
+	*/
 	public void add(ImagePlus imp, Roi roi, int n) {
 		if (IJ.debugMode && n<3 && roi!=null) IJ.log("RoiManager.add: "+n+" "+roi.getName());
 		if (roi==null)
@@ -439,8 +446,10 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		String label2 = label;
 		if (label==null)
 			label = getLabel(imp, roi, n);
-		else
-			label = label+"-"+n;
+		else {
+			if (n>=0)
+				label = n+"-"+label;
+		}
 		if (label==null)
 			return;
 		listModel.addElement(label);
@@ -546,17 +555,35 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 						delete = true;
 				}
 				if (delete) {
-					rois.remove(i);
-					listModel.remove(i);
-				}
+					if (EventQueue.isDispatchThread()) {
+ 						rois.remove(i);
+						listModel.remove(i);
+ 					} else 
+ 						deleteOnEDT(i);
+				} 
 			}
 		}
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (count>1 && index.length==1 && imp!=null)
 			imp.deleteRoi();
 		updateShowAll();
-		if (record()) Recorder.record("roiManager", "Delete");
+		if (record())
+			Recorder.record("roiManager", "Delete");
 		return true;
+	}
+	
+	 // Delete ROI on event dispatch thread
+	 private void deleteOnEDT(final int i) {
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				public void run() {
+					rois.remove(i);
+					listModel.remove(i);
+				}
+			});
+		} catch (
+			Exception e) {
+		}
 	}
 	
 	boolean update(boolean clone) {
@@ -926,7 +953,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		for (int i=0; i<indexes.length; i++) {
 			Roi roi = (Roi)rois.get(indexes[i]);
 			String label = (String) listModel.getElementAt(indexes[i]);
-			if (getSliceNumber(roi,label)>1) allSliceOne=false;
+			if (getSliceNumber(roi,label)>1 || roi.hasHyperStackPosition())
+				allSliceOne=false;
 		}
 		int measurements = Analyzer.getMeasurements();
 		if (imp.getStackSize()>1)

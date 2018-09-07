@@ -1639,14 +1639,22 @@ public class IJ {
 		else if (title2.equals("temp")) {
 			String dir = System.getProperty("java.io.tmpdir");
 			if (isMacintosh()) dir = "/tmp/";
-			if (dir!=null && !dir.endsWith(File.separator)) dir += File.separator;
+			if (dir!=null && !dir.endsWith(File.separator))
+				dir += File.separator;
 			return dir;
 		} else if (title2.equals("image")) {
 			ImagePlus imp = WindowManager.getCurrentImage();
 	    	FileInfo fi = imp!=null?imp.getOriginalFileInfo():null;
-			if (fi!=null && fi.directory!=null)
-				return fi.directory;
-			else
+			if (fi!=null && fi.directory!=null) {
+				String dir = fi.directory;
+				if (dir!=null && !(dir.endsWith(File.separator)||dir.endsWith("/"))) {
+					if (IJ.isWindows()&&dir.contains(File.separator))
+						dir += File.separator;
+					else
+						dir += "/";
+				}
+				return dir;
+			} else
 				return null;
 		} else {
 			DirectoryChooser dc = new DirectoryChooser(title);
@@ -1655,7 +1663,7 @@ public class IJ {
 			return dir;
 		}
 	}
-	
+		
 	/** Alias for getDirectory(). */
 	public static String getDir(String title) {
 		return getDirectory(title);
@@ -1853,6 +1861,9 @@ public class IJ {
 		if (path!=null && path.length()==0)
 			path = null;
 		format = format.toLowerCase(Locale.US);
+		Roi roi2 = imp!=null?imp.getRoi():null;
+		if (roi2!=null)
+			roi2.endPaste();
 		if (format.indexOf("tif")!=-1) {
 			saveAsTiff(imp, path);
 			return;
@@ -2244,6 +2255,8 @@ public class IJ {
 		PrintWriter pw = new PrintWriter(caw);
 		e.printStackTrace(pw);
 		String s = caw.toString();
+		if (s!=null && s.contains("ThreadDeath"))
+			return;
 		if (getInstance()!=null) {
 			s = IJ.getInstance().getInfo()+"\n \n"+s;
 			new TextWindow("Exception", s, 500, 340);
