@@ -381,6 +381,21 @@ public class Thresholder implements PlugIn, Measurements, ItemListener {
 		imp.setCalibration(imp.getCalibration()); //update calibration
 	}
 	
+	/** Returns an 8-bit binary (0 and 255) threshold mask
+	 * that has the same dimensions as this image.
+	 * @see ij.process.ImageProcessor#createMask
+	 * @see ij.ImagePlus#createThresholdMask
+	 * @see ij.ImagePlus#createRoiMask
+	*/
+	public static ByteProcessor createMask(ImagePlus imp) {
+		ImageProcessor ip = imp.getProcessor();
+		if (ip instanceof ColorProcessor)
+			throw new IllegalArgumentException("Non-RGB image requires");
+		if (ip.getMinThreshold()==ImageProcessor.NO_THRESHOLD)
+			throw new IllegalArgumentException("Image must be thresholded");
+		return ip.createMask();
+	}
+	
 	void autoThreshold(ImageProcessor ip) {
 		ip.setAutoThreshold(ImageProcessor.ISODATA2, ImageProcessor.NO_LUT_UPDATE);
 		minThreshold = ip.getMinThreshold();

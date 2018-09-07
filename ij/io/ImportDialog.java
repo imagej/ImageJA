@@ -9,8 +9,7 @@ import ij.gui.*;
 import ij.process.*;
 import ij.util.*;
 import ij.plugin.frame.Recorder;
-import ij.plugin.FolderOpener;
-import ij.plugin.FileInfoVirtualStack;
+import ij.plugin.*;
 import ij.measure.Calibration;
 
 
@@ -172,6 +171,7 @@ public class ImportDialog {
 				IJ.showStatus((stack.getSize()+1) + ": " + list[i]);
 			}
 		}
+		Recorder.recordCall(fi.getCode()+"imp = Raw.openAll(\""+ fi.directory+"\", fi);");
 		if (stack!=null) {
 			imp = new ImagePlus("Imported Stack", stack);
 			if (imp.getBitDepth()==16 || imp.getBitDepth()==32)
@@ -187,11 +187,17 @@ public class ImportDialog {
 		Does nothing if the dialog is canceled. */
 	public void openImage() {
 		FileInfo fi = getFileInfo();
-		if (fi==null) return;
+		if (fi==null)
+			return;
 		if (openAll) {
 			if (virtual) {
-				virtual = false;
-				IJ.error("Import Raw", "\"Open All\" does not currently support virtual stacks");
+				ImagePlus imp = Raw.openAllVirtual(directory, fi);
+				Recorder.recordCall(fi.getCode()+"imp = Raw.openAllVirtual(\""+directory+"\", fi);");
+				if (imp!=null) {
+					imp.setSlice(imp.getStackSize()/2);
+					imp.show();
+					imp.setSlice(1);
+				}
 				return;
 			}
 			String[] list = new File(directory).list();
@@ -202,6 +208,8 @@ public class ImportDialog {
 		else {
 			FileOpener fo = new FileOpener(fi);
 			ImagePlus imp = fo.openImage();
+			String filePath = fi.directory+fi.fileName;
+			Recorder.recordCall(fi.getCode()+"imp = Raw.open(\""+filePath+"\", fi);");
 			if (imp!=null) {
 				imp.show();
 				int n = imp.getStackSize();
@@ -211,7 +219,8 @@ public class ImportDialog {
 					ip.resetMinAndMax();
 					imp.setDisplayRange(ip.getMin(),ip.getMax());
 				}
-			}
+			} else
+				IJ.error("File>Import>Raw", "File not found: "+filePath);
 		}
 	}
 
@@ -225,6 +234,8 @@ public class ImportDialog {
 		FileInfo fi = new FileInfo();
 		fi.fileFormat = fi.RAW;
 		fi.fileName = fileName;
+		if (!(directory.endsWith(File.separator)||directory.endsWith("/")))
+			directory += "/";
 		fi.directory = directory;
 		fi.width = width;
 		fi.height = height;

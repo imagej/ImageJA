@@ -1433,6 +1433,8 @@ public abstract class ImageProcessor implements Cloneable {
 	/** Sets the justification used by drawString(), where <code>justification</code>
 		is CENTER_JUSTIFY, RIGHT_JUSTIFY or LEFT_JUSTIFY. The default is LEFT_JUSTIFY. */
 	public void setJustification(int justification) {
+		if (justification<LEFT_JUSTIFY || justification>RIGHT_JUSTIFY)
+			justification = LEFT_JUSTIFY;
 		this.justification = justification;
 	}
 
@@ -1600,6 +1602,13 @@ public abstract class ImageProcessor implements Cloneable {
 	*	@see #fill(Roi)
 	*/
 	public void fill(Roi roi) {
+		if (roi!=null && roi.isLine()) {
+			if ((roi instanceof Line) && roi.getStrokeWidth()>1 && !(roi instanceof Arrow))
+				fillPolygon(roi.getPolygon());
+			else
+				roi.drawPixels(this);
+			return;
+		}
 		ImageProcessor m = getMask();
 		Rectangle r = getRoi();
 		setRoi(roi);
@@ -1637,7 +1646,6 @@ public abstract class ImageProcessor implements Cloneable {
 		width, stroke color and fill color defined by roi.setStrokeWidth,
 		roi.setStrokeColor() and roi.setFillColor(). Works   with RGB
 		images. Does not work with 16-bit and float images.
-		Requires Java 1.6.
 		@see ImageProcessor#draw
 		@see ImageProcessor#drawOverlay
 	*/
@@ -1745,8 +1753,8 @@ public abstract class ImageProcessor implements Cloneable {
 
 	public abstract void set(int index, int value);
 
-	/** Returns the value of the pixel at (x,y) as a float. Faster than
-	    getPixel() because no bounds checking is done. */
+	/** Returns the value of the pixel at (x,y) as a float. Faster 
+	    than getPixelValue() because no bounds checking is done. */
 	public abstract float getf(int x, int y);
 	
 	public abstract float getf(int index);
@@ -1953,7 +1961,7 @@ public abstract class ImageProcessor implements Cloneable {
 	
 	/** Returns the value of the pixel at (x,y). For byte and short
 		images, returns a calibrated value if a calibration table
-		has been  set using setCalibraionTable(). For RGB images,
+		has been set using setCalibraionTable(). For RGB images,
 		returns the luminance value. */
 	public abstract float getPixelValue(int x, int y);
 		
@@ -2721,7 +2729,10 @@ public abstract class ImageProcessor implements Cloneable {
 		seed = randomSeed;
 	}
 	
-	/** Returns a binary mask, or null if a threshold is not set or this is an RGB image. */
+	/** Returns a binary mask, or null if a threshold is not set or this is an RGB image.
+	 * @see ij.ImagePlus#createThresholdMask
+	 * @see ij.ImagePlus#createRoiMask
+	*/
 	public ByteProcessor createMask() {
 		return null;
 	}

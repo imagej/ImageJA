@@ -37,11 +37,11 @@ public class Interpreter implements MacroConstants {
 	int topOfGlobals = -1;
 	int startOfLocals = 0;
 
-	static Interpreter instance, previousInstance;
+	static volatile Interpreter instance, previousInstance;
 	public static boolean batchMode;
 	static Vector imageTable; // images opened in batch mode
 	static Vector imageActivations; // images ordered by activation time
-	boolean done;
+	volatile boolean done;
 	Program pgm;
 	Functions func;
 	boolean inFunction;
@@ -64,13 +64,14 @@ public class Interpreter implements MacroConstants {
 	static boolean tempShowMode;
 	boolean waitingForUser;
 	int selectCount;
-
 	
 	static TextWindow arrayWindow;
 	int inspectStkIndex = -1;
 	int inspectSymIndex = -1;
 	boolean evaluating;
 	ResultsTable applyMacroTable;
+	int errorCount;
+	volatile boolean ignoreErrors;
 
 
 	/** Interprets the specified string. */
@@ -639,6 +640,8 @@ public class Interpreter implements MacroConstants {
 	}
 
 	final void skipStatement() {
+		if (done)
+			return;
 		getToken();
 		switch (token) {
 			case PREDEFINED_FUNCTION: case USER_FUNCTION: case VAR:
@@ -1213,6 +1216,9 @@ public class Interpreter implements MacroConstants {
 	}
 
 	void error (String message) {
+		if (ignoreErrors)
+			return;
+		errorCount++;
 		boolean showMessage = !done;
 		String[] variables = showMessage?getVariables():null;
 		token = EOF;
@@ -1254,6 +1260,8 @@ public class Interpreter implements MacroConstants {
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 		}
 		done = true;
+		if (errorCount>10) 
+			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
 		
 	void showError(String title, String msg, String[] variables) {
@@ -1841,6 +1849,7 @@ public class Interpreter implements MacroConstants {
 	
 	/** Aborts currently running macro. */
 	public static void abort() {
+		//IJ.log("abort: "+(instance!=null?""+instance.hashCode():"null"));
 		if (instance!=null)
 			instance.abortMacro();
 	}
@@ -1866,11 +1875,39 @@ public class Interpreter implements MacroConstants {
 			batchMode = false;
 			imageTable = imageActivations = null;
 		}
-		done = true;
 		if (func!=null && !(macroName!=null&&macroName.indexOf(" Tool")!=-1))
 			func.abortDialog();
 		IJ.showStatus("Macro aborted");
+		shutdown();
+		//IJ.log("abortMacro1: "+done+" "+(instance!=null?""+instance.hashCode():"null"));
+		long t0 = System.currentTimeMillis();
+		while ((System.currentTimeMillis()-t0)<2000 && instance!=null)
+			IJ.wait(5);
+		if (instance!=null) {
+			abortAllMacroThreads();
+			setInstance(null);
+		}
 	}
+	
+	private synchronized void shutdown() {
+		ignoreErrors = true;
+		for (int i=0; i<10; i++)
+			done = true;
+		if (done!=true)
+			IJ.log("done!=true");
+	}
+		
+	private void abortAllMacroThreads() {
+		ThreadGroup group = Thread.currentThread().getThreadGroup(); 
+		int activeCount = group.activeCount(); 
+		Thread[] threads = new Thread[activeCount]; 
+		group.enumerate(threads); 
+		for (int i = 0; i < activeCount; i++) { 
+			String name = threads[i].getName(); 
+			if (name!=null && name.endsWith("Macro$"))
+				threads[i].stop(); 
+		} 
+	} 
 
 	public static Interpreter getInstance() {
 		return instance;
@@ -2236,7 +2273,7 @@ public class Interpreter implements MacroConstants {
 	public void setApplyMacroTable(ResultsTable rt) {
 		applyMacroTable = rt;
 	}
-
+	
 } // class Interpreter
 
 

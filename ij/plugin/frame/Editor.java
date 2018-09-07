@@ -396,13 +396,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			text = ta.getText();
 		else
 			text = ta.getSelectedText();
-		Interpreter instance = Interpreter.getInstance();
-		if (instance!=null) { // abort any currently running macro
-			instance.abortMacro();
-			long t0 = System.currentTimeMillis();
-			while (Interpreter.getInstance()!=null && (System.currentTimeMillis()-t0)<3000L)
-				IJ.wait(10);
-		}
+		Interpreter.abort();  // abort any currently running macro
 		if (checkForCurlyQuotes && text.contains("\u201D")) {
 			// replace curly quotes with standard quotes
  			text = text.replaceAll("\u201C", "\""); 
@@ -425,13 +419,13 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	void evaluateMacro() {
 		String title = getTitle();
 		if (title.endsWith(".js")||title.endsWith(".bsh")||title.endsWith(".py"))
-			setTitle(title.substring(0,title.length()-3)+".ijm");
+			setWindowTitle(title.substring(0,title.length()-3)+".ijm");
 		runMacro(false);
 	}
 
 	void evaluateJavaScript() {
 		if (!getTitle().endsWith(".js"))
-			setTitle(SaveDialog.setExtension(getTitle(), ".js"));
+			setWindowTitle(SaveDialog.setExtension(getTitle(), ".js"));
 		int start = ta.getSelectionStart();
 		int end = ta.getSelectionEnd();
 		String text;
@@ -474,7 +468,7 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			return;
 		}
 		if (!getTitle().endsWith(ext))
-			setTitle(SaveDialog.setExtension(getTitle(), ext));
+			setWindowTitle(SaveDialog.setExtension(getTitle(), ext));
 		int start = ta.getSelectionStart();
 		int end = ta.getSelectionEnd();
 		String text;
