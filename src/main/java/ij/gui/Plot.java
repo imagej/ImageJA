@@ -202,42 +202,42 @@ public class Plot implements Cloneable {
 	private double barWidth=0.5;						// 0.1-1.0
 	private double barWidthInPixels;
 
-	/** Constructs a new Plot.
-	 *	Note that the data xValues, yValues passed with the constructor are plotted last,
-	 *	with the settings (color, lineWidth) at the time when 'draw' or 'getProcessor' is called.
-	 *	These data are plotted as a LINE.
+	/** Constructs a new Plot with the default options.
+	 * Use add(shape,xvalues,yvalues) to add curves.
 	 * @param title the window title
 	 * @param xLabel	the x-axis label
 	 * @param yLabel	the y-axis label
-	 * @param xValues	the x-coodinates, or null. If null and yValues is not null, integers starting at 0 will be used for x.
-	 * @param yValues	the y-coodinates, or null for providing no data yet.
+	 * @see #add(String,double[],double[])
+	 * @see #add(String,double[])
 	 */
-	public Plot(String title, String xLabel, String yLabel, float[] xValues, float[] yValues) {
-		this(title, xLabel, yLabel, xValues, yValues, getDefaultFlags());
-	}
-
-	/** This version of the constructor accepts double arrays. */
-	public Plot(String title, String xLabel, String yLabel, double[] xValues, double[] yValues) {
-		this(title, xLabel, yLabel, xValues!=null?Tools.toFloat(xValues):null, yValues!=null?Tools.toFloat(yValues):null, getDefaultFlags());
-	}
-
-	/* Obsolete, replaced by new Plot(title,xLabel,yLabel); add(shape,x,y);. */
-	public Plot(String dummy, String title, String xLabel, String yLabel, float[] xValues, float[] yValues) {
-		this(title, xLabel, yLabel, xValues, yValues, getDefaultFlags());
-	}
-
-	/** This is a version of the constructor with no intial arrays. */
 	public Plot(String title, String xLabel, String yLabel) {
 		this(title, xLabel, yLabel, (float[])null, (float[])null, getDefaultFlags());
 	}
 
-	/** This is a version of the constructor with no intial arrays. */
+	/** Obsolete, replaced by "new Plot(title,xLabel,yLabel); add(shape,x,y);".
+	 * @deprecated
+	*/
+	public Plot(String title, String xLabel, String yLabel, float[] x, float[] y) {
+		this(title, xLabel, yLabel, x, y, getDefaultFlags());
+	}
+
+	/** Obsolete, replaced by "new Plot(title,xLabel,yLabel); add(shape,x,y);".
+	 * @deprecated
+	*/
+	public Plot(String title, String xLabel, String yLabel, double[] x, double[] y) {
+		this(title, xLabel, yLabel, x!=null?Tools.toFloat(x):null, y!=null?Tools.toFloat(y):null, getDefaultFlags());
+	}
+
+	/** This version of the constructor has a 'flags' argument for
+		controlling whether ticks, grid, etc. are present and whether
+		the axes are logarithmic */
 	public Plot(String title, String xLabel, String yLabel, int flags) {
 		this(title, xLabel, yLabel, (float[])null, (float[])null, flags);
 	}
 
-	/** This version of the constructor has a 'flags' argument for
-		controlling whether ticks, grid, etc. are present and whether the axes are logarithmic */
+	/** Obsolete, replaced by "new Plot(title,xLabel,yLabel,flags); add(shape,x,y);".
+	 * @deprecated
+	*/
 	public Plot(String title, String xLabel, String yLabel, float[] xValues, float[] yValues, int flags) {
 		this.title = title;
 		pp.axisFlags = flags;
@@ -245,8 +245,7 @@ public class Plot implements Cloneable {
 		if (yValues != null && yValues.length>0) {
 			addPoints(xValues, yValues, /*yErrorBars=*/null, LINE, /*label=*/null);
 			allPlotObjects.get(0).flags = PlotObject.CONSTRUCTOR_DATA;
-		}	
-		
+		}			
 		String[] xCats = labelsInBraces(xLabel);
 		String[] yCats = labelsInBraces(yLabel);
 		if (xCats.length > 0){
@@ -261,9 +260,11 @@ public class Plot implements Cloneable {
 		}
 	}
 
-	/** This version of the constructor accepts double arrays and has a 'flags' argument. */
-	public Plot(String title, String xLabel, String yLabel, double[] xValues, double[] yValues, int flags) {
-		this(title, xLabel, yLabel, xValues!=null?Tools.toFloat(xValues):null, yValues!=null?Tools.toFloat(yValues):null, flags);
+	/** Obsolete, replaced by "new Plot(title,xLabel,yLabel,flags); add(shape,x,y);".
+	 * @deprecated
+	*/
+	public Plot(String title, String xLabel, String yLabel, double[] x, double[] y, int flags) {
+		this(title, xLabel, yLabel, x!=null?Tools.toFloat(x):null, y!=null?Tools.toFloat(y):null, flags);
 	}
 
 	/** Constructs a new plot from an InputStream and closes the stream. If the ImagePlus is
@@ -285,6 +286,13 @@ public class Plot implements Cloneable {
 			adjustCalibration(imp.getCalibration());
 			imp.setProperty(PROPERTY_KEY, this);
 		}
+	}
+
+	/** Obsolete, replaced by "new Plot(title,xLabel,yLabel); add(shape,x,y);".
+	 * @deprecated
+	*/
+	public Plot(String dummy, String title, String xLabel, String yLabel, float[] x, float[] y) {
+		this(title, xLabel, yLabel, x, y, getDefaultFlags());
 	}
 
 	/** Writes this plot into an OutputStream containing (1) the serialized PlotProperties and

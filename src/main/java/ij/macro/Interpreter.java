@@ -1893,8 +1893,8 @@ public class Interpreter implements MacroConstants {
 		ignoreErrors = true;
 		for (int i=0; i<10; i++)
 			done = true;
-		if (done!=true)
-			IJ.log("done!=true");
+		//if (done!=true)
+		//	IJ.log("done!=true");
 	}
 		
 	private void abortAllMacroThreads() {
