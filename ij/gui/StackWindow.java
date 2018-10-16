@@ -30,7 +30,6 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 		addMouseWheelListener(this);
 		if (sliceSelector==null && this.getClass().getName().indexOf("Image5D")!=-1)
 			sliceSelector = new Scrollbar(); // prevents Image5D from crashing
-		//IJ.log(nChannels+" "+nSlices+" "+nFrames);
 		pack();
 		ic = imp.getCanvas();
 		if (ic!=null) ic.setMaxBounds();
@@ -241,7 +240,8 @@ public class StackWindow extends ImageWindow implements Runnable, AdjustmentList
 	
 	public String createSubtitle() {
 		String subtitle = super.createSubtitle();
-		if (!hyperStack) return subtitle;
+		if (!hyperStack || imp.getStackSize()==1)
+			return subtitle;
     	String s="";
     	int[] dim = imp.getDimensions(false);
     	int channels=dim[2], slices=dim[3], frames=dim[4];
