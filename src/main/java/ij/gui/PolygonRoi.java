@@ -860,11 +860,13 @@ public class PolygonRoi extends Roi {
 			enlargeArrays();
 		float xbase = (float)getXBase();
 		float ybase = (float)getYBase();
+		if (xp==null) {
+			xp = new int[maxPoints];
+			yp = new int[maxPoints];
+		}
 		for (int i=0; i<nPoints; i++) {
-			if (xp!=null) {
-				xp[i] = (int)(p2.xpoints[i]-x);
-				yp[i] = (int)(p2.ypoints[i]-y);
-			}
+			xp[i] = (int)(p2.xpoints[i]-x);
+			yp[i] = (int)(p2.ypoints[i]-y);
 			if (xpf!=null) {
 				xpf[i] = p2.xpoints[i] - xbase;
 				ypf[i] = p2.ypoints[i] - ybase;
@@ -1246,6 +1248,8 @@ public class PolygonRoi extends Roi {
 		of 8 and 4 non-adjacent edges so the perimeter is 8-4*(2-sqrt(2)).
 	*/
 	double getTracedPerimeter() {
+		if (xp==null)
+			return Double.NaN;
 		int sumdx = 0;
 		int sumdy = 0;
 		int nCorners = 0;

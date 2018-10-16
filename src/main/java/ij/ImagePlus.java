@@ -90,13 +90,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private boolean noUpdateMode;
 	private ImageCanvas flatteningCanvas;
 	private Overlay overlay;
+	private boolean compositeChanges;
 	private boolean hideOverlay;
 	private static int default16bitDisplayRange;
 	private boolean antialiasRendering = true;
 	private boolean ignoreGlobalCalibration;
 	private boolean oneSliceStack;
 	public boolean setIJMenuBar = Prefs.setIJMenuBar;
-		
+			
 
     /** Constructs an uninitialized ImagePlus. */
     public ImagePlus() {
@@ -156,7 +157,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     
     private void setID() {
     	ID = --currentID;
-    	//IJ.log("New "+this);
 	}
 	   
 	/** Locks the image so other threads can test to see if it
@@ -561,23 +561,33 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if (imp.isHyperStack())
 			setOpenAsHyperStack(true);
 		LUT[] luts = null;
-		if (imp.isComposite() && this.isComposite()) {
+		if (imp.isComposite() && (this instanceof CompositeImage)) {
 			if (((CompositeImage)imp).getMode()!=((CompositeImage)this).getMode())
 				((CompositeImage)this).setMode(((CompositeImage)imp).getMode());
 			luts = ((CompositeImage)imp).getLuts();
 		}
+		LUT lut = !imp.isComposite()?imp.getProcessor().getLut():null;
 		setStack(stack2, imp.getNChannels(), imp.getNSlices(), imp.getNFrames());
+		compositeImage = imp.isComposite();
 		if (luts!=null) {
 			((CompositeImage)this).setLuts(luts);
-			updateAndDraw();
+			((CompositeImage)this).setMode(((CompositeImage)imp).getMode());
+			updateAndRepaintWindow();
+		} else if (lut!=null) {
+			getProcessor().setLut(lut);
+			updateAndRepaintWindow();
 		}
+		setTitle(imp.getTitle());
 		setCalibration(imp.getCalibration());
-		properties = newProperties;
+		setOverlay(imp.getOverlay());
+		properties = newProperties;		
 		if (getProperty(Plot.PROPERTY_KEY)!=null && win instanceof PlotWindow) {
 			Plot plot = (Plot)(getProperty(Plot.PROPERTY_KEY));
 			((PlotWindow)win).setPlot(plot);
 			plot.setImagePlus(this);
 		}
+		setFileInfo(imp.getOriginalFileInfo());
+		setProperty ("Info", imp.getProperty ("Info"));
 	}
 	
 	/** Replaces the ImageProcessor with the one specified and updates the
@@ -659,9 +669,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Replaces the image with the specified stack and updates 
 		the display. Set 'title' to null to leave the title unchanged. */
     public void setStack(String title, ImageStack newStack) {
+		//IJ.log("setStack1: "+nChannels+" "+nSlices+" "+nFrames);
+		int bitDepth1 = getBitDepth();
 		int previousStackSize = getStackSize();
 		int newStackSize = newStack.getSize();
-		//IJ.log("setStack: "+newStackSize+" "+this);
 		if (newStackSize==0)
 			throw new IllegalArgumentException("Stack is empty");
 		if (!newStack.isVirtual()) {
@@ -687,16 +698,25 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     	this.stack = newStack;
     	oneSliceStack = false;
     	setProcessor2(title, ip, newStack);
+		if (bitDepth1!=0 && bitDepth1!=getBitDepth())
+			compositeChanges = true;
+		if (compositeChanges && (this instanceof CompositeImage)) {
+			this.compositeImage = getStackSize()!=getNSlices();
+			((CompositeImage)this).completeReset();
+			if (bitDepth1!=0 && bitDepth1!=getBitDepth())
+				((CompositeImage)this).resetDisplayRanges();
+		}
+		compositeChanges = false;
 		if (win==null) {
 			if (resetCurrentSlice) setSlice(currentSlice);
 			return;
 		}
-		boolean invalidDimensions = (isDisplayedHyperStack()||isComposite()) && (win instanceof StackWindow) && !((StackWindow)win).validDimensions();
+		boolean invalidDimensions = (isDisplayedHyperStack()||(this instanceof CompositeImage)) && (win instanceof StackWindow) && !((StackWindow)win).validDimensions();
 		if (newStackSize>1 && !(win instanceof StackWindow)) {
 			if (isDisplayedHyperStack())
 				setOpenAsHyperStack(true);
 			activated = false;
-			win = new StackWindow(this, getCanvas());   // replaces this window
+			win = new StackWindow(this, dimensionsChanged?null:getCanvas());   // replaces this window
 			if (IJ.isMacro()) { // wait for stack window to be activated
 				long start = System.currentTimeMillis();
 				while (!activated) {
@@ -724,24 +744,16 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 		if (resetCurrentSlice)
 			setSlice(currentSlice);
-		if (isComposite() && previousStackSize!=newStackSize)
-			compositeImage = false;
     }
     
 	public void setStack(ImageStack newStack, int channels, int slices, int frames) {
 		if (newStack==null || channels*slices*frames!=newStack.getSize())
 			throw new IllegalArgumentException("channels*slices*frames!=stackSize");
-		int channelsBefore = this.nChannels;
-		if (IJ.debugMode) IJ.log("setStack: "+newStack.getSize()+" "+channels+" ("+channelsBefore+") "+slices+" "+frames+" "+isComposite());
+		if (IJ.debugMode) IJ.log("setStack: "+newStack.getSize()+" "+channels+" "+slices+" "+frames+" "+isComposite());
+		compositeChanges = channels!=this.nChannels;
 		this.nChannels = channels;
 		this.nSlices = slices;
 		this.nFrames = frames;
-		if (channelsBefore!=channels && isComposite()) {
-			ImageStack stack2 = this.stack;
-			this.stack = newStack;
-			((CompositeImage)this).reset();
-			this.stack = stack2;
-		}
 		setStack(null, newStack);
 	}
 
@@ -863,7 +875,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 	
 	/** Returns an 8-bit binary (0 and 255) ROI or overlay mask
-	 *  that has the same dimensions as this image.
+	 *  that has the same dimensions as this image. Creates an
+	 * ROI mask If the image has both an ROI and an overlay.
+	 * @see #createThresholdMask
 	 * @see ij.gui.Roi#getMask
 	*/
 	public ByteProcessor createRoiMask() {
@@ -873,11 +887,23 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			throw new IllegalArgumentException("ROI or overlay required");
 		ByteProcessor mask = new ByteProcessor(getWidth(),getHeight());
 		mask.setColor(255);
-		if (overlay2!=null) {
-			for (int i=0; i<overlay2.size(); i++)
-				mask.fill(overlay2.get(i));			
-		} else if (roi2!=null)
+		if (roi2!=null)
 			mask.fill(roi2);
+		else if (overlay2!=null) {
+			if (overlay2.size()==1 && (overlay2.get(0) instanceof ImageRoi)) {
+				ImageRoi iRoi = (ImageRoi)overlay2.get(0);
+				ImageProcessor ip = iRoi.getProcessor();
+				if (ip.getWidth()!=mask.getWidth() || ip.getHeight()!=mask.getHeight())
+					return mask;
+				for (int i=0; i<ip.getPixelCount(); i++) {
+					if (ip.get(i)!=0)
+						mask.set(i, 255);
+				}
+			} else {
+				for (int i=0; i<overlay2.size(); i++)
+					mask.fill(overlay2.get(i));	
+			}		
+		} 
 		return mask;
 	}
 
@@ -1074,7 +1100,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			new StackWindow(this);
 		}
 		dimensionsSet = true;
-		//IJ.log("setDimensions: "+ nChannels+"  "+nSlices+"  "+nFrames);
 	}
 	
 	/** Returns 'true' if this image is a hyperstack. */
@@ -1105,7 +1130,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
 	/** Returns the image depth (number of z-slices). */
 	public int getNSlices() {
-		//IJ.log("getNSlices: "+ nChannels+"  "+nSlices+"  "+nFrames);
 		verifyDimensions();
 		return nSlices;
 	}
@@ -1519,7 +1543,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			boolean channelChanged = channel!=getChannel();
 			setSlice((frame-1)*nChannels*nSlices + (slice-1)*nChannels + channel);
 			updatePosition(channel, slice, frame);
-			if (channelChanged && isComposite())
+			if (channelChanged && isComposite() && !noUpdateMode)
 				updateImage();
 		}
 	}
@@ -1743,6 +1767,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		starting screen coordinates. The selection type is determined by which tool in
 		the tool bar is active. The user interactively sets the selection size and shape. */
 	public void createNewRoi(int sx, int sy) {
+		Roi previousRoi = roi;
 		deleteRoi();
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
@@ -1774,6 +1799,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				break;
 			case Toolbar.TEXT:
 				roi = new TextRoi(sx, sy, this);
+				((TextRoi)roi).setPreviousRoi(previousRoi);
 				break;
 			case Toolbar.POINT:
 				roi = new PointRoi(sx, sy, this);
@@ -1924,7 +1950,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			url2 = fi.url;
 		} else
 			return;
-		//IJ.log("revert: "+path+"  "+fi);
 		IJ.showStatus("Loading: " + path);
 		ImagePlus imp = IJ.openImage(path);
 		if (imp!=null) {
@@ -2381,8 +2406,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			case ImagePlus.GRAY16: bytesPerPixel = 2; break;
 			case ImagePlus.GRAY32: case ImagePlus.COLOR_RGB: bytesPerPixel = 4;
 		}
-		//Roi roi3 = clipboard.getRoi();
-		//IJ.log("copy: "+clipboard +" "+ "roi3="+(roi3!=null?""+roi3:""));
 		if (!batchMode) {
 			msg = (cut)?"Cut":"Copy";
 			IJ.showStatus(msg + ": " + (clipboard.getWidth()*clipboard.getHeight()*bytesPerPixel)/1024 + "k");
@@ -2410,14 +2433,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			cr = cRoi.getBounds();
 		if (cr==null)
 			cr = new Rectangle(0, 0, w, h);
-		if (r==null || (cr.width!=r.width || cr.height!=r.height)) {
-			// create a new roi centered on visible part of image
-			ImageCanvas ic = null;
-			if (win!=null)
-				ic = win.getCanvas();
-			Rectangle srcRect = ic!=null?ic.getSrcRect():new Rectangle(0,0,width, height);
-			int xCenter = srcRect.x + srcRect.width/2;
-			int yCenter = srcRect.y + srcRect.height/2;
+		if (r==null || (cr.width!=r.width || cr.height!=r.height)) {		
+			// Create a new roi centered on visible part of image, or centered on image if clipboard is >= image
+			ImageCanvas ic = win!=null?ic = win.getCanvas():null;
+			Rectangle srcRect = ic!=null?ic.getSrcRect():new Rectangle(0,0,width,height);
+			int xCenter = w>=width ? width/2 : srcRect.x + srcRect.width/2;
+			int yCenter = h>=height ? height/2 : srcRect.y + srcRect.height/2;
 			if (cRoi!=null && cRoi.getType()!=Roi.RECTANGLE) {
 				cRoi.setImage(this);
 				cRoi.setLocation(xCenter-w/2, yCenter-h/2);
