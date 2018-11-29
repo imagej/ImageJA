@@ -10,7 +10,10 @@ import java.util.Vector;
 // Versions
 // 2012-07-22 shift to confine horizontally or vertically, ctrl-shift to resize, ctrl to pick
 
-	public class BrushTool extends PlugInTool implements Runnable {
+/** This class implements the Paintbrush Tool, which allows the user to draw on
+	 an image, or on an Overlay if "Paint on overlay" is enabled. */	
+public class BrushTool extends PlugInTool implements Runnable {
+	
 	private final static int UNCONSTRAINED=0, HORIZONTAL=1, VERTICAL=2, RESIZING=3, RESIZED=4, IDLE=5; //mode flags
 	private static String BRUSH_WIDTH_KEY = "brush.width";
 	private static String PENCIL_WIDTH_KEY = "pencil.width";
@@ -31,7 +34,6 @@ import java.util.Vector;
 	private ImageRoi overlayImage;
 	private boolean paintOnOverlay;
 	private static BrushTool brushInstance;
-	//private int transparency;
 
 	public void run(String arg) {
 		isPencil = "pencil".equals(arg);
@@ -91,28 +93,29 @@ import java.util.Vector;
 	}
 	
 	private void checkForOverlay(ImagePlus imp) {
-		if (paintOnOverlay && (overlayImage==null||getOverlayImage(imp)==null)) {
+		overlayImage = getOverlayImage(imp);
+		if (overlayImage==null && paintOnOverlay) {
 			ImageProcessor overlayIP = new ColorProcessor(imp.getWidth(), imp.getHeight());
 			ImageRoi imageRoi = new ImageRoi(0, 0, overlayIP);
-  			//imageRoi.setOpacity(1.0-transparency/100.0);
 			imageRoi.setZeroTransparent(true);
-			Overlay overlay = new Overlay(imageRoi);
+			imageRoi.setName("[Brush]");
+			Overlay overlay = imp.getOverlay();
+			if (overlay==null)
+				overlay = new Overlay();
+			overlay.add(imageRoi);
 			overlay.selectable(false);
 			imp.setOverlay(overlay);
 			overlayImage = imageRoi;
-			return;
 		}
-		overlayImage = null;
-		if (!paintOnOverlay)
-			return;
-		overlayImage = getOverlayImage(imp);
 	}
 
 	private ImageRoi getOverlayImage(ImagePlus imp) {
+		if (!paintOnOverlay)
+			return null;
 		Overlay overlay = imp.getOverlay();
 		if (overlay==null)
 			return null;
-		Roi roi = overlay.size()>0?overlay.get(0):null;
+		Roi roi = overlay.get("[Brush]");
 		if (roi==null||!(roi instanceof ImageRoi))
 			return null;
 		Rectangle bounds = roi.getBounds();
