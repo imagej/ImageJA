@@ -1386,7 +1386,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			previousRoi.modState = NO_MODS;
 	 }
 
-	protected void showStatus() {
+	public void showStatus() {
 		if (imp==null)
 			return;
 		String value;
@@ -1754,7 +1754,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		prototypeOverlay.drawNames(overlay.getDrawNames());
 		prototypeOverlay.drawBackgrounds(overlay.getDrawBackgrounds());
 		prototypeOverlay.setLabelColor(overlay.getLabelColor());
-		prototypeOverlay.setLabelFont(overlay.getLabelFont());
+		prototypeOverlay.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
 	} 
 
 	// Used by the FileOpener and RoiDecoder to restore overlay settings. */

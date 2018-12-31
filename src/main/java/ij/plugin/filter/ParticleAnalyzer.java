@@ -133,6 +133,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private ImageProcessor redirectIP;
 	private PolygonFiller pf;
 	private Roi saveRoi;
+	private int saveSlice;
 	private int beginningCount;
 	private Rectangle r;
 	private ImageProcessor mask;
@@ -234,6 +235,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		processStack = (flags&DOES_STACKS)!=0;
 		slice = 0;
 		saveRoi = imp.getRoi();
+		saveSlice = imp.getCurrentSlice();
 		if (saveRoi!=null && saveRoi.getType()!=Roi.RECTANGLE && saveRoi.isArea())
 			polygon = saveRoi.getPolygon();
 		imp.startTiming();
@@ -259,6 +261,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (slice==imp.getStackSize()) {
 			imp.updateAndDraw();
 			if (saveRoi!=null) imp.setRoi(saveRoi);
+			if (processStack) imp.setSlice(saveSlice);
 		}
 	}
 	
@@ -974,12 +977,15 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				roi2.setStrokeWidth(lineWidth);
 			if (showChoice==OVERLAY_MASKS)
 				roi2.setFillColor(Color.cyan);
-			if (processStack) {
+			if (processStack || imp.getStackSize()>1) {
+				int currentSlice = slice;
+				if (!processStack)
+					currentSlice = imp.getCurrentSlice();
 				if (hyperstack) {
-					int[] pos = imp.convertIndexToPosition(slice);
+					int[] pos = imp.convertIndexToPosition(currentSlice);
 					roi2.setPosition(pos[0],pos[1],pos[2]);
 				} else
-					roi2.setPosition(slice);
+					roi2.setPosition(currentSlice);
 			}
 			if (showResults)
 				roi2.setName(""+count);
@@ -1021,8 +1027,20 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		int count = rt.size();
 		// if (count==0) return;
 		boolean lastSlice = !processStack||slice==imp.getStackSize();
-		if ((showChoice==OVERLAY_OUTLINES||showChoice==OVERLAY_MASKS) && count>0 && (!processStack||slice==imp.getStackSize()))
-			imp.setOverlay(overlay);
+		if ((showChoice==OVERLAY_OUTLINES||showChoice==OVERLAY_MASKS) && count>0 && (!processStack||slice==imp.getStackSize())) {
+			if (processStack)
+				imp.setOverlay(overlay);
+			else {
+				Overlay overlay0 = imp.getOverlay();
+				if (overlay0==null || imp.getStackSize()==1)
+					imp.setOverlay(overlay);
+				else {
+					for (int i=0; i<overlay.size(); i++)
+						overlay0.add(overlay.get(i));
+					imp.setOverlay(overlay0);
+				}
+			}
+		}
 		else if (outlines!=null && lastSlice) {
 			String title = imp!=null?imp.getTitle():"Outlines";
 			String prefix;

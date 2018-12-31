@@ -53,6 +53,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	private Button moreButton, colorButton;
 	private Checkbox showAllCheckbox = new Checkbox("Show All", false);
 	private Checkbox labelsCheckbox = new Checkbox("Labels", false);
+	private Overlay overlayTemplate;
 
 	private static boolean measureAll = true;
 	private static boolean onePerSlice = true;
@@ -435,6 +436,15 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		return hex;
 	}
 	
+	/** Adds the specified ROI to the list. The second argument ('n') will 
+	 * be used to form the first part of the ROI label if it is zero or greater.
+	 * @param roi		the Roi to be added
+	 * @param n		if zero or greater, will be used to form the first part of the label
+	*/
+	public void add(Roi roi, int n) {
+		add((ImagePlus)null, roi, n);
+	}
+
 	/** Adds the specified ROI to the list. The third argument ('n') will 
 	 * be used to form the first part of the ROI label if it is zero or greater.
 	 * @param imp	the image associated with the ROI, or null
@@ -1317,14 +1327,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			if (gd.wasCanceled()) return;
 		}
 		for (int i=0; i<n; i++) {
-			//String label = (String) listModel.getElementAt(indexes[i]);
 			Roi roi = (Roi)rois.get(indexes[i]);
 			if (roi==null) continue;
-			//IJ.log("set "+color+"	 "+lineWidth+"	"+fillColor);
 			if (color!=null) roi.setStrokeColor(color);
 			if (lineWidth>=0) roi.setStrokeWidth(lineWidth);
 			roi.setFillColor(fillColor);
-			if (rpRoi!=null) {
+			if (rpRoi!=null && n==1) {
 				if (rpRoi.hasHyperStackPosition())
 					roi.setPosition(rpRoi.getCPosition(), rpRoi.getZPosition(), rpRoi.getTPosition());
 				else
@@ -1445,9 +1453,19 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			}
 		}
 		if (s1!=null)
-			imp.setRoi(s1);
+			imp.setRoi(simplifyShapeRoi(s1));
 	}
-	
+
+	private Roi simplifyShapeRoi(ShapeRoi sRoi) { //convert composite roi to simple roi if possible
+		Roi[] rois = sRoi.getRois();
+		if (rois.length != 1) return sRoi;
+		int type = rois[0].getType();
+		if (type==Roi.POLYGON || type==Roi.FREEROI)
+			return rois[0];
+		else
+			return sRoi;
+	}
+
 	Roi convertLineToPolygon(Roi roi, ImageProcessor ip) {
 		if (roi==null) return null;
 		ip.resetRoi();
@@ -1517,7 +1535,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				s1.and(s2);
 			}
 		}
-		if (s1!=null) imp.setRoi(s1);
+		if (s1!=null) imp.setRoi(simplifyShapeRoi(s1));
 		if (record()) Recorder.record("roiManager", "AND");
 	}
 
@@ -1550,7 +1568,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 				s1.xor(s2);
 			}
 		}
-		if (s1!=null) imp.setRoi(s1);
+		if (s1!=null) imp.setRoi(simplifyShapeRoi(s1));
 		if (record()) Recorder.record("roiManager", "XOR");
 	}
 
@@ -2120,6 +2138,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (IJ.isMacOSX() && IJ.isMacro())
 			ignoreInterrupts = true;
 		listModel.removeAllElements();
+		overlayTemplate = null;
 		rois.clear();
 		updateShowAll();
 	}
@@ -2306,10 +2325,11 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			Roi roi = (Roi)rois[i].clone();
 			if (!Prefs.showAllSliceOnly && !IJ.isMacro())
 				roi.setPosition(0);
-			if (roi.getStrokeWidth()==1)
-				roi.setStrokeWidth(0);
+			//if (roi.getStrokeWidth()==1)
+			//	roi.setStrokeWidth(0);
 			overlay.add(roi);
 		}
+		overlay.drawLabels(overlayTemplate.getDrawLabels());
 		imp.setOverlay(overlay);
 		if (imp.getCanvas()!=null)
 			setOverlay(imp, null);
@@ -2401,6 +2421,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			overlay.drawBackgrounds(true);
 		}
 		overlay.drawNames(Prefs.useNamesAsLabels);
+		if (overlayTemplate!=null) {
+			overlay.drawNames(overlayTemplate.getDrawNames());
+			overlay.drawBackgrounds(overlayTemplate.getDrawBackgrounds());
+			overlay.setLabelColor(overlayTemplate.getLabelColor());
+			overlay.setLabelFont(overlayTemplate.getLabelFont(), overlayTemplate.scalableLabels());
+		}
 		return overlay;
 	}
 
@@ -2502,6 +2528,20 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		mmResults = mmResults2 = null;
 	}
 	
+	public void setOverlay(Overlay overlay) {
+		if (overlay==null) {
+			overlayTemplate = null;
+			return;
+		}
+		reset();
+		overlayTemplate = overlay.create();
+		setEditMode(null, false);
+		for (int i=0; i<overlay.size(); i++)
+			add(overlay.get(i), i+1);
+		setEditMode(null, true);
+		runCommand("show all");
+	}
+	
 	// This class runs the "Multi Measure" command in a separate thread
 	private class MultiMeasureRunner implements Runnable  {
 		private Thread thread;
@@ -2531,4 +2571,3 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 
 
 }
-

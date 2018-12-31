@@ -5,6 +5,7 @@ import java.awt.geom.Rectangle2D;
 import ij.*;
 import ij.process.ImageProcessor;
 import ij.plugin.filter.Analyzer;
+import ij.plugin.Colors;
 import ij.measure.ResultsTable;
 
 /** An Overlay is a list of ROIs that can be drawn non-destructively on an Image. */
@@ -131,6 +132,13 @@ public class Overlay {
 		Roi[] rois = toArray();
 		for (int i=0; i<rois.length; i++)
 			rois[i].setStrokeColor(color);
+	}
+
+    /** Sets the stroke width of all the ROIs in this overlay. */
+    public void setStrokeWidth(Double width) {
+		Roi[] rois = toArray();
+		for (int i=0; i<rois.length; i++)
+			rois[i].setStrokeWidth(width);
 	}
 
     /** Sets the fill color of all the ROIs in this overlay. */
@@ -291,7 +299,7 @@ public class Overlay {
 		overlay2.drawNames(drawNames);
 		overlay2.drawBackgrounds(drawBackgrounds);
 		overlay2.setLabelColor(labelColor);
-		overlay2.setLabelFont(labelFont);
+		overlay2.setLabelFont(labelFont, scalableLabels);
 		overlay2.setIsCalibrationBar(isCalibrationBar);
 		overlay2.selectable(selectable);
 		return overlay2;
@@ -306,10 +314,6 @@ public class Overlay {
 		return overlay2;
 	}
 	
-	public String toString() {
-    	return "Overlay[size="+size()+"]";
-    }
-    
     public void drawLabels(boolean b) {
     	label = b;
     }
@@ -354,6 +358,23 @@ public class Overlay {
     	scalableLabels = scalable;
     }
 
+    /** Set the label font size with options. The options string can contain
+     * 'scale' (enlarge labels when image zoomed), 'bold'
+     * (display bold labels) or 'background' (display labels
+     * with contrasting background.
+    */
+    public void setLabelFontSize(int size, String options) {
+    	int style = Font.PLAIN;
+    	if (options!=null) {
+    		scalableLabels = options.contains("scale");
+    		if (options.contains("bold"))
+    			style = Font.BOLD;
+    		drawBackgrounds = options.contains("back");
+    	}
+    	labelFont = new Font("SansSerif", style, size);
+    	drawLabels(true);
+    }
+
     public Font getLabelFont() {
     	return labelFont;
     }
@@ -385,5 +406,9 @@ public class Overlay {
  	public boolean scalableLabels() {
 		return scalableLabels;
 	}
-
+	
+	public String toString() {
+    	return "Overlay[size="+size()+" "+(scalableLabels?"scale":"")+" "+Colors.colorToString(getLabelColor())+"]";
+    }
+    
 }

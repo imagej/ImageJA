@@ -206,7 +206,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 
     public void paint(Graphics g) {
-		if (IJ.debugMode) IJ.log("ImageCanvas.paint: "+imp);
+		//if (IJ.debugMode) IJ.log("ImageCanvas.paint: "+imp);
 		painted = true;
 		Roi roi = imp.getRoi();		
 		if (roi!=null || overlay!=null || showAllOverlay!=null || Prefs.paintDoubleBuffered || (IJ.isLinux() && magnification<0.25)) {
@@ -237,7 +237,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			if (roi!=null) drawRoi(roi, g);
 			if (srcRect.width<imageWidth || srcRect.height<imageHeight)
 				drawZoomIndicator(g);
-			if (IJ.debugMode) showFrameRate(g);
+			//if (IJ.debugMode) showFrameRate(g);
 		}
 		catch(OutOfMemoryError e) {IJ.outOfMemory("Paint");}
 		setPaintPending(false);
@@ -297,7 +297,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		if (labelColor==null) labelColor = Color.white;
 		initGraphics(overlay, g, labelColor, Roi.getColor());
 		int n = overlay.size();
-		if (IJ.debugMode) IJ.log("drawOverlay: "+n);
+		//if (IJ.debugMode) IJ.log("drawOverlay: "+n);
 		int currentImage = imp!=null?imp.getCurrentSlice():-1;
 		int stackSize = imp.getStackSize();
 		if (stackSize==1)
@@ -368,9 +368,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		}
 		if (textColor!=null) {
 			labelColor = textColor;
-			if (overlay!=null && overlay.getDrawBackgrounds())
-				bgColor = new Color(255-labelColor.getRed(), 255-labelColor.getGreen(), 255-labelColor.getBlue());
-			else
+			if (overlay!=null && overlay.getDrawBackgrounds()) {
+				double brightness = (labelColor.getRed()+labelColor.getGreen()+labelColor.getBlue())/3.0;
+				if (labelColor==Color.green) brightness = 255;
+				bgColor = brightness<=85?Color.white:Color.black;
+			} else
 				bgColor = null;
 		} else {
 			int red = defaultColor.getRed();
@@ -383,6 +385,9 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			bgColor = defaultColor;
 		}
 		this.defaultColor = defaultColor;
+		Font font = overlay!=null?overlay.getLabelFont():null;
+		if (font!=null && font.getSize()>12)
+			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(defaultColor);
     }
     
@@ -459,8 +464,11 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			yoffset = h - 6 + pointSize;
 		}
 		if (bgColor!=null) {
+			int h2 = h;
+			if (font!=null && font.getSize()>14)
+				h2 = (int)(h2*0.8);
 			g.setColor(bgColor);
-			g.fillRoundRect(x-1+xoffset, y-h+2+yoffset, w+1, h-3, 5, 5);
+			g.fillRoundRect(x-1+xoffset, y-h2+2+yoffset, w+1, h2-2, 5, 5);
 		}
 		if (labelRects!=null && index<labelRects.length) {
 			if (pointRoi) {
@@ -536,7 +544,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 				drawRoi(roi, offScreenGraphics);
 			if (srcRect.width<imageWidth || srcRect.height<imageHeight)
 				drawZoomIndicator(offScreenGraphics);
-			if (IJ.debugMode) showFrameRate(offScreenGraphics);
+			//if (IJ.debugMode) showFrameRate(offScreenGraphics);
 			g.drawImage(offScreenImage, 0, 0, null);
 		}
 		catch(OutOfMemoryError e) {IJ.outOfMemory("Paint");}

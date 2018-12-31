@@ -620,10 +620,7 @@ public class Functions implements MacroConstants, Measurements {
 			arg2 = getString();
 			interp.getRightParen();
 		}
-		if (arg2!=null)
-			IJ.run(arg1, arg2);
-		else
-			IJ.run(arg1);
+		IJ.run(this.interp, arg1, arg2);
 		resetImage();
 		IJ.setKeyUp(IJ.ALL_KEYS);
 		shiftKeyDown = altKeyDown = false;
@@ -3496,7 +3493,7 @@ public class Functions implements MacroConstants, Measurements {
 			s = sb.toString();
 		}
 		interp.getRightParen();
-		IJ.log(s);
+		interp.log(s);
 		interp.inPrint = false;
 	}
 
@@ -5668,7 +5665,7 @@ public class Functions implements MacroConstants, Measurements {
 			if (i!=len-1)
 				sb.append(", ");
 		}
-		IJ.log(sb.toString());
+		interp.log(sb.toString());
 		return null;
 	}
 
@@ -6231,6 +6228,36 @@ public class Functions implements MacroConstants, Measurements {
 				rt.show("Results");
 		} else if (name.equals("flatten")) {
 			IJ.runPlugIn("ij.plugin.OverlayCommands", "flatten");
+			return Double.NaN;
+		} else if (name.equals("setLabelFontSize")) {
+			int fontSize = (int)getFirstArg();
+			String options = null;
+			if (interp.nextToken()!=')')
+				options = getLastString();
+			else
+				interp.getRightParen();
+			overlay.setLabelFontSize(fontSize, options);
+			return Double.NaN;
+		} else if (name.equals("setLabelColor")) {
+			interp.getLeftParen();
+			Color color = getColor();
+			if (interp.nextToken()==',') {
+				interp.getComma();
+				Color ignore = getColor();
+				overlay.drawBackgrounds(true);
+			}
+			interp.getRightParen();
+			overlay.setLabelColor(color);
+			overlay.drawLabels(true);
+			return Double.NaN;
+		} else if (name.equals("setStrokeColor")) {
+			interp.getLeftParen();
+			Color color = getColor();
+			interp.getRightParen();
+			overlay.setStrokeColor(color);
+			return Double.NaN;
+		} else if (name.equals("setStrokeWidth")) {
+			overlay.setStrokeWidth(getArg());
 			return Double.NaN;
 		} else
 			interp.error("Unrecognized function name");

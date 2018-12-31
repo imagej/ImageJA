@@ -72,7 +72,8 @@ public class Interpreter implements MacroConstants {
 	ResultsTable applyMacroTable;
 	int errorCount;
 	volatile boolean ignoreErrors;
-
+	String errorMessage;
+	String evalOutput;
 
 	/** Interprets the specified string. */
 	public void run(String macro) {
@@ -89,7 +90,7 @@ public class Interpreter implements MacroConstants {
 			saveGlobals2(pgm);
 		run(pgm);
 	}
-
+	
 	/** Runs the specified macro, passing it a string 
 		argument and returning a string value. */
 	public String run(String macro, String arg) {
@@ -101,6 +102,34 @@ public class Interpreter implements MacroConstants {
 		run(macro);
 		instance = saveInstance;
 		return returnValue;
+	}
+	
+	/** Evaluates 'code' and returns the output, or any error, as a String. */
+	public String eval(String code) {
+		if (pgm!=null)
+			reuseSymbolTable();
+		Tokenizer tok = new Tokenizer();
+		Program pgm = tok.tokenize(code);
+		if (pgm.hasVars && pgm.hasFunctions)
+			saveGlobals2(pgm);
+		evaluating = true;
+		evalOutput = null;
+		ignoreErrors = true;
+		run(pgm);
+		if (errorMessage!=null)
+			return errorMessage;
+		else
+			return evalOutput;
+	}
+	
+	private void reuseSymbolTable() {
+		if (pgm==null)
+			return;
+		Symbol[] table1 = pgm.getSymbolTable();
+		Symbol[] table2 = new Symbol[pgm.stLoc+1];
+		for (int i=0; i<=pgm.stLoc; i++)
+			table2[i] = table1[i];
+		Program.systemTable = table2;
 	}
 	
 	/** Interprets the specified tokenized macro file starting at location 0. */
@@ -115,23 +144,14 @@ public class Interpreter implements MacroConstants {
 		pushGlobals();
 		if (func==null)
 			func = new Functions(this, pgm);
+		else
+			func.pgm = pgm;
 		func.plot = null;
+		done = false;
+		errorMessage = null;
 		doStatements();
 		finishUp();
 	}
-
-	/** Evaluates macro code. */
-	/*
-	public void eval(String macro) {
-		Tokenizer tok = new Tokenizer();
-		this.pgm = tok.tokenize(macro);
-		evaluating = true;
-		pushGlobals();
-		if (func==null)
-			func = new Functions(this, pgm);
-		run(0);
-	}
-	*/
 
 	/** Runs an existing macro starting at the specified program counter location. */
 	public void run(int location) {
@@ -304,18 +324,29 @@ public class Interpreter implements MacroConstants {
 				String s = getString();
 				inPrint = false;
 				if (s!=null && s.length()>0 && !s.equals("NaN") && !s.equals("[aborted]"))
-					IJ.log(s);
+					log(s);
 				return;
 			case ARRAY_FUNCTION: func.getArrayFunction(pgm.table[tokenAddress].type); break;
 			case EOF: break;
 			default:
-				error("Statement cannot begin with '"+pgm.decodeToken(token, tokenAddress)+"'");
+				if (evaluating && token==PI) {
+					putTokenBack();
+					log(""+getExpression());
+				} else
+					error("Statement cannot begin with '"+pgm.decodeToken(token, tokenAddress)+"'");
 		}
 		if (!looseSyntax) {
 			getToken();
 			if (token!=';' && !done)
 				error("';' expected");
 		}
+	}
+	
+	void log(String s) {
+		if (evaluating)
+			evalOutput = s;
+		else
+			IJ.log(s);
 	}
 
 	Variable runUserFunction() {
@@ -757,7 +788,8 @@ public class Interpreter implements MacroConstants {
 			case STRING_FUNCTION: doNumericStringAssignment(); break;
 			default:
 				putTokenBack();
-				getAssignmentExpression();
+				double value = getAssignmentExpression();
+				if (evaluating) log(""+value);
 		}
 	}
 
@@ -1214,6 +1246,7 @@ public class Interpreter implements MacroConstants {
 	}
 
 	void error (String message) {
+		errorMessage = message;
 		if (ignoreErrors)
 			return;
 		errorCount++;
@@ -1321,7 +1354,7 @@ public class Interpreter implements MacroConstants {
 		return hilitedVars;
 	}
 
-	String getErrorLine() {//n__
+	String getErrorLine() {
 		int savePC = pc;
 		lineNumber = pgm.lineNumbers[pc];
 		while (pc>=0 && lineNumber==pgm.lineNumbers[pc])
@@ -1405,6 +1438,8 @@ public class Interpreter implements MacroConstants {
 		if ((int)x==x)
 			return IJ.d2s(x,0);
 		else {
+			if (evaluating)
+				return ""+x;
 			String str = IJ.d2s(x, 4, 9);
 			while(str.endsWith("0") && str.contains(".") && !str.contains("E"))
 				str = str.substring(0, str.length()-1);
@@ -1796,9 +1831,13 @@ public class Interpreter implements MacroConstants {
 	void dumpStack() {
 		IJ.log("");
 		IJ.log("Stack");
-		if (stack!=null)
-			for (int i=topOfStack; i>=0; i--)
-				IJ.log(i+" "+pgm.table[stack[i].symTabIndex].str+" "+stack[i]);
+		if (stack!=null) {
+			for (int i=topOfStack; i>=0; i--) {
+				Variable v = stack[i];
+				Symbol symbol = v!=null?pgm.table[v.symTabIndex]:null;
+				IJ.log(i+" "+(symbol!=null?symbol.str:"null")+" "+v);
+			}
+		}
 	}
 	
 	void finishUp() {
@@ -1880,6 +1919,16 @@ public class Interpreter implements MacroConstants {
 		if (instance!=null) {
 			abortAllMacroThreads();
 			setInstance(null);
+		}
+	}
+	
+	public void abort(String message) {
+		errorMessage = message;
+		if (ignoreErrors) {
+			done = true;
+			finishUp();
+		} else {
+			error(message);
 		}
 	}
 	
@@ -2265,6 +2314,14 @@ public class Interpreter implements MacroConstants {
 		applyMacroTable = rt;
 	}
 	
+	public void setIgnoreErrors(boolean ignoreErrors) {
+		this.ignoreErrors = ignoreErrors;
+	}
+	
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+		
 } // class Interpreter
 
 
