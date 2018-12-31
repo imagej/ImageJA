@@ -5,16 +5,64 @@
 </head>
 <body>
 
-
-<li> Bob Goldstein
-<a href="https://makezine.com/2018/10/23/use-science-software-imajej-to-transform-your-photos-and-videos/">updated</a>
-the <a href="docs/VisualizingWithImageMake27.pdf">ImageJ tutorial</a> (PDF) he wrote for 
-<a href="http://makezine.com/magazine/">Make Magazine</a> in 2011.
-
-<li> Aleksandr Mironov contributed the 
-<a href="http://wsr.imagej.net/macros/Buffon_Needles.txt">Buffon Needles macro</a>,
-which demonstrates the
-<a href="https://en.wikipedia.org/wiki/Buffon%27s_needle">Buffon's Needle Problem</a>.
+<li> <u>1.52j 28 December 2018</u>
+<ul>
+<li> Added the <i>Macros&gt;Enter Interactive Mode</i> command
+to the text editor, which enables interactive editing and running
+of macro and JavaScript code
+(<a href="http://wsr.imagej.net/docs/InteractiveDemo.txt">example</a>).
+Type "js" in interactive mode to switch the language to JavaScript.
+Also added the associated
+<i>Plugins&gt;Macros&gt;Interactive Interpreter</i> command 
+(shortcut: "j").
+<li> Thanks to Ved Sharma, point selections with more than 65,535 points
+can now be saved and reopened
+(<a href="http://wsr.imagej.net/macros/js/ManyPoints.js">example</a>).
+<li> Thanks to Philippe Carl, the status bar is updated when adjusting
+elliptical and rotated rectangle selections.
+<li> Thanks to Ilan Tal, added the "Ignore Rescale Slope and open as 16-bit"
+checkbox to the <i>Edit&gt;Optios&gt;DICOM</i> dialog.
+<li> Thanks to Michael Schmid, <i>Image&gt;Edit&gt;Resize</i>
+can now convert a single image to a stack.
+<li> Thanks to MichaelSchmid, improved the calculation of Feret
+parameters for composite selections. FeretAngle is now reported
+(within 0.5 deg), works with pixel aspect ratios different from one and is
+more accuate due to use of 0.5 deg increments.
+<li> Thanks to MichaelSchmid, the output of ROI Manager 'AND', 'OR'
+and 'XOR' operations are, if possible, converted from composite ROIs
+into simpler polygon ROIs.
+<li> Thanks to Jerome Mutterer, errors in macro run() statements
+ are now reported using a "Macro Error" dialog that displays
+ the line number.
+<li> Added the ImagePlus.plotHistogram() method. For examples,
+run <i>Help&gt;Examples&gt;JavaScript&gt;Histogram Plots</i>.
+ <li> Added the JavaScript-friendly ImageStatistics.histogram() method
+(<a href="http://wsr.imagej.net/macros/js/PlotHistogram.js">example</a>).
+ <li> Added the Overlay.setLabelFontSize(size,options),
+ Overlay.setLabelColor(), Overlay.setStrokeColor()
+ and Overlay.setStrokeWidth() macro functions,
+and corresponding Overlay class methods
+(<a href="http://wsr.imagej.net/macros/StackParticleAnalyzerOverlay.txt">example</a>).
+<li> Thanks to Jerome Mutterer, added the setIgnoreErrors() and
+getErrorMessage() methods to the Interpreter class
+(<a href="http://wsr.imagej.net/plugins/Test_IgnoreErrors.java">example</a>).
+<li> Thanks to Michael Schmid, fixed a bug that caused 
+<i>Image&gt;Edit&gt;Resize</i> to not preserve stack lookup tables.
+<li> Thanks to Stein Rorvik, fixed <i>Orthogonal Views</i> bugs that caused
+freezing, nonworking XZ and YZ dragging and lack of density calibration, and incorrect behavior when
+"Rotate YZ" and "Flip XZ" where enabled in <i>Edit&gt;Options&gt;DICOM</i>.
+<li> Thanks to Stein Rorvik, fixed a bug that caused particle analyzer overlays to
+not be specific to the current slice when processing one slice.
+<li> Fixed a bug that caused the color of overlay labels to be set to black after 
+the image was saved and reopened.
+<li> Fixed a bug that caused the <i>Image&gt;Overlay&gt;To ROI Manager</i>
+command to not preserve overlay properties such a label color and scalability.
+<li> Thanks to Wilhelm Burger, fixed a bug that caused the Roi.setLocation(x,y)
+method to not work correctly with ShapeRois if x or y were not integers.
+<li> Thanks to Philippe Carl, fixed a bug that caused the status bar to not be
+updated or to not be updated correctly when moving or changing the length
+of straight line selections and arrows using the arrow keys. 
+</ul>
 
 <li> <u>1.52i 26 November 2018</u>
 <ul>
@@ -41,8 +89,8 @@ a "Don't reset range" checkbox to the "Threshold" dialog
 <li> Alphabetized the <i>Image&gt;Stacks&gt;Tools</i> menu.
 <li> Moved the <i>Image&gt;Stacks&gt;Plot XY Profile</i> command
 to <i>Image&gt;Stacks&gt;Tools&gt;Plot XY Profile</i>.
-<li> Thanks to Barbara and Michael Schmid, the Translate command in
-the ROI Manager remembers the x offset and y offset values.
+<li> Thanks to 'Barbara' and Michael Schmid, the <i>Translate</i> command in
+the ROI Manager remembers the x and y offset values.
 <li> Thanks to Alex Mironov, added an optional properties string
 argument to the makePoint() macro function
 (<a href="http://wsr.imagej.net/macros/PointsToOverlayDemo.txt">macro example</a>,
@@ -54,7 +102,7 @@ automatically calls Overlay.add() when the line width changes
 run <i>Help&gt;Examples&gt;Plots&gt;Random Data</i>
 or <i>Help&gt;Examples&gt;JavaScript&gt;Plot Random Data</i>.
 <li> Thanks to Michael Schmid, added an "Add Fit" commamnd to
-the Data&gt;&gt;menu of Plot windows.
+the <i>Data&gt;&gt;</i> menu of Plot windows.
 <li> Thanks to Laurent Thomas, ShortProcessor.rotate() and FloatProcessor.rotate() 
 now fill using the value set by setBackgroundValue().
 <li> Thanks to Kai Barthel, the <i>Analyze&gt;Calibrate</i> command
@@ -68,20 +116,18 @@ datasets containing NaNs.
 from arrays to the PlotContentsDialog class
 (<a href="http://wsr.imagej.net/plugins/Test_ContentsDialog.java">example</a>).
 <li> Added the PointRoi.getLastCounter() method.
-<li> Added the DuplicateAll() (the Duplicate method crops if there is an ROI)
- and getSizeInBytes() methods to the ImagePlus class.
-(<a href="http://wsr.imagej.net/macros/js/PointProperties.js">example</a>).
+<li> Added the getSizeInBytes() methods to the ImagePlus class.
 <li> Thanks to Philippe Carl and Michael Schmid, fixed a bug that caused
 the macro interpreter to incorrectly evaluate string expressions containing
 numeric arrays indexed using the ++ operator.
 <li> Thanks to Stein Rorvik, fixed a bug that caused the changeValues() macro
 funtion to reset the display range of 16-bit and 32-bit images.
 <li> Thanks to Alex Mironov, fixed a bug that caused setLineWidth(1)
-in a macro to incorrectly set the line with to the width set in the
+in a macro to incorrectly set the line width to the width set in the
 <i>Edit&gt;Options&gt;Line Width</i> dialog.
-<li> Thanks to Michael Schmid, fixed a bug that caused the Undo command to
+<li> Thanks to Michael Schmid, fixed a bug that caused the <i>Undo</i> command to
 not work after rotating an image with "Enlarge image" enabled.
-<li> Thanks to Matias Andina, fixed a bug that caused the Undo command to
+<li> Thanks to Matias Andina, fixed a bug that caused the <i>Undo</i> command to
 not work after cropping or rotating a composite color image.
 <li> Thanks to Michael Schmid, fixed a bug that caused nudging the end of a line
 selection with alt-arrow keys to not update a live profile plot.

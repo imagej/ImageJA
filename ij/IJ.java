@@ -70,6 +70,7 @@ public class IJ {
 	private static DecimalFormatSymbols dfs;
 	private static boolean trustManagerCreated;
 	private static String smoothMacro;
+	private static Interpreter macroInterpreter;
 			
 	static {
 		osname = System.getProperty("os.name");
@@ -151,7 +152,7 @@ public class IJ {
 		The file is assumed to be in the macros folder
  		unless <code>name</code> is a full path.
 		The optional string argument (<code>arg</code>) can be retrieved in the called 
-		macro or script (v1.42k or later) using the getArgument() function. 
+		macro or script using the getArgument() function. 
 		Returns any string value returned by the macro, or null. Scripts always return null.
 		The equivalent macro function is runMacro(). */
 	public static String runMacroFile(String name, String arg) {
@@ -309,9 +310,17 @@ public class IJ {
 		macroRunning = false;
 		Macro.setOptions(null);
 		testAbort();
+		macroInterpreter = null;
 		//IJ.log("run2: "+command+" "+Thread.currentThread().hashCode());
 	}
 	
+	/** The macro interpreter uses this method to run commands. */
+	public static void run(Interpreter interpreter, String command, String options) {
+		macroInterpreter = interpreter;
+		run(command, options);
+		macroInterpreter = null;
+	}
+
 	/** Converts commands that have been renamed so 
 		macros using the old names continue to work. */
 	private static String convert(String command) {
@@ -572,7 +581,12 @@ public class IJ {
     
     /**Displays a "no images are open" dialog box.*/
 	public static void noImage() {
-		error("No Image", "There are no images open.");
+		String msg = "There are no images open.";
+		if (macroInterpreter!=null) {
+			macroInterpreter.abort(msg);
+			macroInterpreter = null;
+		} else
+			error("No Image", msg);
 	}
 
 	/** Displays an "out of memory" message to the "Log" window. */
@@ -645,6 +659,11 @@ public class IJ {
 		macro or JavaScript is running, it is aborted. Writes to the
 		Java console if the ImageJ window is not present.*/
 	public static void error(String msg) {
+		if (macroInterpreter!=null) {
+			macroInterpreter.abort(msg);
+			macroInterpreter = null;
+			return;
+		}
 		error(null, msg);
 		if (Thread.currentThread().getName().endsWith("JavaScript"))
 			throw new RuntimeException(Macro.MACRO_CANCELED);
@@ -914,7 +933,6 @@ public class IJ {
 				break;
 			case KeyEvent.VK_SHIFT:
 				shiftDown=true;
-				updateStatus();
 				if (debugMode) beep();
 				break;
 			case KeyEvent.VK_SPACE: {
@@ -936,7 +954,7 @@ public class IJ {
 			case KeyEvent.VK_CONTROL: controlDown=false; break;
 			case KeyEvent.VK_META: if (isMacintosh()) controlDown=false; break;
 			case KeyEvent.VK_ALT: altDown=false; updateStatus(); break;
-			case KeyEvent.VK_SHIFT: shiftDown=false; updateStatus();  if (debugMode) beep(); break;
+			case KeyEvent.VK_SHIFT: shiftDown=false; if (debugMode) beep(); break;
 			case KeyEvent.VK_SPACE:
 				spaceDown=false;
 				ImageWindow win = WindowManager.getCurrentWindow();
@@ -951,14 +969,13 @@ public class IJ {
 	private static void updateStatus() {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp!=null) {
-			ImageCanvas ic = imp.getCanvas();
-			if (ic!=null && imp.getCalibration().scaled()) {
-				Point p = ic.getCursorLoc();
-				imp.mouseMoved(p.x, p.y);
+			Roi roi = imp.getRoi();
+			if (roi!=null && imp.getCalibration().scaled()) {
+				roi.showStatus();
 			}
 		}
 	}
-	
+
 	public static void setInputEvent(InputEvent e) {
 		altDown = e.isAltDown();
 		shiftDown = e.isShiftDown();
@@ -2237,7 +2254,7 @@ public class IJ {
 	}
 	
 	static void abort() {
-		if (ij!=null || Interpreter.isBatchMode())
+		if ((ij!=null || Interpreter.isBatchMode()) && macroInterpreter==null)
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
 	
