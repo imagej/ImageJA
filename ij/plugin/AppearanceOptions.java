@@ -18,6 +18,7 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 	private int rangeIndex = ContrastAdjuster.get16bitRangeIndex();
 	private LUT[] luts = getLuts();
 	private int setMenuSize = Menus.getFontSize();
+	private double saveScale = Prefs.getGuiScale();
 	private boolean redrawn, repainted;
 
  	public void run(String arg) {
@@ -38,6 +39,11 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 			gd.addCheckbox("Cancel button on right", Prefs.dialogCancelButtonOnRight);
 		gd.addChoice("16-bit range:", ranges, ranges[rangeIndex]);
 		gd.addNumericField("Menu font size:", Menus.getFontSize(), 0, 3, "points");
+		gd.setInsets(0, 0, 0);
+		gd.addNumericField("GUI scale (0.5-3.0):", Prefs.getGuiScale(), 2, 4, "");
+		Font font = new Font("SansSerif", Font.PLAIN, 9);
+		gd.setInsets(2,20,0);
+		gd.addMessage("Set to 1.5 to double size of tool icons, or 2.5 to triple", font);
 		gd.addHelp(IJ.URL+"/docs/menus/edit.html#appearance");
 		gd.addDialogListener(this);
 		gd.showDialog();
@@ -47,6 +53,7 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 			Prefs.blackCanvas = black;
 			Prefs.noBorder = noBorder;
 			Prefs.useInvertingLut = inverting;
+			Prefs.setGuiScale(saveScale);
 			if (redrawn) draw();
 			if (repainted) repaintWindow();
 			Prefs.open100Percent = open100;
@@ -63,9 +70,22 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 			}
 			return;
 		}
-		if (setMenuSize!=Menus.getFontSize() && !IJ.isMacintosh()) {
+		boolean messageShown = false;
+		double scale =  Prefs.getGuiScale();
+		if (scale!=saveScale) {
+			if (!IJ.isMacOSX()) {
+				IJ.showMessage("Appearance", "Restart ImageJ to resize \"ImageJ\" window");
+				messageShown = true;
+			} else {
+				ImageJ ij = IJ.getInstance();
+				if (ij!=null)
+					ij.resize();
+			}	
+		}
+		if (!messageShown && setMenuSize!=Menus.getFontSize()) {
 			Menus.setFontSize(setMenuSize);
-			IJ.showMessage("Appearance", "Restart ImageJ to use the new font size");
+			if (!IJ.isMacOSX())
+				IJ.showMessage("Appearance", "Restart ImageJ to use the new font size");
 		}
 		if (Prefs.useInvertingLut) {
 			IJ.showMessage("Appearance",
@@ -95,6 +115,7 @@ public class AppearanceOptions implements PlugIn, DialogListener {
 		if (IJ.isLinux())
 			Prefs.dialogCancelButtonOnRight = gd.getNextBoolean();
 		setMenuSize = (int)gd.getNextNumber();
+		Prefs.setGuiScale(gd.getNextNumber());
 		if (interpolate!=Prefs.interpolateScaledImages) {
 			Prefs.interpolateScaledImages = interpolate;
 			draw();

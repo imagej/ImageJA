@@ -812,7 +812,7 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	ImagePlus getImage() {
-		ImagePlus imp = IJ.getImage();
+		ImagePlus imp = IJ.getImage(interp);
 		if (imp.getWindow()==null && IJ.getInstance()!=null && !interp.isBatchMode() && WindowManager.getTempCurrentImage()==null)
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 		defaultIP = null;
@@ -3216,12 +3216,13 @@ public class Functions implements MacroConstants, Measurements {
 				boolean F = flags.contains("F");//front
 				boolean C = flags.contains("C");//changed
 				boolean kill = M && !(C && keep);
-				if (others) {
+				if (others)
 					kill = !F && !(C && keep);
-				}
 
 				if (kill) {
 					ImagePlus imp = WindowManager.getImage(ids[jj]);
+					if (imp==null)
+						continue;
 					ImageWindow win = imp.getWindow();
 					if (win != null) {
 						imp.changes = false;
@@ -4478,6 +4479,8 @@ public class Functions implements MacroConstants, Measurements {
 			Prefs.supportMacroUndo = state;
 		else if (arg1.equals("inverty"))
 			getImage().getCalibration().setInvertY(state);
+		else if (arg1.equals("scaleconversions"))
+			ImageConverter.setDoScaling(state);
 		else
 			interp.error("Invalid option");
 	}
@@ -5579,7 +5582,7 @@ public class Functions implements MacroConstants, Measurements {
 			return getRankPositions();
 		else if (name.equals("getStatistics"))
 			return getArrayStatistics();
-		else if (name.equals("getSequence"))
+		else if (name.equals("sequence") || name.equals("getSequence"))
 			return getSequence();
 		else if (name.equals("fill"))
 			return fillArray();
@@ -6544,9 +6547,66 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.startsWith("showArray")) {
 			showArray();
 			return new Variable();
-		} else
+		} else if (name.equals("getSelectionStart"))	
+			return getSelectionStart();
+		else if (name.equals("getSelectionEnd"))
+			return getSelectionEnd();
+		else if (name.equals("setSelection"))
+			return setSelection();
+		else
 			interp.error("Unrecognized function name");
 		return new Variable();
+	}
+	
+	private Variable setSelection() {
+		interp.getLeftParen();
+		double from = interp.getExpression();
+		interp.getComma();
+		double to = interp.getExpression();
+		String title = getTitle();
+		if (title != null){
+			Frame f = WindowManager.getFrame(title);
+			if (f!=null && (f instanceof TextWindow)){
+				TextWindow tWin = (TextWindow)f;
+				if (from == -1 && to == -1)
+					tWin.getTextPanel().resetSelection();
+				else
+					tWin.getTextPanel().setSelection((int)from, (int)to);
+				return new Variable();
+			}
+		}
+		interp.error("Title of table missing or not found");
+		return new Variable();
+	}
+	
+	private Variable getSelectionStart() {
+		int selStart = -1;
+		String title = getTitleArg();
+		if (title != null){
+			Frame f = WindowManager.getFrame(title);
+			if (f!=null && (f instanceof TextWindow)){
+				TextWindow tWin = (TextWindow)f;	
+				selStart = tWin.getTextPanel().getSelectionStart();
+				return new Variable(selStart);
+			}
+		}
+		interp.error("Title of table missing or not found");
+		return new Variable(selStart);
+	}
+	
+	private Variable getSelectionEnd() {
+		int selEnd = -1;
+		String title = getTitleArg();
+		if (title != null){
+			Frame f = WindowManager.getFrame(title);
+			if (f!=null && (f instanceof TextWindow)){
+				TextWindow tWin = (TextWindow)f;	
+				selEnd = tWin.getTextPanel().getSelectionEnd();
+				return new Variable(selEnd);
+			}
+		}
+		interp.error("Title of table missing or not found");
+		return new Variable(selEnd);
 	}
 	
 	private Variable setTableValue() {
@@ -6645,7 +6705,13 @@ public class Functions implements MacroConstants, Measurements {
 	private Variable getColumn() {
 		String col = getFirstString();
 		ResultsTable rt = getResultsTable(getTitle());	
-		return new Variable(rt.getColumnAsVariables(col));
+		Variable column = null;
+		try {
+			column =  new Variable(rt.getColumnAsVariables(col));
+		} catch (Exception e) {
+			interp.error(e.getMessage());
+		}
+		return column;
 	}
 
 	private Variable renameColumn() {
@@ -6803,7 +6869,7 @@ public class Functions implements MacroConstants, Measurements {
 		h.setValue(r.height);
 	}
 
-	void toScaled() {       //pixel coordinates to calibrated coordinates
+	void toScaled() {   //pixel coordinates to calibrated coordinates
 		ImagePlus imp = getImage();
 		Plot plot = (Plot)(getImage().getProperty(Plot.PROPERTY_KEY)); //null if not a plot window
 		int height = imp.getHeight();
@@ -6840,13 +6906,12 @@ public class Functions implements MacroConstants, Measurements {
 				yv.setValue(plot == null ? cal.getY(y,height) : plot.descaleY((int)(y+0.5)));
 				if (threeArgs)
 					zv.setValue(cal.getZ(zv.getValue()));
-			} else {
-				xv.setValue(plot == null ? x*cal.pixelWidth : plot.descaleX((int)(x+0.5)));
-			}
+			} else //oneArg; convert horizontal length (not the x coordinate, no offset)
+				xv.setValue(x * cal.pixelWidth) ;							
 		}
 	}
 
-	void toUnscaled() {     //calibrated coordinates to pixel coordinates
+	void toUnscaled() {   //calibrated coordinates to pixel coordinates
 		ImagePlus imp = getImage();
 		Plot plot = (Plot)(getImage().getProperty(Plot.PROPERTY_KEY)); //null if not a plot window
 		int height = imp.getHeight();
@@ -6883,9 +6948,8 @@ public class Functions implements MacroConstants, Measurements {
 				yv.setValue(plot == null ? cal.getRawY(y,height) : plot.scaleYtoPxl(y));
 				if (threeArgs)
 					zv.setValue(cal.getRawZ(zv.getValue()));
-			} else {
-				xv.setValue(plot == null ? x/cal.pixelWidth : plot.scaleXtoPxl(x));
-			}
+			} else  //oneArg; convert horizontal length (not the x coordinate, no offset)
+				xv.setValue(x/cal.pixelWidth);				
 		}
 	}
 

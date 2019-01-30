@@ -2035,13 +2035,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			fi.valueUnit = cal.getValueUnit();
 
     	switch (imageType) {
-	    	case GRAY8: case COLOR_256:
-    			LookUpTable lut = createLut();
-    			if (imageType==COLOR_256 || !lut.isGrayscale())
-    				fi.fileType = FileInfo.COLOR8;
-    			else
-    				fi.fileType = FileInfo.GRAY8;
-    			addLut(lut, fi);
+			case GRAY8: case COLOR_256:
+				LookUpTable lut = createLut();
+				boolean customLut = !lut.isGrayscale() || (ip!=null&&!ip.isDefaultLut());
+				if (imageType==COLOR_256 || customLut)
+					fi.fileType = FileInfo.COLOR8;
+				else
+					fi.fileType = FileInfo.GRAY8;
+				addLut(lut, fi);
 				break;
 	    	case GRAY16:
 	    		if (compositeImage && fi.nImages==3) {
@@ -2053,7 +2054,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 					fi.fileType = fi.GRAY16_UNSIGNED;
 				if (!compositeImage) {
     				lut = createLut();
-    				if (!lut.isGrayscale())
+    				if (!lut.isGrayscale() || (ip!=null&&!ip.isDefaultLut()))
     					addLut(lut, fi);
 				}
 				break;
@@ -2061,7 +2062,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				fi.fileType = fi.GRAY32_FLOAT;
 				if (!compositeImage) {
     				lut = createLut();
-    				if (!lut.isGrayscale())
+    				if (!lut.isGrayscale() || (ip!=null&&!ip.isDefaultLut()))
     					addLut(lut, fi);
 				}
 				break;
