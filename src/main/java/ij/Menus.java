@@ -80,6 +80,7 @@ public class Menus {
 	private static int defaultFontSize = IJ.isWindows()?15:0;
 	private static int fontSize = Prefs.getInt(Prefs.MENU_SIZE, defaultFontSize);
 	private static Font menuFont;
+	private static double scale = 1.0;
 
 	static boolean jnlp; // true when using Java WebStart
 	public static int setMenuBarCount;
@@ -92,6 +93,9 @@ public class Menus {
 	}
 
 	String addMenuBar() {
+		scale = Prefs.getGuiScale();
+		if ((scale>=1.5&&scale<2.0) || (scale>=2.5&&scale<3.0))
+			scale = (int)Math.round(scale);
 		nPlugins = nMacros = userPluginsIndex = 0;
 		addSorted = installingJars = duplicateCommand = false;
 		error = null;
@@ -249,7 +253,8 @@ public class Menus {
 		file.addSeparator();
 		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
 
-		if (fontSize!=0)
+		//System.out.println("MenuBar.setFont: "+fontSize+" "+scale+"  "+getFont());
+		if (fontSize!=0 || scale>1.0)
 			mbar.setFont(getFont());
 		if (ij!=null) {
 			ij.setMenuBar(mbar);
@@ -1148,9 +1153,8 @@ public class Menus {
 		int count = 0;
 		MenuItem mi;
 		popup = new PopupMenu("");
-		if (fontSize!=0)
+		if (fontSize!=0 || scale>1.0)
 			popup.setFont(getFont());
-
 		while (true) {
 			count++;
 			s = Prefs.getString("popup" + (count/10)%10 + count%10);
@@ -1609,12 +1613,17 @@ public class Menus {
 	/** Returns the size (in points) used for the fonts in ImageJ menus. Returns
 		0 if the default font size is being used or if this is a Macintosh. */
 	public static int getFontSize() {
-		return IJ.isMacintosh()?0:fontSize;
+		return fontSize;
+		//return IJ.isMacintosh()?0:fontSize;
 	}
 	
 	public static Font getFont() {
-		if (menuFont==null)
-			menuFont =  new Font("SanSerif", Font.PLAIN, fontSize==0?12:fontSize);
+		if (menuFont==null) {
+			int size = fontSize==0?12:fontSize;
+			size = (int)Math.round(size*scale);
+			menuFont =  new Font("SanSerif", Font.PLAIN, size);
+		}
+		//System.out.println("Menus.getFont: "+scale+" "+fontSize+" "+menuFont);
 		return menuFont;
 	}
 
@@ -1646,6 +1655,15 @@ public class Menus {
 		IJ.resetClassLoader();
 		IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		IJ.showStatus("Menus updated: "+m.nPlugins + " commands, " + m.nMacros + " macros");
+	}
+	
+	public static void updateFont() {
+		scale = (int)Math.round(Prefs.getGuiScale());
+		Font font = getFont();
+		mbar.setFont(font);
+		if (ij!=null)
+			ij.setMenuBar(mbar);
+		popup.setFont(font);
 	}
 	
 }

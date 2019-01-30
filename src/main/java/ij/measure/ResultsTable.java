@@ -612,6 +612,15 @@ public class ResultsTable implements Cloneable {
 	
 	/** Implements the Table.getColumn() macro function. */
 	public Variable[] getColumnAsVariables(String column) {
+		if ("Label".equals(column) && rowLabels!=null) {
+			int n = size();
+			Variable[] labels = new Variable[n];
+			for (int i=0; i<n; i++) {
+				String label = getLabel(i);
+				labels[i] = new Variable(label!=null?label:"");
+			}
+			return labels;
+		}
 		int col = getColumnIndex(column);
 		if (col==COLUMN_NOT_FOUND)
 			throw new IllegalArgumentException("\""+column+"\" column not found");
@@ -1070,7 +1079,7 @@ public class ResultsTable implements Cloneable {
 		if (lines.length==0)
 			throw new IOException("Table is empty or invalid");
 		String[] headings = lines[0].split(cellSeparator);
-		if (headings.length==1)
+		if (headings.length<1)
 			throw new IOException("This is not a tab or comma delimited text file.");
 		int numbersInHeadings = 0;
 		for (int i=0; i<headings.length; i++) {
@@ -1105,7 +1114,7 @@ public class ResultsTable implements Cloneable {
 			firstColumn = 1;
 		}
 		ResultsTable rt = new ResultsTable();
-		rt.showRowNumbers(true);
+		rt.showRowNumbers(path.contains("Results"));
 		for (int i=firstRow; i<lines.length; i++) {
 			rt.incrementCounter();
 			String[] items=lines[i].split(cellSeparator);

@@ -36,6 +36,7 @@ public class Prefs {
     public static final String DIV_BY_ZERO_VALUE = "div-by-zero";
     public static final String NOISE_SD = "noise.sd";
     public static final String MENU_SIZE = "menu.size";
+    public static final String GUI_SCALE = "gui.scale";
     public static final String THREADS = "threads";
 	public static final String KEY_PREFIX = ".";
  
@@ -192,6 +193,7 @@ public class Prefs {
 	static int threads;
 	static int transparentIndex = -1;
 	private static boolean resetPreferences;
+	private static double guiScale = 1.0;
 
 	/** Finds and loads the ImageJ configuration file, "IJ_Props.txt".
 		@return	an error message if "IJ_Props.txt" not found.
@@ -214,17 +216,17 @@ public class Prefs {
 		imagesURL = props.getProperty("images.location");
 		loadPreferences();
 		loadOptions();
+		guiScale = get(GUI_SCALE, 1.0);
 		return null;
 	}
 
 	/*
-	static void dumpPrefs(String title) {
-		IJ.log("");
-		IJ.log(title);
+	static void dumpPrefs() {
+		System.out.println("");
 		Enumeration e = ijPrefs.keys();
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
-			IJ.log(key+": "+ijPrefs.getProperty(key));
+			System.out.println(key+": "+ijPrefs.getProperty(key));
 		}
 	}
 	*/
@@ -499,6 +501,7 @@ public class Prefs {
 		jFileChooserSettingChanged = (options2&JFILE_CHOOSER_CHANGED)!=0;
 		dialogCancelButtonOnRight = (options2&CANCEL_BUTTON_ON_RIGHT)!=0;
 		ignoreRescaleSlope = (options2&IGNORE_RESCALE_SLOPE)!=0;
+		;
 	}
 
 	static void saveOptions(Properties prefs) {
@@ -528,7 +531,7 @@ public class Prefs {
 			+ (doNotSaveWindowLocations?DO_NOT_SAVE_WINDOW_LOCS:0)
 			+ (jFileChooserSettingChanged?JFILE_CHOOSER_CHANGED:0)
 			+ (dialogCancelButtonOnRight?CANCEL_BUTTON_ON_RIGHT:0)
-			+ (ignoreRescaleSlope?IGNORE_RESCALE_SLOPE:0);			
+			+ (ignoreRescaleSlope?IGNORE_RESCALE_SLOPE:0);
 		prefs.put(OPTIONS2, Integer.toString(options2));
 	}
 
@@ -686,5 +689,18 @@ public class Prefs {
 		return get("options.ext", ".csv");
 	}
 		
+	/** Sets the GenericDialog and Command Finder text scale (0.5 to 3.0). */
+	public static void setGuiScale(double scale) {
+		if (scale>=0.5 && scale<=3.0) {
+			guiScale = scale;
+			set(GUI_SCALE, guiScale);
+		}
+	}
+
+	/** Returns the GenericDialog and Command Finder text scale. */
+	public static double getGuiScale() {
+		return guiScale;
+	}
+
 }
 

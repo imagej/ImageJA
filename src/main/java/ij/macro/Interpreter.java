@@ -1281,7 +1281,7 @@ public class Interpreter implements MacroConstants {
 					panel.clear();
 				}	
 			}
-			showError("Macro Error", message+" in line "+lineNumber+" \n \n"+line + "\n \nLine number is on clipboard.", variables);
+			showError("Macro Error", message+" in line "+lineNumber+" \n \n"+line, variables);
 			f = WindowManager.getFrame("Debug");
 			if (showVariables && f!=null && (f instanceof TextWindow)) {
 				TextWindow debugWindow = (TextWindow)f;
@@ -1296,6 +1296,7 @@ public class Interpreter implements MacroConstants {
 	}
 		
 	void showError(String title, String msg, String[] variables) {
+		Macro.setOptions(null);
 		GenericDialog gd = new GenericDialog(title);
 		gd.setInsets(6,5,0);
 		gd.addMessage(msg);
@@ -2321,7 +2322,7 @@ public class Interpreter implements MacroConstants {
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-		
+			
 } // class Interpreter
 
 
