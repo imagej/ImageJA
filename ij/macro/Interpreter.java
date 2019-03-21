@@ -1296,15 +1296,22 @@ public class Interpreter implements MacroConstants {
 	}
 		
 	void showError(String title, String msg, String[] variables) {
+		boolean noImages = msg.startsWith("There are no images open");
+		if (noImages)
+			title = "No Image";
 		Macro.setOptions(null);
 		GenericDialog gd = new GenericDialog(title);
 		gd.setInsets(6,5,0);
 		gd.addMessage(msg);
 		gd.setInsets(15,30,5);
-		gd.addCheckbox("Show \"Debug\" Window", showVariables);
+		if (!noImages)
+			gd.addCheckbox("Show \"Debug\" Window", showVariables);
 		gd.hideCancelButton();
 		gd.showDialog();
-		showVariables = gd.getNextBoolean();
+		if (!noImages)
+			showVariables = gd.getNextBoolean();
+		else
+			showVariables = false;
 		if (!gd.wasCanceled() && showVariables)
 			updateDebugWindow(variables, null);
 	}
@@ -1774,9 +1781,16 @@ public class Interpreter implements MacroConstants {
 						error("Array expected");
 					if (index<0 || index>=array.length)
 						error("Index ("+index+") out of 0-"+(array.length-1)+" range");
-					str = array[index].getString();
-					if (str==null)
-						str = toString(array[index].getValue());
+					str = array[index].getString();					
+					if (str==null) {
+						int next2 = nextToken();
+						if (next2==')' || next2==';')
+							str = toString(array[index].getValue());
+						else {
+							pc = savePC-1;
+							getToken();
+						}
+					}
 				} else if (next=='.')
 						str = null;
 				else {

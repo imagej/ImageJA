@@ -114,6 +114,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		c = new GridBagConstraints();
 		setLayout(grid);
 		macroOptions = Macro.getOptions();
+		//IJ.log("macroOptions: "+macroOptions+"  "+title);
 		macro = macroOptions!=null;
 		addKeyListener(this);
 		addWindowListener(this);
@@ -584,7 +585,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     public void addTextAreas(String text1, String text2, int rows, int columns) {
 		if (textArea1!=null) return;
 		Panel panel = new Panel();
-		Font font = new Font("SansSerif", Font.PLAIN, 14);
+		Font font = new Font("SansSerif", Font.PLAIN, (int)(14*Prefs.getGuiScale()));
 		textArea1 = new TextArea(text1,rows,columns,TextArea.SCROLLBARS_NONE);
 		if (IJ.isLinux()) textArea1.setBackground(Color.white);
 		textArea1.setFont(font);
