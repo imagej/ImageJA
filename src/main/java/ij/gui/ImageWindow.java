@@ -37,7 +37,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 
 	private static final int XINC = 12;
 	private static final int YINC = 16;
-	private static final int TEXT_GAP = 10;
+	private final double SCALE = Prefs.getGuiScale();
+	private int TEXT_GAP = 11;
 	private static int xbase = -1;
 	private static int ybase;
 	private static int xloc;
@@ -45,8 +46,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	private static int count;
 	private static boolean centerOnScreen;
 	private static Point nextLocation;
-	public static long setMenuBarTime;
-	
+	public static long setMenuBarTime;	
     private int textGap = centerOnScreen?0:TEXT_GAP;
 	
 	/** This variable is set false if the user presses the escape key or closes the window. */
@@ -66,6 +66,10 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     
     public ImageWindow(ImagePlus imp, ImageCanvas ic) {
 		super(imp.getTitle());
+		if (SCALE>1.0) {
+			TEXT_GAP = (int)(TEXT_GAP*SCALE);
+			textGap = centerOnScreen?0:TEXT_GAP;
+		}
 		if (Prefs.blackCanvas && getClass().getName().equals("ij.gui.ImageWindow")) {
 			setForeground(Color.white);
 			setBackground(Color.black);
@@ -274,7 +278,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 					g.setColor(c);
 				}
 			}
-			Java2.setAntialiasedText(g, true);
+			Java2.setAntialiasedText(g, true);			
+			if (SCALE>1.0) {
+				Font font = new Font("SansSerif", Font.PLAIN, (int)(12*SCALE));
+				g.setFont(font);
+			}
 			g.drawString(createSubtitle(), insets.left+5, insets.top+TEXT_GAP);
 		}
     }
@@ -300,7 +308,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     		s += "; ";
 		} else {
 			String label = (String)imp.getProperty("Label");
-			if (label!=null) {
+			if (label!=null && label.length()>0) {
 				int newline = label.indexOf('\n');
 				if (newline>0)
 					label = label.substring(0, newline);
@@ -309,7 +317,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 					label = label.substring(0,len-4);
 				if (label.length()>60)
 					label = label.substring(0, 60);
-				s = label + "; ";
+				s = "\""+label + "\"; ";
 			}
 		}
     	int type = imp.getType();

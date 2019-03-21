@@ -269,6 +269,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		draw();
 	}
 	
+	/** Use to update the image when the underlying virtual stack changes. */
+	public void updateVirtualSlice() {
+		ImageStack vstack = getStack();
+		if (vstack.isVirtual()) {
+			double min=getDisplayRangeMin(), max=getDisplayRangeMax();
+			setProcessor(vstack.getProcessor(getCurrentSlice()));
+			setDisplayRange(min,max);
+		} else
+			throw new IllegalArgumentException("Virtual stack required");
+	}
+	
 	/** Sets the display mode of composite color images, where 'mode' 
 		 should be IJ.COMPOSITE, IJ.COLOR or IJ.GRAYSCALE. */
 	public void setDisplayMode(int mode) {
@@ -613,6 +624,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 		setProcessor2(title, ip, null);
 	}
+	static int counter = 1;
 	
 	void setProcessor2(String title, ImageProcessor ip, ImageStack newStack) {
 		//IJ.log("setProcessor2: "+ip+" "+this.ip+" "+newStack);
@@ -1474,7 +1486,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			}
 			s.addSlice(label, ip2);
 			s.update(ip2);
-			setStack(s);
+			this.stack = s;
 			ip = ip2;
 			oneSliceStack = true;
 		} else {
@@ -1752,8 +1764,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (newRoi==null)
 				{deleteRoi(); return;}
 		}
-		if (bounds.width==0 && bounds.height==0 && !(newRoi.getType()==Roi.POINT||newRoi.getType()==Roi.LINE))
-			{deleteRoi(); return;}
+		if (bounds.width==0 && bounds.height==0 && !(newRoi.getType()==Roi.POINT||newRoi.getType()==Roi.LINE)) {
+			deleteRoi();
+			return;
+		}
 		roi = newRoi;
 		if (ip!=null) {
 			ip.setMask(null);
@@ -1789,7 +1803,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		the tool bar is active. The user interactively sets the selection size and shape. */
 	public void createNewRoi(int sx, int sy) {
 		Roi previousRoi = roi;
-		deleteRoi();
+		deleteRoi();   //also saves the roi as <code>Roi.previousRoi</code> if non-null
+		if (Roi.previousRoi != null)
+			Roi.previousRoi.setImage(previousRoi== null ? null : this); //with 'this' it will be recalled in case of ESC
+
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
 				if (Toolbar.getRectToolType()==Toolbar.ROTATED_RECT_ROI)
@@ -1909,7 +1926,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				else if (r.width==width && r.height==height) // is it the same size as the image
 					roi.setLocation(0, 0);
 				draw();
-				roi.notifyListeners(RoiListener.CREATED);
+				roi.notifyListeners(RoiListener.MODIFIED);
 			}
 		}
 	}
@@ -1924,8 +1941,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	
 	/** Implements the File/Revert command. */
 	public void revert() {
-		if (getStackSize()>1 && getStack().isVirtual())
+		if (getStackSize()>1 && getStack().isVirtual()) {
+			int thisSlice = currentSlice;
+			currentSlice = 0;
+			setSlice(thisSlice);
 			return;
+		}
 		FileInfo fi = getOriginalFileInfo();
 		boolean isFileInfo = fi!=null && fi.fileFormat!=FileInfo.UNKNOWN;
 		if (!isFileInfo && url==null)
