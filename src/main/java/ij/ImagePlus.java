@@ -883,9 +883,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		return mask;
 	}
 	
-	/** Returns an 8-bit binary (0 and 255) ROI or overlay mask
-	 *  that has the same dimensions as this image. Creates an
-	 * ROI mask If the image has both an ROI and an overlay.
+	/** Returns an 8-bit binary (foreground=255, background=0)
+	 * ROI or overlay mask that has the same dimensions 
+	 * as this image. Creates an ROI mask If the image has both
+	 * both an ROI and an overlay. Set the threshold of the mask to 255.
 	 * @see #createThresholdMask
 	 * @see ij.gui.Roi#getMask
 	*/
@@ -913,16 +914,21 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 					mask.fill(overlay2.get(i));	
 			}		
 		} 
+		mask.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
 		return mask;
 	}
 
-	/** Returns an 8-bit binary (0 and 255) threshold mask
+	/** Returns an 8-bit binary threshold mask
+	 * (foreground=255, background=0)
 	 * that has the same dimensions as this image.
+	 * The threshold of the mask is set to 255.
 	 * @see ij.plugin.Thresholder#createMask
 	 * @see ij.process.ImageProcessor#createMask
 	*/
 	public ByteProcessor createThresholdMask() {
-		return Thresholder.createMask(this);
+		ByteProcessor mask = Thresholder.createMask(this);
+		mask.setThreshold(255, 255, ImageProcessor.NO_LUT_UPDATE);
+		return mask;
 	}
 
 	/** Get calibrated statistics for this image or ROI, including 
@@ -1488,6 +1494,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			this.stack = s;
 			ip = ip2;
 			oneSliceStack = true;
+			setCurrentSlice(1);
 		} else {
 			s = stack;
 			if (ip!=null) {
@@ -1673,8 +1680,10 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			Roi roi = getRoi();
 			if (roi!=null)
 				roi.endPaste();
-			if (isProcessor())
+			if (isProcessor()) {
+				if (currentSlice==0) currentSlice=1;
 				stack.setPixels(ip.getPixels(),currentSlice);
+			}
 			setCurrentSlice(n);
 			Object pixels = null;
 			Overlay overlay2 = null;
@@ -2180,6 +2189,34 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	*/
 	public ImagePlus crop() {
 		return (new Duplicator()).crop(this);
+	}
+
+	/** Returns a cropped copy this image or stack, where 'options'
+	 * can be "stack", "slice" or a range (e.g., "20-30").
+	 * @see #duplicate
+	 * @see #crop
+	 * @see ij.plugin.Duplicator#crop
+	*/
+	public ImagePlus crop(String options) {
+		String msg = "crop: \"stack\", \"slice\" or a range (e.g., \"20-30\") expected";
+		int stackSize = getStackSize();
+		if (options==null || options.equals("stack"))
+			return (new Duplicator()).run(this);
+		else if (options.equals("slice") || stackSize==1)
+			return crop();
+		else {
+			String[] range = Tools.split(options, " -");
+			if (range.length!=2)
+				throw new IllegalArgumentException(msg);
+			double s1 = Tools.parseDouble(range[0]);
+			double s2 = Tools.parseDouble(range[1]);
+			if (Double.isNaN(s1) || Double.isNaN(s2))
+				throw new IllegalArgumentException(msg);
+			if (s1<1) s1 = 1;
+			if (s2>stackSize) s2 = stackSize;
+			if (s1>s2) {s1=1; s2=stackSize;}
+			return new Duplicator().run(this, (int)s1, (int)s2);
+		}
 	}
 
 	/** Returns a new ImagePlus with this image's attributes

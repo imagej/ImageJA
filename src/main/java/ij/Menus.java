@@ -270,6 +270,10 @@ public class Menus {
 			Menus.setMenuBarCount++;
 		}
 		
+		// Add deleted sample images to commands table
+		pluginsTable.put("Lena (68K)", "ij.plugin.URLOpener(\"lena-std.tif\")");
+		pluginsTable.put("Bridge (174K)", "ij.plugin.URLOpener(\"bridge.gif\")");
+		
 		if (pluginError!=null)
 			error = error!=null?error+="\n"+pluginError:pluginError;
 		if (jarError!=null)
@@ -310,6 +314,7 @@ public class Menus {
 		addExample(submenu, "Custom Measurement", "Custom_Measurement.ijm");
 		addExample(submenu, "Synthetic Images", "Synthetic_Images.ijm");
 		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.ijm");
+		addExample(submenu, "Curve Fitting", "Curve_Fitting.ijm");
 		submenu.addSeparator();
 		addExample(submenu, "Circle Tool", "Circle_Tool.ijm");
 		addExample(submenu, "Star Tool", "Star_Tool.ijm");
@@ -341,6 +346,7 @@ public class Menus {
 		addExample(submenu, "Terabyte VirtualStack", "Terabyte_VirtualStack.js");
 		addExample(submenu, "Event Listener", "Event_Listener.js");
 		addExample(submenu, "FFT Filter", "FFT_Filter.js");
+		addExample(submenu, "Curve Fitting", "Curve_Fitting.js");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		submenu = new Menu("BeanShell");
