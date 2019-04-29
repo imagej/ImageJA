@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.*;
 import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
-import java.awt.datatransfer.StringSelection;
+
 
 /** This is the recursive descent parser/interpreter for the ImageJ macro language. */
 public class Interpreter implements MacroConstants {
@@ -104,8 +104,11 @@ public class Interpreter implements MacroConstants {
 		return returnValue;
 	}
 	
-	/** Evaluates 'code' and returns the output, or any error, as a String. */
+	/** Evaluates 'code' and returns the output, or any error, as a String.
+	 * @see ij.Macro#eval
+	*/
 	public String eval(String code) {
+		Interpreter saveInstance = instance;
 		if (pgm!=null)
 			reuseSymbolTable();
 		Tokenizer tok = new Tokenizer();
@@ -115,7 +118,9 @@ public class Interpreter implements MacroConstants {
 		evaluating = true;
 		evalOutput = null;
 		ignoreErrors = true;
+		calledMacro = true;
 		run(pgm);
+		instance = saveInstance;
 		if (errorMessage!=null)
 			return errorMessage;
 		else
@@ -1267,11 +1272,6 @@ public class Interpreter implements MacroConstants {
 			done = true;
 			if (line.length()>120)
 				line = line.substring(0,119)+"...";			
-			StringSelection ss = new StringSelection("" + lineNumber);
-			try {
-				java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(ss, null);
-			} catch(Exception e) {}
 			Frame f = WindowManager.getFrame("Debug");			
 			TextPanel panel = null;
 			if (showVariables && f!=null && (f instanceof TextWindow)) { //clear previous content
@@ -1888,6 +1888,8 @@ public class Interpreter implements MacroConstants {
 			if (rt!=null && rt.size()>0)
 				rt.show("Results");
 		}
+		if (func.unUpdatedTable!=null)
+			func.unUpdatedTable.show(func.unUpdatedTable.getTitle());
 		if (IJ.isMacOSX() && selectCount>0 && debugger==null) {
 			Frame frame = WindowManager.getFrontWindow();
 			if (frame!=null && (frame instanceof ImageWindow))

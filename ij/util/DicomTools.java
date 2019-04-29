@@ -38,6 +38,10 @@ public class DicomTools {
 	private static String[] getSortStrings(ImageStack stack, String tag) {
 		double series = getSeriesNumber(getSliceLabel(stack,1));
 		int n = stack.getSize();
+		boolean checkRescaleSlope = (stack instanceof VirtualStack)?((VirtualStack)stack).getBitDepth()==16:false;
+		if (Prefs.ignoreRescaleSlope)
+			checkRescaleSlope = false;
+		boolean showError = false;
 		String[] values = new String[n];
 		sliceLabels = new String[n];
 		for (int i=1; i<=n; i++) {
@@ -47,15 +51,27 @@ public class DicomTools {
 			double value = getNumericTag(tags, tag);
 			if (Double.isNaN(value)) {
 				if (IJ.debugMode) IJ.log("  "+tag+"  tag missing in slice "+i);
+				if (showError) rescaleSlopeError(stack);
 				return null;
 			}
 			if (getSeriesNumber(tags)!=series) {
 				if (IJ.debugMode) IJ.log("  all slices must be part of the same series");
+				if (showError) rescaleSlopeError(stack);
 				return null;
 			}
 			values[i-1] = toString(value, MAX_DIGITS) + toString(i, MAX_DIGITS);
+			if (checkRescaleSlope) {
+				double rescaleSlope = getNumericTag(tags, "0028,1053");
+				if (rescaleSlope!=1.0)
+					showError = true;
+			}
 		}
+		if (showError) rescaleSlopeError(stack);
 		return values;
+	}
+	
+	private static void rescaleSlopeError(ImageStack stack) {
+		((VirtualStack)stack).setBitDepth(32);
 	}
 
 	private static String toString(double value, int width) {
@@ -151,4 +167,3 @@ public class DicomTools {
 	}
 
 }
-

@@ -299,8 +299,22 @@ public class FolderOpener implements PlugIn {
 							}
 						}
 						if (bitDepth2!=bitDepth) {
-							IJ.log(list[i] + ": wrong bit depth; "+bitDepth+" expected, "+bitDepth2+" found");
-							break;
+							if (dicomImages && bitDepth==16 && bitDepth2==32 && scale==100) {
+								ip = ip.convertToFloat();
+								bitDepth = 32;
+								ImageStack stack2 = new ImageStack(width, height, stack.getColorModel());
+								for (int n=1; n<=stack.getSize(); n++) {
+									ImageProcessor ip2 = stack.getProcessor(n);
+									ip2 = ip2.convertToFloat();
+									ip2.subtract(32768);
+									String sliceLabel = stack.getSliceLabel(n);
+									stack2.addSlice(sliceLabel, ip2.convertToFloat());
+								}
+								stack = stack2;
+							} else {
+								IJ.log(list[i] + ": wrong bit depth; "+bitDepth+" expected, "+bitDepth2+" found");
+								break;
+							}
 						}
 						if (scale<100.0)
 							ip = ip.resize((int)(width*scale/100.0), (int)(height*scale/100.0));
@@ -348,7 +362,7 @@ public class FolderOpener implements PlugIn {
 					cal.pixelDepth = cal.pixelWidth;
 				imp2.setCalibration(cal);
 			}
-			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0) {
+			if (info1!=null && info1.lastIndexOf("7FE0,0010")>0) { //DICOM
 				if (sortByMetaData)
 					stack = DicomTools.sort(stack);
 				imp2.setStack(stack);
