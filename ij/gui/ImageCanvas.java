@@ -5,7 +5,7 @@ import java.util.Properties;
 import java.awt.image.*;
 import ij.process.*;
 import ij.measure.*;
-import ij.plugin.WandToolOptions;
+import ij.plugin.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
 import ij.plugin.filter.Analyzer;
@@ -204,11 +204,16 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	public void update(Graphics g) {
 		paint(g);
 	}
-
+	
+	//public void repaint() {
+	//	super.repaint();
+	//	//if (IJ.debugMode) IJ.log("repaint: "+imp);
+	//}
+	
     public void paint(Graphics g) {
-		//if (IJ.debugMode) IJ.log("ImageCanvas.paint: "+imp);
+		// if (IJ.debugMode) IJ.log("paint: "+imp);
 		painted = true;
-		Roi roi = imp.getRoi();		
+		Roi roi = imp.getRoi();	
 		if (roi!=null || overlay!=null || showAllOverlay!=null || Prefs.paintDoubleBuffered || (IJ.isLinux() && magnification<0.25)) {
 			// Use double buffering to avoid flickering of ROIs and to work around
 			// a Linux problem with large images not showing at low magnification.
@@ -882,9 +887,9 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			r1.width = r1.width - dstWidth + newWidth;
 			r1.height = r1.height - dstHeight + newHeight;
 		}
-		Rectangle max = win.getMaxWindow(r1.x, r1.y);
-		boolean fitsHorizontally = r1.x+r1.width<max.x+max.width+max.width/12;
-		boolean fitsVertically = r1.y+r1.height<max.y+max.height+max.height/12;
+		Rectangle max = GUI.getMaxWindowBounds(win);
+		boolean fitsHorizontally = r1.x+r1.width<max.x+max.width;
+		boolean fitsVertically = r1.y+r1.height<max.y+max.height;
 		if (fitsHorizontally && fitsVertically)
 			return new Dimension(newWidth, newHeight);
 		else if (fitsVertically && newHeight<dstWidth)
@@ -894,7 +899,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		else
 			return null;
 	}
-
+	
 	/**Zooms out by making the source rectangle (srcRect)  
 		larger and centering it on (x,y). If we can't make it larger,  
 		then make the window smaller. Note that
@@ -1183,11 +1188,13 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 						return;
 					}
 				}
+				if (!imp.okToDeleteRoi())
+					break;
 				setRoiModState(e, roi, -1);
 				String mode = WandToolOptions.getMode();
 				if (Prefs.smoothWand)
 					mode = mode + " smooth";
-				int npoints = IJ.doWand(ox, oy, tolerance, mode);
+				int npoints = IJ.doWand(imp, ox, oy, tolerance, mode);
 				if (Recorder.record && npoints>0) {
 					if (Recorder.scriptMode())
 						Recorder.recordCall("IJ.doWand(imp, "+ox+", "+oy+", "+tolerance+", \""+mode+"\");");
@@ -1326,13 +1333,16 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			return;
 		}
 				
-		if (roi!=null && (roi instanceof PointRoi) && ((PointRoi)roi).promptBeforeDeleting()) {
+		if (roi!=null && (roi instanceof PointRoi)) {
 			int npoints = ((PolygonRoi)roi).getNCoordinates();
-			int counters = ((PointRoi)roi).getNCounters();
-			if (handle==-1 && !(tool==Toolbar.POINT && !Toolbar.getMultiPointMode()&&IJ.shiftKeyDown())) {
-				String msg = "Delete this multi-point selection ("+npoints+" points, "+counters+" counter"+(counters>1?"s":"")+")?";
-				if (!IJ.showMessageWithCancel("Delete Points?",msg+"\nRestore using Edit>Selection>Restore Selection."))
-					return;
+			if (npoints>1 && handle==-1 && !(tool==Toolbar.POINT && !Toolbar.getMultiPointMode()&&IJ.shiftKeyDown())) {
+				String msg =  "Type shift-a (Edit>Selection>Select None) to delete\npoints. Use multi-point tool to add points.";
+				GenericDialog gd=new GenericDialog("Point Selection");
+				gd.addMessage(msg);
+				gd.addHelp(PointToolOptions.help);
+				gd.hideCancelButton();
+				gd.showDialog();
+				return;
 			}
 		}
 		

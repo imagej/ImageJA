@@ -97,6 +97,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private boolean ignoreGlobalCalibration;
 	private boolean oneSliceStack;
 	public boolean setIJMenuBar = Prefs.setIJMenuBar;
+	private Plot plot;
 			
 
     /** Constructs an uninitialized ImagePlus. */
@@ -440,7 +441,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (roi!=null) roi.setImage(this);
 			if (overlay!=null && getCanvas()!=null)
 				getCanvas().setOverlay(overlay);
-			draw();
 			IJ.showStatus(statusMessage);
 			if (IJ.isMacro()) { // wait for window to be activated
 				long start = System.currentTimeMillis();
@@ -943,18 +943,22 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
          IJ.log("Mean: "+stats.mean);
          IJ.log("Max: "+stats.max);
 		</pre>
+		@return an {@link ij.process.ImageStatistics} object
 		@see #getAllStatistics
 		@see #getRawStatistics
 		@see ij.process.ImageProcessor#getStats
-		@see ij.process.ImageStatistics
-		@see ij.process.ImageStatistics#getStatistics
 		*/
 	public ImageStatistics getStatistics() {
 		return getStatistics(AREA+MEAN+STD_DEV+MODE+MIN_MAX+RECT);
 	}
 	
-	/** This method returns complete calibrated statistics for this image or ROI
-		(with "Limit to threshold"), but it is up to 70 times slower than getStatistics().*/
+	/** This method returns complete calibrated statistics for this
+	 * image or ROI (with "Limit to threshold"), but it is up to 70 times
+	 * slower than getStatistics().
+	 * @return an {@link ij.process.ImageStatistics} object
+	 * @see #getStatistics
+	 * @see ij.process.ImageProcessor#getStatistics
+	*/
 	public ImageStatistics getAllStatistics() {
 		return getStatistics(ALL_STATS+LIMIT);
 	}
@@ -971,7 +975,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
 	/** Returns an ImageStatistics object generated using the
 		specified measurement options.
-		@see ij.process.ImageStatistics
 		@see ij.measure.Measurements
 	*/
 	public ImageStatistics getStatistics(int mOptions) {
@@ -992,10 +995,16 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		int bitDepth = getBitDepth();
 		if (nBins!=256 && (bitDepth==8||bitDepth==24))
 			ip2 =ip.convertToShort(false);
-		if (roi!=null && roi.isArea())
-			ip2.setRoi(roi);
-		else
+		Roi roi2 = roi;
+		if (roi2==null)
 			ip2.resetRoi();
+		else if (roi2.isArea())
+			ip2.setRoi(roi2);			
+		else if ((roi2 instanceof PointRoi) && roi2.size()==1) {
+				// needed to be consistent with ImageProcessor.getStatistics()
+				FloatPolygon p = roi2.getFloatPolygon();
+				ip2.setRoi((int)p.xpoints[0], (int)p.ypoints[0], 1, 1);
+		}
 		ip2.setHistogramSize(nBins);
 		Calibration cal = getCalibration();
 		if (getType()==GRAY16&& !(histMin==0.0&&histMax==0.0)) {
@@ -1887,7 +1896,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		so it can be recovered by Edit/Selection/Restore Selection. */
 	public void deleteRoi() {
 		if (roi!=null) {
-			saveRoi();
+			saveRoi();			
 			if (!(IJ.altKeyDown()||IJ.shiftKeyDown())) {
 				RoiManager rm = RoiManager.getRawInstance();
 				if (rm!=null)
@@ -1905,6 +1914,23 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 	}
 	
+	public boolean okToDeleteRoi() {
+		if (roi!=null && (roi instanceof PointRoi) && getWindow()!=null && ((PointRoi)roi).promptBeforeDeleting()) {
+			int npoints = ((PolygonRoi)roi).getNCoordinates();
+			int counters = ((PointRoi)roi).getNCounters();
+			String msg = "Delete this multi-point selection ("+npoints+" points, "+counters+" counter"+(counters>1?"s":"")+")?";
+			GenericDialog gd=new GenericDialog("Delete Points?");
+			gd.addMessage(msg+"\nRestore using Edit>Selection>Restore Selection.");
+			gd.addHelp(PointToolOptions.help);
+			gd.setOKLabel("Keep");
+			gd.setCancelLabel("Delete");
+			gd.showDialog();
+			if (gd.wasOKed())
+				return false;
+		}
+		return true;
+	}
+	
 	/** Deletes the current region of interest. */
 	public void killRoi() {
 		deleteRoi();
@@ -1919,10 +1945,20 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				Roi.previousRoi = (Roi)roi2.clone();
 				if (IJ.debugMode) IJ.log("saveRoi: "+roi2);
 			}
+			if ((roi2 instanceof PointRoi) && ((PointRoi)roi2).promptBeforeDeleting()) {
+				PointRoi.savedPoints = (PointRoi)roi2.clone();
+				if (IJ.debugMode) IJ.log("saveRoi: saving multi-point selection");
+			}
 		}
 	}
     
 	public void restoreRoi() {
+		if (Toolbar.getToolId()==Toolbar.POINT && PointRoi.savedPoints!=null) {
+			roi = (Roi)PointRoi.savedPoints.clone();
+			draw();
+			roi.notifyListeners(RoiListener.MODIFIED);
+			return;
+		}
 		if (Roi.previousRoi!=null) {
 			Roi pRoi = Roi.previousRoi;
 			Rectangle r = pRoi.getBounds();
@@ -2178,7 +2214,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public ImagePlus duplicate() {
 		Roi roi = getRoi();
 		deleteRoi();
-		ImagePlus imp2 =(new Duplicator()).run(this);
+		ImagePlus imp2 = (new Duplicator()).run(this);
 		setRoi(roi);
 		return imp2;
 	}
@@ -2955,6 +2991,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     
     public boolean isStack() {
     	return stack!=null;
+    }
+    
+    public void setPlot(Plot plot) {
+    	this.plot = plot;
+    }
+    
+    public Plot getPlot() {
+    	return plot;
     }
 
 }

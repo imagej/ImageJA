@@ -46,7 +46,7 @@ The following command line options are recognized by ImageJ:
 
   -batch path [arg]
     Runs a macro or script (JavaScript, BeanShell or Python) in
-    batch (no GUI) mode, passing it an optional argument.
+    batch (no GUI) mode, passing an optional argument.
     ImageJ exits when the macro finishes.
 
   -eval "macro code"
@@ -77,8 +77,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.52o";
-	public static final String BUILD = "";  //44
+	public static final String VERSION = "1.52p";
+	public static final String BUILD = "";  //61
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -186,10 +186,10 @@ public class ImageJ extends Frame implements ActionListener,
 		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
 		if (mode!=NO_SHOW) {
 			if (IJ.isWindows()) try {setIcon();} catch(Exception e) {}
-			setLocation(loc.x, loc.y);
 			setResizable(false);
 			setAlwaysOnTop(Prefs.alwaysOnTop);
 			pack();
+			setLocation(loc.x, loc.y);
 			setVisible(true);
 			Dimension size = getSize();
 			if (size!=null) {
@@ -202,7 +202,7 @@ public class ImageJ extends Frame implements ActionListener,
 					if (!Prefs.jFileChooserSettingChanged)
 						Prefs.useJFileChooser = true;
 				} else if (IJ.isMacOSX()) {
-					Rectangle maxBounds = GUI.getMaxWindowBounds();
+					Rectangle maxBounds = GUI.getMaxWindowBounds(this);
 					if (loc.x+size.width>maxBounds.x+maxBounds.width)
 						setLocation(loc.x, loc.y);
 				}
@@ -277,9 +277,9 @@ public class ImageJ extends Frame implements ActionListener,
 	}
 	
 	public Point getPreferredLocation() {
-		Rectangle maxBounds = GUI.getMaxWindowBounds();
 		int ijX = Prefs.getInt(IJ_X,-99);
 		int ijY = Prefs.getInt(IJ_Y,-99);
+		Rectangle maxBounds = GUI.getMaxWindowBounds();
 		//System.out.println("getPreferredLoc1: "+ijX+" "+ijY+" "+maxBounds);
 		if (ijX>=maxBounds.x && ijY>=maxBounds.y && ijX<(maxBounds.x+maxBounds.width-75))
 			return new Point(ijX, ijY);
@@ -686,10 +686,6 @@ public class ImageJ extends Frame implements ActionListener,
 	/** Called once when ImageJ quits. */
 	public void savePreferences(Properties prefs) {
 		Point loc = getLocation();
-		if (IJ.isLinux()) {
-			Rectangle bounds = GUI.getMaxWindowBounds();
-			loc.y = bounds.y;
-		}
 		prefs.put(IJ_X, Integer.toString(loc.x));
 		prefs.put(IJ_Y, Integer.toString(loc.y));
 	}

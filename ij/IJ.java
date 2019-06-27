@@ -199,10 +199,11 @@ public class IJ {
 				((PlugIn)thePlugIn).run(arg);
  			else
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
-		}
-		catch (ClassNotFoundException e) {
-			if (IJ.getApplet()==null)
-				log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
+		} catch (ClassNotFoundException e) {
+			log("Plugin or class not found: \"" + className + "\"\n(" + e+")");
+			String path = Prefs.getCustomPropsPath();
+			if (path!=null);
+				log("Error may be due to custom properties at " + path);
 		}
 		catch (InstantiationException e) {log("Unable to load plugin (ins)");}
 		catch (IllegalAccessException e) {log("Unable to load plugin, possibly \nbecause it is not public.");}
@@ -231,7 +232,9 @@ public class IJ {
 				new PlugInFilterRunner(thePlugIn, commandName, arg);
 		}
 		catch (ClassNotFoundException e) {
-			if (className.contains("_")  && !suppressPluginNotFoundError)
+			if (className.startsWith("macro:"))
+				runMacro(className.substring(6));
+			else if (className.contains("_")  && !suppressPluginNotFoundError)
 				error("Plugin or class not found: \"" + className + "\"\n(" + e+")");
 		}
 		catch (NoClassDefFoundError e) {
@@ -2221,23 +2224,8 @@ public class IJ {
 	
 	/** Returns the size, in pixels, of the primary display. */
 	public static Dimension getScreenSize() {
-		Rectangle bounds = GUI.getZeroBasedMaxBounds();
-		if (bounds!=null)
-			return new Dimension(bounds.width, bounds.height);
-		if (isWindows())  // GraphicsEnvironment.getConfigurations is *very* slow on Windows
-			return Toolkit.getDefaultToolkit().getScreenSize();
-		if (GraphicsEnvironment.isHeadless())
-			return new Dimension(0, 0);
-		// Can't use Toolkit.getScreenSize() on Linux because it returns 
-		// size of all displays rather than just the primary display.
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice[] gd = ge.getScreenDevices();
-		GraphicsConfiguration[] gc = gd[0].getConfigurations();
-		bounds = gc[0].getBounds();
-		if ((bounds.x==0&&bounds.y==0) || (IJ.isLinux()&&gc.length>1))
-			return new Dimension(bounds.width, bounds.height);
-		else
-			return Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle bounds = GUI.getScreenBounds();
+		return new Dimension(bounds.width, bounds.height);
 	}
 	
 	/** Returns, as an array of strings, a list of the LUTs in the Image/Lookup Tables menu. */

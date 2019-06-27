@@ -50,6 +50,7 @@ public class PointRoi extends PolygonRoi {
 	private boolean promptBeforeDeletingCalled;
 	private int nMarkers;
 	private boolean addToOverlay;
+	public static PointRoi savedPoints;
 		
 	static {
 		setDefaultType((int)Prefs.get(TYPE_KEY, HYBRID));
@@ -589,10 +590,10 @@ public class PointRoi extends PolygonRoi {
 	}
 
 	public boolean promptBeforeDeleting() {
-	    if (promptBeforeDeletingCalled)
+	    if (promptBeforeDeletingCalled && getNCounters()==1)
 	    	return promptBeforeDeleting;
 	    else
-			return nMarkers>10  && imp!=null && imp.getWindow()!=null;
+			return (nMarkers>8||getNCounters()>1) && imp!=null && imp.getWindow()!=null;
 	} 
 
 	public void promptBeforeDeleting(Boolean prompt) {
