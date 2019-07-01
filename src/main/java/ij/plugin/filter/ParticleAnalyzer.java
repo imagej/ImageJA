@@ -8,8 +8,7 @@ import ij.process.*;
 import ij.measure.*;
 import ij.text.*;
 import ij.plugin.filter.Analyzer;
-import ij.plugin.frame.Recorder;
-import ij.plugin.frame.RoiManager;
+import ij.plugin.frame.*;
 import ij.plugin.Colors;
 import ij.macro.Interpreter;
 import ij.util.Tools;
@@ -105,7 +104,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		resetCounter,showProgress, recordStarts, displaySummary, floodFill,
 		addToManager, inSituShow;
 		
-	private boolean showResultsWindow = true;
+	private boolean showResultsTable = true;
+	private boolean showSummaryTable = true;
 	private double level1, level2;
 	private double minSize, maxSize;
 	private double minCircularity, maxCircularity;
@@ -142,7 +142,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 	private Polygon polygon;
 	private RoiManager roiManager;
 	private static RoiManager staticRoiManager;
-	private static ResultsTable staticResultsTable;
+	private static ResultsTable staticResultsTable, staticSummaryTable;
 	private ImagePlus outputImage;
 	private boolean hideOutputImage;
 	private int roiType;
@@ -452,7 +452,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		if (staticResultsTable!=null) {
 			rt = staticResultsTable;
 			staticResultsTable = null;
-			showResultsWindow = false;
+			showResultsTable = false;
+		}
+		if (staticSummaryTable!=null) {
+			summaryTable = staticSummaryTable;
+			staticSummaryTable = null;
+			showSummaryTable = false;
 		}
 		displaySummary = (options&DISPLAY_SUMMARY)!=0 ||  (options&SHOW_SUMMARY)!=0;
 		inSituShow = (options&IN_SITU_SHOW)!=0;
@@ -601,12 +606,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		}
 		if (showProgress)
 			IJ.showProgress(1.0);
-		if (showResults && showResultsWindow && rt.size()>0)
+		if (showResults && showResultsTable && rt.size()>0)
 			rt.updateResults();
 		imp.deleteRoi();
 		ip.resetRoi();
 		ip.reset();
-		if (displaySummary && IJ.getInstance()!=null)
+		if (displaySummary)
 			updateSliceSummary();
 		if (addToManager && roiManager!=null)
 			roiManager.setEditMode(imp, true);
@@ -666,7 +671,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		summaryTable.addValue("%Area", sum*100.0/totalArea);
 		addMeans(areas.length>0?start:-1);
 		String title = slices==1?"Summary":"Summary of "+imp.getTitle();
-		summaryTable.show(title);
+		if (showSummaryTable)
+			summaryTable.show(title);
 	}
 
  	void addMeans(int start) {
@@ -915,7 +921,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			rt.addValue("XStart", stats.xstart);
 			rt.addValue("YStart", stats.ystart);
 		}
-		if (showResultsWindow && showResults)
+		if (showResultsTable && showResults)
 			rt.addResults();
 	}
 	
@@ -1057,7 +1063,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 			outputImage = new ImagePlus(prefix+title, outlines);
 			outputImage.setCalibration(imp.getCalibration());
 			if (inSituShow) {
-				if (imp.getStackSize()==1)
+				if (imp.getStackSize()==1 && !Recorder.record)
 					Undo.setup(Undo.TRANSFORM, imp);
 				ImageStack outputStack = outputImage.getStack();
 				if (imp.getStackSize()>1 && outputStack.getSize()==1 && imp.getBitDepth()==8)
@@ -1068,7 +1074,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				outputImage.show();
 		}
 		if (showResults && !processStack) {
-			if (showResultsWindow && rt.size()>0) {
+			if (showResultsTable && rt.size()>0) {
 				TextPanel tp = IJ.getTextPanel();
 				if (beginningCount>0 && tp!=null && tp.getLineCount()!=count)
 					rt.show("Results");
@@ -1123,6 +1129,12 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		ParticleAnalyzer instance.	*/
 	public static void setResultsTable(ResultsTable rt) {
 		staticResultsTable = rt;
+	}
+
+	/** Sets the ResultsTable to be used by the next  
+		ParticleAnalyzer instance for the summary.	*/
+	public static void setSummaryTable(ResultsTable rt) {
+		staticSummaryTable = rt;
 	}
 
 	int getColumnID(String name) {

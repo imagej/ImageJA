@@ -27,16 +27,23 @@ public class Selection implements PlugIn, Measurements {
 
 	public void run(String arg) {
 		imp = WindowManager.getCurrentImage();
-		if (arg.equals("add"))
-			{addToRoiManager(imp); return;}
-		if (imp==null)
-			{IJ.noImage(); return;}
+		if (arg.equals("add")) {
+			addToRoiManager(imp);
+			return;
+		}
+		if (imp==null) {
+			IJ.noImage();
+			return;
+		}
 		if (arg.equals("all")) {
-			imp.saveRoi();
-			imp.setRoi(0,0,imp.getWidth(),imp.getHeight());
-		} else if (arg.equals("none"))
-			imp.deleteRoi();
-		else if (arg.equals("restore"))
+			if (imp.okToDeleteRoi()) {
+				imp.saveRoi();
+				imp.setRoi(0,0,imp.getWidth(),imp.getHeight());
+			}
+		} else if (arg.equals("none")) {
+			if (imp.okToDeleteRoi())
+				imp.deleteRoi();
+		} else if (arg.equals("restore"))
 			imp.restoreRoi();
 		else if (arg.equals("spline"))
 			fitSpline();
@@ -71,6 +78,7 @@ public class Selection implements PlugIn, Measurements {
 	}
 	
 	private void rotate(ImagePlus imp) {
+		if (!imp.okToDeleteRoi()) return;
 		Roi roi = imp.getRoi();
 		if (IJ.macroRunning()) {
 			String options = Macro.getOptions();
@@ -83,6 +91,7 @@ public class Selection implements PlugIn, Measurements {
 	}
 	
 	private void enlarge(ImagePlus imp) {
+		if (!imp.okToDeleteRoi()) return;
 		Roi roi = imp.getRoi();
 		if (roi!=null) {
 			Undo.setup(Undo.ROI, imp);
@@ -102,6 +111,7 @@ public class Selection implements PlugIn, Measurements {
 	Authors: Nikolai Chernov, Michael Doube, Ved Sharma
 	*/
 	void fitCircle(ImagePlus imp) {
+		if (!imp.okToDeleteRoi()) return;
 		Roi roi = imp.getRoi();
 		if (roi==null) {
 			noRoi("Fit Circle");
@@ -455,6 +465,7 @@ public class Selection implements PlugIn, Measurements {
 	}
 
 	void createEllipse(ImagePlus imp) {
+		if (!imp.okToDeleteRoi()) return;
 		IJ.showStatus("Fitting ellipse");
 		Roi roi = imp.getRoi();
 		if (roi==null)
@@ -480,6 +491,7 @@ public class Selection implements PlugIn, Measurements {
 	}
 
 	void convexHull(ImagePlus imp) {
+		if (!imp.okToDeleteRoi()) return;
 		long startTime = System.currentTimeMillis();
 		Roi roi = imp.getRoi();
 		if (roi == null) { IJ.error("Convex Hull", "Selection required"); return; }
@@ -693,6 +705,8 @@ public class Selection implements PlugIn, Measurements {
 			noRoi("To Bounding Box");
 			return;
 		}
+		if (!imp.okToDeleteRoi())
+			return;
 		Undo.setup(Undo.ROI, imp);
 		Rectangle r = roi.getBounds();
 		imp.deleteRoi();

@@ -816,7 +816,7 @@ public abstract class ImageProcessor implements Cloneable {
 		if (roi==null)
 			resetRoi();
 		else {
-			if (roi instanceof PointRoi && ((PointRoi)roi).getNCoordinates()==1) {
+			if ((roi instanceof PointRoi) && roi.size()==1) {
 				setMask(null);
 				FloatPolygon p = roi.getFloatPolygon();
 				setRoi((int)p.xpoints[0], (int)p.ypoints[0], 1, 1);
@@ -1740,14 +1740,15 @@ public abstract class ImageProcessor implements Cloneable {
 	public abstract Object getPixelsCopy();
 
 	/** Returns the value of the pixel at (x,y). For RGB images, the
-		argb values are packed in an int. For float images, the
-		the value must be converted using Float.intBitsToFloat().
-		Returns zero if either the x or y coodinate is out of range. */
+	 * argb values are packed in an int. For float images, the
+	 * the value must be converted using Float.intBitsToFloat().
+	 * Returns zero if either the x or y coodinate is out of range.
+	 * Use <i>getValue(x,y)</i> to get calibrated values from
+	 * 8-bit and 16-bit images, to get intensity values from RGB
+	 * images and to get float values from 32-bit images.
+	 * @see ImageProcessor#getValue
+	*/
 	public abstract int getPixel(int x, int y);
-
-	public int getPixelCount() {
-		return width*height;
-	}
 
 	/** This is a faster version of getPixel() that does not do bounds checking. */
 	public abstract int get(int x, int y);
@@ -1775,6 +1776,10 @@ public abstract class ImageProcessor implements Cloneable {
 	public abstract void setf(int x, int y, float value);
 
 	public abstract void setf(int index, float value);
+
+	public int getPixelCount() {
+		return width*height;
+	}
 
 	/** Returns a copy of the pixel data as a 2D int array with
 		dimensions [x=0..width-1][y=0..height-1]. With RGB
@@ -1839,9 +1844,10 @@ public abstract class ImageProcessor implements Cloneable {
 	}
 
     /** Returns the samples for the pixel at (x,y) in an int array.
-    	RGB pixels have three samples, all others have one.
-		Returns zeros if the the coordinates are not in bounds.
-		iArray is an optional preallocated array. */
+	 * RGB pixels have three samples, all others have one.
+	 * Returns zeros if the the coordinates are not in bounds.
+	 * iArray is an optional preallocated array.
+	*/
 	public int[] getPixel(int x, int y, int[] iArray) {
 		if (iArray==null) iArray = new int[1];
 		iArray[0] = getPixel(x, y);
@@ -1966,10 +1972,23 @@ public abstract class ImageProcessor implements Cloneable {
 		using Float.floatToIntBits(). */
 	public abstract void putPixel(int x, int y, int value);
 
+
+	/** Returns the value of the pixel at <i>(x,y)</i>, a calibrated
+	 * value from 8-bit and 16-bit images, an intensity value
+	 * from RGB images and a double value from 32-bit images.
+	 * This is an alias for getPixelValue(x,y).
+	 * @see ImageProcessor#getPixel
+	 * @see ImageProcessor#getPixelValue
+	*/
+	public double getValue(int x, int y) {
+		return getPixelValue(x,y);
+	}
+
 	/** Returns the value of the pixel at (x,y). For byte and short
-		images, returns a calibrated value if a calibration table
-		has been set using setCalibraionTable(). For RGB images,
-		returns the luminance value. */
+	 * images, returns a calibrated value if a calibration table
+	 * has been set using setCalibraionTable(). For RGB images,
+	 * returns the luminance value.
+	*/
 	public abstract float getPixelValue(int x, int y);
 
 	/** Stores the specified value at (x,y). */
@@ -2651,19 +2670,23 @@ public abstract class ImageProcessor implements Cloneable {
 	 * including histogram, area, mean, min and max, standard deviation,
 	 * and mode. Use the setRoi(Roi) method to limit statistics to
 	 * a non-rectangular area.
-	 * @see #setRoi
+	 * @return an {@link ij.process.ImageStatistics} object
+	 * @see #setRoi(Roi)
 	 * @see #getStatistics
-	 * @see ImageStatistics
+	 * @see ij.ImagePlus#getStatistics
 	*/
 	public ImageStatistics getStats() {
 		return ImageStatistics.getStatistics(this);
 	}
 
-	/** This method calculates and returns complete uncalibrated statistics for
-	 * this image or ROI but it is up to 70 times slower than getStats().
-	 * @see #setRoi
+	/** Calculates and returns complete uncalibrated (raw)
+	 * statistics for this image or ROI but it is up to 70 times
+	 * slower than getStats(). Use the setRoi(Roi) method to
+	 * limit statistics to a non-rectangular area.
+	 * @return an {@link ij.process.ImageStatistics} object
+	 * @see #setRoi(Roi)
 	 * @see #getStats
-	 * @see ImageStatistics
+	 * @see ij.ImagePlus#getAllStatistics
 	*/
 	public ImageStatistics getStatistics() {
 		return ImageStatistics.getStatistics(this, Measurements.ALL_STATS, null);
