@@ -265,6 +265,8 @@ public class ImageJ extends Frame implements ActionListener,
 			props.put("proxySet", "true");
 			props.put("http.proxyHost", server);
 			props.put("http.proxyPort", ""+port);
+			props.put("https.proxyHost", server);
+			props.put("https.proxyPort", ""+port);
 		}
 		//new ProxySettings().logProperties();
 	}
