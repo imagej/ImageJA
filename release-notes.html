@@ -4,8 +4,90 @@
 <title>Release Notes</title>
 </head>
 <body>
-Maximized image windows no longer revert to the main screen.
-<li> <u>1.52p61 21 June 2019</u>
+
+<li> <u>1.52q47 10 September 2019</u>
+<ul>
+<li> Thanks to Michael Schmid, added the "Non-blocking filter dialogs"
+option to <i>Edit&gt;Options&gt;Misc</i>. The Convolve,
+Mean, Median, Minimum, Maximum, Variance and Image&gt;Math
+commands use NonBlockingGenericDialogs when
+this option is enabled.
+<li> "Save changes?" dialogs on Windows and Linux now
+use "Don't Save", "Cancel" and "Save" buttons.
+<li> Thanks to Norbret Vischer, added the
+<i>Dialog.addMessage(string,fontSize,fontColor)</i> 
+macro function
+(<a href="http://wsr.imagej.net/macros/examples/DialogMessageDemo.txt">example</a>).
+<li> Thanks to Noreen Walker, the <i>Image&gt;Stacks&gt;Statistics</i>
+command and the StackStatistics class now calculate the median
+of non-float images.
+<li> Drag and drop opening of images, tables and LUTs is recorded.
+<li> Thanks to Michael Schmid, added the Plot.showValuesWithLabels()
+macro function and the Plot.getResultsTableWithLabels() method.
+Both create tables that use legend labels and/or axis labels as 
+column headings. The List, Save Data and Copy All Data
+plot window commands also now use labels.
+<li> Thanks to Jerome Mutterer, added the getValue("Length")
+macro function.
+<li> Thanks to Jerome Mutterer, added the IJ.pad(string,digits)
+macro function and method.
+<li> Thanks to Michael Schmid, the ImagePlus lock() and unlock()
+methods now support multiple lock/unlock operations by the
+same thread.
+<li> Added the IJ.getValue(imp,measurement) method, where
+'measurement' is "Area", "Mean", "StdDev", etc.
+<li> Thanks to Stein Rorvik, fixed a bug that caused
+<i>File&gt;Import&gt;Image Sequence</i> to not
+correctly handle RGB48 images when "Use virtual stack"
+was enabled.
+<li> Thanks to François Gannier, fixed a bug that caused the
+unit to not be set when "Function:" was set to "None" in the
+<i>Analyze&gt;Calibrate</i> dialog.
+<li> Thanks to 'Matthew', fixed bugs that cause the Table.deleteRows() 
+macro function and IJ.deleteRows() method to not update particle
+analyzer overlays.
+<li> Thanks to Norbert Vischer, fixed bugs that caused tables with
+missing columns or rows to not be opened correctly.
+<li> Thanks to Sara Vecchio and Michael Schmid, fixed a bug that
+caussed the curve fitter to throw an exception if all data points
+contained NaNs.
+<li> Thanks to Robert Haase, fixed a bug that caused the
+<i>Process&gt;Find Maxima</i> to throw an exception in
+Fiji headless mode.
+<li> Thanks to Stephen Royle, fixed a bug that caused the
+run("Fill") macro function to ignore setColor(pixelValue) calls.
+<li> Thanks to 'mendel', fixed a bug that caused
+enlarged ROIs to be shifted if the polygon defining the
+original ROI had points outside the filled polygon.
+<li> Thanks to Michael Schmid, fixed a bug that could cause
+ImageJ to freezes when running macros that manipulate stacks.
+<li> Thanks to Norbert Vischer, fixed a bug that caused
+the numeric field in GenericDialog sliders to be too
+narrow when the maximum value was greater than 9999.
+<li> Thanks to Norbert Vischer, fixed a bug that caused
+the getValue(x,y) macro function to not interpolate when
+x or y were real numbers.
+<li> Thanks to Norbert Vischer, fixed a bug that caused
+the getPixel(x,y) macro function to not return raw pixel values
+when x or y were real numbers.
+<li> Thanks to 'mountain_man', fixed a bug that caused
+line selections to not be correctly converted to ShapeRois.
+<li> Thanks to Jeremy Adler, fixed a regression that caused the
+the makeSelection(10, xpoints, ypoints) macro function to
+throw an exception.
+<li> Thanks to Dan McDonald, fixed a regression that caused the
+Raw File Opener to throw an exception.
+<li> Fixed a 1.52a regression that caused tables created by
+the gel analyzer to not have row numbers.
+<li> Thanks to Hyung-song Nam and Curtis Rueden, fixed a
+1.52o regression that caused the Channels tool on macOS
+to become unresponsive.
+<li> Thanks to Florian Jug, fixed a 1.52o regression that
+caused the "Auto" button in the "B&C" tool to not have
+focus on macOS.
+</ul>
+
+<li> <u>1.52p 22 June 2019</u>
 <ul>
 <li> Thanks to Uwe Schmidt, improved the support for multiple screen setups:
   <ul>
