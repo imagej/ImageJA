@@ -564,8 +564,51 @@ public class IJ {
 		'row1' and 'row2' must be in the range 0-Analyzer.getCounter()-1. */
 	public static void deleteRows(int row1, int row2) {
 		ResultsTable rt = Analyzer.getResultsTable();
+		int tableSize = rt.size();
 		rt.deleteRows(row1, row2);
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (imp!=null)
+			Overlay.updateTableOverlay(imp, row1, row2, tableSize);
 		rt.show("Results");
+	}
+	
+	/** Returns a measurement result, where 'measurement' is "Area", 
+	 * "Mean", "StdDev", "Mode", "Min", "Max", "X", "Y", "XM", "YM",
+	 * "Perim.", "BX", "BY", "Width", "Height", "Major", "Minor", "Angle",
+	 * "Circ.", "Feret", "IntDen", "Median", "Skew", "Kurt", "%Area",
+	 * "RawIntDen", "Ch", "Slice", "Frame", "FeretX", "FeretY",
+	 * "FeretAngle", "MinFeret", "AR", "Round", "Solidity", "MinThr"
+	 * or "MaxThr". Add " raw" to the argument to disable calibration,
+	 * for example IJ.getValue("Mean raw"). Add " limit" to enable
+	 * the "limit to threshold" option.
+	*/
+	public static double getValue(ImagePlus imp, String measurement) {
+		String options = "";
+		int index = measurement.indexOf(" ");
+		if (index>0) {
+			if (index<measurement.length()-1)
+				options = measurement.substring(index+1, measurement.length());
+			measurement = measurement.substring(0, index);
+		}
+		int measurements = Measurements.ALL_STATS + Measurements.SLICE;
+		if (options.contains("limit"))
+			measurements += Measurements.LIMIT;
+		Calibration cal = null;
+		if (options.contains("raw")) {
+			cal = imp.getCalibration();
+			imp.setCalibration(null);
+		}
+		ImageStatistics stats = imp.getStatistics(measurements);
+		ResultsTable rt = new ResultsTable();
+		Analyzer analyzer = new Analyzer(imp, measurements, rt);
+		analyzer.saveResults(stats, imp.getRoi());
+		double value = Double.NaN;
+		try {
+			value = rt.getValue(measurement, 0);
+		} catch (Exception e) {};
+		if (cal!=null)
+			imp.setCalibration(cal);
+		return value;
 	}
 
 	/** Returns a reference to the "Results" window TextPanel.
@@ -889,6 +932,14 @@ public class IJ {
 	/** Pad 'n' with leading zeros to the specified number of digits. */
 	public static String pad(int n, int digits) {
 		String str = ""+n;
+		while (str.length()<digits)
+			str = "0"+str;
+		return str;
+	}
+
+	/** Pad 's' with leading zeros to the specified number of digits. */
+	public static String pad(String s, int digits) {
+		String str = ""+s;
 		while (str.length()<digits)
 			str = "0"+str;
 		return str;

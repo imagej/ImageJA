@@ -414,6 +414,26 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 			commandOptions += " "+key+"="+value;
 	}
 
+	public static void recordOpen(String path) {
+		if (!record || path==null)
+			return;
+		path = fixPath(path);
+		String s = scriptMode?"imp = IJ.openImage":"open";
+		boolean openingLut = false;
+		if (scriptMode) {
+			if (isTextOrTable(path))
+				s = "IJ.open";
+			else if (path!=null && path.endsWith(".lut")) {
+				s = "lut = Opener.openLut";
+				openingLut = true;
+			}
+		}
+		textArea.append(s+"(\""+path+"\");\n");
+		ImagePlus imp = WindowManager.getCurrentImage();
+		if (openingLut && imp!=null && !imp.getTitle().endsWith(".lut"))
+			textArea.append("imp.setLut(lut);\n");
+	}
+	
 	public static void recordPath(String key, String path) {
 		if (key==null || !recordPath) {
 			recordPath = true;
@@ -485,23 +505,9 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 			if (name.equals("Add Shortcut by Name... "))
 				name = "Add Shortcut... ";
 			if (commandOptions!=null) {
-				if (name.equals("Open...") || name.equals("URL...")) {
-					String s = scriptMode?"imp = IJ.openImage":"open";
-					String path = strip(commandOptions);
-					boolean openingLut = false;
-					if (scriptMode) {
-						if (isTextOrTable(commandOptions))
-							s = "IJ.open";
-						else if (path!=null && path.endsWith(".lut")) {
-							s = "lut = Opener.openLut";
-							openingLut = true;
-						}
-					}
-					textArea.append(s+"(\""+path+"\");\n");
-					ImagePlus imp = WindowManager.getCurrentImage();
-					if (openingLut && imp!=null && !imp.getTitle().endsWith(".lut"))
-						textArea.append("imp.setLut(lut);\n");
-				} else if (name.equals("TIFF Virtual Stack...") && scriptMode) {
+				if (name.equals("Open...") || name.equals("URL..."))
+					recordOpen(strip(commandOptions));
+				else if (name.equals("TIFF Virtual Stack...") && scriptMode) {
 					String s = "imp = IJ.openVirtual";
 					String path = strip(commandOptions);
 					textArea.append(s+"(\""+path+"\");\n");
@@ -532,8 +538,15 @@ public class Recorder extends PlugInFrame implements PlugIn, ActionListener, Ima
 				else if (scriptMode && name.equals("Text Image... ")) // File>Import>Text Image
 					;
 				else {
-					if (name.equals("Calibrate...")&&commandOptions.startsWith("function=None"))
-						commandOptions = commandOptions.substring(0,13);
+					if (name.equals("Calibrate...")) {
+						if (commandOptions.startsWith("function=None unit=[Gray Value]"))
+							commandOptions = commandOptions.substring(0,13);
+						else if (commandOptions.startsWith("function=None")) {
+							int index = commandOptions.indexOf(" text1=");
+							if (index>0)
+								commandOptions = commandOptions.substring(0,index);
+						}
+					}
 					String prefix = "run(";
 					if (scriptMode) {
 						boolean addImp = imageUpdated || (WindowManager.getCurrentImage()!=null
