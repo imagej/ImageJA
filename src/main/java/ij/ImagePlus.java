@@ -576,14 +576,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		height = newHeight;
 		setStackNull();
 		LookUpTable lut = new LookUpTable(image);
-		int type = GRAY8;
-		if (lut.getMapSize() > 0) {
-			if (lut.isGrayscale())
-				type = GRAY8;
-			else
-				type = COLOR_256;
-		} else
-			type = COLOR_RGB;
+		int type = lut.getMapSize()>0?GRAY8:COLOR_RGB;
 		if (image!=null && type==COLOR_RGB)
 			ip = new ColorProcessor(image);
 		if (ip==null && image!=null)
@@ -1308,6 +1301,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 		typeSet = true;
 	}
+	
+	public void setTypeToColor256() {
+		if (imageType==ImagePlus.GRAY8) {
+			ImageProcessor ip2 = getProcessor();
+			if (ip2!=null && ip2.getMinThreshold()==ImageProcessor.NO_THRESHOLD && ip2.isColorLut() && !ip2.isPseudoColorLut()) {
+				imageType = COLOR_256;
+				typeSet = true;
+			}
+		}
+	}
+	
 
  	/** Returns the string value from the "Info" property string
 	 * associated with 'key', or null if the key is not found.
@@ -2071,7 +2075,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			path = url;
 			url2 = url;
 		} else if (fi!=null && !((fi.directory==null||fi.directory.equals("")))) {
-			path = fi.directory+fi.fileName;
+			path = fi.getFilePath();
 		} else if (fi!=null && fi.url!=null && !fi.url.equals("")) {
 			path = fi.url;
 			url2 = fi.url;

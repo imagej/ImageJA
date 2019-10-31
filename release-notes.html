@@ -5,7 +5,103 @@
 </head>
 <body>
 
-<li> <u>1.52q47 10 September 2019</u>
+<li> <u>1.52r 24 October 2019</u>
+<ul>
+<li> Plot enhancements, thanks to Michael Schmid: 
+<ul>
+<li> The <i>More&gt;&gt;</i> menus have immediate preview. 
+<li> New <i>More&gt;&gt;Use Template</i> menu (also with immediate preview), 
+useful for creating plots with the same style, e.g. for combining 
+them into a multi-panel figure.
+<li> Clicking into a rectangular area next to an axis shows the
+corresponding axis dialog.
+<li>When adding a curve to a "Live" plot, it remains when the plot is 
+updated (e.g. a fit, duplicate of a profile, or other profile, to 
+compare the live profiles etc. with it). 
+</ul>
+<li> Thanks to Marcel Boeglin, the title of the selection list created by
+<i>Image&gt;Overlay&gt;List Elements</i> includes the image
+name, the image associated with the list is activated, and when you 
+double click on a line, the corresponding selection is activated and
+stacks are set to the selection position, if any.
+<li> Thanks to Michael Schmid, <i>Process&gt;Filters&gt;Gaussian Blur</i>
+now uses a Thread Pool, reducing overhead and making it
+faster for small images.
+<li> Thanks to Stein Rorvik, you can now view and set
+the X, Y and Z dimension units in the 
+<i>Image&gt;Properties</i> dialog box.
+<li> Thanks to Ryan Siu, the double click interval used to
+complete a polygon selection is reduced from 500ms to 250ms and
+a confirmation dialog is displayed when completing the selection
+if there are more than 25 points.
+<li> Thanks to Stein Rorvik, the slider in the <i>Image&gt;Transform&gt;Rotate</i>
+dialog now shows the angle using two decimal places and the slider arrows
+increment/decrement by 0.1 degrees. Use the keyboard arrow keys
+as a shortcut to finely adjust the angle.
+<li>  Thanks to 'felix.b', labels of multi-point tool markers get
+larger as the markers get larger and there are two new marker
+sizes ("XXL" and "XXXL").
+<li> Thanks to Stein Rorvik, the <i>Image&gt;Adjust&gt;Coordinates</i>
+command can now be used to set the Z unit.
+<li> GenericDialogs display an error message if show() is called
+instead of showDialog().
+<li> Added the getDir("downloads") macro function and
+the IJ.getDir("downloads") method.
+<li> Thanks to Stein Rorvik, added the Roi.getPosition(channel,slice,frame),
+Roi.setPosition(channel,slice,frame),
+Stack.setXUnit(), Stack.setYUnit(),
+Stack.setUnits(x,y,z,time,value), Stack.getOrthoViews(x,y,z),
+Stack.getOrthoViewsIDs(xy,yz,xz), File.getDirectory(path)
+and File.getNameWithoutExtension(path) macro functions.
+<li> Thanks to Leroy Olivier, added the Stack.getPointPosition(index)
+macro function.
+<li> Added the IJ.openAsByteBuffer() method
+(<a href="http://wsr.imagej.net/macros/js/DecodeRoiFile.js">example</a>).
+<li> Thanks to Michael Schmid, fixed a bug that caused the
+getInfo("window.title") macro function to not work as expected
+after opening a large text file using open("/path/to/largeFile.txt").
+<li> Thanks to Stein Rorvik, fixed a bug that caused 
+min/max values of calibrated 16-bit image to be shown without
+decimals in the "B&C" dialog.
+<li> Thanks to Deborah Schmidt, fixed a bug that caused Fiji users to not
+be able to update via HTTPS through a proxy.
+<li> Worked around a macOS bug that caused the keyboard 
+arrow keys to not function as shortcuts for the
+increment/decrement arrows in GenericDialog sliders.
+<li> Thanks to Marcel Boeglin, fixed a bug that could cause the
+particle analyzer to throw an exception when creating an 
+overlay and no particles were detected.
+<li> Thanks to Noreen Walker, fixed a bug that caused the
+image type to unexpectadly to change to COLOR_256 when
+using the "glasbey" LUT.
+<li> Thanks to 'mountain_man', fixed a bug
+that caused images to not be displayed correctly
+if a LUT was applied before the image was shown.
+<li> Thanks to 'mountain_man', fixed a bug
+that caused 8-bit PNG images with LUTs to
+open as type COLOR_256.
+<li> Thanks to Jan Brocher, fixed a bug that caused the
+<i>Edit&gt;Selection&gt;Create Selection</i> command
+to ignore the "Black background" setting with
+non-thresholded binary images.
+<li> Thanks to 'mountain_man', fixed a bug that caused
+ImageJ to not be be able to open TIFF files saved
+without a file path.
+<li> Thanks to Birgit Moeller, fixed a bug that caused the
+"Label" column to not be sorted when using the Sort
+command in Results tables.
+<li> Thanks to lguerard and mountain_man, fixed a
+bug that caused an ROI's hyperstack position
+to be lost when adding it to the RoiManager.
+<li> Thanks to Philippe Carl and Michael Schmid, fixed a bug
+that caused OvalRoi.getMask() to sometimes 
+return a zero-width mask.
+<li> Thanks to Francois Gannier and Michael Schmid, fixed a
+1.52o regression that caused the Log window to unexpectedly
+become the active window.
+</ul>
+
+<li> <u>1.52q 13 September 2019</u>
 <ul>
 <li> Thanks to Michael Schmid, added the "Non-blocking filter dialogs"
 option to <i>Edit&gt;Options&gt;Misc</i>. The Convolve,

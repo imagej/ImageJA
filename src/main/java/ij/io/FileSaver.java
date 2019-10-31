@@ -693,6 +693,7 @@ public class FileSaver {
 			msg = msg.substring(0, 100);
 		msg = "File saving error (IOException):\n   \"" + msg + "\"";
 		IJ.error("FileSaver."+title, msg+" \n   "+path);
+		IJ.showProgress(1.0);
 	}
 	
 	private void error(String msg) {
@@ -787,6 +788,10 @@ public class FileSaver {
 
 		if (saveName)
 			appendEscapedLine(sb, "name="+imp.getTitle());
+			
+		if (imp.getType()==ImagePlus.COLOR_256)
+			sb.append("8bitcolor=true\n");
+
 		sb.append((char)0);
 		return new String(sb);
 	}

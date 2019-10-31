@@ -274,9 +274,6 @@ public class Interpreter implements MacroConstants {
 			case PREDEFINED_FUNCTION:
 				func.doFunction(pgm.table[tokenAddress].type);
 				break;
-			case VARIABLE_FUNCTION:
-				func.getVariableFunction(pgm.table[tokenAddress].type);
-				break;
 			case USER_FUNCTION:
 				runUserFunction();
 				break;
@@ -323,6 +320,7 @@ public class Interpreter implements MacroConstants {
 			case NUMERIC_FUNCTION:
 			case STRING_FUNCTION:
 			case STRING_CONSTANT:
+			case VARIABLE_FUNCTION:
 			case '(': 
 				putTokenBack();
 				inPrint = true;
@@ -492,7 +490,7 @@ public class Interpreter implements MacroConstants {
 		getToken();		
 		if (token=='(') {
 			int next = pgm.code[pc+1];
-			if ((next&TOK_MASK)==STRING_CONSTANT || (next&TOK_MASK)==STRING_FUNCTION || isString(next))
+			if ((next&TOK_MASK)==STRING_CONSTANT || (next&TOK_MASK)==STRING_FUNCTION || isString(pc+1))
 				error("String enclosed in parens");
 		}		
 		if (token!=';') {
@@ -831,12 +829,12 @@ public class Interpreter implements MacroConstants {
 		if (tok==VARIABLE_FUNCTION) {
 			int address = rightSideToken>>TOK_SHIFT;
 			int type = pgm.table[address].type;
-			if (type==TABLE) {
+			if (type==TABLE || type==ROI) {
+				if (isString(pc+2))
+					return Variable.STRING;
 				int token2 = pgm.code[pc+4];
 				String name = pgm.table[token2>>TOK_SHIFT].str;
-				if (name.equals("getString")||name.equals("title")||name.equals("headings")||name.equals("allHeadings"))
-					return Variable.STRING;
-				else if (name.equals("getColumn"))
+				if (name.equals("getColumn"))
 					return Variable.ARRAY;
 			}
 		}
@@ -1093,7 +1091,7 @@ public class Interpreter implements MacroConstants {
 		String s1 = null;
 		int next = pgm.code[pc+1];
 		int tok = next&TOK_MASK;
-		if (tok==STRING_CONSTANT || tok==STRING_FUNCTION || isString(next))
+		if (tok==STRING_CONSTANT || tok==STRING_FUNCTION || isString(pc+1))
 			s1 = getString();
 		else
 			v1 = getExpression();
@@ -1129,12 +1127,28 @@ public class Interpreter implements MacroConstants {
 		return v1;
 	}
 
-	// returns true if the specified token is a string variable
-	boolean isString(int token) {
-		if ((token&TOK_MASK)!=WORD) return false;
-		Variable v = lookupVariable(token>>TOK_SHIFT);
+	// Returns true if the token at the specified location is a string
+	private boolean isString(int pcLoc) {
+		int tok = pgm.code[pcLoc];
+		if ((tok&0xff)==VARIABLE_FUNCTION) {
+			int address = tok>>TOK_SHIFT;
+			int type = pgm.table[address].type;
+			if (type==TABLE || type==ROI) {
+				int token2 = pgm.code[pcLoc+2];
+				String name = pgm.table[token2>>TOK_SHIFT].str;
+				if (name.equals("getStrokeColor") || name.equals("getDefaultColor")
+				|| name.equals("getFillColor") || name.equals("getName")
+				|| name.equals("getProperty") || name.equals("getProperties")
+				|| name.equals("getType") || name.equals("getString") || name.equals("title")
+				|| name.equals("headings") || name.equals("allHeadings"))
+					return true;
+			}
+		}
+		if ((tok&TOK_MASK)!=WORD)
+			return false;
+		Variable v = lookupVariable(tok>>TOK_SHIFT);
 		if (v==null) return false;
-		if (pgm.code[pc+2]=='[') {
+		if (pgm.code[pcLoc+1]=='[') {
 			Variable[] array = v.getArray();
 			if (array!=null && array.length>0)
 				return array[0].getType()==Variable.STRING;
@@ -1406,7 +1420,12 @@ public class Interpreter implements MacroConstants {
 		case STRING_FUNCTION:
 			str = func.getStringFunction(pgm.table[tokenAddress].type);
 			break;
-		case VARIABLE_FUNCTION:
+		case VARIABLE_FUNCTION:		
+			if (!isString(pc)) {
+				putTokenBack();
+				str = toString(getStringExpression());
+				break;
+			}
 			v = func.getVariableFunction(pgm.table[tokenAddress].type);
 			str = v.getString();
 			if (str==null) {

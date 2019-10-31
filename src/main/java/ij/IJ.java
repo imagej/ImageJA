@@ -24,6 +24,7 @@ import java.net.*;
 import javax.net.ssl.*;
 import java.security.cert.*;
 import java.security.KeyStore;
+import java.nio.ByteBuffer;
 
 
 /** This class consists of static utility methods. */
@@ -1695,8 +1696,8 @@ public class IJ {
 		return ImageJ.VERSION+build;
 	}
 
-	/** Returns the path to the home ("user.home"), startup, ImageJ, plugins, macros, 
-		luts, temp, current or image directory if <code>title</code> is "home", "startup", 
+	/** Returns the path to the home ("user.home"), downloads, startup, ImageJ, plugins, macros, 
+		luts, temp, current or image directory if <code>title</code> is "home", "downloads", "startup", 
 		"imagej", "plugins", "macros", "luts", "temp", "current", "default", "image", otherwise, 
 		displays a dialog and returns the path to the directory selected by the user. 
 		Returns null if the specified directory is not found or the user
@@ -1716,6 +1717,8 @@ public class IJ {
 				return null;
 		} else if (title2.equals("home"))
 			return System.getProperty("user.home") + File.separator;
+		else if (title2.equals("downloads"))
+			return System.getProperty("user.home")+File.separator+"Downloads"+File.separator;
 		else if (title2.equals("startup"))
 			return Prefs.getImageJDir();
 		else if (title2.equals("imagej"))
@@ -2112,6 +2115,34 @@ public class IJ {
 			str = "Error: "+e.getMessage();
 		}
 		return str;
+	}
+	
+	public static ByteBuffer openAsByteBuffer(String path) {
+		if (path==null || path.equals("")) {
+			OpenDialog od = new OpenDialog("Open as ByteBuffer", "");
+			String directory = od.getDirectory();
+			String name = od.getFileName();
+			if (name==null) return null;
+			path = directory + name;
+		}
+		File file = new File(path);
+		if (!file.exists()) {
+			error("OpenAsByteBuffer", "File not found");
+			return null;
+		}
+		int len = (int)file.length();
+		byte[] buffer = new byte[len];
+		try {
+			InputStream in = new BufferedInputStream(new FileInputStream(path));
+			DataInputStream dis = new DataInputStream(in);
+			dis.readFully(buffer);
+			dis.close();
+		}
+		catch (Exception e) {
+			error("OpenAsByteBuffer", e.getMessage());
+			return null;
+		}
+		return ByteBuffer.wrap(buffer);
 	}
 
 	/** Creates a new image.
