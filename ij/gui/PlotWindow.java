@@ -76,7 +76,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 
 	private Button list, data, more, live;
 	private PopupMenu dataPopupMenu, morePopupMenu;
-	private static final int NUM_MENU_ITEMS = 19; //how many menu items we have in total
+	private static final int NUM_MENU_ITEMS = 20; //how many menu items we have in total
 	private MenuItem[] menuItems = new MenuItem[NUM_MENU_ITEMS];
 	private Label coordinates;
 	private static String defaultDirectory = null;
@@ -92,9 +92,13 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	private Thread bgThread;		// thread for plotting (in the background)
 	private boolean doUpdate;		// tells the background thread to update
 
-	private Roi[] rangeArrowRois;	// these constitute the arrow overlays for changing the range
+	private Roi[] rangeArrowRois;	// the overlays (arrows etc) for changing the range. Note: #10-15 must correspond to PlotDialog.dialogType!
 	private boolean rangeArrowsVisible;
 	private int activeRangeArrow = -1;
+	private static Color inactiveRangeArrowColor = Color.GRAY;
+	private static Color inactiveRangeRectColor = new Color(0x20404040, true); //transparent gray
+	private static Color activeRangeArrowColor = Color.RED;
+	private static Color activeRangeRectColor = new Color(0x18ff0000, true); //transparent red
 
 	// static initializer
 	static {
@@ -306,8 +310,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	/** Names for popupMenu items. Update NUM_MENU_ITEMS at the top when adding new ones! */
 	private static int SAVE=0, COPY=1, COPY_ALL=2, LIST_SIMPLE=3, ADD_FROM_TABLE=4, ADD_FROM_PLOT=5, ADD_FIT=6, //data menu
 			SET_RANGE=7, PREV_RANGE=8, RESET_RANGE=9, FIT_RANGE=10,  //the rest is in the more menu
-			ZOOM_SELECTION=11, AXIS_OPTIONS=12, LEGEND=13, STYLE=14, RESET_PLOT=15,
-			FREEZE=16, HI_RESOLUTION=17, PROFILE_PLOT_OPTIONS=18;
+			ZOOM_SELECTION=11, AXIS_OPTIONS=12, LEGEND=13, STYLE=14, TEMPLATE=15, RESET_PLOT=16,
+			FREEZE=17, HI_RESOLUTION=18, PROFILE_PLOT_OPTIONS=19;
 	//the following commands are disabled when the plot is frozen
 	private static int[] DISABLED_WHEN_FROZEN = new int[]{ADD_FROM_TABLE, ADD_FROM_PLOT, ADD_FIT,
 			SET_RANGE, PREV_RANGE, RESET_RANGE, FIT_RANGE, ZOOM_SELECTION, AXIS_OPTIONS, LEGEND, STYLE, RESET_PLOT};
@@ -340,6 +344,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		menuItems[AXIS_OPTIONS] = addPopupItem(morePopupMenu, "Axis Options...");
 		menuItems[LEGEND] = addPopupItem(morePopupMenu, "Legend...");
 		menuItems[STYLE] = addPopupItem(morePopupMenu, "Contents Style...");
+		menuItems[TEMPLATE] = addPopupItem(morePopupMenu, "Use Template...");
 		menuItems[RESET_PLOT] = addPopupItem(morePopupMenu, "Reset Format");
 		menuItems[FREEZE] = addPopupItem(morePopupMenu, "Freeze Plot", true);
 		menuItems[HI_RESOLUTION] = addPopupItem(morePopupMenu, "High-Resolution Plot...");
@@ -410,6 +415,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 			new PlotDialog(plot, PlotDialog.LEGEND).showDialog(this);
 		else if (b==menuItems[STYLE])
 			new PlotContentsDialog(plot, PlotContentsDialog.STYLE).showDialog(this);
+		else if (b==menuItems[TEMPLATE])
+			new PlotDialog(plot, PlotDialog.TEMPLATE).showDialog(this);
 		else if (b==menuItems[RESET_PLOT]) {
 			plot.setFont(Font.PLAIN, Prefs.getInt(PREFS_FONT_SIZE, FONT_SIZE));
 			plot.setAxisLabelFont(Font.PLAIN, Prefs.getInt(PREFS_FONT_SIZE, FONT_SIZE));
@@ -446,50 +453,57 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	/**
 	 * Updates the X and Y values when the mouse is moved and, if appropriate,
 	 * shows/hides the overlay with the triangular buttons for changing the axis
-	 * range limits Overrides mouseMoved() in ImageWindow.
+	 * range limits.
+	 * Overrides mouseMoved() in ImageWindow.
 	 *
 	 * @see ij.gui.ImageWindow#mouseMoved
 	 */
-    public void mouseMoved(int x, int y) {
-        super.mouseMoved(x, y);
-        if (plot == null)
-            return;
-        if (coordinates != null) {	//coordinate readout
-            String coords = plot.getCoordinates(x, y) + blankLabel;
-            coordinates.setText(coords.substring(0, blankLabel.length()));
-        }
+	public void mouseMoved(int x, int y) {
+		super.mouseMoved(x, y);
+		if (plot == null)
+			return;
+		if (coordinates != null) {	//coordinate readout
+			String coords = plot.getCoordinates(x, y) + blankLabel;
+			coordinates.setText(coords.substring(0, blankLabel.length()));
+		}
 
-        //arrows for modifying the plot range
-        if (plot==null) return;
-        if (x < plot.leftMargin || y > plot.topMargin + plot.frameHeight) {
-            if (!rangeArrowsVisible && !plot.isFrozen())
-                showRangeArrows();
-            if (activeRangeArrow == 8)      //it's the 'R' icon
-                coordinates.setText("Reset Range");
-            else if (activeRangeArrow == 9) //it's the 'F' icon
-                coordinates.setText("Full Range (Fit All)");
-            else if (activeRangeArrow >= 10) //space between arrow-pairs
-                coordinates.setText("Set limit...");
-            if (activeRangeArrow >= 0 && !rangeArrowRois[activeRangeArrow].contains(x, y)) {
-				if(activeRangeArrow>=10) //numerical box
-					rangeArrowRois[activeRangeArrow].setFillColor(new Color(235, 235, 235));
-				else //arrow
-					rangeArrowRois[activeRangeArrow].setFillColor(Color.GRAY);
-                ic.repaint();			//de-highlight arrow where cursor has moved out
-                activeRangeArrow = -1;
-            }
-            if (activeRangeArrow < 0) { //highlight arrow below cursor (if any)
-                int i = getRangeArrowIndex(x, y);
-                if (i >= 0) {			//we have an arrow at cursor position
-
-                    rangeArrowRois[i].setFillColor(Color.RED);
-                    activeRangeArrow = i;
-                    ic.repaint();
-                }
-            }
-        } else if (rangeArrowsVisible)
-            hideRangeArrows();
-    }
+		//arrows and other symbols for modifying the plot range
+		if (x < plot.leftMargin || y > plot.topMargin + plot.frameHeight) {
+			if (!rangeArrowsVisible && !plot.isFrozen())
+				showRangeArrows();
+			if (activeRangeArrow < 0)       //mouse is not on one of the symbols, ignore (nothing to display)
+				{}
+			else if (activeRangeArrow < 8)  //mouse over an arrow: 0,3,4,7 for increase, 1,2,5,6 for decrease
+				coordinates.setText(((activeRangeArrow+1)&0x02) != 0 ? "Decrease Range" : "Increase Range");
+			else if (activeRangeArrow == 8) //it's the 'R' icon
+				coordinates.setText("Reset Range");
+			else if (activeRangeArrow == 9) //it's the 'F' icon
+				coordinates.setText("Full Range (Fit All)");
+			else if (activeRangeArrow >= 10 &&
+					activeRangeArrow < 14)  //space between arrow-pairs for single number
+				coordinates.setText("Set limit...");
+			else if (activeRangeArrow >= 14)
+				coordinates.setText("Axis Range & Options...");
+			boolean repaint = false;
+			if (activeRangeArrow >= 0 && !rangeArrowRois[activeRangeArrow].contains(x, y)) {
+				rangeArrowRois[activeRangeArrow].setFillColor(
+						activeRangeArrow < 10 ? inactiveRangeArrowColor : inactiveRangeRectColor);
+				repaint = true;             //de-highlight arrow where cursor has moved out
+				activeRangeArrow = -1;
+			}
+			if (activeRangeArrow < 0) {     //no currently highlighted arrow, do we have a new one?
+				int i = getRangeArrowIndex(x, y);
+				if (i >= 0) {               //we have an arrow or symbol at cursor position
+					rangeArrowRois[i].setFillColor(
+							i < 14 ? activeRangeArrowColor : activeRangeRectColor);
+					activeRangeArrow = i;
+					repaint = true;
+				}
+			}
+			if (repaint) ic.repaint();
+		} else if (rangeArrowsVisible)
+			hideRangeArrows();
+	}
 
 	/** Called by PlotCanvas */
 	void mouseExited(MouseEvent e) {
@@ -526,14 +540,14 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	}
 
     /**
-     * Creates an overlay with triangular buttons for changing the axis range
+     * Creates an overlay with triangular buttons and othr symbols for changing the axis range
      * limits and shows it
      */
     void showRangeArrows() {
         if (imp == null)
             return;
         hideRangeArrows(); //in case we have old arrows from a different plot size or so
-        rangeArrowRois = new Roi[4 * 2 + 2 + 4]; //4 arrows per axis, plus 'Reset' and 'Fit All' icons, plus 4 numerical input boxes
+        rangeArrowRois = new Roi[4 * 2 + 2 + 4 + 2]; //4 arrows per axis, + 'Reset' and 'Fit All' icons, + 4 numerical input boxes + 2 axes
         int i = 0;
         int height = imp.getHeight();
         int arrowH = plot.topMargin < 14 ? 6 : 8; //height of arrows and distance between them; base is twice that value
@@ -564,17 +578,26 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
         rangeArrowRois[12] = new Roi(arrowH / 2, plot.topMargin + plot.frameHeight - arrowH/2 + 1, arrowH * 2, arrowH -2);//numerical box bottom
         rangeArrowRois[13] = new Roi(arrowH / 2, plot.topMargin - arrowH/2 + 1,  arrowH * 2, arrowH - 2   );//numerical box top
 
+        int topMargin = plot.topMargin;
+        int bottomMargin = topMargin + plot.frameHeight;
+        int leftMargin = plot.leftMargin;
+        int rightMargin = plot.leftMargin + plot.frameWidth;
+        rangeArrowRois[14] = new Roi(leftMargin, bottomMargin+2,        // area to click for x axis options
+				rightMargin - leftMargin + 1, 2*arrowH);
+        rangeArrowRois[15] = new Roi(leftMargin-2*arrowH-2, topMargin,  // area to click for y axis options
+				2*arrowH, bottomMargin - topMargin + 1);
+
         Overlay ovly = imp.getOverlay();
         if (ovly == null)
             ovly = new Overlay();
         for (Roi roi : rangeArrowRois) {
             if (roi instanceof PolygonRoi)
-                   roi.setFillColor(Color.GRAY);
+                   roi.setFillColor(inactiveRangeArrowColor);
 			else if (roi instanceof TextRoi) {
                 roi.setStrokeColor(Color.WHITE);
-                roi.setFillColor(Color.GRAY);
+                roi.setFillColor(inactiveRangeArrowColor);
             } else
-                roi.setFillColor(new Color(235, 235, 235));
+                roi.setFillColor(inactiveRangeRectColor); //transparent gray for single number boxes and axis range
             ovly.add(roi);
         }
         imp.setOverlay(ovly);
@@ -593,9 +616,13 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		activeRangeArrow = -1;
 	}
 
-	/** Returns the index of the range arrow at cursor position x,y, or -1 of none.
-	 *	Index numbers start with 0 at the 'down' arrow of the lower side of the x axis
-	 *	and end with the up arrow at the upper side of the y axis. */
+	/** Returns the index of the range-modifying symbol or axis at the
+	 *  cursor position x,y, or -1 of none.
+	 *  Index numbers for arrows start with 0 at the 'down' arrow of the
+	 *  lower side of the x axis and end with 7 the up arrow at the upper
+	 *  side of the y axis. Numbers 8 & 9 are for "Reset Range" and "Fit All";
+	 *  numbers 10-13 for a dialog to set a single limit, and 14-15 for the axis options. */
+
 	int getRangeArrowIndex(int x, int y) {
 		if (!rangeArrowsVisible) return -1;
 		for (int i=0; i<rangeArrowRois.length; i++)
@@ -822,7 +849,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 			IJ.wait(50);	//delay to make sure the roi has been updated
 			Plot plot = plotMaker!=null?plotMaker.getPlot():null;
 			if (doUpdate && plot!=null && plot.getNumPlotObjects()>0) {
-				plot.useTemplate(this.plot, this.plot.templateFlags);
+				plot.useTemplate(this.plot, this.plot.templateFlags | Plot.COPY_SIZE | Plot.COPY_LABELS | Plot.COPY_AXIS_STYLE |
+						Plot.COPY_CONTENTS_STYLE | Plot.COPY_LEGEND | Plot.COPY_EXTRA_OBJECTS);
 				plot.setPlotMaker(plotMaker);
 				this.plot = plot;
 				((PlotCanvas)ic).setPlot(plot);

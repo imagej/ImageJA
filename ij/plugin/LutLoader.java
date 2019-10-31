@@ -92,8 +92,10 @@ public class LutLoader extends ImagePlus implements PlugIn {
 				IndexColorModel cm = new IndexColorModel(8, 256, fi.reds, fi.greens, fi.blues);
 				if (imp.isComposite())
 					((CompositeImage)imp).setChannelColorModel(cm);
-				else
+				else {
 					ip.setColorModel(cm);
+					if (imp.getWindow()==null) imp.setProcessor(ip);
+				}
 				if (imp.getStackSize()>1)
 					imp.getStack().setColorModel(cm);
 				imp.updateAndRepaintWindow();
@@ -253,10 +255,9 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	
 	/** Opens an NIH Image LUT, 768 byte binary LUT or text LUT from a file or URL. */
 	boolean openLut(FileInfo fi) {
-		//IJ.log("openLut: " + fi.directory + fi.fileName);
 		boolean isURL = fi.url!=null && !fi.url.equals("");
 		int length = 0;
-		String path = isURL?fi.url:fi.directory+fi.fileName;
+		String path = isURL?fi.url:fi.getFilePath();
 		if (!isURL) {
 			File f = new File(path);
 			length = (int)f.length();
@@ -291,7 +292,7 @@ public class LutLoader extends ImagePlus implements PlugIn {
 		if (isURL)
 			is = new URL(fi.url+fi.fileName).openStream();
 		else
-			is = new FileInputStream(fi.directory + fi.fileName);
+			is = new FileInputStream(fi.getFilePath());
 		DataInputStream f = new DataInputStream(is);
 		int nColors = 256;
 		if (!raw) {
@@ -321,7 +322,7 @@ public class LutLoader extends ImagePlus implements PlugIn {
 	int openTextLut(FileInfo fi) throws IOException {
 		TextReader tr = new TextReader();
 		tr.hideErrorMessages();
-		ImageProcessor ip = tr.open(fi.directory+fi.fileName);
+		ImageProcessor ip = tr.open(fi.getFilePath());
 		if (ip==null)
 			return 0;
 		int width = ip.getWidth();
