@@ -40,6 +40,8 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
 	int startX, startY, x, y, width, height;
+	int currentGroup = 1; // class variable ? Static ? will be changed for each roi but 1 (or 0) should be used as default
+
 	double startXD, startYD;
 	Rectangle2D.Double bounds;
 	int activeHandle;
@@ -55,7 +57,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	protected static int lineWidth = 1;
 	protected static Color defaultFillColor;
 	private static Vector listeners = new Vector();
-	
+		
 	protected int type;
 	protected int xMax, yMax;
 	protected ImagePlus imp;
@@ -95,6 +97,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	private double ycenter;
 	private boolean listenersNotified;
 	private boolean antiAlias = true;
+	private int group;
 
 
 	/** Creates a rectangular ROI. */
@@ -117,6 +120,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		this.cornerDiameter = cornerDiameter;
 		this.x = x;
 		this.y = y;
+		this.group = currentGroup; //initialize with current selected Group
 		startX = x; startY = y;
 		oldX = x; oldY = y; oldWidth=0; oldHeight=0;
 		this.width = width;
@@ -166,6 +170,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		}
 		setLocation(ox, oy);
 		this.cornerDiameter = cornerDiameter;
+		this.group = currentGroup;
 		width = 0;
 		height = 0;
 		state = CONSTRUCTING;
@@ -2154,6 +2159,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			return bounds.height;
 		else
 			return height;
+	}
+	
+	public int getGroup() {
+		return this.group;
+	}
+	
+	public void setGroup(int group) {
+		this.group = group;
 	}
 	
 	/** Overridden by PolygonRoi (angle between first two points), TextRoi (text angle) and Line (line angle). */
