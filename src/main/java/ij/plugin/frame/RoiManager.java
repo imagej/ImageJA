@@ -1339,6 +1339,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		double opacity = -1;
 		int pointType = -1;
 		int pointSize = -1;
+		int group = -1;
 		if (showDialog) {
 			//String label = (String) listModel.getElementAt(indexes[0]);
 			rpRoi = (Roi)rois.get(indexes[0]);
@@ -1355,10 +1356,13 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			RoiProperties rp = new RoiProperties("Properties", rpRoi);
 			if (!rp.showDialog())
 				return;
+			
+			// Recover parameters of the Property window that were stored in the "transient" roi
 			lineWidth = (int)rpRoi.getStrokeWidth();
 			defaultLineWidth = lineWidth;
 			color =	 rpRoi.getStrokeColor();
 			fillColor =	 rpRoi.getFillColor();
+			group = rpRoi.getGroup();
 			defaultColor = color;
 			if (rpRoi instanceof TextRoi) {
 				font = ((TextRoi)rpRoi).getCurrentFont();
@@ -1384,6 +1388,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			if (color!=null) roi.setStrokeColor(color);
 			if (lineWidth>=0) roi.setStrokeWidth(lineWidth);
 			roi.setFillColor(fillColor);
+			roi.setGroup(group);
 			if (rpRoi!=null && n==1) {
 				if (rpRoi.hasHyperStackPosition())
 					roi.setPosition(rpRoi.getCPosition(), rpRoi.getZPosition(), rpRoi.getTPosition());
@@ -1410,6 +1415,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		Roi roi = imp!=null?imp.getRoi():null;
 		boolean showingAll = ic!=null &&  ic.getShowAllROIs();
 		if (roi!=null && (n==1||!showingAll)) {
+			roi.setGroup(group);
 			if (lineWidth>=0) roi.setStrokeWidth(lineWidth);
 			if (color!=null) roi.setStrokeColor(color);
 			if (fillColor!=null) roi.setFillColor(fillColor);
