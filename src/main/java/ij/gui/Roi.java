@@ -40,7 +40,6 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
 	int startX, startY, x, y, width, height;
-	int currentGroup = 1; // class variable ? Static ? will be changed for each roi but 1 (or 0) should be used as default
 
 	double startXD, startYD;
 	Rectangle2D.Double bounds;
@@ -56,7 +55,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	protected static int pasteMode = Blitter.COPY;
 	protected static int lineWidth = 1;
 	protected static Color defaultFillColor;
+	protected static int currentGroup = 0; 
 	private static Vector listeners = new Vector();
+
 		
 	protected int type;
 	protected int xMax, yMax;
@@ -2161,10 +2162,24 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			return height;
 	}
 	
+	
+	/** Get current group value assigned to newly created ROI **/
+	public static int getCurrentGroup() {
+		return currentGroup;
+	}
+	
+	
+	/** Set group value assigned to newly created ROI **/
+	public static void setCurrentGroup(int group) {
+		currentGroup = group;
+	}
+	
+	/** Return group of this ROI **/
 	public int getGroup() {
 		return this.group;
 	}
 	
+	/** Set the group of the Roi **/
 	public void setGroup(int group) {
 		this.group = group;
 	}
