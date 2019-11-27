@@ -166,6 +166,10 @@ public class RoiProperties {
 				gd.addMessage("No properties");
 			}
 		}
+		// Roi group
+		int group = roi.getGroup(); //What happened if several rois selected and from different group ?
+		gd.addNumericField("Group", group);
+		
 		if (showName && "".equals(name) && "none".equals(position) && "none".equals(fillc))
 			gd.setSmartRecording(true);
 		gd.showDialog();
@@ -184,6 +188,11 @@ public class RoiProperties {
 			angle = gd.getNextNumber();
 			justification = gd.getNextChoiceIndex();
 		}
+		
+		int newGroup = (int)gd.getNextNumber();
+		group = (newGroup>=0) ? newGroup : group; // update roi group only if a positive value is entered 
+		roi.setGroup(group); // No effect
+		
 		if (!isLine) {
 			if (isPoint) {
 				int index = gd.getNextChoiceIndex();
@@ -251,6 +260,7 @@ public class RoiProperties {
 				rois[i].setStrokeColor(strokeColor);
 				rois[i].setStrokeWidth((float)strokeWidth);
 				rois[i].setFillColor(fillColor);
+				rois[i].setGroup(group); // test ?
 			}
 			imp.draw();
 			imp.getProcessor(); // needed for corect recordering
