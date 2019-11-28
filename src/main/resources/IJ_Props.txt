@@ -111,7 +111,7 @@ options14="Compiler...",ij.plugin.Compiler("options")
 options15="DICOM...",ij.plugin.Options("dicom")
 options16="Startup...",ij.plugin.Startup
 options17="Misc...",ij.plugin.Options("misc")
-options18=-
+options18="ROI group...", ij.plugin.Options("roiGroup")
 options19="Reset... ",ij.plugin.Options("reset")
 
 # Plugins installed in the Image/Adjust submenu

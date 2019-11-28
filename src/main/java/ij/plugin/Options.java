@@ -24,6 +24,9 @@ public class Options implements PlugIn {
 			{dicom(); return;}
 		else if (arg.equals("reset"))
 			{reset(); return;}
+		else if (arg.equals("roiGroup"))
+			{roiGroup(); return;}
+			
 	}
 				
 	// Miscellaneous Options
@@ -197,6 +200,15 @@ public class Options implements PlugIn {
 	private void reset() {
 		if (IJ.showMessageWithCancel("Reset Preferences", "Preferences will be reset when ImageJ restarts."))
 			Prefs.resetPreferences();
+	}
+	
+	void roiGroup() {
+		GenericDialog gd = new GenericDialog("ROI Group Options");
+		gd.addNumericField("Current group", Roi.getCurrentGroup());
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return;
+		Roi.setCurrentGroup( (int)gd.getNextNumber() );
 	}
 
 } // class Options
