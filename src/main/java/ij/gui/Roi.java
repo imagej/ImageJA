@@ -4,6 +4,7 @@ import ij.process.*;
 import ij.measure.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.filter.Analyzer;
+import ij.plugin.LutLoader;
 import ij.plugin.filter.ThresholdToSelection;
 import ij.plugin.RectToolOptions;
 import ij.macro.Interpreter;
@@ -11,9 +12,12 @@ import ij.io.RoiDecoder;
 import java.awt.*;
 import java.util.*;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.awt.image.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.awt.Color;
 
 /** 
  * A rectangular region of interest and superclass for the other ROI classes. 
@@ -2174,7 +2178,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		currentGroup = group;
 	}
 	
-	/** Return group of this ROI **/
+	/** Return group attribute of this ROI **/
 	public int getGroup() {
 		return this.group;
 	}
@@ -2182,6 +2186,18 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	/** Set the group of the Roi **/
 	public void setGroup(int group) {
 		this.group = group;
+	}
+	
+	/** Retrieve color associated to the roi group **/
+	public static Color getGroupColor(int group) {
+		Color color = Color.YELLOW; // default yellow for 0 and negative
+		
+		if (group>0) { // other group: read Glasbey Lut
+			Path lutPath = Paths.get(IJ.getDirectory("luts"), "Glasbey.lut");
+			LUT lut = LutLoader.openLut( lutPath.toString() );
+			color =  Color( lut.getRGB(group) );
+		}
+		return color;
 	}
 	
 	/** Overridden by PolygonRoi (angle between first two points), TextRoi (text angle) and Line (line angle). */
