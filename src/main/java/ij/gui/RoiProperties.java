@@ -191,7 +191,7 @@ public class RoiProperties {
 		
 		int newGroup = (int)gd.getNextNumber();
 		group = (newGroup>=0) ? newGroup : group; // update roi group only if a positive value is entered 
-		roi.setGroup(group); // No effect
+		roi.setGroup(group);
 		
 		if (!isLine) {
 			if (isPoint) {
@@ -263,7 +263,7 @@ public class RoiProperties {
 				rois[i].setGroup(group); // test ?
 			}
 			imp.draw();
-			imp.getProcessor(); // needed for corect recordering
+			imp.getProcessor(); // needed for correct recordering
 		}
 		if (listCoordinates) {
 			if (showPointCounts && (roi instanceof PointRoi))
