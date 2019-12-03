@@ -5,4 +5,4 @@
   macro "Brush Built-in Tool" {}
   macro "Flood Filler Built-in Tool" {}
   macro "Arrow Built-in Tool" {}
-
+  macro "Group Menu Built-in Tool" {}

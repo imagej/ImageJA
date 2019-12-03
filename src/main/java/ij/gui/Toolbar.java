@@ -1820,6 +1820,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			installMacroFromJar("/macros/LUTMenuTool.txt");
 		else if (label.startsWith("Command Finder"))
 			installMacroFromJar("/macros/CommandFinderTool.txt");
+		else if (label.startsWith("Group"))
+			installMacroFromJar("/macros/GroupMenuTool.txt");
 		else
 			ok = false;
 		return ok;

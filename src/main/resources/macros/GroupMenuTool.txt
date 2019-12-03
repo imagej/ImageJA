@@ -1,0 +1,8 @@
+   var rCmds = newMenu("Group Menu Tool", 
+                        newArray("Set current Roi Group", "Set selected Roi Group") );
+      
+   macro "Group Menu Tool - C037T1d16R" {
+       cmd = getArgument();
+       if (cmd=="Set current Roi Group")
+		   run("ROI group...");
+   }
