@@ -7275,6 +7275,19 @@ public class Functions implements MacroConstants, Measurements {
 			interp.getParens();
 			String roiName = roi.getName();
 			return new Variable(roiName!=null?roiName:"");
+		} else if (name.equals("getGroup")) {
+			interp.getParens(); // not sure this is needed
+			return new Variable(roi.getGroup());
+		} else if (name.equals("setGroup")) {
+			roi.setGroup((int)getArg());
+			return null;
+		} else if (name.equals("getCurrentGroup")) {
+			interp.getParens();
+			return new Variable(Roi.getCurrentGroup());
+		} else if (name.equals("setCurrentGroup")) { // Does not work ?
+			interp.getParens();
+			Roi.setCurrentGroup((int)getArg());
+			return null;
 		} else if (name.equals("getProperty")) {
 			String property = roi.getProperty(getStringArg());
 			return new Variable(property!=null?property:"");
