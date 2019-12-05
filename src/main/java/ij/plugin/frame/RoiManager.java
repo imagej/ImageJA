@@ -1326,7 +1326,16 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		imp.unlock();
 		return true;
 	}
-
+	
+	/** Set Group for the ROI selected in the RoiManager**/ 
+	public void setGroupForSelectedRoi(int group) {
+		int[] indexes = getSelectedIndexes();
+		for(int i: indexes) {
+			Roi roi = getRoi(i);
+			roi.setGroup(group);
+		}
+		return;
+	}
 	void setProperties(Color color, int lineWidth, Color fillColor) {
 		boolean showDialog = color==null && lineWidth==-1 && fillColor==null;
 		int[] indexes = getIndexes();
