@@ -2305,6 +2305,26 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			roi.update(shiftKeyDown, altKeyDown);
 		}
 	}
+	
+	/** Select Roi of a given group */
+	public void selectGroup(int group) {
+		ArrayList<Integer> listSelected = new ArrayList<Integer>();
+		for (int i=0; i<getCount(); i++) {
+			Roi roi = getRoi(i);
+			if (roi.getGroup() == group) {
+				listSelected.add(i);
+			}
+		}
+		// Convert listArray to int[] (no simpler solution ?)
+		int[] arraySelected = new int[listSelected.size()];
+		for (int j=0; j<listSelected.size(); j++) {
+			arraySelected[j]=listSelected.get(j);
+		}
+		//Integer[] arraySelected = (Integer[]) listSelected.toArray(new Integer[listSelected.size()]);
+		//int [] ints = listSelected.stream().mapToInt(Integer::intValue).toArray();
+		//int[] array = listSelected.stream().mapToInt(i->i).toArray();
+		setSelectedIndexes(arraySelected);
+	}
 
 	public void deselect() {
 		int n = getCount();
