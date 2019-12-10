@@ -1336,6 +1336,20 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 		return;
 	}
+	
+	/** Macro-callable version of setGroupForSelectedRoi **/
+	public static void setGroupForSelectedRoi(String group) {
+		RoiManager rm = getInstance();
+		try {
+			int groupInt = Integer.parseInt(group);
+			if (groupInt>=0) rm.setGroupForSelectedRoi(groupInt);
+		}
+		catch (NumberFormatException e){
+			return;
+			}
+	}
+	
+	
 	void setProperties(Color color, int lineWidth, Color fillColor) {
 		boolean showDialog = color==null && lineWidth==-1 && fillColor==null;
 		int[] indexes = getIndexes();
@@ -2306,7 +2320,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 	}
 	
-	/** Select Roi of a given group */
+	/** Select all Rois in RoiManager of a given group */
 	public void selectGroup(int group) {
 		ArrayList<Integer> listSelected = new ArrayList<Integer>();
 		for (int i=0; i<getCount(); i++) {
@@ -2324,6 +2338,19 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		//int [] ints = listSelected.stream().mapToInt(Integer::intValue).toArray();
 		//int[] array = listSelected.stream().mapToInt(i->i).toArray();
 		setSelectedIndexes(arraySelected);
+	}
+	
+	/** Macro-callable version of selectGroup */
+	public static void selectGroup(String group) {
+		RoiManager rm = getInstance();
+		try {
+			int groupInt = Integer.parseInt(group);
+			if (groupInt>=0) rm.selectGroup(groupInt);
+		}
+		catch (NumberFormatException e){
+			return;
+			}
+		
 	}
 
 	public void deselect() {
