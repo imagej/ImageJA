@@ -1,8 +1,43 @@
    var rCmds = newMenu("Group Menu Tool", 
-                        newArray("Set current Roi Group", "Set selected Roi Group") );
+                        newArray("Set current Roi Group", "Set Group for selected Roi", "Select Group") );
       
    macro "Group Menu Tool - C037T1d16R" {
        cmd = getArgument();
        if (cmd=="Set current Roi Group")
 		   run("ROI group...");
+		   
+	   else if (cmd=="Set Group for selected Roi")
+	   		setGroup();		   
+		 
+		else if (cmd=="Select Group")
+			selectGroup();
+
+		else
+			return;
    }
+
+
+function setGroup(){
+   
+   // Ask group to set
+   Dialog.create("Set group");
+   Dialog.addString("Group", "0");
+   Dialog.show;
+   
+   // recover group and call static method
+   group = Dialog.getString();
+   call("ij.plugin.frame.RoiManager.setGroupForSelectedRoi", group);
+   }
+
+
+function selectGroup(){
+	
+	// Ask group to select
+	Dialog.create("Select group");
+    Dialog.addString("Group", "0");
+    Dialog.show;
+    
+   // recover group and call static method
+   group = Dialog.getString();
+   call("ij.plugin.frame.RoiManager.selectGroup", group);
+}
