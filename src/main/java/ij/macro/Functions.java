@@ -123,7 +123,7 @@ public class Functions implements MacroConstants, Measurements {
 			case DRAW_STRING: drawString(); break;
 			case SET_PASTE_MODE: IJ.setPasteMode(getStringArg()); break;
 			case DO_COMMAND: doCommand(); break;
-			case SHOW_STATUS: IJ.showStatus(getStringArg()); interp.statusUpdated=true; break;
+			case SHOW_STATUS: showStatus(); break;
 			case SHOW_PROGRESS: showProgress(); break;
 			case SHOW_MESSAGE: showMessage(false); break;
 			case SHOW_MESSAGE_WITH_CANCEL: showMessage(true); break;
@@ -915,7 +915,7 @@ public class Functions implements MacroConstants, Measurements {
 		int n = z + 1;
 		ImagePlus imp = getImage();
 		ImageStack stack = imp.getStack();
-		int size = stack.getSize();
+		int size = stack.size();
 		if (z<0 || z>=size)
 			interp.error("Z coordinate ("+z+") is out of 0-"+(size-1)+ " range");
 		this.defaultIP = stack.getProcessor(n);
@@ -2719,6 +2719,17 @@ public class Functions implements MacroConstants, Measurements {
 		throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
 
+	private void showStatus () {
+		String s = getStringArg();
+		boolean withSign = s.startsWith("!");
+		if (withSign)		
+			s = s.substring(1);
+		IJ.protectStatusBar(false);
+		IJ.showStatus(s); 
+		IJ.protectStatusBar(withSign);
+		interp.statusUpdated = true; 
+	}
+
 	void showProgress() {
 		ImageJ ij = IJ.getInstance();
 		ij.gui.ProgressBar progressBar = ij!=null?ij.getProgressBar():null;
@@ -4154,7 +4165,14 @@ public class Functions implements MacroConstants, Measurements {
 			String err = IJ.saveString(getFirstString(), getLastString());
 			if (err!=null) interp.error(err);
 			return null;
+		} else if (name.startsWith("setDefaultDir")) {
+			OpenDialog.setDefaultDirectory(getStringArg());
+			return null;
+		} else if (name.startsWith("getDefaultDir")) {
+			String dir = OpenDialog.getDefaultDirectory();
+			return dir!=null?dir:"";
 		}
+
 		File f = new File(getStringArg());
 		if (name.equals("getLength")||name.equals("length"))
 			return ""+f.length();
@@ -4695,9 +4713,42 @@ public class Functions implements MacroConstants, Measurements {
 			return getBuffer();
 		else if (name.equals("show"))
 			return showString();
+		else if (name.equals("join"))
+			return join();
+		else if (name.equals("trim"))
+			return getStringArg().trim();
 		else
 			interp.error("Unrecognized String function");
 		return null;
+	}
+
+	private String join() {
+		interp.getLeftParen();
+		String delimiter = ", ";
+		Variable[] arr = getArray();
+		if (interp.nextToken()==',')
+			delimiter = getNextString();
+		interp.getRightParen();
+		return joinArray(arr, delimiter).toString();
+	}
+	
+	private StringBuilder joinArray(Variable[] a, String delimiter) {
+		int len = a.length;
+		StringBuilder sb = new StringBuilder(len*6);
+		for (int i=0; i<len; i++) {
+			String s = a[i].getString();
+			if (s==null) {
+				double v = a[i].getValue();
+				if ((int)v==v)
+					s = IJ.d2s(v,0);
+				else
+					s = ResultsTable.d2s(v,4);
+			}
+			sb.append(s);
+			if (i!=len-1)
+				sb.append(delimiter);
+		}
+		return sb;
 	}
 
 	private String showString() {
@@ -5178,7 +5229,7 @@ public class Functions implements MacroConstants, Measurements {
 		int n1 = (int)getFirstArg();
 		int n2 = (int)getLastArg();
 		ImageStack stack = imp.getStack();
-		int size = stack.getSize();
+		int size = stack.size();
 		if (n1<1||n1>size||n2<1||n2>size)
 			interp.error("Argument out of range");
 		Object pixels = stack.getPixels(n1);
@@ -5646,6 +5697,7 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	String debug() {
+		IJ.protectStatusBar(false);
 		String arg = "break";
 		if (interp.nextToken()=='(')
 			arg = getStringArg().toLowerCase(Locale.US);
@@ -5824,23 +5876,9 @@ public class Functions implements MacroConstants, Measurements {
 		}
 		Variable[] a = getArray();
 		interp.getRightParen();
-		int len = a.length;
-		StringBuffer sb = new StringBuffer(len);
+		StringBuilder sb = joinArray(a, ", ");
 		if (prefix!=null)
 			sb.append(prefix+" ");
-		for (int i=0; i<len; i++) {
-			String s = a[i].getString();
-			if (s==null) {
-				double v = a[i].getValue();
-				if ((int)v==v)
-					s = IJ.d2s(v,0);
-				else
-					s = ResultsTable.d2s(v,4);
-			}
-			sb.append(s);
-			if (i!=len-1)
-				sb.append(", ");
-		}
 		interp.log(sb.toString());
 		return null;
 	}

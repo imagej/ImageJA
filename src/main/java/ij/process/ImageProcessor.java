@@ -790,7 +790,8 @@ public abstract class ImageProcessor implements Cloneable {
 				if (x<0) r3.x = -x;
 				if (y<0) r3.y = -y;
 				mask.setRoi(r3);
-				mask = mask.crop();
+				if (mask!=null)
+					mask = mask.crop();
 			}
 			roiX=r2.x; roiY=r2.y; roiWidth=r2.width; roiHeight=r2.height;
 		} else {
@@ -1460,6 +1461,14 @@ public abstract class ImageProcessor implements Cloneable {
 		Java2.setAntialiasedText(fmGraphics, antialiasedText);
 		fontMetrics = fmGraphics.getFontMetrics(font);
 	}
+	
+	/** Sets the size of the font used by drawString(). */
+	public void setFontSize(int size) {
+		setFont(font.deriveFont(font.getStyle(), size));
+		if (size>15)
+			setAntialiasedText(true);
+	}
+
 
 	/** Specifies whether or not text is drawn using antialiasing. Antialiased
 		test requires an 8 bit or RGB image. Antialiasing does not

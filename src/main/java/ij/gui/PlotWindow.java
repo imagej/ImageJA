@@ -42,15 +42,15 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	/** Interpolate line profiles. To set, use Edit/Options/Plots. */
 	public static boolean interpolate;
 	// default values for new installations; values will be then saved in prefs
-	private static final int WIDTH = 530;
-	private static final int HEIGHT = 300;
-	private static final int FONT_SIZE = 12;
+	private static final int WIDTH = 600;
+	private static final int HEIGHT = 340;
+	private static int defaultFontSize = 14; 
 	/** The width of the plot (without frame) in pixels. */
 	public static int plotWidth = WIDTH;
 	/** The height of the plot in pixels. */
 	public static int plotHeight = HEIGHT;
 	/** The plot text size, can be overridden by Plot.setFont, Plot.setFontSize, Plot.setXLabelFont etc. */
-	public static int fontSize = FONT_SIZE;
+	public static int fontSize = defaultFontSize;
 	/** Have axes with no grid lines. If both noGridLines and noTicks are true,
 	 *	only min&max value of the axes are given */
 	public static boolean noGridLines;
@@ -104,13 +104,15 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	static {
 		options = Prefs.getInt(OPTIONS, SAVE_X_VALUES);
 		autoClose = (options&AUTO_CLOSE)!=0;
-		listValues = (options&LIST_VALUES)!=0;
 		plotWidth = Prefs.getInt(PREFS_WIDTH, WIDTH);
 		plotHeight = Prefs.getInt(PREFS_HEIGHT, HEIGHT);
-		fontSize = Prefs.getInt(PREFS_FONT_SIZE, FONT_SIZE);
+		defaultFontSize = fontSize = Prefs.getInt(PREFS_FONT_SIZE, defaultFontSize);
 		interpolate = (options&INTERPOLATE)==0; // 0=true, 1=false
-		noGridLines = (options&NO_GRID_LINES)!=0;
-		noTicks = (options&NO_TICKS)!=0;
+		Dimension screen = IJ.getScreenSize();
+		if (plotWidth>screen.width && plotHeight>screen.height) {
+			plotWidth = WIDTH;
+			plotHeight = HEIGHT;
+		}
 	}
 
 	/**
@@ -349,7 +351,7 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		menuItems[FREEZE] = addPopupItem(morePopupMenu, "Freeze Plot", true);
 		menuItems[HI_RESOLUTION] = addPopupItem(morePopupMenu, "High-Resolution Plot...");
 		morePopupMenu.addSeparator();
-		menuItems[PROFILE_PLOT_OPTIONS] = addPopupItem(morePopupMenu, "Plot Options...");
+		menuItems[PROFILE_PLOT_OPTIONS] = addPopupItem(morePopupMenu, "Plot Defaults...");
 		return morePopupMenu;
 	}
 
@@ -418,8 +420,8 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		else if (b==menuItems[TEMPLATE])
 			new PlotDialog(plot, PlotDialog.TEMPLATE).showDialog(this);
 		else if (b==menuItems[RESET_PLOT]) {
-			plot.setFont(Font.PLAIN, Prefs.getInt(PREFS_FONT_SIZE, FONT_SIZE));
-			plot.setAxisLabelFont(Font.PLAIN, Prefs.getInt(PREFS_FONT_SIZE, FONT_SIZE));
+			plot.setFont(Font.PLAIN, fontSize);
+			plot.setAxisLabelFont(Font.PLAIN, fontSize);
 			plot.setFormatFlags(Plot.getDefaultFlags());
 			plot.setFrameSize(plotWidth, plotHeight); //updates the image only when size changed
 			plot.updateImage();
@@ -751,17 +753,11 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 	public static void savePreferences(Properties prefs) {
 		double min = ProfilePlot.getFixedMin();
 		double max = ProfilePlot.getFixedMax();
-		if (plotWidth!=WIDTH || plotHeight!=HEIGHT) {
-			prefs.put(PREFS_WIDTH, Integer.toString(plotWidth));
-			prefs.put(PREFS_HEIGHT, Integer.toString(plotHeight));
-			prefs.put(PREFS_FONT_SIZE, Integer.toString(fontSize));
-		}
+		prefs.put(PREFS_WIDTH, Integer.toString(plotWidth));
+		prefs.put(PREFS_HEIGHT, Integer.toString(plotHeight));
+		prefs.put(PREFS_FONT_SIZE, Integer.toString(defaultFontSize));
 		int options = 0;
-		if (autoClose && !listValues) options |= AUTO_CLOSE;
-		if (listValues) options |= LIST_VALUES;
 		if (!interpolate) options |= INTERPOLATE; // true=0, false=1
-		if (noGridLines) options |= NO_GRID_LINES;
-		if (noTicks) options |= NO_TICKS;
 		prefs.put(OPTIONS, Integer.toString(options));
 	}
 
@@ -885,7 +881,15 @@ public class PlotWindow extends ImageWindow implements ActionListener, ItemListe
 		if (win!=null && (win instanceof PlotWindow))
 			((PlotWindow)win).getPlot().setFrozen(true);
 	}
+	
+	public static void setDefaultFontSize(int size) {
+		if (size < 9) size = 9;
+		if (size > 36) size = 36;
+		defaultFontSize = size;
+	}
+
+	public static int getDefaultFontSize() {
+		return defaultFontSize;
+	}
 
 }
-
-

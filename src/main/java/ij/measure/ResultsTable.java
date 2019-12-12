@@ -63,6 +63,7 @@ public class ResultsTable implements Cloneable {
 	private boolean quoteCommas;
 	private String title;
 	private boolean columnDeleted;
+	private boolean renameWhenSaving;
 
 
 	/** Constructs an empty ResultsTable with the counter=0, no columns
@@ -836,18 +837,19 @@ public class ResultsTable implements Cloneable {
 	public synchronized void deleteRow(int rowIndex) {
 		if (counter==0 || rowIndex<0 || rowIndex>counter-1)
 			return;
+		int counter2 = Math.min(counter,maxRows-1);
 		if (rowLabels!=null) {
 			rowLabels[rowIndex] = null;
-			for (int i=rowIndex; i<counter-1; i++)
+			for (int i=rowIndex; i<counter2; i++)
 				rowLabels[i] = rowLabels[i+1];
 		}
 		for (int col=0; col<=lastColumn; col++) {
 			if (columns[col]!=null) {
-				for (int i=rowIndex; i<counter-1; i++)
+				for (int i=rowIndex; i<counter2; i++)
 					columns[col][i] = columns[col][i+1];
 				ArrayList stringColumn = stringColumns!=null?(ArrayList)stringColumns.get(new Integer(col)):null;
 				if (stringColumn!=null && stringColumn.size()==counter) {
-					for (int i=rowIndex; i<counter-1; i++)
+					for (int i=rowIndex; i<counter2; i++)
 						stringColumn.set(i,stringColumn.get(i+1));
 					stringColumn.remove(counter-1);
 				}
@@ -1204,6 +1206,14 @@ public class ResultsTable implements Cloneable {
 		}
 	}
 
+	public boolean saveAndRename(String path) {
+		if (!"Results".equals(title))
+			renameWhenSaving = true;
+		boolean ok = save(path);
+		renameWhenSaving = false;
+		return ok;
+	}
+
 	public void saveAs(String path) throws IOException {
 		boolean emptyTable = size()==0 && lastColumn<0;
 		if (path==null || path.equals("")) {
@@ -1233,6 +1243,10 @@ public class ResultsTable implements Cloneable {
 		showRowNumbers = saveShowRowNumbers;
 		pw.close();
 		delimiter = '\t';
+		if (renameWhenSaving) {
+			File f = new File(path);
+			title =  f.getName();
+		}
 	}
 	
 	/** Returns the default headings ("Area","Mean","StdDev", etc.). */

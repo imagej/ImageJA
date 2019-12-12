@@ -5,35 +5,126 @@
 </head>
 <body>
 
-<li> <u>1.52r 24 October 2019</u>
+<li> <u>1.52s82 9 December 2019</u>
+<ul>
+<li> Thanks to 'LPUoO', added the <i>Plugins&gt;Utilities&gt;Commands</i> 
+command, which opens a list of commonly and recently used 
+commands.
+<li> By default, image windows now open just below the "ImageJ" window.
+<li> Thanks to Norbert Vischer, adding an exclamation mark to 
+showStatus() messages avoids status bar flicker
+(<a href="http://wsr.imagej.net/macros/examples/NonVolatileShowStatus.txt">example</a>). 
+<li> Thanks to Michael Schmid, the <i>Process&gt;Filters&gt;Convolve</i>
+dialog displays feedback on the kernel as it is modified.
+<li> Added the <i>Macros&gt;Set as Repeat Command</i>
+command to the macro editor. After running this command,
+the selected macro code will run each time you press 'r', the
+shortcut for the <i>Process&gt;Repeat Command</i> command.
+<li> Thanks to Jerome Mutterer, added a "Splash Screen" code
+choice to the <i>Edit&gt;Options&gt;Startup</i> dialog.
+<li> Changed the shortcut for <i>Process&gt;Repeat Command</i>
+to 'r' and the shortcut for <i>File&gt;Revert</i> to shift-r.
+<li> Added a "Reuse 'FFT of...' window" option to the
+<i>Process&gt;FFT&gt;FFT Options</i> dialog.
+<li> Thanks to Peter Haub, chroma subsampling is disabled when saving in
+JPEG format if the Quality setting (<i>Edit&gt;Options&gt;Input/Output</i>)
+is 90 or higher, resulting in higher quality images but larger file sizes.
+<li> Thanks to Karen Collins, improved the FITS Writer.
+<li> Added the <i>Help&gt;Examples&gt;JavaScript&gt;JPEG Quality Plot</i>
+example.
+<li> Removed the obsolete “Draw grid lines” option from the
+<i>Edit&gt;Options&gt;Plot</i> dialog.
+<li> Thanks to Michael Schmid, the ImagePlus.updateAndDraw()
+method adds a scroll bar to the window if the stack size
+changed to greater than one.
+<li> Thanks to Stein Rorvik, added the File.getDefaultDir,
+File.setDefaultDir(path), String.trim(string) and String.join(array)
+macro functions.
+<li> Thanks to Peter Haub, added the JpegWriter.disableChromaSubsampling()
+method
+(<a href="http://wsr.imagej.net/macros/js/JpegQualityTests.js">example</a>).
+<li> Added the ImageProcessor.setFontSize() and Plot.setFontSize() methods.
+<li> Thanks to 'kefe' and Herbie, fixed a bug that caused the <i>Stack to Images</i>
+command to use slice labels as image titles even when
+they contained "/", "\" or ":" characters.
+<li> Thanks to 'sudgy' and Jan Eglinger, fixed a bug the caused iteration
+over the points contained in an ROI to throw an exception for rectangular ROIs.
+<li> Thanks to Norbert Vischer, fixed a bug that caused the options dialogs
+for the Rounded Rectangle, Multi-point and Arrow tools to generate
+"Duplicate keyword" errors when the Recorder was running.
+<li> Thanks to Peter Haub, fixed a bug that caused the Image Calculator
+to not work as expected with RGB images when using the
+"Difference" operator and "32-bit (float) result" option.
+<li> Fixed a bug that caused the "Font size" (aka "Default font size")
+setting in the <i>Edit&gt;Options&gt;Plot</i> dialog to be ignored.
+<li> Thanks to Stein Rorvik, fixed a bug that caused the
+run("Calibration Bar...",optons) macro function to ignore calls to
+setOption("AntialiasedText",boolean).
+<li> Thanks go Sethur, worked around a Windows 10 and OpenJDK
+bug that caused the "thumb" on scrollbars to be hard to see.
+<li> Thanks to Stein Rorvik, fixed a bug that caused the
+<i>Analyze&gt;Set Scale</i> command to not be correctly
+recoded.
+<li> Thanks to Sethur, fixed a bug that caused the
+<i>Image&gt;Stacks&gt;Tools&gt;Substack Maker</i>
+command to not carry over the calibration of hyperstacks.
+<li> Thanks to Sethur, fixed bugs that caused the
+DICOM reader to not correctly open multi-frame DICOMs
+and 16-bit signed DICOMs with RescaleSlope=1
+and RescaleIntercept!=0.
+<li> Thanks to Stein Rorvik, fixed a bug in the macro interpreter
+that prevented array functions like newArray() and split() from
+being used as arguments to user-defined functions.
+<li> Thanks to Stein Rorvik, fixed a bug that caused the
+WIndow menu to not be updated when saving a table.
+<li> Thanks to Stein Rorvik, fixed a bug that caused the
+<i>Image&gt;Transform&gt;Translate</i> command
+to ignore overlays.
+<li> Thanks to Stein Rorvik, fixed a bug that caused right
+justified text in overlays to not be translated correctly.
+<li> Thanks to Stein Rorvik, worked around a Java bug 
+that caused OpenDialog.setDefaultDirectory(path) to
+sometimes not work as expected on Windows with paths
+containing "/" separators.
+<li> Thanks to Stein Rorvik, fixed a bug that caused macros
+calling open("") to not be aborted when the user clicked
+"Cancel" in the file open dialog and "Use JFileChooser to open/save"
+was enabled in the <i>Edit&gt;Options&gt;Input/Output</i> dialog box.
+<li> Thanks to Nicolás De Francesco, fixed a bug that caused
+<i>Process&gt;FFT&gt;Custom Filter</i> to only process 
+the current stack slice even though "Process entire stack" 
+was checked in the dialog box.
+</ul>
+
+<li> <u>1.52r 26 October 2019</u>
 <ul>
 <li> Plot enhancements, thanks to Michael Schmid: 
 <ul>
 <li> The <i>More&gt;&gt;</i> menus have immediate preview. 
 <li> New <i>More&gt;&gt;Use Template</i> menu (also with immediate preview), 
-useful for creating plots with the same style, e.g. for combining 
-them into a multi-panel figure.
+useful for creating plots with the same style.
 <li> Clicking into a rectangular area next to an axis shows the
 corresponding axis dialog.
 <li>When adding a curve to a "Live" plot, it remains when the plot is 
-updated (e.g. a fit, duplicate of a profile, or other profile, to 
-compare the live profiles etc. with it). 
+updated. 
 </ul>
+<li> Thanks to Jan Eglinger, saving TIFF images and stacks to
+network drives is up to 10 times faster.
 <li> Thanks to Marcel Boeglin, the title of the selection list created by
 <i>Image&gt;Overlay&gt;List Elements</i> includes the image
-name, the image associated with the list is activated, and when you 
-double click on a line, the corresponding selection is activated and
-stacks are set to the selection position, if any.
+name. And, when you double click on a line, the image associated
+with the list is activated, the corresponding selection is activated and
+stacks are set to the selection position.
 <li> Thanks to Michael Schmid, <i>Process&gt;Filters&gt;Gaussian Blur</i>
 now uses a Thread Pool, reducing overhead and making it
 faster for small images.
-<li> Thanks to Stein Rorvik, you can now view and set
+<li> Thanks to Stein Rorvik, you can now separately view and set
 the X, Y and Z dimension units in the 
 <i>Image&gt;Properties</i> dialog box.
 <li> Thanks to Ryan Siu, the double click interval used to
 complete a polygon selection is reduced from 500ms to 250ms and
 a confirmation dialog is displayed when completing the selection
-if there are more than 25 points.
+and there are more than 25 points.
 <li> Thanks to Stein Rorvik, the slider in the <i>Image&gt;Transform&gt;Rotate</i>
 dialog now shows the angle using two decimal places and the slider arrows
 increment/decrement by 0.1 degrees. Use the keyboard arrow keys
@@ -61,7 +152,7 @@ macro function.
 getInfo("window.title") macro function to not work as expected
 after opening a large text file using open("/path/to/largeFile.txt").
 <li> Thanks to Stein Rorvik, fixed a bug that caused 
-min/max values of calibrated 16-bit image to be shown without
+min/max values of calibrated 16-bit images to be shown without
 decimals in the "B&C" dialog.
 <li> Thanks to Deborah Schmidt, fixed a bug that caused Fiji users to not
 be able to update via HTTPS through a proxy.
@@ -88,7 +179,7 @@ non-thresholded binary images.
 ImageJ to not be be able to open TIFF files saved
 without a file path.
 <li> Thanks to Birgit Moeller, fixed a bug that caused the
-"Label" column to not be sorted when using the Sort
+"Label" column to not be sorted when using the "Sort"
 command in Results tables.
 <li> Thanks to lguerard and mountain_man, fixed a
 bug that caused an ROI's hyperstack position
@@ -97,7 +188,7 @@ to be lost when adding it to the RoiManager.
 that caused OvalRoi.getMask() to sometimes 
 return a zero-width mask.
 <li> Thanks to Francois Gannier and Michael Schmid, fixed a
-1.52o regression that caused the Log window to unexpectedly
+1.52o regression that caused the "Log" window to unexpectedly
 become the active window.
 </ul>
 

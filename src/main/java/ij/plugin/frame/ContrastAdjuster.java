@@ -130,6 +130,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		// min slider
 		if (!windowLevel) {
 			minSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			GUI.fixScrollbar(minSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(minSlider, c);
@@ -144,6 +145,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		// max slider
 		if (!windowLevel) {
 			maxSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			GUI.fixScrollbar(maxSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(maxSlider, c);
@@ -157,6 +159,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 
 		// brightness slider
 		brightnessSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+		GUI.fixScrollbar(brightnessSlider);
 		c.gridy = y++;
 		c.insets = new Insets(windowLevel?12:2, 10, 0, 10);
 		gridbag.setConstraints(brightnessSlider, c);
@@ -173,6 +176,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		// contrast slider
 		if (!balance) {
 			contrastSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/2, 1, 0, sliderRange);
+			GUI.fixScrollbar(contrastSlider);
 			c.gridy = y++;
 			c.insets = new Insets(2, 10, 0, 10);
 			gridbag.setConstraints(contrastSlider, c);
@@ -668,7 +672,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		if (imp.getStackSize()>1 && !imp.isComposite()) {
 			ImageStack stack = imp.getStack();
 			YesNoCancelDialog d = new YesNoCancelDialog(new Frame(),
-				"Entire Stack?", "Apply LUT to all "+stack.getSize()+" stack slices?");
+				"Entire Stack?", "Apply LUT to all "+stack.size()+" stack slices?");
 			if (d.cancelPressed())
 				{imp.unlock(); return;}
 			if (d.yesPressed()) {

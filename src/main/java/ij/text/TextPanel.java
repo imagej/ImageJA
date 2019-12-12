@@ -67,10 +67,12 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		setLayout(new BorderLayout());
 		add("Center",tc);
 		sbHoriz=new Scrollbar(Scrollbar.HORIZONTAL);
+		GUI.fixScrollbar(sbHoriz);
 		sbHoriz.addAdjustmentListener(this);
 		sbHoriz.setFocusable(false); // prevents scroll bar from blinking on Windows
 		add("South", sbHoriz);
 		sbVert=new Scrollbar(Scrollbar.VERTICAL);
+		GUI.fixScrollbar(sbVert);
 		sbVert.addAdjustmentListener(this);
 		sbVert.setFocusable(false);
 		ImageJ ij = IJ.getInstance();
@@ -898,11 +900,13 @@ public class TextPanel extends Panel implements AdjustmentListener,
 					return false;
 				path = sd.getDirectory() + fileName;
 			}
-			rt.save(path);
+			rt.saveAndRename(path);
 			TextWindow tw = getTextWindow();
-			if (fileName!=null && tw!=null && !"Results".equals(title)) {
-				tw.setTitle(fileName);
-				title = fileName;
+			String title2 = rt.getTitle();
+			if (tw!=null && !"Results".equals(title)) {
+				tw.setTitle(title2);
+				Menus.updateWindowMenuItem(title, title2);
+				title = title2;
 			}
 		} else {
 			if (path.equals("")) {
