@@ -198,6 +198,7 @@ public class Opener {
 						dir = new File(sdir);
 					if (dir!=null)
 						fc.setCurrentDirectory(dir);
+					if (IJ.debugMode) IJ.log("Opener.openMultiple: "+sdir+" "+dir);
 					int returnVal = fc.showOpenDialog(IJ.getInstance());
 					if (returnVal!=JFileChooser.APPROVE_OPTION)
 						return;
@@ -315,19 +316,9 @@ public class Opener {
 			case TIFF:
 				imp = openTiff(directory, name);
 				return imp;
-			case DICOM:
+			case DICOM: case TIFF_AND_DICOM:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", path);
 				if (imp.getWidth()!=0) return imp; else return null;
-			case TIFF_AND_DICOM:
-				// "hybrid" files created by GE-Senographe 2000 D */
-				imp = openTiff(directory,name);
-				ImagePlus imp2 = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", path);
-				if (imp!=null && imp2!=null)	 {		
-					imp.setProperty("Info",imp2.getProperty("Info"));
-					imp.setCalibration(imp2.getCalibration());
-				}
-				if (imp==null) imp=imp2;
-				return imp;
 			case FITS:
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.FITS_Reader", path);
 				if (imp.getWidth()!=0) return imp; else return null;
@@ -800,7 +791,7 @@ public class Opener {
 				stack.deleteLastSlice();
 			}
 			IJ.showProgress(1.0);
-			if (stack.getSize()==0)
+			if (stack.size()==0)
 				return null;
 			if (fi.fileType==FileInfo.GRAY16_UNSIGNED||fi.fileType==FileInfo.GRAY12_UNSIGNED
 			||fi.fileType==FileInfo.GRAY32_FLOAT||fi.fileType==FileInfo.RGB48) {
@@ -817,7 +808,7 @@ public class Opener {
 				imp.setProperty("Info", fi.info);
 			if (fi.description!=null && fi.description.contains("order=zct"))
 				new HyperStackConverter().shuffle(imp, HyperStackConverter.ZCT);
-			int stackSize = stack.getSize();
+			int stackSize = stack.size();
 			if (nChannels>1 && (stackSize%nChannels)==0) {
 				imp.setDimensions(nChannels, stackSize/nChannels, 1);
 				imp = new CompositeImage(imp, IJ.COMPOSITE);

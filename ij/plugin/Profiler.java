@@ -25,7 +25,7 @@ public class Profiler implements PlugIn, PlotMaker {
 		plot.show();
 	}
 	
-public Plot getPlot() {
+	public Plot getPlot() {
 		Roi roi = imp.getRoi();
 		if (roi==null || !(roi.isLine()||roi.getType()==Roi.RECTANGLE)) {
 			if (firstTime)
@@ -46,18 +46,20 @@ public Plot getPlot() {
 		boolean fixedScale = ymin!=0.0 || ymax!=0.0;
 		boolean wasFixedScale = fixedScale;
 		
-		GenericDialog gd = new GenericDialog("Plot Options");
+		GenericDialog gd = new GenericDialog("Plot Defaults");
+		gd.setInsets(4,0,0);
+		gd.addMessage("---------- Plot Defaults ---------");
 		gd.addNumericField("Width:", PlotWindow.plotWidth, 0);
 		gd.addNumericField("Height:", PlotWindow.plotHeight, 0);
-		gd.addNumericField("Font Size:", PlotWindow.fontSize, 0);
+		gd.addNumericField("Font size:", PlotWindow.getDefaultFontSize(), 0);
 		gd.setInsets(5,20,0); //distance to previous
-		gd.addCheckbox("Draw grid lines", !PlotWindow.noGridLines);
+		//gd.addCheckbox("Draw grid lines", !PlotWindow.noGridLines);
 		gd.addCheckbox("Draw_ticks", !PlotWindow.noTicks);
 		gd.addCheckbox("Auto-close", PlotWindow.autoClose);
 		gd.addCheckbox("List values", PlotWindow.listValues);
 		
 		gd.setInsets(15,0,0);
-		gd.addMessage("--------Profile Plot Options--------");
+		gd.addMessage("------- Profile Plot Options -------");
 		gd.setInsets(5,20,0);
 		gd.addCheckbox("Fixed y-axis scale", fixedScale);
 		gd.addNumericField("Minimum Y:", ymin, 2);
@@ -79,11 +81,9 @@ public Plot getPlot() {
 			PlotWindow.plotHeight = h;
 		}
 		int fontSize = (int)gd.getNextNumber();
-		if (fontSize < 9) fontSize = 9;
-		if (fontSize > 28) fontSize = 28;
 		if (!gd.invalidNumber())
-			PlotWindow.fontSize = fontSize;
-		PlotWindow.noGridLines = !gd.getNextBoolean();
+			PlotWindow.setDefaultFontSize(fontSize);
+		//PlotWindow.noGridLines = !gd.getNextBoolean();
 		PlotWindow.noTicks = !gd.getNextBoolean();
 		//data options
 		PlotWindow.autoClose = gd.getNextBoolean();

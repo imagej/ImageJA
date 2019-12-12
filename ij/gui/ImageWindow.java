@@ -32,7 +32,6 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	Rectangle maxWindowBounds; // largest possible window on this screen
 	Rectangle maxBounds; // Size of this window after it is maximized
 	long setMaxBoundsTime;
-	private boolean firstSmallWindow;
 	private int sliderHeight;
 
 	private static final int XINC = 12;
@@ -48,6 +47,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	private static Point nextLocation;
 	public static long setMenuBarTime;	
     private int textGap = centerOnScreen?0:TEXT_GAP;
+    private Point initialLoc;
 	
 	/** This variable is set false if the user presses the escape key or closes the window. */
 	public boolean running;
@@ -130,8 +130,9 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			setLocationAndSize(false);
 			if (ij!=null && !IJ.isMacintosh()) {
 				Image img = ij.getIconImage();
-				if (img!=null) 
-					try {setIconImage(img);} catch (Exception e) {}
+				if (img!=null) try {
+					setIconImage(img);
+				} catch (Exception e) {}
 			}
 			if (nextLocation!=null)
 				setLocation(nextLocation);
@@ -152,7 +153,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			return;
 		int width = imp.getWidth();
 		int height = imp.getHeight();
-		// load location and find associated screen bounds
+		
+		// load prefernces file location
 		Point loc = Prefs.getLocation(LOC_KEY);
 		Rectangle bounds = null;
 		if (loc!=null) {
@@ -165,24 +167,37 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		}		
 		// if loc not valid, use screen bounds of visible window (this) or of main window (ij) if not visible yet (updating == false)
 		Rectangle maxWindow = bounds!=null?bounds:GUI.getMaxWindowBounds(updating?this: ij);  
-		
+
 		if (WindowManager.getWindowCount()<=1)
 			xbase = -1;
 		if (width>maxWindow.width/2 && xbase>maxWindow.x+5+XINC*6)
 			xbase = -1;
 		if (xbase==-1) {
 			count = 0;
-			if (loc != null) {
+			if (loc!=null) {
 				xbase = loc.x;
 				ybase = loc.y;
+			} else if (ij!=null) {
+				Rectangle ijBounds = ij.getBounds();
+				if (ijBounds.y-maxWindow.x<maxWindow.height/8) {
+					xbase = ijBounds.x;
+					if (xbase+width>maxWindow.x+maxWindow.width) {
+						xbase = maxWindow.x+maxWindow.width - width - 10;
+						if (xbase<maxWindow.x)
+							xbase = maxWindow.x + 5;;
+					}
+					ybase = ijBounds.y + ijBounds.height + 5;
+				} else {
+					xbase = maxWindow.x + (maxWindow.width - width) / 2;
+					ybase = maxWindow.y + (maxWindow.height - height) / 4;
+				}
 			} else {
 				xbase = maxWindow.x + (maxWindow.width - width) / 2;
 				ybase = maxWindow.y + (maxWindow.height - height) / 4;
 			}
 			xbase = Math.max(xbase, maxWindow.x);
 			ybase = Math.max(ybase, maxWindow.y);
-			firstSmallWindow = true;
-			if (IJ.debugMode) IJ.log("ImageWindow.xbase: "+xbase+" "+loc);
+			if (IJ.debugMode) IJ.log("ImageWindow.xbase: "+xbase);
 			xloc = xbase;
 			yloc = ybase;
 		}
@@ -199,10 +214,12 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 		int screenHeight = maxWindow.y+maxWindow.height-sliderHeight;
 		int screenWidth = maxWindow.x+maxWindow.width;
 		double mag = 1;
-		while (xbase+width*mag>screenWidth || ybase+height*mag>=screenHeight) {
-			double mag2 = ImageCanvas.getLowerZoomLevel(mag);
-			if (mag2==mag) break;
-			mag = mag2;
+		if (!(this instanceof PlotWindow)) { // unless a plot (always at 100%), zoom out to show all of image
+			while (xbase+width*mag>screenWidth || ybase+height*mag>=screenHeight) {
+				double mag2 = ImageCanvas.getLowerZoomLevel(mag);
+				if (mag2==mag) break;
+				mag = mag2;
+			}
 		}
 		
 		if (mag<1.0) {
@@ -219,8 +236,10 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			validate();
 		} else 
 			pack();
-		if (!updating)
+		if (!updating) {
 			setLocation(x, y);
+			initialLoc = new Point(x,y);
+		}
 	}
 
 	Rectangle getMaxWindow(int xloc, int yloc) {
@@ -406,10 +425,15 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 			}
 		}
 		closed = true;
-		if (WindowManager.getWindowCount()==0)
-			{xloc = 0; yloc = 0;}
-		if (firstSmallWindow)
-			Prefs.saveLocation(LOC_KEY, getLocation());
+		if (WindowManager.getWindowCount()==0) {
+			xloc = 0;
+			yloc = 0;
+		}
+		Point currentLoc = getLocation();
+		if (initialLoc!=null && !currentLoc.equals(initialLoc) && !IJ.isMacro()) {
+			Prefs.saveLocation(LOC_KEY, currentLoc);
+			xbase = -1;
+		}
 		WindowManager.removeWindow(this);
 		if (ij!=null && ij.quitting())  // this may help avoid thread deadlocks
 			return true;
@@ -679,9 +703,16 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     public void setLocationAndSize(int x, int y, int width, int height) {
 		setBounds(x, y, width, height);
 		getCanvas().fitToWindow();
+		initialLoc = null;
 		pack();
 	}
 	
+    @Override
+    public void setLocation(int x, int y) {
+    	super.setLocation(x, y);
+		initialLoc = null;
+	}
+
 	public void setSliderHeight(int height) {
 		sliderHeight = height;
 	}
