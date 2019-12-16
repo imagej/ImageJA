@@ -189,9 +189,7 @@ public class RoiProperties {
 			justification = gd.getNextChoiceIndex();
 		}
 		
-		int newGroup = (int)gd.getNextNumber();
-		group = (newGroup>=0) ? newGroup : group; // update roi group only if a positive value is entered 
-		roi.setGroup(group);
+		roi.setGroup((int)gd.getNextNumber());
 		
 		if (!isLine) {
 			if (isPoint) {
@@ -260,7 +258,7 @@ public class RoiProperties {
 				rois[i].setStrokeColor(strokeColor);
 				rois[i].setStrokeWidth((float)strokeWidth);
 				rois[i].setFillColor(fillColor);
-				rois[i].setGroup(group); // test ?
+				rois[i].setGroup(group);
 			}
 			imp.draw();
 			imp.getProcessor(); // needed for correct recordering

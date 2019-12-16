@@ -1411,7 +1411,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			if (color!=null) roi.setStrokeColor(color);
 			if (lineWidth>=0) roi.setStrokeWidth(lineWidth);
 			roi.setFillColor(fillColor);
-			roi.setGroup(group); // currently set the StrokeColor too
+			roi.setGroup(group); // overwrite the strokeColor for group>=0
 			if (rpRoi!=null && n==1) {
 				if (rpRoi.hasHyperStackPosition())
 					roi.setPosition(rpRoi.getCPosition(), rpRoi.getZPosition(), rpRoi.getTPosition());
@@ -1440,7 +1440,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		if (roi!=null && (n==1||!showingAll)) {
 			if (lineWidth>=0) roi.setStrokeWidth(lineWidth);
 			if (color!=null) roi.setStrokeColor(color);
-			roi.setGroup(group); //currently replace the color
+			roi.setGroup(group); // replace the StrokeColor for group>=0
 			if (fillColor!=null) roi.setFillColor(fillColor);
 			if (roi!=null && (roi instanceof TextRoi)) {
 				((TextRoi)roi).setCurrentFont(font);

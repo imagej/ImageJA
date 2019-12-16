@@ -55,12 +55,12 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	
 	public static Roi previousRoi;  //for Edit>Selection>Restore Selection
 	public static final BasicStroke onePixelWide = new BasicStroke(1);
-	//protected static Color ROIColor = Prefs.getColor(Prefs.ROICOLOR,Color.yellow);
-	protected static Color ROIColor = Color.yellow; // contains the current group color. As long as the currentGroup is not stored in prefs, initilaised color=yellow and group=0
+	protected static Color ROIColor = Prefs.getColor(Prefs.ROICOLOR,Color.yellow);
 	protected static int pasteMode = Blitter.COPY;
 	protected static int lineWidth = 1;
 	protected static Color defaultFillColor;
-	protected static int currentGroup = 0; 
+	protected static int currentGroup = -1; // initialize with no specific group
+	protected static Color groupColor;
 	private static Vector listeners = new Vector();
 
 		
@@ -127,7 +127,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		this.x = x;
 		this.y = y;
 		this.group = currentGroup; //initialize with current selected Group and associated color
-		this.strokeColor = ROIColor;
+		this.strokeColor = (currentGroup>=0)?groupColor:ROIColor;
 		startX = x; startY = y;
 		oldX = x; oldY = y; oldWidth=0; oldHeight=0;
 		this.width = width;
@@ -178,7 +178,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		setLocation(ox, oy);
 		this.cornerDiameter = cornerDiameter;
 		this.group = currentGroup;
-		this.strokeColor = ROIColor;
+		this.strokeColor = (currentGroup>=0)?groupColor:ROIColor;
 		width = 0;
 		height = 0;
 		state = CONSTRUCTING;
@@ -2176,11 +2176,11 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	}
 	
 	
-	/** Set group value assigned to newly created ROI, and update default ROI color accordingly **/
+	/** Set group value assigned to newly created ROI, and update default group color accordingly **/
 	public static void setCurrentGroup(int group) {
 		currentGroup = group;
 		Color color = getGroupColor(group);
-		setColor(color); //update the default Roi Color to the new group
+		groupColor = color;
 	}
 	
 	/** Return group attribute of this ROI **/
@@ -2191,20 +2191,24 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	/** Set the group of the Roi, and update stroke color accordingly **/
 	public void setGroup(int group) {
 		this.group = group;
-		Color color = getGroupColor(group);
-		this.strokeColor = color;
-		notifyListeners(RoiListener.MODIFIED);
 		
-		if (imp!=null) { // Update Roi Color in the GUI
-			imp.draw();
+		// Update color if it is assigned to a positive group
+		if (group>=0) {
+			Color color = getGroupColor(group);
+			this.strokeColor = color;
+			notifyListeners(RoiListener.MODIFIED);
+				
+			if (imp!=null) { // Update Roi Color in the GUI
+				imp.draw();
+				}
 		}
 	}
 	
 	/** Retrieve color associated to a given roi group **/
 	private static Color getGroupColor(int group) {
-		Color color = Color.YELLOW; // default yellow for 0 and negative
+		Color color = ROIColor; // default ROI color for negative groups
 		
-		if (group>0) { // other group: read Glasbey Lut
+		if (group>=0) { // read Glasbey Lut
 			Path lutPath = Paths.get(IJ.getDirectory("luts"), "Glasbey.lut");
 			LUT lut = LutLoader.openLut( lutPath.toString() );
 			color =  new Color( lut.getRGB(group) );
