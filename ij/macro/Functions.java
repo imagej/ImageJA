@@ -215,7 +215,7 @@ public class Functions implements MacroConstants, Measurements {
 			case SELECTION_TYPE: value=getSelectionType(); break;
 			case IS_OPEN: value=isOpen(); break;
 			case IS_ACTIVE: value=isActive(); break;
-			case INDEX_OF: value=indexOf(); break;
+			case INDEX_OF: value=indexOf(null); break;
 			case LAST_INDEX_OF: value=getFirstString().lastIndexOf(getLastString()); break;
 			case CHAR_CODE_AT: value=charCodeAt(); break;
 			case GET_BOOLEAN: value=getBoolean(); break;
@@ -233,7 +233,7 @@ public class Functions implements MacroConstants, Measurements {
 			case IS: value = is(); break;
 			case GET_VALUE: value = getValue(); break;
 			case STACK: value = doStack(); break;
-			case MATCHES: value = matches(); break;
+			case MATCHES: value = matches(null); break;
 			case GET_STRING_WIDTH: value = getStringWidth(); break;
 			case FIT: value = fit(); break;
 			case OVERLAY: value = overlay(); break;
@@ -253,7 +253,7 @@ public class Functions implements MacroConstants, Measurements {
 			case TO_BINARY: str = toString(2); break;
 			case GET_TITLE: interp.getParens(); str=getImage().getTitle(); break;
 			case GET_STRING: str = getStringDialog(); break;
-			case SUBSTRING: str = substring(); break;
+			case SUBSTRING: str=substring(null); break;
 			case FROM_CHAR_CODE: str = fromCharCode(); break;
 			case GET_INFO: str = getInfo(); break;
 			case GET_IMAGE_INFO: interp.getParens(); str = getImageInfo(); break;
@@ -264,7 +264,7 @@ public class Functions implements MacroConstants, Measurements {
 			case RUN_MACRO: str = runMacro(false); break;
 			case EVAL: str = runMacro(true); break;
 			case TO_STRING: str = doToString(); break;
-			case REPLACE: str = replace(); break;
+			case REPLACE: str = replace(null); break;
 			case DIALOG: str = doDialog(); break;
 			case GET_METADATA: str = getMetadata(); break;
 			case FILE: str = doFile(); break;
@@ -1698,6 +1698,8 @@ public class Functions implements MacroConstants, Measurements {
 	double getSelectionType() {
 		interp.getParens();
 		double type = -1;
+		if (WindowManager.getImageCount()==0)
+			return type;
 		ImagePlus imp = getImage();
 		Roi roi = imp.getRoi();
 		if (roi!=null)
@@ -2615,10 +2617,10 @@ public class Functions implements MacroConstants, Measurements {
 		}
 	}
 
-	String substring() {
-		String s = getFirstString();
-		int index1 = (int)getNextArg();
-		int index2 = s.length();
+	String substring(String s) {
+		s = getStringFunctionArg(s);
+		int index1 = (int)interp.getExpression();
+		int index2 = s.length();	
 		if (interp.nextToken()==',')
 			index2 = (int)getLastArg();
 		else
@@ -2629,10 +2631,19 @@ public class Functions implements MacroConstants, Measurements {
 		checkIndex(index2, 0, s.length());
 		return s.substring(index1, index2);
 	}
+	
+	private String getStringFunctionArg(String s) {
+		if (s==null) {
+			s=getFirstString();
+			interp.getComma();
+		} else
+			interp.getLeftParen();
+		return s;
+	}
 
-	int indexOf() {
-		String s1 = getFirstString();
-		String s2 = getNextString();
+	int indexOf(String s1) {
+		s1 = getStringFunctionArg(s1);
+		String s2 = getString();
 		int fromIndex = 0;
 		if (interp.nextToken()==',') {
 			fromIndex = (int)getLastArg();
@@ -3743,9 +3754,9 @@ public class Functions implements MacroConstants, Measurements {
 		}
 	}
 
-	String replace() {
-		String s1 = getFirstString();
-		String s2 = getNextString();
+	String replace(String s1) {
+		s1 = getStringFunctionArg(s1);
+		String s2 = getString();
 		String s3 = getLastString();
 		if (s2.length()==1 && s3.length()==1)
 			return s1.replace(s2.charAt(0), s3.charAt(0));
@@ -4536,6 +4547,9 @@ public class Functions implements MacroConstants, Measurements {
 			ImageConverter.setDoScaling(state);
 		else if (arg1.startsWith("copyhead"))
 			Prefs.copyColumnHeaders = state;
+		//else if (arg1.startsWith("saveimageloc")) {
+		//	Prefs.saveImageLocation = state;
+		//	if (!state) Prefs.set(ImageWindow.LOC_KEY,null);
 		else
 			interp.error("Invalid option");
 	}
@@ -5311,13 +5325,18 @@ public class Functions implements MacroConstants, Measurements {
 		return s;
 	}
 
-	double matches() {
-		String str = getFirstString();
-		String regex = getLastString();
-		boolean matches = str.matches(regex);
-		return matches?1.0:0.0;
+	double matches(String str) {
+		str = getStringFunctionArg(str);
+		String regex = getString();
+		interp.getRightParen();
+		try {
+			return str.matches(regex)?1.0:0.0;
+		} catch (Exception e) {
+			interp.error(""+e);
+			return 0.0;
+		}
 	}
-
+	
 	void waitForUser() {
 		IJ.wait(50);
 		if (waitForUserDialog!=null && waitForUserDialog.isShowing())
@@ -7258,6 +7277,19 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!=WORD)
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
+		if (name.equals("getDefaultStrokeWidth")) {
+			interp.getParens();
+			return new Variable(Roi.getDefaultStrokeWidth());
+		} else if (name.equals("setDefaultStrokeWidth")) {
+			Roi.setDefaultStrokeWidth(getArg());
+			return null;
+		} else if (name.equals("getDefaultGroup")) {
+			interp.getParens();
+			return new Variable(Roi.getDefaultGroup());
+		} else if (name.equals("setDefaultGroup")) {
+			Roi.setDefaultGroup((int)getArg());
+			return null;
+		}
 		ImagePlus imp = getImage();
 		if (name.equals("paste")) {
 			interp.getParens();
@@ -7313,6 +7345,12 @@ public class Functions implements MacroConstants, Measurements {
 			interp.getParens();
 			String roiName = roi.getName();
 			return new Variable(roiName!=null?roiName:"");
+		} else if (name.equals("getGroup")) {
+			interp.getParens();
+			return new Variable(roi.getGroup());
+		} else if (name.equals("setGroup")) {
+			roi.setGroup((int)getArg());
+			return null;
 		} else if (name.equals("getProperty")) {
 			String property = roi.getProperty(getStringArg());
 			return new Variable(property!=null?property:"");

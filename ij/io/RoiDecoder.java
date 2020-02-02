@@ -82,7 +82,7 @@ public class RoiDecoder {
 	public static final int NAME_LENGTH = 20;
 	public static final int OVERLAY_LABEL_COLOR = 24;
 	public static final int OVERLAY_FONT_SIZE = 28; //short
-	public static final int AVAILABLE_BYTE1 = 30;  //byte
+	public static final int GROUP = 30;  //byte
 	public static final int IMAGE_OPACITY = 31;  //byte
 	public static final int IMAGE_SIZE = 32;  //int
 	public static final int FLOAT_STROKE_WIDTH = 36;  //float
@@ -111,6 +111,7 @@ public class RoiDecoder {
 	public static final int SHOW_LABELS = 1024;
 	public static final int SCALE_LABELS = 2048;
 	public static final int PROMPT_BEFORE_DELETING = 4096; //points
+	public static final int SCALE_STROKE_WIDTH = 8192;
 	
 	// types
 	private final int polygon=0, rect=1, oval=2, line=3, freeline=4, polyline=5, noRoi=6,
@@ -180,10 +181,14 @@ public class RoiDecoder {
 		int channel=0, slice=0, frame=0;
 		int overlayLabelColor=0;
 		int overlayFontSize=0;
+		int group=0;
 		int imageOpacity=0;
 		int imageSize=0;
 		boolean subPixelResolution = (options&SUB_PIXEL_RESOLUTION)!=0 &&  version>=222;
 		boolean drawOffset = subPixelResolution && (options&DRAW_OFFSET)!=0;
+		boolean scaleStrokeWidth = true;
+		if (version>=228)
+			scaleStrokeWidth = (options&SCALE_STROKE_WIDTH)!=0;
 		
 		boolean subPixelRect = version>=223 && subPixelResolution && (type==rect||type==oval);
 		double xd=0.0, yd=0.0, widthd=0.0, heightd=0.0;
@@ -202,6 +207,7 @@ public class RoiDecoder {
 			overlayFontSize = getShort(hdr2Offset+OVERLAY_FONT_SIZE);
 			imageOpacity = getByte(hdr2Offset+IMAGE_OPACITY);
 			imageSize = getInt(hdr2Offset+IMAGE_SIZE);
+			group = getByte(hdr2Offset+GROUP);
 		}
 		
 		if (name!=null && name.endsWith(".roi"))
@@ -212,7 +218,7 @@ public class RoiDecoder {
 		if (isComposite) {
 			roi = getShapeRoi();
 			if (version>=218)
-				getStrokeWidthAndColor(roi, hdr2Offset);
+				getStrokeWidthAndColor(roi, hdr2Offset, scaleStrokeWidth);
 			roi.setPosition(position);
 			if (channel>0 || slice>0 || frame>0)
 				roi.setPosition(channel, slice, frame);
@@ -348,7 +354,7 @@ public class RoiDecoder {
 		
 		// read stroke width, stroke color and fill color (1.43i or later)
 		if (version>=218) {
-			getStrokeWidthAndColor(roi, hdr2Offset);
+			getStrokeWidthAndColor(roi, hdr2Offset, scaleStrokeWidth);
 			if (type==point)
 				roi.setStrokeWidth(0);
 			boolean splineFit = (options&SPLINE_FIT)!=0;
@@ -373,6 +379,10 @@ public class RoiDecoder {
 			if (counters!=null && (roi instanceof PointRoi))
 				((PointRoi)roi).setCounters(counters);
 		}
+		
+		// set group (1.52t or later)
+		if (version>=228 && group>0)
+			roi.setGroup(group);
 
 		roi.setPosition(position);
 		if (channel>0 || slice>0 || frame>0)
@@ -396,15 +406,19 @@ public class RoiDecoder {
 		roi.setPrototypeOverlay(proto);
 	}
 
-	void getStrokeWidthAndColor(Roi roi, int hdr2Offset) {
+	void getStrokeWidthAndColor(Roi roi, int hdr2Offset, boolean scaleStrokeWidth) {
 		double strokeWidth = getShort(STROKE_WIDTH);
 		if (hdr2Offset>0) {
 			double strokeWidthD = getFloat(hdr2Offset+FLOAT_STROKE_WIDTH);
 			if (strokeWidthD>0.0)
 				strokeWidth = strokeWidthD;
 		}
-		if (strokeWidth>0.0)
-			roi.setStrokeWidth(strokeWidth);
+		if (strokeWidth>0.0) {
+			if (scaleStrokeWidth)
+				roi.setStrokeWidth(strokeWidth);
+			else
+				roi.setUnscalableStrokeWidth(strokeWidth);
+		}
 		int strokeColor = getInt(STROKE_COLOR);
 		if (strokeColor!=0) {
 			int alpha = (strokeColor>>24)&0xff;

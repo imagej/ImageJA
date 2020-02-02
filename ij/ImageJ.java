@@ -77,8 +77,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.52s";
-	public static final String BUILD = ""; //82
+	public static final String VERSION = "1.52t";
+	public static final String BUILD = "";  //51
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -417,6 +417,8 @@ public class ImageJ extends Frame implements ActionListener,
 		boolean control = (flags & KeyEvent.CTRL_MASK) != 0;
 		boolean alt = (flags & KeyEvent.ALT_MASK) != 0;
 		boolean meta = (flags & KeyEvent.META_MASK) != 0;
+		if (keyCode==KeyEvent.VK_H && meta && IJ.isMacOSX())
+			return; // Allow macOS to run ImageJ>Hide ImageJ command
 		String cmd = null;
 		ImagePlus imp = WindowManager.getCurrentImage();
 		boolean isStack = (imp!=null) && (imp.getStackSize()>1);
@@ -830,6 +832,7 @@ public class ImageJ extends Frame implements ActionListener,
 		}
 		if (applet==null) {
 			saveWindowLocations();
+			Prefs.set(ImageWindow.LOC_KEY,null); // don't save image window location
 			Prefs.savePreferences();
 		}
 		IJ.cleanup();

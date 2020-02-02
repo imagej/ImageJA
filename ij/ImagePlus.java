@@ -1064,16 +1064,22 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     		return title;
     }
 
-	/** Returns a shortened version of image name that does not
-		include spaces or a file name extension. */
+	/** If the image title is a file name, returns the name
+		without the extension and with spaces removed,
+		otherwise returns the title shortened to the first space.
+	*/	
 	public String getShortTitle() {
-		String title = getTitle();
-		int index = title.indexOf(' ');
-		if (index>-1)
+		String title = getTitle().trim();
+		int index = title.lastIndexOf('.');
+		boolean fileName = index>0;
+		if (fileName) {
 			title = title.substring(0, index);
-		index = title.lastIndexOf('.');
-		if (index>0)
-			title = title.substring(0, index);
+			title = title.replaceAll(" ","");
+		} else {
+			index = title.indexOf(' ');
+			if (index>-1 && !fileName)
+				title = title.substring(0, index);
+		}
 		return title;
     }
 
@@ -2439,24 +2445,23 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
     /** Displays the cursor coordinates and pixel value in the status bar.
-    	Called by ImageCanvas when the mouse moves. Can be overridden by
-    	ImagePlus subclasses.
+	 * Called by ImageCanvas when the mouse moves.
     */
 	public void mouseMoved(int x, int y) {
 		Roi roi2 = getRoi();
 		if (ij!=null && !IJ.statusBarProtected() && (roi2==null || roi2.getState()==Roi.NORMAL))
 			ij.showStatus(getLocationAsString(x,y) + getValueAsString(x,y));
-		savex=x; savey=y;
 	}
 
-    private int savex, savey;
-
     /** Redisplays the (x,y) coordinates and pixel value (which may
-		have changed) in the status bar. Called by the Next Slice and
-		Previous Slice commands to update the z-coordinate and pixel value.
+	 * have changed) in the status bar. Called by the Next Slice and
+	 * Previous Slice commands to update the z-coordinate and pixel value.
     */
 	public void updateStatusbarValue() {
-		IJ.showStatus(getLocationAsString(savex,savey) + getValueAsString(savex,savey));
+		ImageCanvas ic = getCanvas();
+		Point loc = ic!=null?ic.getCursorLoc():null;
+		if (loc!=null)
+			mouseMoved(loc.x,loc.y);
 	}
 
 	String getFFTLocation(int x, int y, Calibration cal) {
@@ -2674,6 +2679,20 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
 	public static void removeImageListener(ImageListener listener) {
 		listeners.removeElement(listener);
+	}
+	
+	/** For debug purposes, writes all registered (and possibly,
+		forgotten) ImageListeners to the log window */
+	public static void logImageListeners() {
+		if (listeners.size() == 0)
+			IJ.log("No ImageListeners");
+		else {
+			for (Object li : listeners) {
+				IJ.log("imageListener: "+li);
+				if (li instanceof Window)
+					IJ.log("   ("+(((Window)li).isShowing() ? "showing" : "invisible")+")");
+			}
+		}
 	}
 
 	public void setOpenAsHyperStack(boolean openAsHyperStack) {
@@ -3038,5 +3057,5 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
     public Plot getPlot() {
     	return plot;
     }
-
+    
 }

@@ -25,6 +25,7 @@ public class PolygonRoi extends Roi {
 	private boolean userCreated;
 	private boolean subPixel;
 	private boolean drawOffset;
+	private int boxSize = 8;
 
 	long mouseUpTime = 0;
 
@@ -89,7 +90,7 @@ public class PolygonRoi extends Roi {
 		else if (type==POINT)
 			this.type = POINT;
 		else
-			throw new IllegalArgumentException("Invalid type");
+			throw new IllegalArgumentException("PolygonRoi: Invalid type");
 	}
 
 	private void init2(int type) {
@@ -184,12 +185,13 @@ public class PolygonRoi extends Roi {
 		if (lineWidth>1 && isLine())
 			updateWideLine(lineWidth);
 		drawOffset = subPixelResolution();
+		boxSize = (int)(boxSize*Prefs.getGuiScale());
 	}
 
 	private void drawStartBox(Graphics g) {
 		if (type!=ANGLE) {
 			double offset = getOffset(0.5);
-			g.drawRect(ic.screenXD(startXD+offset)-4, ic.screenYD(startYD+offset)-4, 8, 8);
+			g.drawRect(ic.screenXD(startXD+offset)-boxSize/2, ic.screenYD(startYD+offset)-boxSize/2, boxSize, boxSize);
 		}
 	}
 	
@@ -247,22 +249,23 @@ public class PolygonRoi extends Roi {
 				drawStartBox(g);
 		}
 		if (hasHandles	&& clipboard==null && !overlay) {
-			int size2 = HANDLE_SIZE/2;
 			if (activeHandle>0)
-				drawHandle(g, xp2[activeHandle-1]-size2, yp2[activeHandle-1]-size2);
+				drawHandle(g, xp2[activeHandle-1], yp2[activeHandle-1]);
 			if (activeHandle<nPoints-1)
-				drawHandle(g, xp2[activeHandle+1]-size2, yp2[activeHandle+1]-size2);
-			handleColor= strokeColor!=null? strokeColor:ROIColor; drawHandle(g, xp2[0]-size2, yp2[0]-size2); handleColor=Color.white;
+				drawHandle(g, xp2[activeHandle+1], yp2[activeHandle+1]);
+			handleColor= strokeColor!=null? strokeColor:ROIColor; drawHandle(g, xp2[0], yp2[0]); handleColor=Color.white;
 			for (int i=1; i<nPoints; i++)
-				drawHandle(g, xp2[i]-size2, yp2[i]-size2);
+				drawHandle(g, xp2[i], yp2[i]);
 		}
 		drawPreviousRoi(g);
 		if (!(state==MOVING_HANDLE||state==CONSTRUCTING||state==NORMAL))
 			showStatus();
-		if (updateFullWindow)
-			{updateFullWindow = false; imp.draw();}
+		if (updateFullWindow) {
+			updateFullWindow = false;
+			imp.draw();
+		}
 	}
-	
+
 	private void drawSpline(Graphics g, float[] xpoints, float[] ypoints, int npoints, boolean closed, boolean fill, boolean isActiveOverlayRoi) {
 		if (xpoints==null || xpoints.length==0)
 			return;
@@ -297,7 +300,7 @@ public class PolygonRoi extends Roi {
 		} else
 			g2d.draw(path);
 	}
-
+	
 	public void drawPixels(ImageProcessor ip) {
 		int saveWidth = ip.getLineWidth();
 		if (getStrokeWidth()>1f)
@@ -516,7 +519,7 @@ public class PolygonRoi extends Roi {
 		if (y2>ymax) ymax=y2;
 		if (oy>ymax) ymax=oy;
 		//clip = new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
-		int margin = 4;
+		int margin = boxSize;
 		if (ic!=null) {
 			double mag = ic.getMagnification();
 			if (mag<1.0) margin = (int)(margin/mag);
@@ -588,6 +591,7 @@ public class PolygonRoi extends Roi {
 		if (type!=POINT) modifyRoi();
 		LineWidthAdjuster.update();
 		notifyListeners(RoiListener.COMPLETED);
+		updateFullWindow = true;
 	}
 	
 	public void exitConstructingMode() {
@@ -672,7 +676,7 @@ public class PolygonRoi extends Roi {
 		if (yClipMax>ymax2) ymax2 = yClipMax;
 		xClipMin=xmin; yClipMin=ymin; xClipMax=xmax; yClipMax=ymax;
 		double mag = ic.getMagnification();
-		int handleSize = type==POINT?HANDLE_SIZE+25:HANDLE_SIZE;
+		int handleSize = type==POINT?getHandleSize()+25:getHandleSize();
 		double strokeWidth = getStrokeWidth();
 		if (strokeWidth<1.0) strokeWidth=1.0;
 		if (handleSize<strokeWidth && isLine())
@@ -1070,8 +1074,10 @@ public class PolygonRoi extends Roi {
 			samePoint = (xpf[nPoints-2]==xpf[nPoints-1] && ypf[nPoints-2]==ypf[nPoints-1]);
 		else
 			samePoint = (xp[nPoints-2]==xp[nPoints-1] && yp[nPoints-2]==yp[nPoints-1]);
-		boolean doubleClick = (System.currentTimeMillis()-mouseUpTime)<=250;
-		Rectangle biggerStartBox = new Rectangle(ic.screenXD(startXD)-5, ic.screenYD(startYD)-5, 10, 10);
+		boolean doubleClick = (System.currentTimeMillis()-mouseUpTime)<=300;
+		int size = boxSize+2;
+		int size2 = boxSize/2 +1;
+		Rectangle biggerStartBox = new Rectangle(ic.screenXD(startXD)-size2, ic.screenYD(startYD)-size2, size, size);
 		if (nPoints>2 && (biggerStartBox.contains(sx, sy)
 		|| (ic.offScreenXD(sx)==startXD && ic.offScreenYD(sy)==startYD)
 		|| (samePoint && doubleClick))) {
@@ -1187,7 +1193,7 @@ public class PolygonRoi extends Roi {
 	public int isHandle(int sx, int sy) {
 		if (!(xSpline!=null||type==POLYGON||type==POLYLINE||type==ANGLE||type==POINT)||clipboard!=null)
 		   return -1;
-		int size = HANDLE_SIZE+5;
+		int size = getHandleSize()+5;
 		int halfSize = size/2;
 		int handle = -1;
 		int sx2, sy2;
