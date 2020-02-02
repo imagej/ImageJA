@@ -18,6 +18,7 @@ public class VirtualStack extends ImageStack {
 	private String[] labels;
 	private int bitDepth;
 	private Properties  properties;
+	private boolean generateData;
 
 	
 	/** Default constructor. */
@@ -37,12 +38,11 @@ public class VirtualStack extends ImageStack {
 	*/
 	public VirtualStack(int width, int height, ColorModel cm, String path) {
 		super(width, height, cm);
-		if (path.length()>0 && !(path.endsWith(File.separator)||path.endsWith("/")))
+		if (path!=null && path.length()>0 && !(path.endsWith(File.separator)||path.endsWith("/")))
 			path = path + "/";
 		this.path = path;
 		names = new String[INITIAL_SIZE];
 		labels = new String[INITIAL_SIZE];
-		//IJ.log("VirtualStack: "+path);
 	}
 
 	/** Creates a virtual stack with no backing storage.
@@ -54,9 +54,18 @@ public class VirtualStack extends ImageStack {
 	</pre>
 	*/
 	public VirtualStack(int width, int height, int slices) {
+		this(width, height, slices, "8-bit");
+	}
+
+	public VirtualStack(int width, int height, int slices, String options) {
 		super(width, height, null);
 		nSlices = slices;
-		bitDepth = 8;
+		int depth = 8;
+  		if (options.contains("16-bit")) depth=16;
+ 	    if (options.contains("RGB")) depth=24;
+        if (options.contains("32-bit")) depth=32;
+        this.generateData = options.contains("fill");
+		this.bitDepth = depth;
 	}
 
 	/** Adds an image to the end of the stack. The argument 
@@ -130,8 +139,27 @@ public class VirtualStack extends ImageStack {
 		were 1<=n<=nslices. Returns null if the stack is empty.
 	*/
 	public ImageProcessor getProcessor(int n) {
-		if (path==null) {
-			ImageProcessor ip = new ByteProcessor(getWidth(), getHeight());
+		if (path==null) {  //Help>Examples?JavaScript>Terabyte VirtualStack
+			ImageProcessor ip = null;
+			int w=getWidth(), h=getHeight();
+			switch (bitDepth) {
+				case 8: ip = new ByteProcessor(w,h); break;
+				case 16: ip = new ShortProcessor(w,h); break;
+				case 24: ip = new ColorProcessor(w,h); break;
+				case 32: ip = new FloatProcessor(w,h); break;
+			}
+			if (generateData) {
+				int value = 0;
+				ImagePlus img = WindowManager.getCurrentImage();
+				if (img!=null && img.getStackSize()==nSlices)
+					value = img.getCurrentSlice()-1;
+				if (bitDepth==16)
+					value *= 256;
+				if (bitDepth!=32) {
+					for (int i=0; i<ip.getPixelCount(); i++)
+						ip.set(i,value++);
+				}
+			}
 			label(ip, ""+n, Color.white);
 			return ip;
 		}
@@ -240,7 +268,7 @@ public class VirtualStack extends ImageStack {
 	/** Returns the path to the directory containing the images. */
 	public String getDirectory() {
 		String path2 = path;
-		if (!(path2.endsWith("/") || path2.endsWith(File.separator)))
+		if (path2!=null && !(path2.endsWith("/") || path2.endsWith(File.separator)))
 			path2 = path2 + "/";
 		return path2;
 	}

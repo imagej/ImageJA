@@ -64,11 +64,11 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private boolean customInsets;
 	private Vector sliderIndexes, sliderScales, sliderDigits;
 	private Checkbox previewCheckbox;    // the "Preview" Checkbox, if any
-	private Vector dialogListeners;             // the Objects to notify on user input
+	private Vector dialogListeners;      // the Objects to notify on user input
 	private PlugInFilterRunner pfr;      // the PlugInFilterRunner for automatic preview
 	private String previewLabel = " Preview";
 	private final static String previewRunning = "wait...";
-	private boolean recorderOn;         // whether recording is allowed
+	private boolean recorderOn;          // whether recording is allowed (after the dialog is closed)
 	private char echoChar;
 	private boolean hideCancelButton;
 	private boolean centerDialog = true;
@@ -89,7 +89,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		this(title, getParentFrame());
 	}
 
-	private static Frame getParentFrame() {
+	static Frame getParentFrame() {
 		Frame parent = WindowManager.getCurrentImage()!=null?
 			(Frame)WindowManager.getCurrentImage().getWindow():IJ.getInstance()!=null?IJ.getInstance():new Frame();
 		if (IJ.isMacOSX() && IJ.isJava18()) {
@@ -873,7 +873,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		okay.setLabel(yesLabel);
 		if (no != null)
 			no.setLabel(noLabel);
-		else
+		else if (noLabel!=null)
 			no = new Button(noLabel);
 	}
 
@@ -1275,16 +1275,16 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 				setFont(font.deriveFont((float)(font.getSize()*Prefs.getGuiScale())));
 			}
 			pack();
+
+			if (okay!=null && numberField==null && stringField==null && checkbox==null
+			&& choice==null && slider==null && radioButtonGroups==null && textArea1==null)
+				okay.requestFocusInWindow();
 			setup();
 			if (centerDialog)
 				GUI.centerOnImageJScreen(this);
-			setVisible(true);
-			recorderOn = Recorder.record;
-			IJ.wait(25);
+			setVisible(true);					//except for NonBlockingGenericDialog, returns after 'dispose' by OK or Cancel
+
 		}
-		if (!(this instanceof NonBlockingGenericDialog))
-			finalizeRecording();
-		resetCounters();
 	}
 
 	@Override
@@ -1311,7 +1311,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	}
 
     /** Reset the counters before reading the dialog parameters */
-	private void resetCounters() {
+	void resetCounters() {
 		nfIndex = 0;        // prepare for readout
 		sfIndex = 0;
 		cbIndex = 0;
@@ -1362,8 +1362,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
   	}
 
   	/** Returns a reference to the Label or MultiLineLabel created by the
-  	 *	last addMessage() call, or the Label of the last addNumericField, addSlider,
-  	 *	addStringField or addCoice. Otherwise returns null. */
+  	 *	last addMessage() call. Otherwise returns null. */
   	public Component getMessage() {
   		return theLabel;
   	}
@@ -1572,13 +1571,14 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
                 if (this instanceof NonBlockingGenericDialog)
                 	Recorder.resetCommandOptions();
                 if (!((DialogListener)dialogListeners.elementAt(i)).dialogItemChanged(this, e))
-                    everythingOk = false; }         // disable further listeners if false (invalid parameters) returned
-            catch (Exception err) {                 // for exceptions, don't cover the input by a window but
+                    everythingOk = false;         // disable further listeners if false (invalid parameters) returned
+            } catch (Exception err) {                 // for exceptions, don't cover the input by a window but
                 IJ.beep();                          // show them at in the "Log"
                 IJ.log("ERROR: "+err+"\nin DialogListener of "+dialogListeners.elementAt(i)+
                 "\nat "+(err.getStackTrace()[0])+"\nfrom "+(err.getStackTrace()[1]));  //requires Java 1.4
             }
         boolean workaroundOSXbug = IJ.isMacOSX() && okay!=null && !okay.isEnabled() && everythingOk;
+	if (recorderOn && everythingOk)
         if (previewCheckbox!=null)
             previewCheckbox.setEnabled(everythingOk);
         if (okay!=null)
@@ -1644,9 +1644,18 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		return instance;
 	}
 
+	/** Closes the dialog; records the options */
 	public void dispose() {
 		super.dispose();
 		instance = null;
+
+		if (!macro) {
+			recorderOn = Recorder.record;
+			IJ.wait(25);
+		}
+		resetCounters();
+		finalizeRecording();
+		resetCounters();
 	}
 
     public void windowActivated(WindowEvent e) {}
