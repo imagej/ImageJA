@@ -5,4 +5,20 @@
   macro "Brush Built-in Tool" {}
   macro "Flood Filler Built-in Tool" {}
   macro "Arrow Built-in Tool" {}
+  
+  // Numeric keypad shortcuts used to set the default ROI group
+  macro "Numeric Pad 0 [n0]" { npad(0); }
+  macro "Numeric Pad 1 [n1]" { npad(1); }
+  macro "Numeric Pad 2 [n2]" { npad(2); }
+  macro "Numeric Pad 3 [n3]" { npad(3); }
+  macro "Numeric Pad 4 [n4]" { npad(4); }
+  macro "Numeric Pad 5 [n5]" { npad(5); }
+  macro "Numeric Pad 6 [n6]" { npad(6); }
+  macro "Numeric Pad 7 [n7]" { npad(7); }
+  macro "Numeric Pad 8 [n8]" { npad(8); }
+  macro "Numeric Pad 9 [n9]" { npad(9); }
+
+  function npad(digit) {
+      Roi.setDefaultGroup(digit);
+  }
 
