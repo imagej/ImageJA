@@ -4,6 +4,7 @@ import ij.gui.*;
 import ij.process.*;
 import ij.measure.*;
 import ij.util.Tools;
+import ij.plugin.frame.Recorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -216,6 +217,7 @@ public class Resizer implements PlugIn, TextListener, ItemListener  {
 			imp.setDisplayRange(min, max);
 			imp.updateAndDraw();
 		}
+		Scaler.record(imp, newWidth, newHeight, 1, interpolationMethod);	
 	}
 
 	public ImagePlus zScale(ImagePlus imp, int newDepth, int interpolationMethod) {

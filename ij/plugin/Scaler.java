@@ -4,6 +4,7 @@ import ij.gui.*;
 import ij.process.*;
 import ij.measure.*;
 import ij.util.Tools;
+import ij.plugin.frame.Recorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -53,9 +54,13 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		ip.setBackgroundValue(bgValue);
 		imp.startTiming();
 		try {
-			if (newWindow && imp.getStackSize()>1 && processStack)
-				createNewStack(imp, ip);
-			else {
+			if (newWindow && imp.getStackSize()>1 && processStack) {
+				ImagePlus imp2 = createNewStack(imp, ip, newWidth, newHeight, newDepth);
+				if (imp2!=null) {
+					imp2.show();
+					imp2.changes = true;
+				}
+			} else {
 				Overlay overlay = imp.getOverlay();
 				if (imp.getHideOverlay())
 					overlay = null;
@@ -70,9 +75,34 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			IJ.outOfMemory("Scale");
 		}
 		IJ.showProgress(1.0);
+		record(imp, newWidth, newHeight, newDepth, interpolationMethod);			
 	}
 	
-	void createNewStack(ImagePlus imp, ImageProcessor ip) {
+	/** Returns a scaled copy of this image or ROI, where the
+		 'options'  string can contain 'none', 'bilinear'. 'bicubic',
+		'slice' and 'constrain'.
+	*/
+	public static ImagePlus resize(ImagePlus imp, int dstWidth, int dstHeight, int dstDepth, String options) {
+		if (options==null)
+			options = "";
+		Scaler scaler = new Scaler();
+		if (options.contains("none"))
+			scaler.interpolationMethod = ImageProcessor.NONE;
+		if (options.contains("bicubic"))
+			scaler.interpolationMethod = ImageProcessor.BICUBIC;
+		boolean processStack = imp.getStackSize()>1 && !options.contains("slice");
+		//return new ImagePlus("Untitled", ip.resize(dstWidth, dstHeight, useAveraging));
+		Roi roi = imp.getRoi();
+		ImageProcessor ip = imp.getProcessor();
+		if (roi!=null && !roi.isArea())
+			ip.resetRoi();
+		scaler.doZScaling = dstDepth!=1;
+		if (scaler.doZScaling)
+			scaler.processStack = true;
+		return scaler.createNewStack(imp, ip, dstWidth, dstHeight, dstDepth);
+	}
+	
+	private ImagePlus createNewStack(ImagePlus imp, ImageProcessor ip, int newWidth, int newHeight, int newDepth) {
 		int nSlices = imp.getStackSize();
 		int w=imp.getWidth(), h=imp.getHeight();
 		ImagePlus imp2 = imp.createImagePlus();
@@ -144,10 +174,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			resizer.setAverageWhenDownsizing(averageWhenDownsizing);
 			imp2 = resizer.zScale(imp2, newDepth, interpolationMethod);
 		}
-		if (imp2!=null) {
-			imp2.show();
-			imp2.changes = true;
-		}
+		return imp2;
 	}
 
 	private void scale(ImageProcessor ip, Overlay overlay) {
@@ -167,7 +194,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 					ImageRoi iroi = (ImageRoi)roi;
 					ImageProcessor processor = iroi.getProcessor();
 					processor.setInterpolationMethod(interpolationMethod);
-					processor =processor.resize(newWidth, newHeight, averageWhenDownsizing);
+					processor = processor.resize(newWidth, newHeight, averageWhenDownsizing);
 					iroi.setProcessor(processor);
 					imp2.setOverlay(new Overlay(iroi));
 				}
@@ -192,6 +219,19 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			imp.updateAndDraw();
 			imp.changes = true;
 		}
+	}
+	
+	public static void record(ImagePlus imp, int w2, int h2, int d2, int method) {
+		if (!Recorder.scriptMode())
+			return;
+		String options = "";
+		if (method==ImageProcessor.NONE)
+			options = "none";
+		else if (method==ImageProcessor.BICUBIC)
+			options = "bicubic";
+		else
+			options = "bilinear";
+		Recorder.recordCall("imp2 = imp.resize("+w2+", "+h2+(d2>0&&d2!=imp.getStackSize()?", "+d2:"")+", \""+options+"\");");
 	}
 	
 	boolean showDialog(ImageProcessor ip) {
@@ -336,7 +376,6 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 		}
 		gd.setSmartRecording(true);
 		title = gd.getNextString();
-
 		if (fillWithBackground) {
 			Color bgc = Toolbar.getBackgroundColor();
 			if (bitDepth==8)

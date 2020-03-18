@@ -2273,6 +2273,22 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		setRoi(roi);
 		return imp2;
 	}
+	
+	/** Returns a scaled copy of this image or ROI, where the
+		 'options'  string can contain 'none', 'bilinear'. 'bicubic',
+		'average' and 'constrain'.
+	*/
+	public ImagePlus resize(int dstWidth, int dstHeight, String options) {
+		return resize(dstWidth, dstHeight, 1, options);
+	}
+
+	/** Returns a scaled copy of this image or ROI, where the
+		 'options'  string can contain 'none', 'bilinear'. 'bicubic',
+		'average' and 'constrain'.
+	*/
+	public ImagePlus resize(int dstWidth, int dstHeight, int dstDepth, String options) {
+		return Scaler.resize(this, dstWidth, dstHeight, dstDepth, options);
+	}
 
 	/** Returns a copy this image or stack slice, cropped if there is an ROI.
 	 * @see #duplicate
@@ -2653,24 +2669,27 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public static void resetClipboard() {
 		clipboard = null;
 	}
-
-	protected void notifyListeners(int id) {
-		synchronized (listeners) {
-			for (int i=0; i<listeners.size(); i++) {
-				ImageListener listener = (ImageListener)listeners.elementAt(i);
-				switch (id) {
-					case OPENED:
-						listener.imageOpened(this);
-						break;
-					case CLOSED:
-						listener.imageClosed(this);
-						break;
-					case UPDATED:
-						listener.imageUpdated(this);
-						break;
+	
+	protected void notifyListeners(final int id) {
+	    final ImagePlus imp = this;
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				for (int i=0; i<listeners.size(); i++) {
+					ImageListener listener = (ImageListener)listeners.elementAt(i);
+					switch (id) {
+						case OPENED:
+							listener.imageOpened(imp);
+							break;
+						case CLOSED:
+							listener.imageClosed(imp);
+							break;
+						case UPDATED:
+							listener.imageUpdated(imp);
+							break;
+					}
 				}
 			}
-		}
+		});
 	}
 
 	public static void addImageListener(ImageListener listener) {
@@ -2903,6 +2922,16 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		imp1.setOverlay(overlay);
 		ImagePlus imp2 = imp1.flatten();
 		stack.setPixels(imp2.getProcessor().getPixels(), slice);
+	}
+	
+	public boolean tempOverlay() {
+		Overlay o = getOverlay();
+		if (o==null || o.size()!=1)
+			return false;
+		if ("Pixel Inspector".equals(o.get(0).getName()))
+			return true;
+		else
+			return false;
 	}
 
 	private void setPointScale(Roi roi2, Overlay overlay2) {

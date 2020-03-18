@@ -421,10 +421,14 @@ public class Plot implements Cloneable {
 
 	/** Sets the canvas size in (unscaled) pixels and sets the scale to 1.0.
 	 * If the scale remains 1.0, this will be the size of the resulting ImageProcessor.
-	 * When not called, the canvas size is adjusted for the plot frame size specified
-	 * by setFrameSize or otherwise in Edit>Options>Plots. */
+	 * When not called, the canvas size is adjusted for the plot size specified
+	 * by setFrameSize() or setWindowSize(), or otherwise in Edit>Options>Plots.
+	 * @see #setFrameSize(int,int)
+	 * @see #setWindowSize(int,int)
+	*/
 	public void setSize(int width, int height) {
-		if (ip != null && width == ip.getWidth() && height == ip.getHeight()) return;
+		if (ip != null && width == ip.getWidth() && height == ip.getHeight())
+			return;
 		Dimension minSize = getMinimumSize();
 		pp.width = Math.max(width, minSize.width);
 		pp.height = Math.max(height, minSize.height);
@@ -445,7 +449,9 @@ public class Plot implements Cloneable {
 	 *	This frame size in pixels divided by the data range defines the image scale.
 	 *	This method does not check for the minimum size MIN_FRAMEWIDTH, MIN_FRAMEHEIGHT.
 	 *	Note that the black frame will have an outer size that is one pixel larger
-	 *	(when plotted with a linewidth of one pixel). */
+	 *	(when plotted with a linewidth of one pixel).
+	 * @see #setWindowSize(int,int)
+	*/
 	public void setFrameSize(int width, int height) {
 		if (pp.width <= 0) {                //plot not drawn yet? Just remember as preferred size
 			preferredPlotWidth = width;
@@ -455,6 +461,38 @@ public class Plot implements Cloneable {
 			makeMarginValues();
 			width += leftMargin+rightMargin;
 			height += topMargin+bottomMargin;
+			setSize(width, height);
+		}
+	}
+
+	/** Sets the plot window size in pixels.
+	 * @see #setFrameSize(int,int)
+	*/
+	public void setWindowSize(int width, int height) {
+		scale = 1.0f;
+		makeMarginValues();
+		int titleBarHeight = 22;
+		int infoHeight = 11;
+		double scale = Prefs.getGuiScale();
+		if (scale>1.0)
+			infoHeight = (int)(infoHeight*scale);
+		int buttonPanelHeight = 45;
+		if (pp.width <= 0) {     //plot not drawn yet? 
+			int extraWidth = leftMargin+rightMargin+ImageWindow.HGAP*2;
+			int extraHeight = topMargin+bottomMargin+titleBarHeight+infoHeight+buttonPanelHeight;
+			if (extraWidth<width)
+				width -= extraWidth;
+			if (extraHeight<height)	
+				height -= extraHeight;
+			preferredPlotWidth = width;
+			preferredPlotHeight = height;
+		} else {
+			int extraWidth = ImageWindow.HGAP*2;
+			int extraHeight = titleBarHeight+infoHeight+buttonPanelHeight;
+			if (extraWidth<width)
+				width -= extraWidth;
+			if (extraHeight<height)	
+				height -= extraHeight;
 			setSize(width, height);
 		}
 	}
@@ -888,26 +926,28 @@ public class Plot implements Cloneable {
 		Hidden data sets are ignored.
 		If 'labels' is null or empty, the labels of the data set previously (if any) are used.
 		To modify the legend's style, call 'setFont' and 'setLineWidth' before 'addLegend'. */
-	public void addLegend(String labels, String options) {
-		int flags = Plot.AUTO_POSITION;
-		if (options!=null) {
-			options = options.toLowerCase();
-			if (options.contains("top-left"))
-				flags |= Plot.TOP_LEFT;
-			else if (options.contains("top-right"))
-				flags |= Plot.TOP_RIGHT;
-			else if (options.contains("bottom-left"))
-				flags |= Plot.BOTTOM_LEFT;
-			else if (options.contains("bottom-right"))
-				flags |= Plot.BOTTOM_RIGHT;
-			if (options.contains("bottom-to-top"))
-				flags |= Plot.LEGEND_BOTTOM_UP;
-			if (options.contains("transparent"))
-				flags |= Plot.LEGEND_TRANSPARENT;
+		public void addLegend(String labels, String options) {
+			int flags = 0;
+			if (options!=null) {
+				options = options.toLowerCase();
+				if (options.contains("top-left"))
+					flags |= Plot.TOP_LEFT;
+				else if (options.contains("top-right"))
+					flags |= Plot.TOP_RIGHT;
+				else if (options.contains("bottom-left"))
+					flags |= Plot.BOTTOM_LEFT;
+				else if (options.contains("bottom-right"))
+					flags |= Plot.BOTTOM_RIGHT;
+				else if (!options.contains("off") && !options.contains("no"))
+					flags |= Plot.AUTO_POSITION;
+				if (options.contains("bottom-to-top"))
+					flags |= Plot.LEGEND_BOTTOM_UP;
+				if (options.contains("transparent"))
+					flags |= Plot.LEGEND_TRANSPARENT;
+			}
+			setLegend(labels, flags);
 		}
-		setLegend(labels, flags);
-	}
-
+	
 	/** Adds a legend. The legend will be always drawn last (on top of everything).
 	 *	To modify the legend's style, call 'setFont' and 'setLineWidth' before 'addLegend'
 	 *	@param labels labels of the points or curves in the sequence of the data were added, tab-delimited or linefeed-delimited.
