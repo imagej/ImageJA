@@ -135,27 +135,15 @@ public class Clipboard implements PlugIn, Transferable {
 		if (!isDataFlavorSupported(flavor))
 			throw new UnsupportedFlavorException(flavor);
 		ImagePlus imp = WindowManager.getCurrentImage();
-		if (imp!=null) {
-			imp = flatten(imp);
-			ImageProcessor ip;
-			if (imp.isComposite()) {
-				ip = new ColorProcessor(imp.getImage());
-				ip.setRoi(imp.getRoi());
-			} else	
-				ip = imp.getProcessor();
-			ip = ip.crop();
-			int w = ip.getWidth();
-			int h = ip.getHeight();
-			IJ.showStatus(w+"x"+h+ " image copied to system clipboard");
-			Image img = IJ.getInstance().createImage(w, h);
-			Graphics g = img.getGraphics();
-			g.drawImage(ip.createImage(), 0, 0, null);
-			g.dispose();
-			return img;
-		} else {
-			//IJ.noImage();
+		if (imp==null)
 			return null;
-		}
+		Roi roi = imp.getRoi();
+		if (roi!=null && !roi.isLine())
+			imp = imp.crop();
+		boolean overlay = imp.getOverlay()!=null && !imp.getHideOverlay();
+		if (overlay && !imp.tempOverlay())
+			imp = imp.flatten(); 
+		return imp.getImage();
 	}
 	
 	void showInternalClipboard() {
