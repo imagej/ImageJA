@@ -93,14 +93,29 @@ public class ResultsTable implements Cloneable {
 	public static ResultsTable getResultsTable() {
 		return Analyzer.getResultsTable();
 	}
-		
-	/** Returns the "Results" TextWindow. */
-	public static TextWindow getResultsWindow() {
-		Frame f = WindowManager.getFrame("Results");
+	
+	/** Returns the ResultsTable associated to the window 
+	of the provided title, or null if it does not exist */
+	public static ResultsTable getResultsTable(String title) {
+		TextWindow window = getTextWindow(title);
+		if (window==null)
+			return null;
+		else
+			return window.getResultsTable();
+	}
+	
+	/** Returns the "title" TextWindow or null if it does not exist. */
+	public static TextWindow getTextWindow(String title) {
+		Frame f = WindowManager.getFrame(title);
 		if (f==null || !(f instanceof TextWindow))
 			return null;
 		else
 			return (TextWindow)f;
+	}
+	
+	/** Returns the "Results" TextWindow or null if it does not exist. */
+	public static TextWindow getResultsWindow() {
+		return getTextWindow("Results");
 	}
 
 	/** Increments the measurement counter by one. */
