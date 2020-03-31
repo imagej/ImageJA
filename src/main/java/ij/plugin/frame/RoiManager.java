@@ -27,8 +27,10 @@ import ij.macro.*;
 import ij.measure.*;
 import ij.plugin.OverlayCommands;
 
+  
+
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
-public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener, ListSelectionListener {
+public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener, ListSelectionListener, Iterable {
 	public static final String LOC_KEY = "manager.loc";
 	private static final int BUTTONS = 11;
 	private static final int DRAW=0, FILL=1, LABEL=2;
@@ -104,6 +106,44 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		listModel = new DefaultListModel();
 		list.setModel(listModel);
 		errorMessage = null;
+	}
+	
+    @Override
+    public Iterator<Roi> iterator() {
+        
+    	Iterator<Roi> it = new Iterator<Roi>() {
+        	
+	    	private int roiIndex = 0;
+	    	RoiManager rm = RoiManager.getInstance();
+	        
+	        // returns false if next element does not exist 
+	        @Override
+	        public boolean hasNext() { 
+	    		if ( rm.getRoi(roiIndex+1) != null ) 
+	    			return true;
+	        	else 
+	        		return false;
+	        }
+	          
+	        // return current data and update pointer 
+	        @Override
+	        public Roi next() { 
+	            if (this.hasNext()) {
+	            	roiIndex+=1;
+	                return rm.getRoi(roiIndex);
+	            }
+	            else
+	                return null;
+	        } 
+	          
+	        // implement if needed 
+	        @Override
+	        public void remove() 
+	        { 
+	            throw new UnsupportedOperationException(); 
+	        }
+        };
+        return it;
 	}
 
 	void showWindow() {
