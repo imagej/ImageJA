@@ -3212,8 +3212,8 @@ public class Plot implements Cloneable {
 				StringBuilder sb = new StringBuilder(140+plotObject.macroCode.length());
 				sb.append("x="); sb.append(x);
 				sb.append(";y="); sb.append(y);
-				sb.append(";setColor("); sb.append(plotObject.color.getRGB());
-				sb.append(");s="); sb.append(sc(1));
+				sb.append(";setColor('"); sb.append(Tools.c2hex(plotObject.color));
+				sb.append("');s="); sb.append(sc(1));
 				boolean drawingLegend = pointIndex < 0;
 				double xVal = 0;
 				double yVal = 0;

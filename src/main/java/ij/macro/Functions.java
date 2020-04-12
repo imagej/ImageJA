@@ -376,6 +376,8 @@ public class Functions implements MacroConstants, Measurements {
 			return Math.asin(arg);
 		else if (name.equals("acos"))
 			return Math.acos(arg);
+		else if (name.equals("erf"))
+			return IJMath.erf(arg);
 		else
 			interp.error("Unrecognized function name");
 		return Double.NaN;
@@ -3191,7 +3193,6 @@ public class Functions implements MacroConstants, Measurements {
 				interp.getComma();
 				keep = getString().equalsIgnoreCase("keep");
 			}
-
 			interp.getRightParen();
 		}
 		if (pattern == null) {//Wayne close front image
@@ -3210,6 +3211,8 @@ public class Functions implements MacroConstants, Measurements {
 		}
 
 		if (pattern != null) {//Norbert
+			if (pattern.equals("Results"))
+				resultsPending = false;
 			WildcardMatch wm = new WildcardMatch();
 			wm.setCaseSensitive(false);
 			String otherStr = "\\Others";
@@ -3260,7 +3263,7 @@ public class Functions implements MacroConstants, Measurements {
 							TextWindow txtWin = (TextWindow) thisWin;
 							String title = txtWin.getTitle();
 							if (wm.match(title, pattern)) {
-								if(title.equals("Results"))
+								if (title.equals("Results"))
 									IJ.run("Clear Results");
 								txtWin.close();
 							}
@@ -5756,10 +5759,20 @@ public class Functions implements MacroConstants, Measurements {
 	double getEquation() {
 		int index = (int)getFirstArg();
 		Variable name = getNextVariable();
-		Variable formula = getLastVariable();
+		Variable formula = getNextVariable();
+		Variable macroCode=null;
+		interp.getToken();
+		if (interp.token==',') {
+			macroCode = getVariable();
+			interp.getToken();
+		}
+		if (interp.token!=')')
+			interp.error("')' expected");
 		checkIndex(index, 0, CurveFitter.fitList.length-1);
 		name.setString(CurveFitter.fitList[index]);
 		formula.setString(CurveFitter.fList[index]);
+		if (macroCode != null)
+			macroCode.setString(CurveFitter.fMacro[index]);
 		return Double.NaN;
 	}
 
@@ -6492,6 +6505,14 @@ public class Functions implements MacroConstants, Measurements {
 			Overlay overlay = imp.getOverlay();
 			if (overlay!=null) {
 				overlay.drawLabels(overlayDrawLabels);
+				imp.draw();
+			}
+			return Double.NaN;
+		} else if (name.equals("useNamesAsLabels")) {
+			boolean useNames = getBooleanArg();
+			Overlay overlay = imp.getOverlay();
+			if (overlay!=null) {
+				overlay.drawNames(useNames);
 				imp.draw();
 			}
 			return Double.NaN;

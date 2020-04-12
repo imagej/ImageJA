@@ -28,13 +28,13 @@ import ij.measure.*;
 import ij.plugin.OverlayCommands;
 
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
-public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener, ListSelectionListener {
+public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener, ListSelectionListener, Iterable {
 	public static final String LOC_KEY = "manager.loc";
 	private static final int BUTTONS = 11;
 	private static final int DRAW=0, FILL=1, LABEL=2;
 	private static final int SHOW_ALL=0, SHOW_NONE=1, LABELS=2, NO_LABELS=3;
 	private static final int MENU=0, COMMAND=1;
-	private static final int IGNORE_POSITION=-999;
+	private static final int IGNORE_POSITION=-999;  // ignore the ROI's built in position
 	private static final int CHANNEL=0, SLICE=1, FRAME=2, SHOW_DIALOG=3;
 	private static int rows = 15;
 	private static int lastNonShiftClick = -1;
@@ -416,7 +416,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		listModel.addElement(label);
 		roi.setName(label);
 		Roi roiCopy = (Roi)roi.clone();
-		if (imp!=null && imp.getStackSize()>1 && imp.getWindow()!=null && isVisible()) {
+		if (ignorePosition && imp!=null && imp.getStackSize()>1 && imp.getWindow()!=null && isVisible()) {
 			// set ROI position to current stack position if image and RoiManager are visible
 			roiCopy.setPosition(imp);
 		}
@@ -1052,10 +1052,12 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	boolean multiMeasure(String cmd) {
 		ImagePlus imp = getImage();
 		if (imp==null) return false;
-		if (!imp.lock())
-			return false;
 		int[] indexes = getIndexes();
-		if (indexes.length==0)
+		if (indexes.length==0) {
+			error("Multi-measure: no selection");
+			return false;
+		}
+		if (!imp.lock())
 			return false;
 		int measurements = Analyzer.getMeasurements();
 
@@ -2631,6 +2633,39 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	/** Returns the most recent I/O error message, or null if there was no error. */
 	public static String getErrorMessage() {
 		return errorMessage;
+	}
+	
+	@Override
+	public Iterator<Roi> iterator() {
+
+		Iterator<Roi> it = new Iterator<Roi>() {
+			private int index = -1;
+			RoiManager rm = RoiManager.getInstance();
+
+			/** Returns 'true' if next element exists. */ 
+			@Override
+			public boolean hasNext() {
+				if (index+1<rm.getCount()) 
+					return true;
+				else 
+					return false;
+			}
+
+			/** Returns current ROI and updates pointer. */
+			@Override
+			public Roi next() {
+				if (index+1<rm.getCount())
+					return rm.getRoi(++index);
+				else
+					return null;
+			} 
+
+			@Override
+			public void remove() { 
+				throw new UnsupportedOperationException(); 
+			}
+		};
+		return it;
 	}
 
 	// This class runs the "Multi Measure" command in a separate thread

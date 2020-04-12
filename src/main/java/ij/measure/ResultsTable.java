@@ -94,7 +94,16 @@ public class ResultsTable implements Cloneable {
 		return Analyzer.getResultsTable();
 	}
 		
-	/** Returns the "Results" TextWindow. */
+	/** Returns the ResultsTable with the specified title, or null if it does not exist, */
+	public static ResultsTable getResultsTable(String title) {
+		Frame f = WindowManager.getFrame(title);
+		if (f!=null && (f instanceof TextWindow))
+			return ((TextWindow)f).getResultsTable();
+		else
+			return null;
+	}
+		
+	/** Obsolete. */
 	public static TextWindow getResultsWindow() {
 		Frame f = WindowManager.getFrame("Results");
 		if (f==null || !(f instanceof TextWindow))
@@ -837,19 +846,18 @@ public class ResultsTable implements Cloneable {
 	public synchronized void deleteRow(int rowIndex) {
 		if (counter==0 || rowIndex<0 || rowIndex>counter-1)
 			return;
-		int counter2 = Math.min(counter,maxRows-1);
 		if (rowLabels!=null) {
 			rowLabels[rowIndex] = null;
-			for (int i=rowIndex; i<counter2; i++)
+			for (int i=rowIndex; i<counter-1; i++)
 				rowLabels[i] = rowLabels[i+1];
 		}
 		for (int col=0; col<=lastColumn; col++) {
 			if (columns[col]!=null) {
-				for (int i=rowIndex; i<counter2; i++)
+				for (int i=rowIndex; i<counter-1; i++)
 					columns[col][i] = columns[col][i+1];
 				ArrayList stringColumn = stringColumns!=null?(ArrayList)stringColumns.get(new Integer(col)):null;
 				if (stringColumn!=null && stringColumn.size()==counter) {
-					for (int i=rowIndex; i<counter2; i++)
+					for (int i=rowIndex; i<counter-1; i++)
 						stringColumn.set(i,stringColumn.get(i+1));
 					stringColumn.remove(counter-1);
 				}
