@@ -16,6 +16,8 @@ public class Options implements PlugIn {
 			{miscOptions(); return;}
 		else if (arg.equals("line"))
 			{lineWidth(); return;}
+		else if (arg.equals("roi"))
+			{roi(); return;}
 		else if (arg.equals("io"))
 			{io(); return;}
 		else if (arg.equals("conv"))
@@ -95,6 +97,22 @@ public class Options implements PlugIn {
             if (roi!=null && roi.isLine()) imp.draw();
 		}
 	}
+	
+	// Roi options
+	void roi() {
+		GenericDialog gd = new GenericDialog("Roi Options");
+		gd.addNumericField("Default stroke width", Roi.getDefaultStrokeWidth(), 1);
+		gd.addNumericField("Default group", Roi.getDefaultGroup(), 0);		
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return;
+		
+		// Update values if OKed
+		Roi.setDefaultStrokeWidth( gd.getNextNumber() );
+		Roi.setDefaultGroup( (int)gd.getNextNumber() );
+	}
+	
+	
 
 	// Input/Output options
 	void io() {
