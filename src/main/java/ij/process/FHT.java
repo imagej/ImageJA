@@ -19,7 +19,8 @@ public class FHT extends FloatProcessor {
 	private float[] S;
 	private int[] bitrev;
 	private float[] tempArr;
-	private boolean showProgress = true;
+	private boolean showProgress;
+
 	
 	/** Used by the FFT class. */
 	public boolean quadrantSwapNeeded;
@@ -188,9 +189,9 @@ public class FHT extends FloatProcessor {
 	}
 
 	void transform(boolean inverse) {
-		//IJ.log("transform: "+maxN+" "+inverse);
 		if (!powerOf2Size())
 			throw new  IllegalArgumentException("Image not power of 2 size or not square: "+width+"x"+height);
+		setShowProgress(true);
 		maxN = width;
 		if (S==null)
 			initializeTables(maxN);
@@ -409,7 +410,7 @@ public class FHT extends FloatProcessor {
 		float[] fht = (float[])getPixels();
 
   		for (int row=0; row<maxN; row++) {
-			FHTps(row, maxN, fht, fps);
+			fht2ps(row, maxN, fht, fps);
 			base = row * maxN;
 			for (int col=0; col<maxN; col++) {
 				r = fps[base+col];
@@ -423,7 +424,8 @@ public class FHT extends FloatProcessor {
 		if (Float.isNaN(min) || max-min>50)
 			min = max - 50; //display range not more than approx e^50
 		scale = (float)(253.999/(max-min));
-
+		
+		//long t0 = System.currentTimeMillis();
 		for (int row=0; row<maxN; row++) {
 			base = row*maxN;
 			for (int col=0; col<maxN; col++) {
@@ -434,32 +436,26 @@ public class FHT extends FloatProcessor {
 				ps[base+col] = (byte)(r+1f); // 1 is min value
 			}
 		}
-		ImageProcessor ip = new ByteProcessor(maxN, maxN, ps, null);
+		//long t1 = System.currentTimeMillis();
+		//IJ.log(""+(t1-t0));
+		ImageProcessor ip = new ByteProcessor(maxN, maxN, ps);
 		swapQuadrants(ip);
-		if (FFT.displayRawPS) {
-			ImageProcessor ip2 = new FloatProcessor(maxN, maxN, fps, null);
-			swapQuadrants(ip2);
-			new ImagePlus("PS of "+FFT.fileName, ip2).show();
-		}
-		if (FFT.displayFHT) {
-			ImageProcessor ip3 = new FloatProcessor(maxN, maxN, fht, null);
-			ImagePlus imp2 = new ImagePlus("FHT of "+FFT.fileName, ip3.duplicate());
-			(new ContrastEnhancer()).stretchHistogram(imp2, 0.1);
-			imp2.show();
-		}
-		if (FFT.displayComplex) {
-			ImageStack ct = getComplexTransform();
-			ImagePlus imp2 = new ImagePlus("Complex of "+FFT.fileName, ct);
-			(new ContrastEnhancer()).stretchHistogram(imp2, 0.1);
-			imp2.setProperty("FFT width", ""+originalWidth);
-			imp2.setProperty("FFT height", ""+originalHeight);
-			imp2.show();
-		}
 		return ip;
+	}
+	
+	/** Returns the unscaled 32-bit power spectrum. */
+	public FloatProcessor getRawPowerSpectrum() {
+		if (!isFrequencyDomain)
+			throw new  IllegalArgumentException("Frequency domain image required");
+   		float[] fps = new float[maxN*maxN];
+		float[] fht = (float[])getPixels();
+  		for (int row=0; row<maxN; row++)
+			fht2ps(row, maxN, fht, fps);
+		return new FloatProcessor(maxN, maxN, fps);
 	}
 
 	/** Power Spectrum of one row from 2D Hartley Transform. */
- 	void FHTps(int row, int maxN, float[] fht, float[] ps) {
+ 	private void fht2ps(int row, int maxN, float[] fht, float[] ps) {
  		int base = row*maxN;
 		int l;
 		for (int c=0; c<maxN; c++) {
@@ -481,8 +477,8 @@ public class FHT extends FloatProcessor {
 			FHTreal(i, maxN, fht, re);
 			FHTimag(i, maxN, fht, im);
 		}
-		swapQuadrants(new FloatProcessor(maxN, maxN, re, null));
-		swapQuadrants(new FloatProcessor(maxN, maxN, im, null));
+		swapQuadrants(new FloatProcessor(maxN, maxN, re));
+		swapQuadrants(new FloatProcessor(maxN, maxN, im));
 		ImageStack stack = new ImageStack(maxN, maxN);
 		stack.addSlice("Real", re);
 		stack.addSlice("Imaginary", im);
@@ -544,22 +540,7 @@ public class FHT extends FloatProcessor {
 		</pre>
 	*/
  	public void swapQuadrants(ImageProcessor ip) {
-		//IJ.log("swap");
- 		ImageProcessor t1, t2;
-		int size = ip.getWidth()/2;
-		ip.setRoi(size,0,size,size);
-		t1 = ip.crop();
-  		ip.setRoi(0,size,size,size);
-		t2 = ip.crop();
-		ip.insert(t1,0,size);
-		ip.insert(t2,size,0);
-		ip.setRoi(0,0,size,size);
-		t1 = ip.crop();
-  		ip.setRoi(size,size,size,size);
-		t2 = ip.crop();
-		ip.insert(t1,size,size);
-		ip.insert(t2,0,0);
-		ip.resetRoi();
+ 		FFT.swapQuadrants(ip);
 	}
 
 	/**	Swap quadrants 1 and 3 and 2 and 4 of the image
@@ -571,7 +552,6 @@ public class FHT extends FloatProcessor {
 	void changeValues(ImageProcessor ip, int v1, int v2, int v3) {
 		byte[] pixels = (byte[])ip.getPixels();
 		int v;
-		//IJ.log(v1+" "+v2+" "+v3+" "+pixels.length);
 		for (int i=0; i<pixels.length; i++) {
 			v = pixels[i]&255;
 			if (v>=v1 && v<=v2)
