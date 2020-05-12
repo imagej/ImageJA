@@ -19,6 +19,7 @@ public class FileSaver {
 
 	public static final int DEFAULT_JPEG_QUALITY = 85;
 	private static int jpegQuality;
+	private static int bsize = 32768; // 32K default buffer size
 	
     static {setJpegQuality(ij.Prefs.getInt(ij.Prefs.JPEG, DEFAULT_JPEG_QUALITY));}
 
@@ -112,10 +113,11 @@ public class FileSaver {
 		}
 		fi.roi = RoiEncoder.saveAsByteArray(imp.getRoi());
 		fi.overlay = getOverlay(imp);
+		fi.properties = imp.getPropertiesAsArray();
 		DataOutputStream out = null;
 		try {
 			TiffEncoder file = new TiffEncoder(fi);
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path),bsize));
 			file.write(out);
 			out.close();
 		} catch (IOException e) {
@@ -138,6 +140,7 @@ public class FileSaver {
 			fht.setColorModel(fht.originalColorModel);
 		ImagePlus imp2 = new ImagePlus(imp.getTitle(), fht);
 		imp2.setProperty("Info", imp.getProperty("Info"));
+		imp2.setProperties(imp.getPropertiesAsArray());
 		imp2.setCalibration(imp.getCalibration());
 		imp = imp2;
 		fi = imp.getFileInfo();
@@ -202,11 +205,12 @@ public class FileSaver {
 			fi.sliceLabels = imp.getStack().getSliceLabels();
 		fi.roi = RoiEncoder.saveAsByteArray(imp.getRoi());
 		fi.overlay = getOverlay(imp);
+		fi.properties = imp.getPropertiesAsArray();
 		if (imp.isComposite()) saveDisplayRangesAndLuts(imp, fi);
 		DataOutputStream out = null;
 		try {
 			TiffEncoder file = new TiffEncoder(fi);
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path),bsize));
 			file.write(out);
 			out.close();
 		} catch (IOException e) {
@@ -285,7 +289,6 @@ public class FileSaver {
 	
 	/** Save the image or stack in TIFF/ZIP format using the specified path. */
 	public boolean saveAsZip(String path) {
-		//fi.nImages = 1;
 		if (imp.getProperty("FHT")!=null && path.contains("FFT of "))
 			setupFFTSave();
 		if (!path.endsWith(".zip"))
@@ -298,6 +301,7 @@ public class FileSaver {
 			name = name+".tif";
 		fi.description = getDescriptionString();
 		fi.info = imp.getInfoProperty();
+		fi.properties = imp.getPropertiesAsArray();
 		if (imp.getProperty(Plot.PROPERTY_KEY) != null) {
 			Plot plot = (Plot)(imp.getProperty(Plot.PROPERTY_KEY));
 			fi.plot = plot.toByteArray();
@@ -311,7 +315,7 @@ public class FileSaver {
 		DataOutputStream out = null;
 		try {
 			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(path));
-			out = new DataOutputStream(new BufferedOutputStream(zos));
+			out = new DataOutputStream(new BufferedOutputStream(zos,bsize));
         	zos.putNextEntry(new ZipEntry(name));
 			TiffEncoder te = new TiffEncoder(fi);
 			te.write(out);
@@ -497,7 +501,7 @@ public class FileSaver {
 					pixels[i] = (short)(pixels[i]-32768);
 			}
 			ImageWriter file = new ImageWriter(fi);
-			out = new BufferedOutputStream(new FileOutputStream(path));
+			out = new BufferedOutputStream(new FileOutputStream(path),bsize);
 			file.write(out);
 			out.close();
 		}
@@ -542,7 +546,7 @@ public class FileSaver {
 				}
 			}
 			ImageWriter file = new ImageWriter(fi);
-			out = new BufferedOutputStream(new FileOutputStream(path));
+			out = new BufferedOutputStream(new FileOutputStream(path),bsize);
 			file.write(out);
 			out.close();
 		} catch (IOException e) {
@@ -823,6 +827,11 @@ public class FileSaver {
     public static int getJpegQuality() {
         return jpegQuality;
     }
-
+    
+    /** Sets the BufferedOutputStream buffer size in bytes (default is 32K). */
+    public static void setBufferSize(int bufferSize) {
+        bsize = bufferSize;
+        if (bsize<2048) bsize = 2048;
+    }
 
 }

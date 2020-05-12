@@ -168,6 +168,8 @@ public class FileOpener {
 			decodeAndSetRoi(imp, fi);
 		if (fi.overlay!=null)
 			setOverlay(imp, fi.overlay);
+		if (fi.properties!=null)
+			imp.setProperties(fi.properties);
 		if (show) imp.show();
 		return imp;
 	}
@@ -243,6 +245,8 @@ public class FileOpener {
 			decodeAndSetRoi(imp, fi);
 		if (fi.overlay!=null)
 			setOverlay(imp, fi.overlay);
+		if (fi.properties!=null)
+			imp.setProperties(fi.properties);
 		if (show) imp.show();
 		imp.setFileInfo(fi);
 		setCalibration(imp);

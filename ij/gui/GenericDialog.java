@@ -79,7 +79,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private boolean firstPaint = true;
 	private boolean fontSizeSet;
 	private boolean showDialogCalled;
-	private boolean listenersCalled;     // have dialogListeners been called (needed to record options)?
+	private boolean optionsRecorded;     // have dialogListeners been called to record options?
+	private Label lastLabelAdded;
 
 
     /** Creates a new GenericDialog with the specified title. Uses the current image
@@ -90,17 +91,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		this(title, getParentFrame());
 	}
 
-	static Frame getParentFrame() {
-		Frame parent = WindowManager.getCurrentImage()!=null?
-			(Frame)WindowManager.getCurrentImage().getWindow():IJ.getInstance()!=null?IJ.getInstance():new Frame();
-		if (IJ.isMacOSX() && IJ.isJava18()) {
-			ImageJ ij = IJ.getInstance();
-			if (ij!=null && ij.isActive())
-				parent = ij;
-			else
-				parent = null;
-		}
-		return parent;
+	private static Frame getParentFrame() {
+		return GUI.getParentFrame();
 	}
 
     /** Creates a new GenericDialog using the specified title and parent frame. */
@@ -153,7 +145,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
-		Label theLabel = makeLabel(label2);
+		Label fieldLabel = makeLabel(label2);
+		this.lastLabelAdded = fieldLabel;
 		if (addToSameRow) {
 			c.gridx = GridBagConstraints.RELATIVE;
 			c.insets.left = 10;
@@ -167,7 +160,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		c.anchor = GridBagConstraints.EAST;
 		c.gridwidth = 1;
 		//IJ.log("x="+c.gridx+", y= "+c.gridy+", width="+c.gridwidth+", ancher= "+c.anchor+" "+c.insets);
-		add(theLabel, c);
+		add(fieldLabel, c);
 		if (addToSameRow) {
 			c.insets.left = 0;
 			addToSameRow = false;
@@ -257,7 +250,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
-		Label theLabel = makeLabel(label2);
+		Label fieldLabel = makeLabel(label2);
+		this.lastLabelAdded = fieldLabel;
 		boolean custom = customInsets;
 		if (addToSameRow) {
 			c.gridx = GridBagConstraints.RELATIVE;
@@ -271,7 +265,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
         }
 		c.anchor = GridBagConstraints.EAST;
 		c.gridwidth = 1;
-		add(theLabel, c);
+		add(fieldLabel, c);
 		if (stringField==null) {
 			stringField = new Vector(4);
 			defaultStrings = new Vector(4);
@@ -512,7 +506,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
-		Label theLabel = makeLabel(label2);
+		Label fieldLabel = makeLabel(label2);
+		this.lastLabelAdded = fieldLabel;
 		if (addToSameRow) {
 			c.gridx = GridBagConstraints.RELATIVE;
 			addToSameRow = false;
@@ -529,7 +524,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			choice = new Vector(4);
 			defaultChoiceIndexes = new Vector(4);
 		}
-		add(theLabel, c);
+		add(fieldLabel, c);
 		Choice thisChoice = new Choice();
 		thisChoice.addKeyListener(this);
 		thisChoice.addItemListener(this);
@@ -691,7 +686,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
    		String label2 = label;
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
-		Label theLabel = makeLabel(label2);
+		Label fieldLabel = makeLabel(label2);
+		this.lastLabelAdded = fieldLabel;
 		if (addToSameRow) {
 			c.gridx = GridBagConstraints.RELATIVE;
 			c.insets.bottom += 3;
@@ -702,7 +698,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		c.anchor = GridBagConstraints.EAST;
 		c.gridwidth = 1;
-		add(theLabel, c);
+		add(fieldLabel, c);
 
 		if (slider==null) {
 			slider = new Vector(5);
@@ -1297,9 +1293,9 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 
 	/** For plugins that read their input only via dialogItemChanged, call it at least once, then stop recording */
 	void finalizeRecording() {
-		if (listenersCalled)
+		if (optionsRecorded)
 			return;
-		listenersCalled = true;
+		optionsRecorded = true;
 		if (!wasCanceled && dialogListeners!=null && dialogListeners.size()>0) {
 			resetCounters();
 			((DialogListener)dialogListeners.elementAt(0)).dialogItemChanged(this,null);
@@ -1583,8 +1579,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
             }
         }
         boolean workaroundOSXbug = IJ.isMacOSX() && okay!=null && !okay.isEnabled() && everythingOk;
-        if (everythingOk)
-			listenersCalled = true;
+        if (everythingOk && recorderOn)
+			optionsRecorded = true;
         if (previewCheckbox!=null)
             previewCheckbox.setEnabled(everythingOk);
         if (okay!=null)
@@ -1663,6 +1659,12 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		finalizeRecording();
 		resetCounters();
 	}
+
+	 /** Returns a reference to the label of the most recently
+    	added numeric field, string field, choice or slider. */
+    public Label getLabel() {
+    	return lastLabelAdded;
+    }
 
     public void windowActivated(WindowEvent e) {}
     public void windowOpened(WindowEvent e) {}
