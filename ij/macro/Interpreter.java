@@ -872,7 +872,7 @@ public class Interpreter implements MacroConstants {
 		if (tok==VARIABLE_FUNCTION) {
 			int address = rightSideToken>>TOK_SHIFT;
 			int type = pgm.table[address].type;
-			if (type==TABLE || type==ROI) {
+			if (type==TABLE || type==ROI  || type==ROI_MANAGER2 || type==PROPERTY) {
 				if (isString(pc+2))
 					return Variable.STRING;
 				int token2 = pgm.code[pc+4];
@@ -1191,7 +1191,8 @@ public class Interpreter implements MacroConstants {
 				|| name.equals("getType") || name.equals("getString") || name.equals("title")
 				|| name.equals("headings") || name.equals("allHeadings")
 				|| name.equals("get") || name.equals("getInfo") || name.equals("getSliceLabel")
-				|| name.equals("getDicomTag"))
+				|| name.equals("getDicomTag") || name.equals("getList")
+				|| name.equals("getGroupNames"))
 					return true;
 			}
 		}

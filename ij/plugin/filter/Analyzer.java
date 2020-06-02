@@ -397,7 +397,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 				ip = stack.getProcessor(position);
 			else
 				ip = imp2.getProcessor();
-			ip.setRoi((int)p.xpoints[i], (int)p.ypoints[i], 1, 1);
+			ip.setRoi((int)Math.round(p.xpoints[i]), (int)Math.round(p.ypoints[i]), 1, 1);
 			ImageStatistics stats = ImageStatistics.getStatistics(ip, measurements, imp2.getCalibration());
 			stats.xCenterOfMass = p.xpoints[i];
 			stats.yCenterOfMass = p.ypoints[i];
@@ -709,8 +709,12 @@ public class Analyzer implements PlugInFilter, Measurements {
 			rt.addValue("RRWidth", p[4]*pw);
 		}
 		int group = roi!=null?roi.getGroup():0;
-		if (group>0)
+		if (group>0) {
 			rt.addValue("Group", group);
+			String name = Roi.getGroupName(group);
+			if (name!=null)
+				rt.addValue("GroupName", name);				
+		}
 	}
 	
 	private void clearSummary() {
