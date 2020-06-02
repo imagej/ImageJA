@@ -192,7 +192,7 @@ public class Options implements PlugIn {
 		Prefs.rotateYZ = gd.getNextBoolean();
 		Prefs.flipXZ = gd.getNextBoolean();
 	}
-	
+		
 	// Delete preferences file when ImageJ quits
 	private void reset() {
 		if (IJ.showMessageWithCancel("Reset Preferences", "Preferences will be reset when ImageJ restarts."))

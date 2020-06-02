@@ -53,6 +53,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	public static final int NOT_PASTING = -1;
 	public static final int FERET_ARRAYSIZE = 16; // Size of array with Feret values
 	public static final int FERET_ARRAY_POINTOFFSET = 8; // Where point coordinates start in Feret array
+	private static final String NAMES_KEY = "group.names";
 	
 	static final int NO_MODS=0, ADD_TO_ROI=1, SUBTRACT_FROM_ROI=2; // modification states
 		
@@ -76,7 +77,10 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 	private static int defaultGroup; // zero is no specific group
 	private static Color groupColor;
 	private static double defaultStrokeWidth;
-	
+	private static String groupNamesString = Prefs.get(NAMES_KEY, null);
+	private static String[] groupNames;
+	private static boolean groupNamesChanged;
+
 	protected int type;
 	protected int xMax, yMax;
 	protected ImagePlus imp;
@@ -1125,24 +1129,24 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			cachedMask = null;
 		switch(key) {
 			case KeyEvent.VK_UP:
-				y--;
-				if (y<0 && (type!=RECTANGLE||clipboard==null))
-					y = 0;
+				this.y--;
+				if (this.y<0 && (type!=RECTANGLE||clipboard==null))
+					this.y = 0;
 				break;
 			case KeyEvent.VK_DOWN:
-				y++;
-				if ((y+height)>=yMax && (type!=RECTANGLE||clipboard==null))
-					y = yMax-height;
+				this.y++;
+				if ((this.y+height)>=yMax && (type!=RECTANGLE||clipboard==null))
+					this.y = yMax-height;
 				break;
 			case KeyEvent.VK_LEFT:
-				x--;
-				if (x<0 && (type!=RECTANGLE||clipboard==null))
-					x = 0;
+				this.x--;
+				if (this.x<0 && (type!=RECTANGLE||clipboard==null))
+					this.x = 0;
 				break;
 			case KeyEvent.VK_RIGHT:
-				x++;
-				if ((x+width)>=xMax && (type!=RECTANGLE||clipboard==null))
-					x = xMax-width;
+				this.x++;
+				if ((this.x+width)>=xMax && (type!=RECTANGLE||clipboard==null))
+					this.x = xMax-width;
 				break;
 		}
 		updateClipRect();
@@ -1150,8 +1154,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			imp.draw();
 		else
 			imp.draw(clipX, clipY, clipWidth, clipHeight);
-		oldX = x; oldY = y;
+		oldX = this.x; oldY = this.y;
 		bounds = null;
+		setLocation(this.x, this.y);
 		showStatus();
 		notifyListeners(RoiListener.MOVED);
 	}
@@ -1633,7 +1638,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		String value;
 		if (state!=CONSTRUCTING && (type==RECTANGLE||type==POINT) && width<=25 && height<=25) {
 			ImageProcessor ip = imp.getProcessor();
-			double v = ip.getPixelValue(x,y);
+			double v = ip.getPixelValue(this.x,this.y);
 			int digits = (imp.getType()==ImagePlus.GRAY8||imp.getType()==ImagePlus.GRAY16)?0:2;
 			value = ", value="+IJ.d2s(v,digits);
 		} else
@@ -1644,7 +1649,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 			size = ", w="+IJ.d2s(width*cal.pixelWidth)+" ("+width+"), h="+IJ.d2s(height*cal.pixelHeight)+" ("+height+")";
 		else
 			size = ", w="+width+", h="+height;
-		IJ.showStatus(imp.getLocationAsString(x,y)+size+value);
+		IJ.showStatus(imp.getLocationAsString(this.x,this.y)+size+value);
 	}
 		
 	/** Always returns null for rectangular Roi's */
@@ -1734,12 +1739,77 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		return this.group;
 	}
 
+	/** Returns the group name associtated with the specified group. */
+	public static String getGroupName(int groupNumber) {
+		if (groupNumber<1 || groupNumber>255)
+			return null;
+		if (groupNames==null && groupNamesString==null)
+			return null;
+		if (groupNames==null)
+			groupNames = groupNamesString.split(",");
+		if (groupNumber>groupNames.length)
+			return null;
+		String name = groupNames[groupNumber-1];
+		if (name==null)
+			return null;
+		return name.length()>0?name:null;
+	}
+	
+	public static synchronized void setGroupName(int groupNumber, String name) {
+		if (groupNumber<1 || groupNumber>255)
+			return;
+		if (groupNamesString==null && groupNames==null)
+			groupNames = new String[groupNumber];
+		if (groupNames==null)
+			groupNames = groupNamesString.split(",");
+		if (groupNumber>groupNames.length) {
+			String[] temp = new String[groupNumber];
+			for (int i=0; i<groupNames.length; i++)
+				temp[i] = groupNames[i];
+			groupNames = temp;
+		}
+		//IJ.log("setGroupName: "+groupNumber+"  "+name+"  "+groupNames.length);
+		groupNames[groupNumber-1] = name;
+		groupNamesChanged = true;
+	}
+	
+	public static synchronized void saveGroupNames() {
+		if (groupNames==null)
+			return;
+		StringBuilder sb = new StringBuilder(groupNames.length*12);
+		for (int i=0; i<groupNames.length; i++) {
+			String name = groupNames[i];
+			if (name==null)
+				name = "";
+			sb.append(name);
+			if (i<groupNames.length-1)
+				sb.append(",");			
+		}
+		groupNamesString = sb.toString();
+		groupNames = null;
+		Prefs.set(NAMES_KEY, groupNamesString);
+	}
+	
+	/** Returns the group names as a comma-delimeted string. */
+	public static String getGroupNames() {
+		if (groupNamesChanged && groupNames!=null)
+			saveGroupNames();
+		groupNamesChanged = false;
+		return groupNamesString;
+	}
+
+	/** Sets the group names from a comma-delimeted string. */
+	public static void setGroupNames(String names) {
+		groupNamesString = names;
+		groupNames = null;
+	}
+
 	/** Sets the group of this Roi, and updates stroke color accordingly. */
 	public void setGroup(int group) {
 		if (group<0 || group>255)
 			throw new IllegalArgumentException("Invalid group: "+group);
 		this.group = group;
-		this.strokeColor = group>0?getGroupColor(group):null;
+		setStrokeColor(group>0?getGroupColor(group):null);
 		if (imp!=null) // Update Roi Color in the GUI
 			imp.draw();
 	}

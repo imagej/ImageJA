@@ -1412,6 +1412,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Adds a key-value pair to this image's string properties.
 	 * The key-value pair is removed if 'value' is null. The 
 	 * properties persist if the image is saved in TIFF format.
+	 * Add a "HideInfo" property (e.g. set("HideInfo","true")) to
+	 * prevent the properties from being displayed by the
+	 * Image/Show Info command.
 	*/
 	public void setProp(String key, String value) {
 		if (key==null)
@@ -1429,13 +1432,17 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	 * @see #getNumericProp
 	*/
 	public void setProp(String key, double value) {
-		setProp(key, Double.isNaN(value)?null:""+value);
+		String svalue = ""+value;
+		if (svalue.endsWith(".0"))
+			svalue = svalue.substring(0,svalue.length()-2);
+		setProp(key, Double.isNaN(value)?null:svalue);
 	}
 
-	/** Returns the string property associated with the specified key
-	 * or null if the property is not found.
+	/** Returns as a string the image property associated with the
+	 *  specified key or null if the property is not found.
 	 * @see #setProp
 	 * @see #getNumericProp
+	 * @see #getStringProperty
 	*/
 	public String getProp(String key) {
 		if (imageProperties==null)
@@ -1494,23 +1501,11 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		if (props==null)
 			return;
 		//IJ.log("setProperties: "+props.length+" "+getTitle());
-		this.imageProperties = null;
-		int equalsIndex = props[0].indexOf("=");
-		if (equalsIndex>0 && equalsIndex<50) { // v1.53a3 format
-			for (int i=0; i<props.length; i++) {
-				int index = props[i].indexOf("=");
-				if (index==-1) continue;
-				String key = props[i].substring(0,index);
-				String value = props[i].substring(index+1);
-				setProp(key,value);
-			}
-		} else {
-			for (int i=0; i<props.length; i+=2) {
-				String key = props[i];
-				String value = props[i+1];
-				//IJ.log("   "+key+" "+value.length());
-				setProp(key,value);
-			}
+		for (int i=0; i<props.length; i+=2) {
+			String key = props[i];
+			String value = props[i+1];
+			//IJ.log("   "+key+" "+value.length());
+			setProp(key,value);
 		}
 	}
 
@@ -3196,6 +3191,12 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
     public Plot getPlot() {
     	return plot;
+    }
+    
+    public Properties getImageProperties() {
+    	if (imageProperties==null)
+    		imageProperties = new Properties();
+    	return imageProperties;
     }
     
 }

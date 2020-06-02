@@ -306,6 +306,7 @@ public class Functions implements MacroConstants, Measurements {
 		return array;
 	}
 
+	// type must be added to Interpreter.getExpressionType and
 	// functions returning a string must be added to Interpreter.isString(int)
 	Variable getVariableFunction(int type) {
 		Variable var = null;
@@ -1268,6 +1269,8 @@ public class Functions implements MacroConstants, Measurements {
 		int size = rt.size();
 		if (size==0) {
 			Frame frame = WindowManager.getFrontWindow();
+			if (frame==null || (frame instanceof Editor))
+				frame = WindowManager.getFrame("Results");
 			if (frame!=null && (frame instanceof TextWindow)) {
 				TextPanel tp = ((TextWindow)frame).getTextPanel();
 				rt = tp.getOrCreateResultsTable();
@@ -1465,9 +1468,10 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("Selection required");
 		ProfilePlot pp = new ProfilePlot(imp, IJ.altKeyDown());
 		double[] array = pp.getProfile();
-		if (array==null)
-			{interp.done=true; return null;}
-		else
+		if (array==null) {
+			interp.done=true;
+			return null;
+		} else
 			return new Variable(array).getArray();
 	}
 
@@ -4355,7 +4359,8 @@ public class Functions implements MacroConstants, Measurements {
 		} else {
 			File file = new File(path);
 			if (file.exists() && !(path.endsWith(".txt")||path.endsWith(".java")||path.endsWith(".xls")
-			||path.endsWith(".ijm")||path.endsWith(".html")||path.endsWith(".htm")))
+			||path.endsWith(".csv")||path.endsWith(".tsv")||path.endsWith(".ijm")
+			||path.endsWith(".html")||path.endsWith(".htm")))
 				interp.error("File exists and suffix is not '.txt', '.java', etc.");
 		}
 		try {
@@ -4618,6 +4623,10 @@ public class Functions implements MacroConstants, Measurements {
 			Prefs.copyColumnHeaders = state;
 		else if (arg1.equals("waitforcompletion"))
 			waitForCompletion = state;
+		else if (arg1.equals("interpolatelines"))
+			PlotWindow.interpolate = state;
+		else if (arg1.equals("flipfitsimages"))
+			FITS_Reader.flipImages(state);
 		//else if (arg1.startsWith("saveimageloc")) {
 		//	Prefs.saveImageLocation = state;
 		//	if (!state) Prefs.set(ImageWindow.LOC_KEY,null);
@@ -5474,9 +5483,9 @@ public class Functions implements MacroConstants, Measurements {
 			interp.getParens();
 			props.clear();
 		} else if (name.equals("setList"))
-			setProperties();
+			setPropertiesFromString(props);
 		else if (name.equals("getList"))
-			value = getProperties();
+			value = getPropertiesAsString(props);
 		else if (name.equals("size")||name.equals("getSize")) {
 			interp.getParens();
 			value = ""+props.size();
@@ -5588,36 +5597,6 @@ public class Functions implements MacroConstants, Measurements {
 				props.setProperty(name, value);
 			}
 		}
-	}
-
-	void setProperties() {
-		String list = getStringArg();
-		props.clear();
-		try {
-			InputStream is = new ByteArrayInputStream(list.getBytes("utf-8"));
-			props.load(is);
-		} catch(Exception e) {
-			interp.error(""+e);
-		}
-	}
-
-	String getProperties() {
-		interp.getParens();
-		Vector v = new Vector();
-		for (Enumeration en=props.keys(); en.hasMoreElements();)
-			v.addElement(en.nextElement());
-		String[] keys = new String[v.size()];
-		for (int i=0; i<keys.length; i++)
-			keys[i] = (String)v.elementAt(i);
-		Arrays.sort(keys);
-		StringBuffer sb = new StringBuffer();
-		for (int i=0; i<keys.length; i++) {
-			sb.append(keys[i]);
-			sb.append("=");
-			sb.append(props.get(keys[i]));
-			sb.append("\n");
-		}
-		return sb.toString();
 	}
 
 	void makePoint() {
@@ -6477,8 +6456,8 @@ public class Functions implements MacroConstants, Measurements {
 			interp.error("'.' expected");
 		interp.getToken();
 		if (!(interp.token==WORD||interp.token==ARRAY_FUNCTION
-			||interp.token==PREDEFINED_FUNCTION||interp.token==USER_FUNCTION))
-			interp.error("Function name expected: ");
+		|| interp.token==PREDEFINED_FUNCTION||interp.token==USER_FUNCTION))
+			interp.error("Function name expected");
 		String name = interp.tokenString;
 		ImagePlus imp = getImage();
 		if (name.equals("lineTo"))
@@ -6533,7 +6512,7 @@ public class Functions implements MacroConstants, Measurements {
 			return 0.0;
 		else if (name.equals("hidden"))
 			return overlay!=null && imp.getHideOverlay()?1.0:0.0;
-		else if (name.equals("addSelection"))
+		else if (name.equals("addSelection") || name.equals("addRoi"))
 			return overlayAddSelection(imp, overlay);
 		else if (name.equals("setPosition")) {
 			addDrawingToOverlay(imp);
@@ -6555,7 +6534,7 @@ public class Functions implements MacroConstants, Measurements {
 			overlay.remove(index);
 			imp.draw();
 			return Double.NaN;
-		} else if (name.equals("activateSelection")) {
+		} else if (name.equals("activateSelection")||name.equals("activateRoi")) {
 			int index = (int)getArg();
 			checkIndex(index, 0, size-1);
 			Roi roi = overlay.get(index);
@@ -6625,8 +6604,32 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.equals("setStrokeWidth")) {
 			overlay.setStrokeWidth(getArg());
 			return Double.NaN;
-		} else
+		} else if (name.equals("indexAt")) {
+			return overlay.indexAt((int)getFirstArg(),(int)getLastArg());
+		} else if (name.equals("removeRois")) {
+			overlay.remove(getStringArg());
+			return Double.NaN;
+		} else if (name.equals("getBounds")) {
+			return getOverlayElementBounds(overlay);
+ 		} else
 			interp.error("Unrecognized function name");
+		return Double.NaN;
+	}
+	
+	private double getOverlayElementBounds(Overlay overlay) {
+		int index = (int)getFirstArg();
+		Variable x = getNextVariable();
+		Variable y = getNextVariable();
+		Variable width = getNextVariable();
+		Variable height = getLastVariable();
+		Roi roi = overlay.get(index);
+		if (roi==null)
+			return Double.NaN;
+		Rectangle2D.Double r = roi.getFloatBounds();
+		x.setValue(r.x);
+		y.setValue(r.y);
+		width.setValue(r.width);
+		height.setValue(r.height);
 		return Double.NaN;
 	}
 
@@ -7390,7 +7393,7 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!='.')
 			interp.error("'.' expected");
 		interp.getToken();
-		if (interp.token!=WORD)
+		if (!(interp.token==WORD||interp.token==PREDEFINED_FUNCTION))
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
 		if (name.equals("getDefaultStrokeWidth")) {
@@ -7404,6 +7407,12 @@ public class Functions implements MacroConstants, Measurements {
 			return new Variable(Roi.getDefaultGroup());
 		} else if (name.equals("setDefaultGroup")) {
 			Roi.setDefaultGroup((int)getArg());
+			return null;
+		} else if (name.equals("getGroupNames")) {
+			String names = Roi.getGroupNames();
+			return new Variable(names!=null?names:"");
+		} else if (name.equals("setGroupNames")) {
+			Roi.setGroupNames(getStringArg());
 			return null;
 		}
 		ImagePlus imp = getImage();
@@ -7532,6 +7541,21 @@ public class Functions implements MacroConstants, Measurements {
 			if (!(roi instanceof PointRoi))
 				interp.error("Point selection required");
 			return new Variable(((PointRoi)roi).getPointPosition((int)getArg()));
+		} else if (name.equals("setFontSize")) {
+			if (roi instanceof TextRoi)
+				((TextRoi)roi).setFontSize((int)getArg());
+			return null;
+		} else if (name.equals("setJustification")) {
+			if (!(roi instanceof TextRoi))
+				return null;
+			String str = getStringArg().toLowerCase(Locale.US);
+			int just = TextRoi.LEFT;
+			if (str.equals("center"))
+				just = TextRoi.CENTER;
+			else if (str.equals("right"))
+				just = TextRoi.RIGHT;
+			((TextRoi)roi).setJustification(just);
+			return null;
 		} else
 			interp.error("Unrecognized Roi function");
 		return null;
@@ -7539,6 +7563,11 @@ public class Functions implements MacroConstants, Measurements {
 
 	void setRoiPosition(Roi roi) {
 		int channel = (int)getFirstArg();
+		if (interp.nextToken()==')') {
+			interp.getRightParen();
+			roi.setPosition(channel);
+			return;
+		}
 		int slice = (int)getNextArg();
 		int frame = (int)getLastArg();
 		roi.setPosition(channel, slice, frame);
@@ -7705,7 +7734,7 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!='.')
 			interp.error("'.' expected");
 		interp.getToken();
-		if (!(interp.token==WORD || interp.token==STRING_FUNCTION))
+		if (!(interp.token==WORD||interp.token==STRING_FUNCTION||interp.token==NUMERIC_FUNCTION||interp.token==ARRAY_FUNCTION))
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
 		ImagePlus imp = getImage();
@@ -7718,6 +7747,10 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.equals("get")) {  // "get" added to Interpreter.isString(int)
 			String value = imp.getProp(getStringArg());
 			return new Variable(value!=null?value:"");
+		} else if (name.equals("getNumber")) {
+			String svalue = imp.getProp(getStringArg());
+			double nvalue = svalue!=null?Tools.parseDouble(svalue):Double.NaN;
+			return new Variable(nvalue);
 		} else if (name.equals("getInfo")) {
 			interp.getParens();
 			String value = (String)imp.getProperty("Info");
@@ -7726,19 +7759,58 @@ public class Functions implements MacroConstants, Measurements {
 			imp.setProperty("Info", getStringArg());
 			return null;
 		} else if (name.equals("getSliceLabel")) {
-			interp.getParens();
-			String value = imp.getStack().getSliceLabel(imp.getCurrentSlice());
-			return new Variable(value!=null?value:"");
+			String value = imp.getStack().getSliceLabel((int)getArg());
+			Variable v = new Variable(value!=null?value:"");
+			return v;
 		} else if (name.equals("setSliceLabel")) {
-			imp.getStack().setSliceLabel(getStringArg(), imp.getCurrentSlice());
+			String label = getFirstString();
+			int slice = (int)getLastArg();
+			if (slice<1 || slice>imp.getStackSize())
+				interp.error("Argument must be >=1 and <="+imp.getStackSize());
+			imp.getStack().setSliceLabel(label, slice);
 			if (!Interpreter.isBatchMode()) imp.repaintWindow();
 			return null;
 		} else if (name.equals("getDicomTag")) {
 			String value = imp.getStringProperty(getStringArg());
 			return new Variable(value!=null?value:"");
+		} else if (name.equals("setList")) {
+			setPropertiesFromString(imp.getImageProperties());
+			return null;
+		} else if (name.equals("getList")) {
+			return new Variable(getPropertiesAsString(imp.getImageProperties()));
 		} else
 			interp.error("Unrecognized Property function");
 		return null;
+	}
+	
+	private void setPropertiesFromString(Properties props) {
+		String list = getStringArg();
+		props.clear();
+		try {
+			InputStream is = new ByteArrayInputStream(list.getBytes("utf-8"));
+			props.load(is);
+		} catch(Exception e) {
+			interp.error(""+e);
+		}
+	}
+
+	private String getPropertiesAsString(Properties props) {
+		interp.getParens();
+		Vector v = new Vector();
+		for (Enumeration en=props.keys(); en.hasMoreElements();)
+			v.addElement(en.nextElement());
+		String[] keys = new String[v.size()];
+		for (int i=0; i<keys.length; i++)
+			keys[i] = (String)v.elementAt(i);
+		Arrays.sort(keys);
+		StringBuffer sb = new StringBuffer();
+		for (int i=0; i<keys.length; i++) {
+			sb.append(keys[i]);
+			sb.append("=");
+			sb.append(props.get(keys[i]));
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 } // class Functions
