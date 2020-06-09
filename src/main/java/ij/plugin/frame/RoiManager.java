@@ -1199,6 +1199,21 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		}
 		return rtMulti;
 	}
+	
+	public static ImagePlus[] multiCrop(ImagePlus imp, Roi[] rois, String stackMode) {
+		int nRois = rois.length; 
+		ImagePlus[] cropImps = new ImagePlus[nRois];
+		
+		for (int i=0; i<nRois; i++) {
+			Roi cropRoi = rois[i];
+			String name = cropRoi.getName();
+			imp.setRoi(cropRoi);
+			ImagePlus cropped = imp.crop(stackMode);
+			cropped.setTitle(name);
+			cropImps[i] = cropped;
+		}
+		return cropImps;
+	}
 
 	int getColumnCount(ImagePlus imp, int measurements) {
 		ImageStatistics stats = imp.getStatistics(measurements);
