@@ -2428,6 +2428,30 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			return new Duplicator().run(this, (int)s1, (int)s2);
 		}
 	}
+	
+	/** Returns an array of cropped ImagePlus according to the provided list of rois. 
+	 * 'options' applies if the ImagePlus is a stack and can be "stack", "slice" or a range (e.g., "20-30").
+	 * @see #crop
+	 * @see ij.plugin.Duplicator#crop
+	*/
+	public ImagePlus[] crop(Roi[] rois, String options) {
+		int nRois = rois.length; 
+		ImagePlus[] cropImps = new ImagePlus[nRois];
+		
+		for (int i=0; i<nRois; i++) {
+			Roi cropRoi = rois[i];
+			String name = cropRoi.getName();
+			if (options.equals("slice") && this.getStackSize()>1) {
+				int position = cropRoi.getPosition();
+				this.setSlice(position); // no effect if roi position is undefined (=0), ok
+			}
+			this.setRoi(cropRoi);
+			ImagePlus cropped = this.crop(options);
+			cropped.setTitle(name);
+			cropImps[i] = cropped;
+		}
+		return cropImps;
+	}
 
 	/** Returns a new ImagePlus with this image's attributes
 		(e.g. spatial scale), but no image. */

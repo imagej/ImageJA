@@ -2140,6 +2140,22 @@ public abstract class ImageProcessor implements Cloneable {
 	/** Returns a new processor containing an image
 		that corresponds to the current ROI. */
 	public abstract ImageProcessor crop();
+	
+	/** Returns an array of cropped ImageProcessor according to the provided list of rois. 
+	 * @see #crop
+	*/
+	public ImageProcessor[] crop(Roi[] rois) {
+		int nRois = rois.length; 
+		ImageProcessor[] cropIps = new ImageProcessor[nRois];
+		
+		for (int i=0; i<nRois; i++) {
+			Roi cropRoi = rois[i];
+			this.setRoi(cropRoi);
+			ImageProcessor cropped = this.crop();
+			cropIps[i] = cropped;
+		}
+		return cropIps;
+	}
 
 	/** Sets pixels less than or equal to level to 0 and all other
 		pixels to 255. Only works with 8-bit and 16-bit images. */
