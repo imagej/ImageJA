@@ -1200,19 +1200,13 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		return rtMulti;
 	}
 	
-	public static ImagePlus[] multiCrop(ImagePlus imp, Roi[] rois, String stackMode) {
-		int nRois = rois.length; 
-		ImagePlus[] cropImps = new ImagePlus[nRois];
-		
-		for (int i=0; i<nRois; i++) {
-			Roi cropRoi = rois[i];
-			String name = cropRoi.getName();
-			imp.setRoi(cropRoi);
-			ImagePlus cropped = imp.crop(stackMode);
-			cropped.setTitle(name);
-			cropImps[i] = cropped;
-		}
-		return cropImps;
+	/** This method allows to crop an ImagePlus once for each roi of the RoiManager.
+	 * if some rois are selected, only those are used for cropping, otherwise all rois 
+	 * of the RoiManager are used for cropping.
+     */
+	public ImagePlus[] multiCrop(ImagePlus imp, String options) {
+		Roi[] rois = getSelectedRoisAsArray();
+		return imp.crop(rois, options);
 	}
 
 	int getColumnCount(ImagePlus imp, int measurements) {
