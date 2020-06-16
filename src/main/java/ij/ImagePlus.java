@@ -2452,6 +2452,13 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 		return cropImps;
 	}
+	
+	/** Multi-roi cropping with default "slice" option
+	 * @see #crop
+	 */
+	public ImagePlus[] crop(Roi[] rois) {
+		return this.crop(rois, "slice");
+	}
 
 	/** Returns a new ImagePlus with this image's attributes
 		(e.g. spatial scale), but no image. */
