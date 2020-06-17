@@ -1,6 +1,6 @@
   var rCmds = newMenu("ROI Menu Tool", 
       newArray("Set Default Group...", "Set Default Stroke Width...", "-", 
-      "Set Group of Selected ROIs", "Select Group", "-", "Properties..." , "Install Keypad Shortcuts") );
+      "Set Group of Selected ROIs", "Select Group", "Multi-crop", "-", "Properties..." , "Install Keypad Shortcuts") );
 
   macro "ROI Menu Tool - C037T0d15RT8c12oTfc12i" {
       cmd = getArgument();
@@ -10,8 +10,10 @@
           setDefaultRoiStrokeWidth();
       else if (cmd=="Set Group of Selected ROIs")
           setRoiGroup();       
-       else if (cmd=="Select Group")
+      else if (cmd=="Select Group")
           selectRoiGroup();
+      else if (cmd=="Multi-crop")
+          multiCrop_Dialog();
       else if (cmd=="Properties...")
           properties();
       else if (cmd=="Install Keypad Shortcuts")
@@ -86,3 +88,36 @@
      else
         call("ij.plugin.frame.Recorder.recordString", "RoiManager.selectGroup("+group+");\n");
   }
+
+
+ function multiCrop_Dialog(){
+ 	image = getImageID();
+ 	n = nSlices();
+	
+	Dialog.create("ROI multiCrop");
+	
+	if (n>1) Dialog.addChoice("Crop stack to a", newArray("slice", "stack"));
+	
+	Dialog.addChoice("Choose output", newArray("show", "save", "both"));
+	Dialog.addChoice("Output image format (if saving)", newArray("tif", "jpg", "gif", "raw", "bmp", "png"));	
+	Dialog.show();
+	
+	// RECOVER CHOICES
+	// 1) crop mode for stacks
+	if (n>1)
+		mode = Dialog.getChoice();
+	else
+		mode = "slice";
+	
+	// 2) output type and 3) image file extension for saving
+	output    = Dialog.getChoice(); 
+	extension = Dialog.getChoice();
+	
+	// Ask output directory where to save images
+	if ((output=="save") || (output=="both"))
+		outDir = getDirectory("Select output directory");
+	else
+		outDir = "";
+	
+	RoiManager.multiCrop(mode, output, outDir, extension);
+ }
