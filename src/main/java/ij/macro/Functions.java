@@ -7737,6 +7737,7 @@ public class Functions implements MacroConstants, Measurements {
 					String title   = cropImp.getTitle(); 
 					String outPath = outDir + "/" + title; 
 					IJ.saveAs(cropImp, extension, outPath); //extension, outPath
+					IJ.showStatus("Saved cropped images in " + outDir);
 				}
 				
 			}
