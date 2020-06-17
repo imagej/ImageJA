@@ -7724,6 +7724,23 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.equals("selectGroup")) {
 			rm.selectGroup((int)getArg());
 			return null;
+		} else if (name.equals("multiCrop")) {
+			ImagePlus imp = getImage();
+			ImagePlus[] crops = rm.multiCrop(imp, getFirstString());
+			String output    = getNextString();
+			String outDir    = getNextString();
+			String extension = getLastString();
+			for (ImagePlus cropImp:crops) {
+				if (output.equals("show") || output.equals("both")) cropImp.show();
+				
+				if (output.equals("save") || output.equals("both")) {
+					String title   = cropImp.getTitle(); 
+					String outPath = outDir + "/" + title; 
+					IJ.saveAs(cropImp, extension, outPath); //extension, outPath
+				}
+				
+			}
+			return null;
 		} else
 			interp.error("Unrecognized RoiManager function");
 		return null;
