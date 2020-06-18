@@ -120,4 +120,10 @@
 		outDir = "";
 	
 	RoiManager.multiCrop(mode, output, outDir, extension);
+	if (call("ij.plugin.frame.Recorder.scriptMode")=="true")
+        call("ij.plugin.frame.Recorder.recordString", "rm.multiCrop(imp,'" + mode + "');\n");
+    else
+        call("ij.plugin.frame.Recorder.recordString", "RoiManager.multiCrop('" + mode + "','" + output + "','" + outDir + "','" + extension + "');\n");
+	
+	
  }
