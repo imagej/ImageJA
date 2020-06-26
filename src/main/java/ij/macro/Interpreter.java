@@ -1177,22 +1177,15 @@ public class Interpreter implements MacroConstants {
 	}
 
 	// Returns true if the token at the specified location is a string
-	private boolean isString(int pcLoc) {
+	boolean isString(int pcLoc) {
 		int tok = pgm.code[pcLoc];
 		if ((tok&0xff)==VARIABLE_FUNCTION) {
 			int address = tok>>TOK_SHIFT;
 			int type = pgm.table[address].type;
-			if (type==TABLE || type==ROI || type==PROPERTY) {
+			if (type==TABLE || type==ROI || type==PROPERTY || type==ROI_MANAGER2) {
 				int token2 = pgm.code[pcLoc+2];
 				String name = pgm.table[token2>>TOK_SHIFT].str;
-				if (name.equals("getStrokeColor") || name.equals("getDefaultColor")
-				|| name.equals("getFillColor") || name.equals("getName")
-				|| name.equals("getProperty") || name.equals("getProperties")
-				|| name.equals("getType") || name.equals("getString") || name.equals("title")
-				|| name.equals("headings") || name.equals("allHeadings")
-				|| name.equals("get") || name.equals("getInfo") || name.equals("getSliceLabel")
-				|| name.equals("getDicomTag") || name.equals("getList")
-				|| name.equals("getGroupNames"))
+				if (func.isStringFunction(name))
 					return true;
 			}
 		}
@@ -1241,14 +1234,13 @@ public class Interpreter implements MacroConstants {
 		||tokPlus2==MINUS_EQUAL||tokPlus2==MUL_EQUAL||tokPlus2==DIV_EQUAL)) {
 			getToken();
 			Variable v = lookupLocalVariable(tokenAddress);
-			if (v==null)
-				v = push(tokenAddress, 0.0, null, this);
+			int saveAddress = tokenAddress;
 			getToken();
 			double value = 0.0;
 			if (token=='=')
 				value = getAssignmentExpression();
 			else {
-				value = v.getValue();
+				value = v!=null?v.getValue():0.0;
 				switch (token) {
 					case PLUS_EQUAL: value += getAssignmentExpression(); break;
 					case MINUS_EQUAL: value -= getAssignmentExpression(); break;
@@ -1256,6 +1248,8 @@ public class Interpreter implements MacroConstants {
 					case DIV_EQUAL: value /= getAssignmentExpression(); break;
 				}
 			}
+			if (v==null)
+				v = push(saveAddress, 0.0, null, this);
 			v.setValue(value);
 			return value;
 		} else

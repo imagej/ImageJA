@@ -123,7 +123,7 @@ public class PointRoi extends PolygonRoi {
 	/** Creates a new PointRoi using the specified screen coordinates. */
 	public PointRoi(int sx, int sy, ImagePlus imp) {
 		super(makeXorYArray(sx, imp, false), makeXorYArray(sy, imp, true), 1, POINT);
-		defaultCounter = 0;
+		//defaultCounter = 0;
 		setImage(imp);
 		width=1; height=1;
 		type = defaultType;
@@ -476,8 +476,11 @@ public class PointRoi extends PolygonRoi {
 		}
 		if (points2.npoints==0)
 			return null;
-		else
-			return new PointRoi(points2.xpoints, points2.ypoints, points2.npoints);
+		else {
+			PointRoi roi2 = new PointRoi(points2.xpoints, points2.ypoints, points2.npoints);
+			roi2.copyAttributes(this);
+			return roi2;
+		}
 	}
 
 	public ImageProcessor getMask() {

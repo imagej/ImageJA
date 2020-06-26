@@ -49,10 +49,10 @@ public class ImageInfo implements PlugIn {
 		path = Prefs.getCustomPrefsPath();
 		if (path!=null)
 			s += "*Custom preferences*: "+ path +"\n";
-		if (IJ.isMacOSX()) {
-			String time = " ("+ImageWindow.setMenuBarTime+"ms)";
-			s += "SetMenuBarCount: "+Menus.setMenuBarCount+time+"\n";
-		}
+		//if (IJ.isMacOSX()) {
+		//	String time = " ("+ImageWindow.setMenuBarTime+"ms)";
+		//	s += "SetMenuBarCount: "+Menus.setMenuBarCount+time+"\n";
+		//}
 		new TextWindow("Info", s, 600, 300);
 	}
 
@@ -226,6 +226,9 @@ public class ImageInfo implements PlugIn {
 	    		s += "Bits per pixel: 32 (RGB)\n";
 	    		break;
     	}
+    	String lutName = imp.getProp(LUT.nameKey);
+    	if (lutName!=null)
+			s += "LUT name: "+lutName+"\n";    		
 		double interval = cal.frameInterval;
 		double fps = cal.fps;
     	if (stackSize>1) {
@@ -503,6 +506,8 @@ public class ImageInfo implements PlugIn {
 		for (int i=0; i<props.length; i+=2) {
 			String key = props[i];
 			String value = props[i+1];
+			if (LUT.nameKey.equals(key))
+				continue;
 			if (key!=null && value!=null && !key.equals("ShowInfo")) {
 				if (value.length()<80)
 					s += key + ": " + value + "\n";

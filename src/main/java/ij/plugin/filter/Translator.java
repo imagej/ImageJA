@@ -16,22 +16,25 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 	private PlugInFilterRunner pfr;
 	private static int interpolationMethod = ImageProcessor.NONE;
 	private String[] methods = ImageProcessor.getInterpolationMethods();
-	private boolean overlayTranslated;
 	private boolean previewing;
+	private Overlay origOverlay;
+	private boolean overlayOnly;
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
+		if (imp!=null)
+			origOverlay = imp.getOverlay();
 		return flags;
 	}
 
 	public void run(ImageProcessor ip) {
 		ip.setInterpolationMethod(interpolationMethod);
-		ip.translate(xOffset, yOffset);
-		if (!overlayTranslated && !previewing) {
-			Overlay overlay = imp.getOverlay();
-			if (overlay!=null)
-				overlay.translate(xOffset, yOffset);
-			overlayTranslated = true;
+		if (!overlayOnly || origOverlay==null)
+			ip.translate(xOffset, yOffset);
+		if (origOverlay!=null) {
+			Overlay overlay = origOverlay.duplicate();
+			overlay.translate(xOffset, yOffset);
+			imp.setOverlay(overlay);
 		}
 	}
 
@@ -41,15 +44,18 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 		if (IJ.isMacro())
 			interpolationMethod = ImageProcessor.NONE;
 		gd = new GenericDialog("Translate");
-		gd.addNumericField("X offset (pixels): ", xOffset, digits, 8, "");
-		gd.addNumericField("Y offset (pixels): ", yOffset, digits, 8, "");
+		gd.addSlider("X offset:", -100, 100, xOffset, 0.1);
+		gd.addSlider("Y offset:", -100, 100, xOffset, 0.1);
 		gd.addChoice("Interpolation:", methods, methods[interpolationMethod]);
+		gd.addCheckbox("Overlay only", false);
 		gd.addPreviewCheckbox(pfr);
 		gd.addDialogListener(this);
 		previewing = true;
 		gd.showDialog();
-		if (gd.wasCanceled())
+		if (gd.wasCanceled()) {
+			imp.setOverlay(origOverlay);
 			return DONE;
+		}
 		previewing = false;
 		return IJ.setupDialog(imp, flags);
 	}
@@ -58,6 +64,7 @@ public class Translator implements ExtendedPlugInFilter, DialogListener {
 		xOffset = gd.getNextNumber();
 		yOffset = gd.getNextNumber();
 		interpolationMethod = gd.getNextChoiceIndex();
+		overlayOnly = gd.getNextBoolean();
 		if (gd.invalidNumber()) {
 			if (gd.wasOKed()) IJ.error("Offset is invalid.");
 			return false;

@@ -276,6 +276,12 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 			fileMenu.addSeparator();
 			fileMenu.add(new MenuItem("Compile and Run", new MenuShortcut(KeyEvent.VK_R)));
 		}
+		if (text.startsWith("//@AutoInstall") && (name.endsWith(".ijm")||name.endsWith(".txt"))) {
+			boolean installInPluginsMenu = !name.contains("Tool.");
+			installMacros(text, installInPluginsMenu);
+			if ( text.startsWith("//@AutoInstallAndHide"))
+				dontShowWindow = true;		
+		}
 		if (IJ.getInstance()!=null && !dontShowWindow)
 			show();
 		if (dontShowWindow) {
@@ -303,8 +309,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	}
 	
 	void installMacros(String text, boolean installInPluginsMenu) {
-		if(rejectMacrosMsg != null){
-			if(rejectMacrosMsg.length()> 0)
+		if (rejectMacrosMsg != null){
+			if (rejectMacrosMsg.length()> 0)
 					IJ.showMessage("", rejectMacrosMsg);
 			return;
 		}
@@ -317,8 +323,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		installer = new MacroInstaller();
 		installer.setFileName(getTitle());
-		int nShortcutsOrTools = installer.install(text, macrosMenu);
-		if (installInPluginsMenu || nShortcutsOrTools>0)
+		int nShortcuts = installer.install(text, macrosMenu);
+		if (installInPluginsMenu || nShortcuts>0)
 			installer.install(null);
 		dontShowWindow = installer.isAutoRunAndHide();
 		currentMacroEditor = this;
@@ -1153,6 +1159,9 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 	public void saveAs() {
 		String name1 = getTitle();
 		if (name1.indexOf(".")==-1) name1 += ".txt";
+		if (defaultDir!=null && name1.endsWith(".java") && !defaultDir.startsWith(Menus.getPlugInsPath())) {
+			defaultDir = null;
+		}
 		if (defaultDir==null) {
 			if (name1.endsWith(".txt")||name1.endsWith(".ijm"))
 				defaultDir = Menus.getMacrosPath();

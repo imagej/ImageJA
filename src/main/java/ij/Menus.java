@@ -304,6 +304,15 @@ public class Menus {
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		
+		submenu = new Menu("Tools");
+		addExample(submenu, "Annular Selection", "Annular_Selection_Tool.ijm");		
+		addExample(submenu, "Big Cursor", "Big_Cursor_Tool.ijm");		
+		addExample(submenu, "Circle Tool", "Circle_Tool.ijm");
+		addExample(submenu, "Point Picker", "Point_Picker_Tool.ijm");		
+		addExample(submenu, "Star Tool", "Star_Tool.ijm");
+		submenu.addActionListener(listener);
+		menu.add(submenu);
+
 		submenu = new Menu("Macro");
 		addExample(submenu, "Sphere", "Sphere.ijm");
 		addExample(submenu, "Dialog Box", "Dialog_Box.ijm");
@@ -320,9 +329,6 @@ public class Menus {
 		addExample(submenu, "Synthetic Images", "Synthetic_Images.ijm");
 		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.ijm");
 		addExample(submenu, "Curve Fitting", "Curve_Fitting.ijm");
-		submenu.addSeparator();
-		addExample(submenu, "Circle Tool", "Circle_Tool.ijm");
-		addExample(submenu, "Star Tool", "Star_Tool.ijm");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 
@@ -1632,8 +1638,10 @@ public class Menus {
 	
 	public static Font getFont() {
 		if (menuFont==null) {
-			int size = fontSize==0?12:fontSize;
+			int size = fontSize==0?13:fontSize;
 			size = (int)Math.round(size*scale);
+			if (IJ.isWindows() && scale>1.0 && size>17)
+				size = 17;  // Java resets size to 12 if you try to set it to 18 or greater
 			menuFont =  new Font("SanSerif", Font.PLAIN, size);
 		}
 		//System.out.println("Menus.getFont: "+scale+" "+fontSize+" "+menuFont);
