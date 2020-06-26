@@ -271,7 +271,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		outline is also displayed.  Does nothing if there
 		is no window associated with this image (i.e. show()
 		has not been called).*/
-	public void draw(){
+	public void draw() {
 		if (win!=null)
 			win.getCanvas().repaint();
 	}
@@ -1935,9 +1935,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				roi = newRoi;
 				return;
 			}
-			newRoi = (Roi)newRoi.clone();
-			if (newRoi==null)
-				{deleteRoi(); return;}
+			if (newRoi==null) {
+				deleteRoi();
+				return;
+			}
+			ImagePlus imp = newRoi.getImage();
+			if (imp!=null && imp.getID()!=getID())
+				newRoi = (Roi)newRoi.clone();
+			newRoi.setImage(null);
 		}
 		if (bounds.width==0 && bounds.height==0 && !(newRoi.getType()==Roi.POINT||newRoi.getType()==Roi.LINE)) {
 			deleteRoi();
@@ -1979,9 +1984,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	public void createNewRoi(int sx, int sy) {
 		Roi previousRoi = roi;
 		deleteRoi();   //also saves the roi as <code>Roi.previousRoi</code> if non-null
-		if (Roi.previousRoi != null)
-			Roi.previousRoi.setImage(previousRoi== null ? null : this); //with 'this' it will be recalled in case of ESC
-
+		Roi prevRoi = Roi.getPreviousRoi();
+		if (prevRoi != null)
+			prevRoi.setImage(previousRoi==null ? null : this); //with 'this' it will be recalled in case of ESC
 		switch (Toolbar.getToolId()) {
 			case Toolbar.RECTANGLE:
 				if (Toolbar.getRectToolType()==Toolbar.ROTATED_RECT_ROI)
@@ -2012,7 +2017,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 				break;
 			case Toolbar.TEXT:
 				roi = new TextRoi(sx, sy, this);
-				((TextRoi)roi).setPreviousRoi(previousRoi);
+				((TextRoi)roi).setPreviousTextRoi(previousRoi);
 				break;
 			case Toolbar.POINT:
 				roi = new PointRoi(sx, sy, this);
@@ -2100,7 +2105,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			roi2.endPaste();
 			Rectangle r = roi2.getBounds();
 			if ((r.width>0 || r.height>0)) {
-				Roi.previousRoi = (Roi)roi2.clone();
+				Roi.setPreviousRoi(roi2);
 				if (IJ.debugMode) IJ.log("saveRoi: "+roi2);
 			}
 			if ((roi2 instanceof PointRoi) && ((PointRoi)roi2).promptBeforeDeleting()) {
@@ -2117,8 +2122,9 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			roi.notifyListeners(RoiListener.MODIFIED);
 			return;
 		}
-		if (Roi.previousRoi!=null) {
-			Roi pRoi = Roi.previousRoi;
+		Roi previousRoi = Roi.getPreviousRoi();
+		if (previousRoi!=null) {
+			Roi pRoi = previousRoi;
 			Rectangle r = pRoi.getBounds();
 			if (r.width<=width||r.height<=height||(r.x<width&&r.y<height)||isSmaller(pRoi)) { // will it (mostly) fit in this image?
 				roi = (Roi)pRoi.clone();
@@ -2402,7 +2408,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
 	/** Returns a cropped copy this image or stack, where 'options'
-	 * can be "stack", "slice" or a range (e.g., "20-30").
+	 * can be "stack", "slice", "whole-slice" or a range (e.g., "20-30").
 	 * @see #duplicate
 	 * @see #crop
 	 * @see ij.plugin.Duplicator#crop
@@ -2412,7 +2418,13 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		int stackSize = getStackSize();
 		if (options==null || options.equals("stack"))
 			return (new Duplicator()).run(this);
-		else if (options.equals("slice") || stackSize==1)
+		else if (options.contains("whole")) {
+			Roi saveRoi = getRoi();
+			deleteRoi();
+			ImagePlus imp2 = crop();
+			setRoi(saveRoi);
+			return imp2;
+		} else if (options.equals("slice") || stackSize==1)
 			return crop();
 		else {
 			String[] range = Tools.split(options, " -");
@@ -2427,6 +2439,41 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			if (s1>s2) {s1=1; s2=stackSize;}
 			return new Duplicator().run(this, (int)s1, (int)s2);
 		}
+	}
+	
+	/** Returns an array of cropped images based on the provided
+	 * list of rois. 'options' applies with stacks and can be "stack",
+	* "slice" or a range (e.g., "20-30").
+	 * @see #crop(ij.gui.Roi[])
+	*/
+	public ImagePlus[] crop(Roi[] rois, String options) {
+		int nRois = rois.length; 
+		ImagePlus[] cropImps = new ImagePlus[nRois];
+		for (int i=0; i<nRois; i++) {
+			Roi cropRoi = rois[i];
+			String name = cropRoi.getName();
+			if (options.equals("slice") && this.getStackSize()>1) {
+				int position = cropRoi.getPosition();
+				this.setSlice(position); // no effect if roi position is undefined (=0), ok
+			}
+			this.setRoi(cropRoi);
+			ImagePlus cropped = this.crop(options);
+			if (cropRoi.getType()!=Roi.RECTANGLE) {
+				Roi cropRoi2 = (Roi)cropRoi.clone();
+				cropRoi2.setLocation(0,0);
+				cropped.setRoi(cropRoi2);
+			}
+			String name2 = IJ.pad(i+1,3)+"_"+this.getTitle();
+			cropped.setTitle(name!=null?name:name2);
+			cropped.setOverlay(null);
+			cropImps[i] = cropped;
+		}
+		return cropImps;
+	}
+
+	/** Multi-roi cropping with default "slice" option. */
+	public ImagePlus[] crop(Roi[] rois) {
+		return this.crop(rois, "slice");
 	}
 
 	/** Returns a new ImagePlus with this image's attributes
@@ -2899,30 +2946,24 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		position[2] = t;
 	}
 
-	/** Returns a "flattened" version of this image, in RGB format. */
+	/** Returns a "flattened" version of this image, or stack slice, in RGB format. */
 	public ImagePlus flatten() {
 		if (IJ.debugMode) IJ.log("flatten");
-		ImagePlus imp2 = createImagePlus();
+		ImagePlus impCopy = this;
+		if (getStackSize()>1)
+			impCopy = crop("whole-slice");
+		ImagePlus imp2 = impCopy.createImagePlus();
+		imp2.setOverlay(impCopy.getOverlay());
 		imp2.setTitle(flattenTitle);
 		ImageCanvas ic2 = new ImageCanvas(imp2);
 		imp2.flatteningCanvas = ic2;
 		imp2.setRoi(getRoi());
-		if (getStackSize()>1) {
-			imp2.setStack(getStack());
-			imp2.setSlice(getCurrentSlice());
-			if (isHyperStack()) {
-				imp2.setDimensions(getNChannels(),getNSlices(),getNFrames());
-				imp2.setPosition(getChannel(),getSlice(),getFrame());
-				imp2.setOpenAsHyperStack(true);
-			}
-		}
 		Overlay overlay2 = getOverlay();
 		if (overlay2!=null && imp2.getRoi()!=null) {
 			imp2.deleteRoi();
 			if (getWindow()!=null) IJ.wait(100);
 		}
 		setPointScale(imp2.getRoi(), overlay2);
-		imp2.setOverlay(overlay2);
 		ImageCanvas ic = getCanvas();
 		if (ic!=null)
 			ic2.setShowAllList(ic.getShowAllList());

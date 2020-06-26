@@ -372,6 +372,7 @@ public class Selection implements PlugIn, Measurements {
 			fp.putPixelValue(i, 0, a[i]);
 		GaussianBlur gb = new GaussianBlur();
 		gb.blur1Direction(fp, 2.0, 0.01, true, 0);
+		IJ.showProgress(1.0);
 		for (int i=0; i<n; i++)
 			a[i] = (int)Math.round(fp.getPixelValue(i, 0));
 		return a;
@@ -639,7 +640,7 @@ public class Selection implements PlugIn, Measurements {
 		Undo.setup(Undo.ROI, imp);
 		Roi roi2 = lineToArea(roi);
 		imp.setRoi(roi2);
-		Roi.previousRoi = (Roi)roi.clone();
+		Roi.setPreviousRoi(roi);
 	}
 	
 	/** Converts a line selection into an area selection. */

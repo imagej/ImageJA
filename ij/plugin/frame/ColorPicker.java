@@ -187,9 +187,11 @@ class ColorGenerator extends ColorProcessor {
 
     void resetBW() {   //Paints the Color Reset Button
         setColor(0x000000);
-        drawRect(92, 300, 9, 7);
-        setColor(0x000000);
-        setRoi(88, 297, 9, 7);
+        setRoi(92, 300, 9, 7);
+        fill();
+        drawRect(88, 297, 9, 7);
+        setColor(0xffffff);
+        setRoi(89, 298, 7, 5);
         fill();
     }
 
@@ -213,6 +215,12 @@ class ColorGenerator extends ColorProcessor {
 } 
 
 class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
+	Rectangle flipperRect = new Rectangle(86, 268, 18, 18);
+	Rectangle resetRect = new Rectangle(86, 294, 18, 18);
+	Rectangle foreground1Rect = new Rectangle(9, 266, 45, 10);
+	Rectangle foreground2Rect = new Rectangle(9, 276, 23, 25);
+	Rectangle background1Rect = new Rectangle(33, 302, 45, 10);
+	Rectangle background2Rect = new Rectangle(56, 277, 23, 25);
 	int width, height;
 	Vector colors;
 	boolean background;
@@ -220,6 +228,7 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	ColorGenerator ip;
 	Frame frame;
 	double scale;
+	String status = "";
 			
 	public ColorCanvas(int width, int height, Frame frame, ColorGenerator ip, double scale) {
 		this.width=width; this.height=height;
@@ -247,13 +256,7 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		//IJ.log("mousePressed "+e);
 		ip.setLineWidth(1);
 		if (Toolbar.getToolId()==Toolbar.DROPPER)
-		IJ.setTool(Toolbar.RECTANGLE );
-		Rectangle flipperRect = new Rectangle(86, 268, 18, 18);
-		Rectangle resetRect = new Rectangle(86, 294, 18, 18);
-		Rectangle foreground1Rect = new Rectangle(9, 266, 45, 10);
-		Rectangle foreground2Rect = new Rectangle(9, 276, 23, 25);
-		Rectangle background1Rect = new Rectangle(33, 302, 45, 10);
-		Rectangle background2Rect = new Rectangle(56, 277, 23, 25);
+			IJ.setTool(Toolbar.RECTANGLE );
 		int x = (int)(e.getX()/scale);
 		int y = (int)(e.getY()/scale);
 		long difference = System.currentTimeMillis()-mouseDownTime;
@@ -263,9 +266,9 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 			Color c = Toolbar.getBackgroundColor();
 			Toolbar.setBackgroundColor(Toolbar.getForegroundColor());
 			Toolbar.setForegroundColor(c);
-		} else if(resetRect.contains(x,y)) {
-			Toolbar.setForegroundColor(new Color(0x000000));
-			Toolbar.setBackgroundColor(new Color(0xffffff)); 
+		} else if (resetRect.contains(x,y)) {
+			Toolbar.setForegroundColor(Color.white);
+			Toolbar.setBackgroundColor(Color.black); 
 		} else if ((background1Rect.contains(x,y)) || (background2Rect.contains(x,y))) {
 			background = true;
 			if (doubleClick) editColor();
@@ -277,11 +280,12 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 			ip.refreshBackground(background);
 			ip.refreshForeground(background);
 		} else {
-			//IJ.log(" " + difference + " " + doubleClick);
 			if (doubleClick)
 				editColor();
-			else
-				setDrawingColor(x, y, background); 
+			else {
+				setDrawingColor(x, y, background);
+			showStatus(" ", Toolbar.getForegroundColor().getRGB());
+			} 
 		}
 		if (background) {
 			ip.refreshForeground(background);
@@ -290,19 +294,23 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 			ip.refreshBackground(background);
 			ip.refreshForeground(background);
 		}
+		showStatus(" ", Toolbar.getForegroundColor().getRGB());
 		repaint();
 	}
 
 	public void mouseMoved(MouseEvent e) {
 		int x = (int)(e.getX()/scale);
 		int y = (int)(e.getY()/scale);
-		int p = ip.getPixel(x, y);
-		int r = (p&0xff0000)>>16;
-		int g = (p&0xff00)>>8;
-		int b = p&0xff;
-		String hex = Colors.colorToString(new Color(r,g,b));
-		IJ.showStatus("red="+pad(r)+", green="+pad(g)+", blue="+pad(b)+" ("+hex+")");
-
+		if (flipperRect.contains(x, y))
+			showStatus("Click to flip foreground and background colors", 0);
+		else if (resetRect.contains(x,y))
+			showStatus("Click to reset foreground to white, background to black", 0);
+		else if (!background && (background1Rect.contains(x,y) || background2Rect.contains(x,y)))
+			showStatus("Click to switch to background selection mode ", 0);
+		else if (background && (foreground1Rect.contains(x,y) || foreground2Rect.contains(x,y)))
+			showStatus("Click to switch to foreground selection mode", 0);
+		else
+			showStatus("", ip.getPixel(x, y));
 	}
 
 	String pad(int n) {
@@ -343,6 +351,18 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		ip.refreshBackground(false);
 		ip.refreshForeground(false);
 		repaint();
+	}
+	
+	private void showStatus(String msg, int rgb) {
+		if (msg.length()>1)
+			IJ.showStatus(msg);
+		else {
+			int r = (rgb&0xff0000)>>16;
+			int g = (rgb&0xff00)>>8;
+			int b = rgb&0xff;
+			String hex = Colors.colorToString(new Color(r,g,b));
+			IJ.showStatus("red="+pad(r)+", green="+pad(g)+", blue="+pad(b)+" ("+hex+") "+msg);
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {}
