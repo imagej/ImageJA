@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import com.leaningtech.client.Global;
 
 /**
  * This plugin implements the File/Import/URL command and the commands in the Help menu that 
@@ -61,8 +62,7 @@ public class BrowserLauncher implements PlugIn {
 		if (error) return;
 		if (theURL==null || theURL.equals(""))
 			theURL = IJ.URL;
-		try {openURL(theURL);}
-		catch (IOException e) {}
+		openURL(theURL);
 	}
 
 	/**
@@ -70,44 +70,8 @@ public class BrowserLauncher implements PlugIn {
 	 * @param url The URL to open
 	 * @throws IOException If the web browser could not be located or does not run
 	 */
-	public static void openURL(String url) throws IOException {
-		String errorMessage = "";
-		if (IJ.isMacOSX())
-			IJ.runMacro("exec('open', getArgument())",url);
-		else if (IJ.isWindows()) {
-			String cmd = "rundll32 url.dll,FileProtocolHandler " + url;
-			if (System.getProperty("os.name").startsWith("Windows 2000"))
-				cmd = "rundll32 shell32.dll,ShellExec_RunDLL " + url;
-			Process process = Runtime.getRuntime().exec(cmd);
-			// This avoids a memory leak on some versions of Java on Windows.
-			// That's hinted at in <http://developer.java.sun.com/developer/qow/archive/68/>.
-			try {
-				process.waitFor();
-				process.exitValue();
-			} catch (InterruptedException ie) {
-				throw new IOException("InterruptedException while launching browser: " + ie.getMessage());
-			}
-		} else {
-				// Assume Linux or Unix
-				// Based on BareBonesBrowserLaunch (http://www.centerkey.com/java/browser/)
-				// The utility 'xdg-open' launches the URL in the user's preferred browser,
-				// therefore we try to use it first, before trying to discover other browsers.
-				String[] browsers = {"xdg-open", "netscape", "firefox", "konqueror", "mozilla", "opera", "epiphany", "lynx" };
-				String browserName = null;
-				try {
-					for (int count=0; count<browsers.length && browserName==null; count++) {
-						String[] c = new String[] {"which", browsers[count]};
-						if (Runtime.getRuntime().exec(c).waitFor()==0)
-							browserName = browsers[count];
-					}
-					if (browserName==null)
-						ij.IJ.error("BrowserLauncher", "Could not find a browser");
-					else
-						Runtime.getRuntime().exec(new String[] {browserName, url});
-				} catch (Exception e) {
-					throw new IOException("Exception while launching browser: " + e.getMessage());
-				}
-		}
+	public static void openURL(String url) {
+		Global.jsCall("openURL", url);
 	}
 	
 }

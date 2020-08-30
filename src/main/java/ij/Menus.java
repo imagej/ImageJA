@@ -1140,7 +1140,7 @@ public class Menus {
 	
 	private static boolean validMacroName(String name, boolean hasUnderscore) {
 		return (hasUnderscore&&name.endsWith(".txt")) || name.endsWith(".ijm")
-			|| name.endsWith(".js") || name.endsWith(".bsh") || name.endsWith(".py");
+			|| (name.endsWith(".js") && !name.endsWith(".jar.js")) || name.endsWith(".bsh") || name.endsWith(".py");
 	}
 	
 	/** Installs a plugin in the Plugins menu using the class name,

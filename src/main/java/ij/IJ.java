@@ -460,6 +460,16 @@ public class IJ {
 		}
 	}
 	
+	/** Saves a bytes as a file. Displays a file save dialog if
+	'path' is null or blank. Returns an error message 
+	if there is an exception, otherwise returns null. */
+	public static String saveBytes(byte[] bytes, String path) {
+		return write(bytes, path, false);
+	}
+	public static String appendBytes(byte[] bytes, String path) {
+		return write(bytes, path, true);
+	}
+	
 	/**
 	* @deprecated
 	* replaced by IJ.log(), ResultsTable.setResult() and TextWindow.append().
@@ -2133,6 +2143,25 @@ public class IJ {
 		return null;
 	}
 
+	private static String write(byte[] bytes, String path, boolean append) {
+		if (path==null || path.equals("")) {
+			String msg = append?"Append Bytes...":"Save Bytes...";
+			SaveDialog sd = new SaveDialog(msg, "Untitled", "");
+			String name = sd.getFileName();
+			if (name==null) return null;
+			path = sd.getDirectory() + name;
+		}
+		try {
+			FileOutputStream out = new FileOutputStream(path, append);
+			out.write(bytes);
+			out.close();
+		}catch (IOException e) {
+			return ""+e;
+		}
+		return null;
+	}
+
+
 	/** Opens a text file as a string. Displays a file open dialog
 		if path is null or blank. Returns null if the user cancels
 		the file open dialog. If there is an error, returns a 
@@ -2194,6 +2223,32 @@ public class IJ {
 			return null;
 		}
 		return ByteBuffer.wrap(buffer);
+	}
+
+	public static byte[] openAsBytes(String path) {
+		ByteBuffer buffer = openAsByteBuffer(path);
+		byte[] arr = new byte[buffer.remaining()];
+		buffer.get(arr);
+		return arr;
+	}
+
+	public static String[] listDir(String path) {
+		File f = new File(path);
+
+        // Populates the array with names of files and directories
+        String[] pathnames = f.list();
+
+        // For each pathname in the pathnames array
+        for (String pathname : pathnames) {
+            // Print the names of files and directories
+            System.out.println(pathname);
+		}
+		return pathnames;
+	}
+
+	public static boolean removeFile(String path) {
+		File f = new File(path);
+		return f.delete();
 	}
 
 	/** Creates a new image.

@@ -92,6 +92,19 @@ public class PluginInstaller implements PlugIn {
 		//IJ.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))
 			return false;
+
+		// for ImageJ.JS, also install the js file
+		if (isURL) {
+			data = download(path+".js", name+".js");
+			if(!savePlugin(new File(dir,name+".js"), data))
+			return false;
+		} else {
+			File f = new File(path+".js");
+			data = download(f);
+			if(!savePlugin(new File(dir, f.getName()), data))
+			return false;
+		}
+		
 		if (name.endsWith(".java"))
 			IJ.runPlugIn("ij.plugin.Compiler", dir+name);
 		Menus.updateImageJMenus();

@@ -1146,7 +1146,8 @@ public class Editor extends PlugInFrame implements ActionListener, ItemListener,
 		}
 		if (okayToClose) {
 			//setVisible(false);
-			dispose();
+			// disable for ImageJ.JS
+			// dispose();
 			WindowManager.removeWindow(this);
 			nWindows--;
 			instance = null;

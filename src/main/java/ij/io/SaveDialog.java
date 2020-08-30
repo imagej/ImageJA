@@ -8,6 +8,7 @@ import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.util.Java2;
 import ij.macro.Interpreter;
+import com.leaningtech.client.Global;
 
 /** This class displays a dialog window from 
 	which the user can save a file. */ 
@@ -132,6 +133,8 @@ public class SaveDialog {
 					ext = null;
 				name = setExtension(name, ext);
 			}
+			// for ImageJ.JS
+			Global.jsCall("onSaveFileSelected", dir+name);
 		}
 	}
 
@@ -225,6 +228,8 @@ public class SaveDialog {
 		fd.dispose();
 		if (ij==null)
 			parent.dispose();
+		// for ImageJ.JS
+		Global.jsCall("onSaveFileSelected", dir+(name==null?"":name));
 	}
 	
 	private boolean noExtension(String name) {

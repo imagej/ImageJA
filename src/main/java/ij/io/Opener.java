@@ -600,13 +600,7 @@ public class Opener {
 	}
 
 	ImagePlus openJpegOrGifUsingURL(String title, URL url) {
-		if (url==null) return null;
-		Image img = Toolkit.getDefaultToolkit().createImage(url);
-		if (img!=null) {
-			ImagePlus imp = new ImagePlus(title, img);
-			return imp;
-		} else
-			return null;
+		return openPngUsingURL(title, url);
 	}
 
 	ImagePlus openPngUsingURL(String title, URL url) {

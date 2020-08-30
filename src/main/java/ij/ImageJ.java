@@ -230,7 +230,9 @@ public class ImageJ extends Frame implements ActionListener,
 			loadCursors();
 		(new ij.macro.StartupRunner()).run(batchMode); // run RunAtStartup and AutoRun macros
 		IJ.showStatus(version()+ m.getPluginCount() + " commands; " + m.getMacroCount() + str);
- 	}
+		// For ImageJ.JS
+		Prefs.useJFileChooser = true;
+	}
  	
  	private void loadCursors() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
