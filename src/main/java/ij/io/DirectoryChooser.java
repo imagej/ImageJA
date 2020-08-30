@@ -37,7 +37,7 @@ import javax.swing.filechooser.*;
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-					JFileChooser chooser = new JFileChooser();
+					JSFileChooser chooser = new JSFileChooser();
 					chooser.setDialogTitle(title);
 					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					String defaultDir = OpenDialog.getDefaultDirectory();
@@ -64,7 +64,7 @@ import javax.swing.filechooser.*;
  	void getDirectoryUsingJFileChooserOnThisThread(final String title) {
 		Java2.setSystemLookAndFeel();
 		try {
-			JFileChooser chooser = new JFileChooser();
+			JSFileChooser chooser = new JSFileChooser();
 			chooser.setDialogTitle(title);
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			String defaultDir = OpenDialog.getDefaultDirectory();

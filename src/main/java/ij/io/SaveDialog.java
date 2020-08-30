@@ -103,7 +103,7 @@ public class SaveDialog {
 	// Save using JFileChooser.
 	// assumes we are running on the event dispatch thread
 	void jSaveDispatchThread(String title, String defaultDir, String defaultName) {
-		JFileChooser fc = new JFileChooser();
+		JSFileChooser fc = new JSFileChooser();
 		fc.setDialogTitle(title);
 		if (defaultDir!=null) {
 			File f = new File(defaultDir);
@@ -144,7 +144,7 @@ public class SaveDialog {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-					JFileChooser fc = new JFileChooser();
+					JSFileChooser fc = new JSFileChooser();
 					fc.setDialogTitle(title);
 					if (defaultDir!=null) {
 						File f = new File(defaultDir);

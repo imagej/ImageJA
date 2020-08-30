@@ -190,7 +190,7 @@ public class Opener {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-					JFileChooser fc = new JFileChooser();
+					JSFileChooser fc = new JSFileChooser();
 					fc.setMultiSelectionEnabled(true);
 					File dir = null;
 					String sdir = OpenDialog.getDefaultDirectory();

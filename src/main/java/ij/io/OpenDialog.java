@@ -98,7 +98,7 @@ import javax.swing.filechooser.*;
 	// Uses the JFileChooser class to display the dialog box.
 	// Assumes we are running on the event dispatch thread
 	void jOpenDispatchThread(String title, String path, final String fileName) {
-		JFileChooser fc = new JFileChooser();
+		JSFileChooser fc = new JSFileChooser();
 		fc.setDialogTitle(title);
 		File fdir = null;
 		if (path!=null)
@@ -123,7 +123,7 @@ import javax.swing.filechooser.*;
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-				JFileChooser fc = new JFileChooser();
+				JSFileChooser fc = new JSFileChooser();
 				fc.setDialogTitle(title);
 				File fdir = null;
 				if (path!=null)
