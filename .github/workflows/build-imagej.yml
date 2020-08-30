@@ -31,3 +31,4 @@ jobs:
           tag: ${{ env.RELEASE_TAG }}
           name: ${{ env.RELEASE_NAME }}
           files: imagej-js-dist/
+          allow_override: yes
