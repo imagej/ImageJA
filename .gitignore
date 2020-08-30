@@ -2,3 +2,5 @@
 .project
 .settings
 target
+dist
+.DS_Store
