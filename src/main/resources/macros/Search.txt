@@ -22,7 +22,7 @@
 
   Dialog.create("Search");
   Dialog.addString("_", str, 20);
-  items = newArray("Macros", "Scripts", "Java", "ImageJ folder", "Choose...");
+  items = newArray("Macros", "Scripts", "Java", "IJ folder", "Choose...");
   Dialog.setInsets(2,20,0);
   Dialog.addRadioButtonGroup("Search:", items, 5, 1, search);
   Dialog.setInsets(0, 20, 0);
@@ -51,7 +51,7 @@
       if (sourceExists)
          dir2 = IJdir+"source"+"/";
       extensions = newArray(".java");
-  } else if (search=="ImageJ folder") {
+  } else if (search=="IJ folder") {
       dir1 = getDirectory("imagej");
       searchNames = true;
   } else if (search=="Choose...") {
