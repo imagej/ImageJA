@@ -38,7 +38,6 @@ public class JSFileChooser extends JFileChooser {
             });
             while(jsFilePath==null){
                 try {
-                    System.out.println(".");
                     Thread.sleep(500);
                 } catch (Exception e) {
                     break;
@@ -63,7 +62,6 @@ public class JSFileChooser extends JFileChooser {
                     public void run() {
                         while(jsFilePath==null){
                             try {
-                                System.out.println(".");
                                 Thread.sleep(500);
                             } catch (Exception e) {
                                 break;
