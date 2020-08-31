@@ -116,13 +116,14 @@ public class SaveDialog {
 		if (returnVal!=JFileChooser.APPROVE_OPTION)
 			{Macro.abort(); return;}
 		File f = fc.getSelectedFile();
-		if(f.exists()) {
-			int ret = JOptionPane.showConfirmDialog (fc,
-				"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
-				"Replace?",
-				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (ret!=JOptionPane.OK_OPTION) f = null;
-		}
+		// for ImageJ.JS we will always replace since the saving is done in the browser
+		// if(f.exists()) {
+		// 	int ret = JOptionPane.showConfirmDialog (fc,
+		// 		"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
+		// 		"Replace?",
+		// 		JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		// 	if (ret!=JOptionPane.OK_OPTION) f = null;
+		// }
 		if (f==null)
 			Macro.abort();
 		else {
@@ -157,13 +158,14 @@ public class SaveDialog {
 					if (returnVal!=JFileChooser.APPROVE_OPTION)
 						{Macro.abort(); return;}
 					File f = fc.getSelectedFile();
-					if(f.exists()) {
-						int ret = JOptionPane.showConfirmDialog (fc,
-							"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
-							"Replace?",
-							JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-						if (ret!=JOptionPane.OK_OPTION) f = null;
-					}
+					// for ImageJ.JS we will always replace since the saving is done in the browser
+					// if(f.exists()) {
+					// 	int ret = JOptionPane.showConfirmDialog (fc,
+					// 		"The file "+ f.getName() + " already exists. \nWould you like to replace it?",
+					// 		"Replace?",
+					// 		JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					// 	if (ret!=JOptionPane.OK_OPTION) f = null;
+					// }
 					if (f==null)
 						Macro.abort();
 					else {
@@ -204,22 +206,24 @@ public class SaveDialog {
 			if (".raw".equals(ext))
 				ext = null;
 			name = setExtension(name, ext);
-			boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJ.isMacro();
-			if (dialog) {
-				File f = new File( fd.getDirectory()+getFileName());
-				if (!f.exists()) dialog = false;
-			}
-			if (dialog) {
-				Font font = new Font("SansSerif", Font.BOLD, 12);
-				GenericDialog gd = new GenericDialog("Replace File?");
-				gd.addMessage("\""+name+"\" already exists.\nDo you want to replace it?", font);
-				gd.addMessage("To avoid this dialog, enable"
-				+"\n\"Show all filename extensions\"\nin Finder Preferences.");
-				gd.setOKLabel("Replace");
-				gd.showDialog();
-				if (gd.wasCanceled())
-					name = null;
-			}
+			// for ImageJ.JS we will always replace since the saving is done in the browser
+			// boolean dialog = name!=null && !name.equals(origName) && IJ.isMacOSX() && !IJ.isMacro();
+			// if (dialog) {
+			// 	File f = new File( fd.getDirectory()+getFileName());
+			// 	if (!f.exists()) dialog = false;
+			// }
+			
+			// if (dialog) {
+			// 	Font font = new Font("SansSerif", Font.BOLD, 12);
+			// 	GenericDialog gd = new GenericDialog("Replace File?");
+			// 	gd.addMessage("\""+name+"\" already exists.\nDo you want to replace it?", font);
+			// 	gd.addMessage("To avoid this dialog, enable"
+			// 	+"\n\"Show all filename extensions\"\nin Finder Preferences.");
+			// 	gd.setOKLabel("Replace");
+			// 	gd.showDialog();
+			// 	if (gd.wasCanceled())
+			// 		name = null;
+			// }
 		}
 		if (IJ.debugMode) IJ.log(origName+"->"+name);
 		dir = fd.getDirectory();
@@ -229,6 +233,8 @@ public class SaveDialog {
 		if (ij==null)
 			parent.dispose();
 		// for ImageJ.JS
+		// make sure we save it into a writable folder
+		dir = dir.replace("/str/", "/files/");
 		Global.jsCall("onSaveFileSelected", dir+(name==null?"":name));
 	}
 	

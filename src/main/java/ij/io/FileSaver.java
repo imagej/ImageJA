@@ -45,19 +45,21 @@ public class FileSaver {
 		boolean validName = ofi!=null && imp.getTitle().equals(ofi.fileName);
 		if (validName && ofi.fileFormat==FileInfo.TIFF && ofi.directory!=null && !ofi.directory.equals("") && (ofi.url==null||ofi.url.equals(""))) {
             name = imp.getTitle();
-            directory = ofi.directory;
-			String path = directory+name;
+			directory = ofi.directory;
+			// make sure we save it to `/files/` since `/str/` is readonly
+			String path = (directory+name).replace("/str/", "/files/");
 			File f = new File(path);
 			if (f==null || !f.exists())
 				return saveAsTiff();
-			if (!IJ.isMacro()) {
-				GenericDialog gd = new GenericDialog("Save as TIFF");
-				gd.addMessage("\""+ofi.fileName+"\" already exists.\nDo you want to replace it?");
-				gd.setOKLabel("Replace");
-				gd.showDialog();
-				if (gd.wasCanceled())
-					return false;
-			}
+			// for ImageJ.JS we will always replace since the saving is done in the browser
+			// if (!IJ.isMacro()) {
+			// 	GenericDialog gd = new GenericDialog("Save as TIFF");
+			// 	gd.addMessage("\""+ofi.fileName+"\" already exists.\nDo you want to replace it?");
+			// 	gd.setOKLabel("Replace");
+			// 	gd.showDialog();
+			// 	if (gd.wasCanceled())
+			// 		return false;
+			// }
 			IJ.showStatus("Saving "+path);
 			if (imp.getStackSize()>1) {
 				IJ.saveAs(imp, "tif", path);
