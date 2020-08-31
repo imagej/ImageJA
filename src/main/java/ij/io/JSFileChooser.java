@@ -17,7 +17,8 @@ public class JSFileChooser extends JFileChooser {
     private static final long serialVersionUID = 1L;
     // Getting a file from javascript
 	// Either selected from internal file system or uploaded
-	private static String jsFilePath;
+    private static String jsFilePath;
+    private static boolean userSelected;
 	public interface Promise{
 		void resolve(String result);
 		void reject(String error);
@@ -25,18 +26,21 @@ public class JSFileChooser extends JFileChooser {
 
 	public static String showFileDialogJS(String func, String title, String initPath, int selectionMode){
         jsFilePath = null;
+        userSelected = false;
         if(EventQueue.isDispatchThread()){
             Global.jsCall(func, title, initPath, selectionMode, new Promise(){
                 public void resolve(String path){
                     // make sure it's not null
                     if(path == null) path = "";
                     jsFilePath = path;
+                    userSelected = true;
                 }
                 public void reject(String error){
-                    jsFilePath = "";
+                    jsFilePath = null;
+                    userSelected = true;
                 }
             });
-            while(jsFilePath==null){
+            while(!userSelected){
                 try {
                     Thread.sleep(500);
                 } catch (Exception e) {
@@ -51,16 +55,18 @@ public class JSFileChooser extends JFileChooser {
                     // make sure it's not null
                     if(path == null) path = "";
                     jsFilePath = path;
+                    userSelected = true;
                 }
                 public void reject(String error){
-                    jsFilePath = "";
+                    jsFilePath = null;
+                    userSelected = true;
                 }
             });
             try {
                 // block execution until we get the file path from js
                 EventQueue.invokeAndWait(new Runnable() {
                     public void run() {
-                        while(jsFilePath==null){
+                        while(!userSelected){
                             try {
                                 Thread.sleep(500);
                             } catch (Exception e) {
@@ -100,9 +106,12 @@ public class JSFileChooser extends JFileChooser {
         }
 
         String ret = showFileDialogJS(func, title, defaultFile, super.getFileSelectionMode());
-        if(ret == "" || ret == null){
+        if(ret == null) {
+            return JFileChooser.CANCEL_OPTION;
+        }
+        else if(ret.isEmpty()){
             return super.showOpenDialog(parent);
-        }    
+        }
         else{
             File f = new File(ret);
             if (IJ.debugMode)
