@@ -9,4 +9,7 @@ cp target/ij-1.53c.jar ${IJ_DIR}/ij.jar
 
 cd ${IJ_DIR}
 ${CHEERPJ_DIR}/cheerpjfy.py ij.jar
-# ${CHEERPJ_DIR}/cheerpjfy.py  --deps=ij.jar plugins/Thunder_STORM.jar
+
+curl https://github.com/zitmen/thunderstorm/releases/download/v1.3/Thunder_STORM.jar -LO
+mv Thunder_STORM.jar plugins/Thunder_STORM.jar
+${CHEERPJ_DIR}/cheerpjfy.py  --deps=ij.jar plugins/Thunder_STORM.jar

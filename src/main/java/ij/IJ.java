@@ -2000,7 +2000,16 @@ public class IJ {
 		save dialog is displayed. */
  	public static void saveAs(String format, String path) {
  		saveAs(null, format, path);
- 	}
+	 }
+	 
+	/* Saves the specified image and return bytes */
+	public static byte[] saveAsBytes(ImagePlus imp, String format) {
+		String tmp = "/files/tmp";
+		saveAs(imp, format, tmp);
+		byte[] bytes = openAsBytes(tmp);
+		removeFile(tmp);
+		return bytes;
+	}
 
 	/* Saves the specified image. The format argument must be "tiff",  
 		"jpeg", "gif", "zip", "raw", "avi", "bmp", "fits", "pgm", "png", 
@@ -2198,6 +2207,11 @@ public class IJ {
 	}
 	
 	public static ByteBuffer openAsByteBuffer(String path) {
+		byte[] buffer = openAsBytes(path);
+		return ByteBuffer.wrap(buffer);
+	}
+
+	public static byte[] openAsBytes(String path) {
 		if (path==null || path.equals("")) {
 			OpenDialog od = new OpenDialog("Open as ByteBuffer", "");
 			String directory = od.getDirectory();
@@ -2222,14 +2236,7 @@ public class IJ {
 			error("OpenAsByteBuffer", e.getMessage());
 			return null;
 		}
-		return ByteBuffer.wrap(buffer);
-	}
-
-	public static byte[] openAsBytes(String path) {
-		ByteBuffer buffer = openAsByteBuffer(path);
-		byte[] arr = new byte[buffer.remaining()];
-		buffer.get(arr);
-		return arr;
+		return buffer;
 	}
 
 	public static String[] listDir(String path) {

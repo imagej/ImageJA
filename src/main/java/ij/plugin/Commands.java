@@ -29,6 +29,8 @@ public class Commands implements PlugIn {
 			close();
 		else if (cmd.equals("close-all"))
 			closeAll();
+		else if (cmd.equals("clear-cached"))
+			clearCached();
 		else if (cmd.equals("save"))
 			save();
 		else if (cmd.equals("revert"))
@@ -66,6 +68,23 @@ public class Commands implements PlugIn {
 				new FileSaver(imp).save();
 		} else
 			IJ.noImage();
+	}
+
+	void clearCached(){
+		String[] pathnames = IJ.listDir("/files");
+		if(pathnames.length>0){
+			GenericDialog gd = new GenericDialog("Removing all files in IndexedDB?", IJ.getInstance());
+				gd.addMessage("Are you sure you want to remove all the cached files?");
+				gd.showDialog();
+			if(!gd.wasCanceled()){
+				for (String pathname : pathnames) {
+					IJ.removeFile("/files" + pathname);
+				}
+			}
+		}
+		else{
+			IJ.showMessage("Your internal file system is empty.");
+		}
 	}
 	
     void undo() {

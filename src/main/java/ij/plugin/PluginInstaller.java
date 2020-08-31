@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.*;
 import java.util.*;
+import java.util.zip.*;
 
 /** Installs plugins dragged and dropped on the "ImageJ" window, or plugins,
 	macros or scripts opened using the Plugins/Install command. */
@@ -51,13 +52,13 @@ public class PluginInstaller implements PlugIn {
 			return false;
 		if (name.endsWith(".txt") && !name.contains("_"))
 			name = name.substring(0,name.length()-4) + ".ijm";
-		if (name.endsWith(".zip")) {
-			if (!name.contains("_")) {
-				IJ.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
-				return false;
-			}
-			name = name.substring(0,name.length()-4) + ".jar";
-		}
+		// if (name.endsWith(".zip")) {
+		// 	if (!name.contains("_")) {
+		// 		IJ.error("Plugin Installer", "No underscore in file name:\n \n  "+name);
+		// 		return false;
+		// 	}
+		// 	name = name.substring(0,name.length()-4) + ".jar";
+		// }
 		String dir = null;
 		boolean isLibrary = name.endsWith(".jar") && !name.contains("_");
 		if (isLibrary) {
@@ -83,27 +84,18 @@ public class PluginInstaller implements PlugIn {
 			}
 		}
 		if (dir==null) {
-			SaveDialog sd = new SaveDialog("Save Plugin, Macro or Script...", Menus.getPlugInsPath(), name, null);
-			String name2 = sd.getFileName();
-			if (name2==null)
-				return false;
-			dir = sd.getDirectory();
+			// SaveDialog sd = new SaveDialog("Save Plugin, Macro or Script...", Menus.getPlugInsPath(), name, null);
+			// String name2 = sd.getFileName();
+			// if (name2==null)
+			// 	return false;
+			// dir = sd.getDirectory();
+			dir = "/files/";
 		}
+		// for ImageJ.JS, make sure it's writable
+		dir = dir.replace("/str/", "/files/");
 		//IJ.log(dir+"   "+Menus.getPlugInsPath());
 		if (!savePlugin(new File(dir,name), data))
 			return false;
-
-		// for ImageJ.JS, also install the js file
-		if (isURL) {
-			data = download(path+".js", name+".js");
-			if(!savePlugin(new File(dir,name+".js"), data))
-			return false;
-		} else {
-			File f = new File(path+".js");
-			data = download(f);
-			if(!savePlugin(new File(dir, f.getName()), data))
-			return false;
-		}
 		
 		if (name.endsWith(".java"))
 			IJ.runPlugIn("ij.plugin.Compiler", dir+name);
@@ -118,6 +110,40 @@ public class PluginInstaller implements PlugIn {
 			}
 		}
 		return true;
+	}
+
+	public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.getName());
+        
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
+        
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
+        
+        return destFile;
+    }
+
+	private void unzip(String fileZip, String dest) throws IOException {
+		System.out.println("unzipping " + fileZip + "  to  " + dest);
+		File destDir = new File(dest);
+		destDir.mkdirs();
+        byte[] buffer = new byte[1024];
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip));
+        ZipEntry zipEntry = zis.getNextEntry();
+        while (zipEntry != null) {
+            File newFile = newFile(destDir, zipEntry);
+            FileOutputStream fos = new FileOutputStream(newFile);
+            int len;
+            while ((len = zis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+            fos.close();
+            zipEntry = zis.getNextEntry();
+        }
+        zis.closeEntry();
+        zis.close();
 	}
 	
 	private String getToolName(byte[] data) {
@@ -155,6 +181,8 @@ public class PluginInstaller implements PlugIn {
 			FileOutputStream out = new FileOutputStream(f);
 			out.write(data, 0, data.length);
 			out.close();
+			if(f.getPath().endsWith(".zip"))
+			unzip(f.getPath(), "/files/plugins/");
 		} catch (IOException e) {
 			IJ.error("Plugin Installer", ""+e);
 			return false;

@@ -135,7 +135,8 @@ public class SaveDialog {
 				name = setExtension(name, ext);
 			}
 			// for ImageJ.JS
-			Global.jsCall("onSaveFileSelected", dir+name);
+			// make sure we save it into a writable folder
+			dir = dir.replace("/str/", "/files/");
 		}
 	}
 
@@ -235,7 +236,6 @@ public class SaveDialog {
 		// for ImageJ.JS
 		// make sure we save it into a writable folder
 		dir = dir.replace("/str/", "/files/");
-		Global.jsCall("onSaveFileSelected", dir+(name==null?"":name));
 	}
 	
 	private boolean noExtension(String name) {

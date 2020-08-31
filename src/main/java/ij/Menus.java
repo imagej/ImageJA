@@ -262,6 +262,8 @@ public class Menus {
 			installPlugins();
 		}
 
+		addPlugInItem(file, "Clear Cached Files", "ij.plugin.Commands(\"clear-cached\")", 0, false);
+
 		// make	sure "Quit" is the last item in the File menu
 		file.addSeparator();
 		addPlugInItem(file, "Quit", "ij.plugin.Commands(\"quit\")", 0, false);
