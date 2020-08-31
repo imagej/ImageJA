@@ -48,8 +48,8 @@ public class Menus {
 
 	private static Menus instance;
 	private static MenuBar mbar;
-	private static CheckboxMenuItem gray8Item,gray16Item,gray32Item,
-			color256Item,colorRGBItem,RGBStackItem,HSBStackItem,LabStackItem;
+	// private static CheckboxMenuItem gray8Item,gray16Item,gray32Item,
+	// 		color256Item,colorRGBItem,RGBStackItem,HSBStackItem,LabStackItem;
 	private static PopupMenu popup;
 
 	private static ImageJ ij;
@@ -154,15 +154,15 @@ public class Menus {
 		
 		Menu image = getMenu("Image");
 		Menu imageType = getMenu("Image>Type");
-			gray8Item = addCheckboxItem(imageType, "8-bit", "ij.plugin.Converter(\"8-bit\")");
-			gray16Item = addCheckboxItem(imageType, "16-bit", "ij.plugin.Converter(\"16-bit\")");
-			gray32Item = addCheckboxItem(imageType, "32-bit", "ij.plugin.Converter(\"32-bit\")");
-			color256Item = addCheckboxItem(imageType, "8-bit Color", "ij.plugin.Converter(\"8-bit Color\")");
-			colorRGBItem = addCheckboxItem(imageType, "RGB Color", "ij.plugin.Converter(\"RGB Color\")");
+			addPlugInItem(imageType, "8-bit", "ij.plugin.Converter(\"8-bit\")", 0, false);
+			addPlugInItem(imageType, "16-bit", "ij.plugin.Converter(\"16-bit\")", 0, false);
+			addPlugInItem(imageType, "32-bit", "ij.plugin.Converter(\"32-bit\")", 0, false);
+			addPlugInItem(imageType, "8-bit Color", "ij.plugin.Converter(\"8-bit Color\")", 0, false);
+			addPlugInItem(imageType, "RGB Color", "ij.plugin.Converter(\"RGB Color\")", 0, false);
 			imageType.add(new MenuItem("-"));
-			RGBStackItem = addCheckboxItem(imageType, "RGB Stack", "ij.plugin.Converter(\"RGB Stack\")");
-			HSBStackItem = addCheckboxItem(imageType, "HSB Stack", "ij.plugin.Converter(\"HSB Stack\")");
-			LabStackItem = addCheckboxItem(imageType, "Lab Stack", "ij.plugin.Converter(\"Lab Stack\")");
+			addPlugInItem(imageType, "RGB Stack", "ij.plugin.Converter(\"RGB Stack\")", 0, false);
+			addPlugInItem(imageType, "HSB Stack", "ij.plugin.Converter(\"HSB Stack\")", 0, false);
+			addPlugInItem(imageType, "Lab Stack", "ij.plugin.Converter(\"Lab Stack\")", 0, false);
 			image.add(imageType);
 			
 		image.addSeparator();
@@ -1225,14 +1225,14 @@ public class Menus {
 	/** Updates the Image/Type and Window menus. */
 	public static void updateMenus() {
 		if (ij==null) return;
-		gray8Item.setState(false);
-		gray16Item.setState(false);
-		gray32Item.setState(false);
-		color256Item.setState(false);
-		colorRGBItem.setState(false);
-		RGBStackItem.setState(false);
-		HSBStackItem.setState(false);
-		LabStackItem.setState(false);
+		// gray8Item.setState(false);
+		// gray16Item.setState(false);
+		// gray32Item.setState(false);
+		// color256Item.setState(false);
+		// colorRGBItem.setState(false);
+		// RGBStackItem.setState(false);
+		// HSBStackItem.setState(false);
+		// LabStackItem.setState(false);
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null)
 			return;
@@ -1246,32 +1246,32 @@ public class Menus {
     		else if (stack.isLab())
     			type = LAB_STACK;
     	}
-    	switch (type) {
-    		case ImagePlus.GRAY8:
-				gray8Item.setState(true);
-				break;
-     		case ImagePlus.GRAY16:
-				gray16Item.setState(true);
-				break;
-     		case ImagePlus.GRAY32:
-				gray32Item.setState(true);
-				break;
-   			case ImagePlus.COLOR_256:
-				color256Item.setState(true);
-				break;
-    		case ImagePlus.COLOR_RGB:
-				colorRGBItem.setState(true);
-				break;
-    		case RGB_STACK:
-				RGBStackItem.setState(true);
-				break;
-    		case HSB_STACK:
-				HSBStackItem.setState(true);
-				break;
-    		case LAB_STACK:
-				LabStackItem.setState(true);
-				break;
-		}
+    	// switch (type) {
+    	// 	case ImagePlus.GRAY8:
+		// 		gray8Item.setState(true);
+		// 		break;
+     	// 	case ImagePlus.GRAY16:
+		// 		gray16Item.setState(true);
+		// 		break;
+     	// 	case ImagePlus.GRAY32:
+		// 		gray32Item.setState(true);
+		// 		break;
+   		// 	case ImagePlus.COLOR_256:
+		// 		color256Item.setState(true);
+		// 		break;
+    	// 	case ImagePlus.COLOR_RGB:
+		// 		colorRGBItem.setState(true);
+		// 		break;
+    	// 	case RGB_STACK:
+		// 		RGBStackItem.setState(true);
+		// 		break;
+    	// 	case HSB_STACK:
+		// 		HSBStackItem.setState(true);
+		// 		break;
+    	// 	case LAB_STACK:
+		// 		LabStackItem.setState(true);
+		// 		break;
+		// }
 		
     	//update Window menu
     	int nItems = window.getItemCount();
