@@ -520,8 +520,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.showStatus(name);
 			return;
 		}
-		String hint = " (right click to switch)";
-		String hint2 = " (right click to switch; double click to configure)";
+		String hint = " (right click or long press to switch)";
+		String hint2 = " (right click or long press to switch; double click to configure)";
 		switch (tool) {
 			case RECTANGLE:
 				if (rectType==ROUNDED_RECT_ROI)
@@ -1018,20 +1018,20 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			if (current==RECTANGLE && isRightClick) {
 				switchItemType(RECTANGLE);
 			}
-			if (current==OVAL && isRightClick) {
+			else if (current==OVAL && isRightClick) {
 				switchItemType(OVAL);
 			}
-			if (current==POINT && isRightClick) {
+			else if (current==POINT && isRightClick) {
 				switchItemType(POINT);
 			}
-			if (isLine(current) && isRightClick) {
+			else if (isLine(current) && isRightClick) {
 				switchItemType(LINE);
 			}
-			if (isMacroTool(current) && isRightClick) {
+			else if (isMacroTool(current) && isRightClick) {
 				String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
 				tools[current].runMacroTool(name+"Options");
 			}
-			if (isPlugInTool(current) && isRightClick) {
+			else if (isPlugInTool(current) && isRightClick) {
 				tools[current].showPopupMenu(e, this);
 			}
 		} else if(!isRightClick){ //double click
@@ -1086,6 +1086,34 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				default:
 			}
 		}
+
+		if(pressTimer == null)
+		{
+			pressTimer = new java.util.Timer();
+		}
+		pressTimer.schedule(new TimerTask()
+		{
+			public void run()
+			{
+				if(pressTimer != null)
+				{
+					pressTimer.cancel();
+					pressTimer = null;
+				}
+				if (current==RECTANGLE) {
+					switchItemType(RECTANGLE);
+				}
+				else if (current==OVAL) {
+					switchItemType(OVAL);
+				}
+				else if (current==POINT) {
+					switchItemType(POINT);
+				}
+				else if (isLine(current)) {
+					switchItemType(LINE);
+				}
+			}
+		},2000, 500);
 	}
 	
 	void showSwitchPopupMenu(MouseEvent e) {
@@ -1223,7 +1251,14 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		return tool>=CUSTOM1 && tool<getNumTools() && tools[tool]!=null;
 	}
 
-	public void mouseReleased(MouseEvent e) {}
+	private java.util.Timer pressTimer;
+	public void mouseReleased(MouseEvent e) {
+		if(pressTimer != null)
+		{
+			pressTimer.cancel();
+			pressTimer = null;
+		}
+	}
 	public void mouseExited(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
