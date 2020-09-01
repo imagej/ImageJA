@@ -1,7 +1,4 @@
 package ij.gui;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import ij.*;
 import ij.plugin.frame.Recorder;
 import ij.plugin.ScreenGrabber;
@@ -9,6 +6,13 @@ import ij.plugin.filter.PlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.util.Tools;
 import ij.macro.*;
+import ij.io.OpenDialog;
+import java.awt.*;
+import java.io.*;
+import java.awt.event.*;
+import java.util.*;
+import java.awt.datatransfer.*;
+import java.awt.dnd.*;
 
 
 /**
@@ -81,6 +85,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	private boolean showDialogCalled;
 	private boolean optionsRecorded;     // have dialogListeners been called to record options?
 	private Label lastLabelAdded;
+	private int[] windowIDs;
+	private String[] windowTitles;
 
 
     /** Creates a new GenericDialog with the specified title. Uses the current image
@@ -289,6 +295,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		add(tf, c);
 		stringField.addElement(tf);
 		defaultStrings.addElement(defaultText);
+		tf.setDropTarget(null);
+		new DropTarget(tf, new TextDropTarget(tf));
 		if (Recorder.record || macro)
 			saveLabel(tf, label);
     }
@@ -297,6 +305,95 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     public void setEchoChar(char echoChar) {
     	this.echoChar = echoChar;
     }
+
+	/** Adds a directory text field and "Browse" button, where the
+	 * field width is determined by the length of 'defaultPath', with
+	 * a minimum of 25 columns. Use getNextString to retrieve the
+	 * directory path.Based on the addDirectoryField() method in
+	 * Fiji's GenericDialogPlus class.
+	 */
+	public void addDirectoryField(String label, String defaultPath) {
+		int columns = defaultPath!=null?Math.max(defaultPath.length(),25):25;
+		addDirectoryField(label, defaultPath, columns);
+	}
+
+	public void addDirectoryField(String label, String defaultPath, int columns) {
+		defaultPath = IJ.addSeparator(defaultPath);
+		addStringField(label, defaultPath, columns);
+		if (GraphicsEnvironment.isHeadless())
+			return;
+		TextField text = (TextField)stringField.lastElement();
+		GridBagLayout layout = (GridBagLayout)getLayout();
+		GridBagConstraints constraints = layout.getConstraints(text);
+		Button button = new TrimmedButton("Browse",IJ.isMacOSX()?10:0);
+		BrowseButtonListener listener = new BrowseButtonListener(label, text, "dir");
+		button.addActionListener(listener);
+		Panel panel = new Panel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.add(text);
+		panel.add(button);
+		layout.setConstraints(panel, constraints);
+		add(panel);
+		if (Recorder.record || macro)
+			saveLabel(panel, label);
+	}
+
+	/** Adds a file text field and "Browse" button, where the
+	 * field width is determined by the length of 'defaultPath',
+	 * with a minimum of 25 columns. Use getNextString to
+	 * retrieve the file path. Based on the addFileField() method
+	 * in Fiji's GenericDialogPlus class.
+	 */
+	 public void addFileField(String label, String defaultPath) {
+		int columns = defaultPath!=null?Math.max(defaultPath.length(),25):25;
+		addFileField(label, defaultPath, columns);
+	 }
+
+	public void addFileField(String label, String defaultPath, int columns) {
+		addStringField(label, defaultPath, columns);
+		if (GraphicsEnvironment.isHeadless())
+			return;
+		TextField text = (TextField)stringField.lastElement();
+		GridBagLayout layout = (GridBagLayout)getLayout();
+		GridBagConstraints constraints = layout.getConstraints(text);
+		Button button = new TrimmedButton("Browse",IJ.isMacOSX()?10:0);
+		BrowseButtonListener listener = new BrowseButtonListener(label, text, "file");
+		button.addActionListener(listener);
+		Panel panel = new Panel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.add(text);
+		panel.add(button);
+		layout.setConstraints(panel, constraints);
+		add(panel);
+		if (Recorder.record || macro)
+			saveLabel(panel, label);
+	}
+
+	/** Adds a menu that lists the currently open images.
+	 * Call getNextImage() to retrieve the selected
+	 * image. Based on the addImageChoice()
+	 * method in Fiji's GenericDialogPlus class.
+	 * @param label  the label
+	 * @param defaultImage  the image title initially selected in the menu
+	 * or the first image if null
+	*/
+	public void addImageChoice(String label, String defaultImage) {
+		if (windowTitles==null) {
+			windowIDs = WindowManager.getIDList();
+			if (windowIDs==null)
+				windowIDs = new int[0];
+			windowTitles = new String[windowIDs.length];
+			for (int i=0; i<windowIDs.length; i++) {
+				ImagePlus image = WindowManager.getImage(windowIDs[i]);
+				windowTitles[i] = image==null ? "" : image.getTitle();
+			}
+		}
+		addChoice(label, windowTitles, defaultImage);
+	}
+
+	public ImagePlus getNextImage() {
+		return WindowManager.getImage(windowIDs[getNextChoiceIndex()]);
+	}
 
 	/** Adds a checkbox.
 	* @param label			the label
@@ -1668,5 +1765,83 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     public void windowIconified(WindowEvent e) {}
     public void windowDeiconified(WindowEvent e) {}
     public void windowDeactivated(WindowEvent e) {}
+    
+    @SuppressWarnings("unchecked")
+	static String getString(DropTargetDropEvent event)
+			throws IOException, UnsupportedFlavorException {
+		String text = null;
+		DataFlavor fileList = DataFlavor.javaFileListFlavor;
+
+		if (event.isDataFlavorSupported(fileList)) {
+			event.acceptDrop(DnDConstants.ACTION_COPY);
+			java.util.List<File> list = (java.util.List<File>)event.getTransferable().getTransferData(fileList);
+			text = list.get(0).getAbsolutePath();
+		}
+		else if (event.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+			event.acceptDrop(DnDConstants.ACTION_COPY);
+			text = (String)event.getTransferable()
+				.getTransferData(DataFlavor.stringFlavor);
+			if (text.startsWith("file://"))
+				text = text.substring(7);
+			text = stripSuffix(stripSuffix(text, "\n"),
+					"\r").replaceAll("%20", " ");
+		}
+		else {
+			event.rejectDrop();
+			return null;
+		}
+
+		event.dropComplete(text != null);
+		return text;
+	}
+
+	static String stripSuffix(String s, String suffix) {
+		return !s.endsWith(suffix) ? s :
+			s.substring(0, s.length() - suffix.length());
+	}
+
+	static class TextDropTarget extends DropTargetAdapter {
+		TextField text;
+		DataFlavor flavor = DataFlavor.stringFlavor;
+
+		public TextDropTarget(TextField text) {
+			this.text = text;
+		}
+
+		@Override
+		public void drop(DropTargetDropEvent event) {
+			try {
+				text.setText(getString(event));
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+	}
+    
+	private class BrowseButtonListener implements ActionListener {
+		private String label;
+		private TextField textField;
+		private String mode;	
+		
+		public BrowseButtonListener(String label, TextField textField, String mode) {
+			this.label = label;
+			this.textField = textField;
+			this.mode = mode;
+		}
+	
+		public void actionPerformed(ActionEvent e) {
+			String path = null;
+			if (mode.equals("dir")) {
+				path = IJ.getDir("Select a Folder");
+			} else {
+				OpenDialog od = new OpenDialog("Select a File", null);
+				String directory = od.getDirectory();
+				String name = od.getFileName();
+				if (name!=null)
+					path = directory+name;
+			}
+			if (path!=null)
+				this.textField.setText(path);
+		}
+	
+	}
 
 }

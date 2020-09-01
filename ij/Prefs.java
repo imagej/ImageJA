@@ -232,7 +232,7 @@ public class Prefs {
 		} catch (IOException e) {
 			return("Error loading "+PROPS_NAME);
 		}
-		imagesURL = props.getProperty("images.location");
+		imagesURL = props.getProperty(IJ.isJava18()?"images.location":"images.location2");
 		loadPreferences();
 		loadOptions();
 		guiScale = get(GUI_SCALE, 1.0);
@@ -499,7 +499,6 @@ public class Prefs {
 		blackCanvas = (options&BLACK_CANVAS)!=0;
 		requireControlKey = (options&REQUIRE_CONTROL)!=0;
 		useInvertingLut = (options&USE_INVERTING_LUT)!=0;
-		antialiasedTools = (options&ANTIALIASED_TOOLS)!=0;
 		intelByteOrder = (options&INTEL_BYTE_ORDER)!=0;
 		noBorder = (options&NO_BORDER)!=0;
 		showAllSliceOnly = (options&SHOW_ALL_SLICE_ONLY)!=0;
@@ -539,7 +538,7 @@ public class Prefs {
 			+ (blackBackground?BLACK_BACKGROUND:0) + (useJFileChooser?JFILE_CHOOSER:0)
 			+ (blackCanvas?BLACK_CANVAS:0) + (weightedColor?WEIGHTED:0) 
 			+ (requireControlKey?REQUIRE_CONTROL:0)
-			+ (useInvertingLut?USE_INVERTING_LUT:0) + (antialiasedTools?ANTIALIASED_TOOLS:0)
+			+ (useInvertingLut?USE_INVERTING_LUT:0)
 			+ (intelByteOrder?INTEL_BYTE_ORDER:0) + (doubleBuffer?DOUBLE_BUFFER:0)
 			+ (noPointLabels?NO_POINT_LABELS:0) + (noBorder?NO_BORDER:0)
 			+ (showAllSliceOnly?SHOW_ALL_SLICE_ONLY:0) + (copyColumnHeaders?COPY_HEADERS:0)

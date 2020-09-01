@@ -65,6 +65,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 	boolean setButtonPressed;
 	boolean noReset;
 	boolean noResetChanged;
+	boolean enterPressed;
 
 	public ThresholdAdjuster() {
 		super("Threshold");
@@ -96,7 +97,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 		IJ.register(PasteController.class);
 
 		ij = IJ.getInstance();
-		Font font = new Font("SansSerif", Font.PLAIN, 10);
+		Font font = IJ.font10;
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridbag);
@@ -278,6 +279,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 			minValue = minSlider.getValue();
 		else
 			maxValue = maxSlider.getValue();
+		enterPressed = false;
 		notify();
 	}
 
@@ -316,6 +318,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 	public synchronized void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			doSet = true;
+			enterPressed = true;
 		} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 			if (e.getSource()==minLabel) {
 				minSlider.setValue(minSlider.getValue() - 1);
@@ -598,7 +601,7 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 	}
 
 	void updateLabels(ImagePlus imp, ImageProcessor ip) {
-		if (minLabel==null || maxLabel==null)
+		if (minLabel==null || maxLabel==null || enterPressed)
 			return;
 		double min = ip.getMinThreshold();
 		double max = ip.getMaxThreshold();
@@ -731,12 +734,18 @@ public class ThresholdAdjuster extends PlugInDialog implements PlugIn, Measureme
 			level1 = Tools.parseDouble(minLabel.getText(), level1);
 			level2 = Tools.parseDouble(maxLabel.getText(), level2);
 		}
+		enterPressed = false;
 		level1 = cal.getRawValue(level1);
 		level2 = cal.getRawValue(level2);
 		if (level2<level1)
 			level2 = level1;
 		double minDisplay = ip.getMin();
 		double maxDisplay = ip.getMax();
+		if (noReset && (level1<minDisplay||level2>maxDisplay)) {
+			noReset = false;
+			noResetChanged = true;
+			noResetButton.setState(false);
+		}
 		resetMinAndMax(ip);
 		double minValue = ip.getMin();
 		double maxValue = ip.getMax();

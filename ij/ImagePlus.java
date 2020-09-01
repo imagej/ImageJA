@@ -1890,8 +1890,6 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			}
 			if (imageType==COLOR_RGB)
 				ContrastAdjuster.update();
-			else if (imageType==GRAY16 || imageType==GRAY32)
-				ThresholdAdjuster.update();
 			if (!noUpdateMode)
 				updateAndRepaintWindow();
 			else
@@ -2414,9 +2412,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	 * @see ij.plugin.Duplicator#crop
 	*/
 	public ImagePlus crop(String options) {
-		String msg = "crop: \"stack\", \"slice\" or a range (e.g., \"20-30\") expected";
 		int stackSize = getStackSize();
-		if (options==null || options.equals("stack"))
+		if (options==null || options.contains("stack"))
 			return (new Duplicator()).run(this);
 		else if (options.contains("whole")) {
 			Roi saveRoi = getRoi();
@@ -2424,16 +2421,16 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			ImagePlus imp2 = crop();
 			setRoi(saveRoi);
 			return imp2;
-		} else if (options.equals("slice") || stackSize==1)
+		} else if (options.contains("slice") || stackSize==1)
 			return crop();
 		else {
 			String[] range = Tools.split(options, " -");
 			if (range.length!=2)
-				throw new IllegalArgumentException(msg);
+				return crop();
 			double s1 = Tools.parseDouble(range[0]);
 			double s2 = Tools.parseDouble(range[1]);
 			if (Double.isNaN(s1) || Double.isNaN(s2))
-				throw new IllegalArgumentException(msg);
+				return crop();
 			if (s1<1) s1 = 1;
 			if (s2>stackSize) s2 = stackSize;
 			if (s1>s2) {s1=1; s2=stackSize;}
@@ -2452,7 +2449,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		for (int i=0; i<nRois; i++) {
 			Roi cropRoi = rois[i];
 			String name = cropRoi.getName();
-			if (options.equals("slice") && this.getStackSize()>1) {
+			if (options.contains("slice") && this.getStackSize()>1) {
 				int position = cropRoi.getPosition();
 				this.setSlice(position); // no effect if roi position is undefined (=0), ok
 			}
@@ -2474,6 +2471,25 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Multi-roi cropping with default "slice" option. */
 	public ImagePlus[] crop(Roi[] rois) {
 		return this.crop(rois, "slice");
+	}
+
+	public void cropAndSave(Roi[] rois, String directory, String options) {
+		ImagePlus[] images = crop(rois);
+		if (options==null) options = "";
+		if (options.contains("show")) {
+			ImageStack stack = ImageStack.create(images);
+			new ImagePlus("CROPPED_"+getTitle(),stack).show();
+			return;
+		}
+		String format = "tif";
+		if (options.contains("png")) format = "png";
+		if (options.contains("jpg")) format = "jpg";
+		for (int i=0; i<images.length; i++) {
+			Rectangle bounds = rois[i].getBounds();
+			String title = IJ.pad(bounds.x,4)+"-"+IJ.pad(bounds.y,4);
+			String path = directory + title + "." + format;
+			IJ.saveAs(images[i], format, path);
+		}
 	}
 
 	/** Returns a new ImagePlus with this image's attributes
@@ -2524,7 +2540,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			setCalibration(imp.getCalibration());
 	}
 
-	/** Copies attributes (name, ID, calibration, path, plot) of the specified image to this image. */
+	/** Used internally. */
 	public void copyAttributes(ImagePlus imp) {
 		if (IJ.debugMode) IJ.log("copyAttributes: "+imp.getID()+"  "+this.getID()+" "+imp+"   "+this);
 		if (imp==null || imp.getWindow()!=null)

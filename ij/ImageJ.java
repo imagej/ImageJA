@@ -77,8 +77,8 @@ public class ImageJ extends Frame implements ActionListener,
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.53c";
-	public static final String BUILD = "";  //65
+	public static final String VERSION = "1.53d";
+	public static final String BUILD = "";  //74
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -215,12 +215,9 @@ public class ImageJ extends Frame implements ActionListener,
 			IJ.runPlugIn("ij.plugin.ClassChecker", "");
 		}
 		if (IJ.isMacintosh()&&applet==null) { 
-			Object qh = null;
 			try {
-				qh = IJ.runPlugIn("MacAdapter", ""); 
+				IJ.runPlugIn("ij.plugin.MacAdapter", ""); 
 			} catch(Throwable e) {}
-			if (qh==null) 
-				IJ.runPlugIn("QuitHandler", ""); 
 		} 
 		if (applet==null)
 			IJ.runPlugIn("ij.plugin.DragAndDrop", "");
