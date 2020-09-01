@@ -19,6 +19,7 @@ public class VirtualStack extends ImageStack {
 	private int bitDepth;
 	private Properties  properties;
 	private boolean generateData;
+	private int[] indexes;  // used to translate non-CZT hyperstack slice numbers
 
 	
 	/** Default constructor. */
@@ -38,8 +39,7 @@ public class VirtualStack extends ImageStack {
 	*/
 	public VirtualStack(int width, int height, ColorModel cm, String path) {
 		super(width, height, cm);
-		if (path!=null && path.length()>0 && !(path.endsWith(File.separator)||path.endsWith("/")))
-			path = path + "/";
+		path = IJ.addSeparator(path);
 		this.path = path;
 		names = new String[INITIAL_SIZE];
 		labels = new String[INITIAL_SIZE];
@@ -79,7 +79,6 @@ public class VirtualStack extends ImageStack {
 		if (fileName.startsWith("."))
 			return;
 		nSlices++;
-	   //IJ.log("addSlice: "+nSlices+"	"+fileName);
 	   if (nSlices==names.length) {
 			String[] tmp = new String[nSlices*2];
 			System.arraycopy(names, 0, tmp, 0, nSlices);
@@ -164,6 +163,7 @@ public class VirtualStack extends ImageStack {
 			label(ip, ""+n, Color.white);
 			return ip;
 		}
+		n = translate(n);  // update n for hyperstacks not in the default CZT order
 		Opener opener = new Opener();
 		opener.setSilentMode(true);
 		IJ.redirectErrorMessages(true);
@@ -272,10 +272,7 @@ public class VirtualStack extends ImageStack {
 	
 	/** Returns the path to the directory containing the images. */
 	public String getDirectory() {
-		String path2 = path;
-		if (path2!=null && !(path2.endsWith("/") || path2.endsWith(File.separator)))
-			path2 = path2 + "/";
-		return path2;
+		return IJ.addSeparator(path);
 	}
 		
 	/** Returns the file name of the specified slice, were 1<=n<=nslices. */
@@ -311,7 +308,18 @@ public class VirtualStack extends ImageStack {
 	public Properties getProperties() {
 		return properties;
 	}
-
+	
+	/** Sets the table that translates slice numbers of hyperstacks not in default CZT order. */
+	public void setIndexes(int[] indexes) {
+		this.indexes = indexes;
+	}
+	
+	/** Translates slice numbers of hyperstacks not in default CZT order. */
+	public int translate(int n) {
+		int n2 = (indexes!=null&&indexes.length==getSize()) ? indexes[n-1]+1 : n;
+		//IJ.log("translate: "+n+" "+n2+" "+getSize()+" "+(indexes!=null?indexes.length:null));
+		return n2;
+	}
 
 } 
 

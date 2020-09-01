@@ -196,7 +196,7 @@ public class PlotDialog implements DialogListener {
 				gd.addStringField("Y Axis Label", plotYLabel, nChars);
 		}
 		if (dialogType == SET_RANGE || dialogType == X_AXIS || dialogType == Y_AXIS) {
-			Font smallFont = new Font("SansSerif", Font.PLAIN, 10);
+			Font smallFont = IJ.font10;
 			gd.setInsets(10, 0, 0);			//top, left, bottom
 			gd.addMessage("*   Leave empty for automatic range", smallFont, Color.gray);
 			gd.setInsets(0, 0, 0);
@@ -235,10 +235,16 @@ public class PlotDialog implements DialogListener {
 				bottomUp = getFlag(lFlags, Plot.LEGEND_BOTTOM_UP);
 			}
 			gd.addMessage("Enter Labels for the datasets, one per line.\n");
+				
+			Font smallFont = IJ.font10;
+			gd.setInsets(0, 20, 0);			//top, left, bottom
+			String msg = "Prepend index plus dual underscore (e.g. '1__MyLabel' )\nto control legend order and to hide non-indexed labels";
+			gd.addMessage(msg, smallFont, Color.darkGray);
+			gd.setInsets(0, 0, 0);
+
 			gd.addTextAreas(labels, null, Math.min(nLines+1, 20), 40);
 			gd.addChoice("Legend position", LEGEND_POSITIONS, LEGEND_POSITIONS[legendPosNumber]);
 			gd.addNumericField("Font Size", legendFont.getSize2D(), 1);
-
 			gd.addCheckbox("Transparent background", transparentBackground);
 			gd.addCheckbox("Bottom-to-top", bottomUp);
 		}
@@ -504,10 +510,14 @@ public class PlotDialog implements DialogListener {
 		EventQueue.invokeLater(new Runnable() {public void run() {IJ.selectWindow(hiresImp.getID());}});
 
 		if (Recorder.record) {
-			String options = !hiResAntiAliased ? "disable" : "";
-			if (options.length() > 0)
-				options = ",\""+options+"\"";
-			Recorder.recordString("Plot.makeHighResolution(\""+title+"\","+hiResFactor+options+");\n");
+			if (Recorder.scriptMode()) {
+				Recorder.recordCall("plot.makeHighResolution(\""+title+"\","+hiResFactor+","+hiResAntiAliased+",true);");
+			} else {
+				String options = !hiResAntiAliased ? "disable" : "";
+				if (options.length() > 0)
+					options = ",\""+options+"\"";
+				Recorder.recordString("Plot.makeHighResolution(\""+title+"\","+hiResFactor+options+");\n");
+			}
 		}
 	}
 

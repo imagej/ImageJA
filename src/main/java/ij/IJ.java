@@ -31,6 +31,11 @@ import java.math.RoundingMode;
 /** This class consists of static utility methods. */
 public class IJ {
 
+	/** SansSerif, plain, 10-point font */
+	public static Font font10 = new Font("SansSerif", Font.PLAIN, 10);
+	/** SansSerif, plain, 12-point font */
+	public static Font font12 = ImageJ.SansSerif12;
+	
 	/** Image display modes */
 	public static final int COMPOSITE=1, COLOR=2, GRAYSCALE=3;
 	
@@ -82,22 +87,22 @@ public class IJ {
 		isMac = !isWin && osname.startsWith("Mac");
 		isLinux = osname.startsWith("Linux");
 		String version = System.getProperty("java.version");
+		if (version==null || version.length()<2)
+			version = "1.8";
 		if (version.startsWith("1.8"))
 			javaVersion = 8;
+		else if (version.charAt(0)=='1' && Character.isDigit(version.charAt(1)))
+			javaVersion = 10 + (version.charAt(1) - '0');
+		else if (version.charAt(0)=='2' && Character.isDigit(version.charAt(1)))
+			javaVersion = 20 + (version.charAt(1) - '0');
 		else if (version.startsWith("1.6"))
 			javaVersion = 6;
 		else if (version.startsWith("1.9")||version.startsWith("9"))
 			javaVersion = 9;
-		else if (version.startsWith("10"))
-			javaVersion = 10;
-		else if (version.startsWith("11"))
-			javaVersion = 11;
-		else if (version.startsWith("12"))
-			javaVersion = 12;
 		else if (version.startsWith("1.7"))
 			javaVersion = 7;
 		else
-			javaVersion = 6;
+			javaVersion = 8;
 		dfs = new DecimalFormatSymbols(Locale.US);
 		df = new DecimalFormat[10];
 		df[0] = new DecimalFormat("0", dfs);
@@ -849,10 +854,11 @@ public class IJ {
 		java.awt.Toolkit.getDefaultToolkit().beep();
 	}
 	
-	/**	Runs the garbage collector and returns a string something
-		like "64K of 256MB (25%)" that shows how much of 
-		the  available memory is in use. This is the string
-		displayed when the user clicks in the status bar. */
+	/**	Returns a string something like "64K of 256MB (25%)"
+	 * that shows how much of  the  available memory is in use.
+	 * This is the string displayed when the user clicks in the
+	 * status bar.
+	*/
 	public static String freeMemory() {
 		long inUse = currentMemory();
 		String inUseStr = inUse<10000*1024?inUse/1024L+"K":inUse/1048576L+"MB";
@@ -1753,55 +1759,61 @@ public class IJ {
 		Also aborts the macro if the user cancels
 		the dialog box.*/
 	public static String getDirectory(String title) {
+		String dir = null;
 		String title2 = title.toLowerCase(Locale.US);
 		if (title2.equals("plugins"))
-			return Menus.getPlugInsPath();
+			dir = Menus.getPlugInsPath();
 		else if (title2.equals("macros"))
-			return Menus.getMacrosPath();
+			dir = Menus.getMacrosPath();
 		else if (title2.equals("luts")) {
 			String ijdir = Prefs.getImageJDir();
 			if (ijdir!=null)
-				return ijdir + "luts" + File.separator;
+				dir = ijdir + "luts" + File.separator;
 			else
-				return null;
+				dir = null;
 		} else if (title2.equals("home"))
-			return System.getProperty("user.home") + File.separator;
+			dir = System.getProperty("user.home");
 		else if (title2.equals("downloads"))
-			return System.getProperty("user.home")+File.separator+"Downloads"+File.separator;
+			dir = System.getProperty("user.home")+File.separator+"Downloads";
 		else if (title2.equals("startup"))
-			return Prefs.getImageJDir();
+			dir = Prefs.getImageJDir();
 		else if (title2.equals("imagej"))
-			return Prefs.getImageJDir();
+			dir = Prefs.getImageJDir();
 		else if (title2.equals("current") || title2.equals("default"))
-			return OpenDialog.getDefaultDirectory();
+			dir = OpenDialog.getDefaultDirectory();
 		else if (title2.equals("temp")) {
-			String dir = System.getProperty("java.io.tmpdir");
+			dir = System.getProperty("java.io.tmpdir");
 			if (isMacintosh()) dir = "/tmp/";
-			if (dir!=null && !dir.endsWith(File.separator))
-				dir += File.separator;
-			return dir;
 		} else if (title2.equals("image")) {
 			ImagePlus imp = WindowManager.getCurrentImage();
-	    	FileInfo fi = imp!=null?imp.getOriginalFileInfo():null;
+			FileInfo fi = imp!=null?imp.getOriginalFileInfo():null;
 			if (fi!=null && fi.directory!=null) {
-				String dir = fi.directory;
-				if (dir!=null && !(dir.endsWith(File.separator)||dir.endsWith("/"))) {
-					if (IJ.isWindows()&&dir.contains(File.separator))
-						dir += File.separator;
-					else
-						dir += "/";
-				}
-				return dir;
+				dir = fi.directory;
 			} else
-				return null;
+				dir = null;
 		} else if (title2.equals("file")) {
-			return OpenDialog.getLastDirectory();
+			dir = OpenDialog.getLastDirectory();
 		} else {
 			DirectoryChooser dc = new DirectoryChooser(title);
-			String dir = dc.getDirectory();
+			dir = dc.getDirectory();
 			if (dir==null) Macro.abort();
-			return dir;
 		}
+		dir = addSeparator(dir);
+		if (dir!=null && isWindows())
+			dir = dir.replaceAll("/", File.separator);  // replace "/" with "\"
+		return dir;
+	}
+	
+	public static String addSeparator(String path) {
+		if (path==null)
+			return null;
+		if (path.length()>0 && !(path.endsWith(File.separator)||path.endsWith("/"))) {
+			if (IJ.isWindows()&&path.contains(File.separator))
+				path += File.separator;
+			else
+				path += "/";
+		}
+		return path;
 	}
 		
 	/** Alias for getDirectory(). */
@@ -2361,7 +2373,12 @@ public class IJ {
 		return new Dimension(bounds.width, bounds.height);
 	}
 	
-	/** Returns, as an array of strings, a list of the LUTs in the Image/Lookup Tables menu. */
+	/** Returns, as an array of strings, a list of the LUTs in the 
+	 * Image/Lookup Tables menu.
+	 * @see ij.plugin#LutLoader.getLut
+	 * See also: Help>Examples>JavaScript/Show all LUTs
+	 * and Image/Color/Display LUTs
+	*/
 	public static String[] getLuts() {
 		ArrayList list = new ArrayList();
 		Hashtable commands = Menus.getCommands();

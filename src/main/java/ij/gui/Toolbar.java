@@ -146,7 +146,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			buttonWidth = (int)((BUTTON_WIDTH-2)*dscale);
 			buttonHeight = (int)((BUTTON_HEIGHT-2)*dscale);
 			offset = (int)Math.round((OFFSET-1)*dscale);
-			//IJ.log(dscale+" "+BUTTON_WIDTH+" "+buttonWidth+" "+offset);
 		} else {
 			buttonWidth = BUTTON_WIDTH;
 			buttonHeight = BUTTON_HEIGHT;
@@ -410,9 +409,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case DROPPER:
 				xOffset = x; yOffset = y;
 				g.setColor(backgroundColor);
-				g.fillRect(x+3*scale, y+3*scale, 14*scale, 14*scale);
+				g.fillRect(x+4*scale, y+4*scale, 14*scale, 14*scale);
+				g.drawRect(x, y, 13*scale, 13*scale);
 				g.setColor(foregroundColor);
-				g.fillRect(x-1, y-1, 14*scale, 14*scale);
+				g.fillRect(x+1, y+1, 12*scale, 12*scale);
 				return;
 			case ANGLE:
 				xOffset = x; yOffset = y+3;
@@ -969,11 +969,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	}
 	
 	public static void repaintTool(int tool) {
-		if (IJ.getInstance()!=null) {
-			Toolbar tb = getInstance();
+		Toolbar tb = getInstance();
+		if (tb!=null) {
 			Graphics g = tb.getGraphics();
 			if (IJ.debugMode) IJ.log("Toolbar.repaintTool: "+tool+" "+g);
 			if (g==null) return;
+			if (dscale>1.0)
+				tb.setStrokeWidth((Graphics2D)g);
 			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			tb.drawButton(g, tool);
 			if (g!=null) g.dispose();
@@ -1275,7 +1277,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	void drawTool(int tool, boolean drawDown) {
 		down[tool] = drawDown;
 		Graphics g = this.getGraphics();
-		if (!drawDown && Prefs.antialiasedTools) {
+		if (!drawDown) {
 			Graphics2D g2d = (Graphics2D)g;
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		}
@@ -1612,7 +1614,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
     
 	/** Used by the MacroInstaller class to install a set of macro tools. */
 	public void addMacroTool(String name, MacroInstaller macroInstaller, int id) {
-		//IJ.log("addMacroTool: "+id+" "+name);
 		if (id==0) {
 			resetTools();
 			if (name.startsWith("Unused"))
@@ -1649,7 +1650,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	
 	/** Used by the MacroInstaller class to add a macro tool to the toolbar. */
 	public void addMacroTool(String name, MacroInstaller macroInstaller) {
-		//IJ.log("addMacroTool: "+name);
 		String custom1Name = names[CUSTOM1];
 		this.macroInstaller = macroInstaller;
 		addingSingleTool = true;

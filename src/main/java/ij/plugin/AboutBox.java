@@ -7,17 +7,19 @@ import ij.io.*;
 import java.net.URL;
 import java.awt.image.*;
 
-/** This plugin implements the Help/About ImageJ command by opening
-	the about.jpg in ij.jar, scaling it 400% and adding some text. */
+	/** This plugin implements the Help/About ImageJ command by opening
+	 * about.jpg in ij.jar, scaling it 600% and adding text to an overlay.
+	*/
 	public class AboutBox implements PlugIn {
-		static final int SMALL_FONT=14, LARGE_FONT=30;
+		private static final int SMALL_FONT=20, LARGE_FONT=45;
+		private static final Color TEXT_COLOR = new Color(255,255,80);
 
 	public void run(String arg) {
 		System.gc();
 		int lines = 7;
 		String[] text = new String[lines];
 		text[0] = "ImageJ "+ImageJ.VERSION+ImageJ.BUILD;
-		text[1] = "Wayne Rasband";
+		text[1] = "Wayne Rasband and contributors";
 		text[2] = "National Institutes of Health, USA";
 		text[3] = IJ.URL;
 		text[4] = "Java "+System.getProperty("java.version")+(IJ.is64Bit()?" (64-bit)":" (32-bit)");
@@ -31,51 +33,44 @@ import java.awt.image.*;
 			try {img = ij.createImage((ImageProducer)url.getContent());}
 			catch(Exception e) {}
 			if (img!=null) {
-				ImagePlus imp = new ImagePlus("", img);
-				ip = imp.getProcessor();
+				ImagePlus sImp = new ImagePlus("", img);
+				ip = sImp.getProcessor();
 			}
 		}
 		if (ip==null) 
 			ip =  new ColorProcessor(55,45);
-		ip = ip.resize(ip.getWidth()*4, ip.getHeight()*4);
-		ip.setFont(new Font("SansSerif", Font.PLAIN, LARGE_FONT));
-		ip.setAntialiasedText(true);
-		int[] widths = new int[lines];
-		widths[0] = ip.getStringWidth(text[0]);
-		ip.setFont(new Font("SansSerif", Font.PLAIN, SMALL_FONT));
-		for (int i=1; i<lines-1; i++)
-			widths[i] = ip.getStringWidth(text[i]);
-		int max = 0;
-		for (int i=0; i<lines-1; i++) 
-			if (widths[i]>max)
-				max = widths[i];
-		ip.setColor(new Color(255,255, 140));
-		ip.setFont(new Font("SansSerif", Font.PLAIN, LARGE_FONT));
-		int y  = 45;
-		ip.drawString(text[0], x(text[0],ip,max), y);
-		ip.setFont(new Font("SansSerif", Font.PLAIN, SMALL_FONT));
-		y += 30;
-		ip.drawString(text[1], x(text[1],ip,max), y);
-		y += 18;
-		ip.drawString(text[2], x(text[2],ip,max), y);
-		y += 18;
-		ip.drawString(text[3], x(text[3],ip,max), y);
-		y += 18;
-		ip.drawString(text[4], x(text[4],ip,max), y);
-		if (IJ.maxMemory()>0L) {
-			y += 18;
-			ip.drawString(text[5], x(text[5],ip,max), y);
-		}
-		ip.drawString(text[6], ip.getWidth()-ip.getStringWidth(text[6])-10, ip.getHeight()-3);
-		ImageWindow.centerNextImage();
+		ip = ip.resize(ip.getWidth()*6, ip.getHeight()*6);
 		ImagePlus imp = new ImagePlus("About ImageJ", ip);
-		String info = text[0] +"\n" + text[4] +"\n" + text[5];
-		imp.setProperty("Info", info);
+		int width = imp.getWidth();
+		Overlay overlay = new Overlay();
+		Font font = new Font("SansSerif", Font.PLAIN, LARGE_FONT);
+		int y  = 60;
+		add(text[0], width-20, y, font, TextRoi.RIGHT, overlay);
+		int xcenter = 410;
+		font = new Font("SansSerif", Font.PLAIN, SMALL_FONT);
+		y += 45;
+		add(text[1], xcenter, y, font, TextRoi.CENTER, overlay);
+		y += 27;
+		add(text[2], xcenter, y, font, TextRoi.CENTER, overlay);
+		y += 27;
+		add(text[3], xcenter, y, font, TextRoi.CENTER, overlay);
+		y += 27;
+		add(text[4], xcenter, y, font, TextRoi.CENTER, overlay);
+		if (IJ.maxMemory()>0L) {
+			y += 27;
+			add(text[5], xcenter, y, font, TextRoi.CENTER, overlay);
+		}
+		add(text[6], width-10, ip.getHeight()-10, font, TextRoi.RIGHT, overlay);
+		imp.setOverlay(overlay);
+		ImageWindow.centerNextImage();
 		imp.show();
 	}
-
-	int x(String text, ImageProcessor ip, int max) {
-		return ip.getWidth() - max + (max - ip.getStringWidth(text))/2 - 10;
+	
+	private void add(String text, int x, int y, Font font, int justification, Overlay overlay) {
+		TextRoi roi = new TextRoi(text, x, y, font);
+		roi.setStrokeColor(TEXT_COLOR);
+		roi.setJustification(justification);
+		overlay.add(roi);
 	}
 
 }

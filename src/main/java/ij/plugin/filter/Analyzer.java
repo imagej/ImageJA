@@ -279,7 +279,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			reset();
 		saveResults(stats, roi);
 	}
-	
+		
 	/*
 	void showHeadings() {
 		String[] headings = rt.getHeadings();
@@ -376,7 +376,7 @@ public class Analyzer implements PlugInFilter, Measurements {
 			if (!IJ.isResultsWindow())
 				reset();
 			int index = rt.getColumnIndex("X");
-			if (index<0 || !rt.columnExists(index)) {
+			if ((index<0 || !rt.columnExists(index)) && rt.getLastColumn()<ResultsTable.LAST_HEADING) {
 				clearSummary();
 				rt.update(measurements, imp, roi);
 			}
@@ -415,7 +415,8 @@ public class Analyzer implements PlugInFilter, Measurements {
 				}
 			}
 			saveResults(stats, point);
-			displayResults();
+			if (rt==systemRT)
+				displayResults();
 		}
 	}
 	
@@ -742,8 +743,6 @@ public class Analyzer implements PlugInFilter, Measurements {
 		if (imp==null) {
 			rt.addValue("X", 0.0);
 			rt.addValue("Y", 0.0);
-			if (imp.getStackSize()>1)
-				rt.addValue("Slice", 0.0);
 			return;
 		}
 		if ((measurements&AREA)!=0)

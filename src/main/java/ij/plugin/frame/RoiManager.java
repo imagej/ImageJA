@@ -22,6 +22,7 @@ import ij.io.*;
 import ij.plugin.filter.*;
 import ij.plugin.Colors;
 import ij.plugin.OverlayLabels;
+import ij.plugin.FolderOpener;
 import ij.util.*;
 import ij.macro.*;
 import ij.measure.*;
@@ -30,6 +31,7 @@ import ij.plugin.OverlayCommands;
 /** This plugin implements the Analyze/Tools/ROI Manager command. */
 public class RoiManager extends PlugInFrame implements ActionListener, ItemListener, MouseListener, MouseWheelListener, ListSelectionListener, Iterable<Roi> {
 	public static final String LOC_KEY = "manager.loc";
+	private static final String MULTI_CROP_DIR = "multi-crop.dir";
 	private static final int BUTTONS = 11;
 	private static final int DRAW=0, FILL=1, LABEL=2;
 	private static final int SHOW_ALL=0, SHOW_NONE=1, LABELS=2, NO_LABELS=3;
@@ -73,7 +75,9 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 	private double translateX = 10.0;
 	private double translateY = 10.0;
 	private static String errorMessage;
-
+	private boolean multiCropShow = true;
+	private boolean multiCropSave;
+	private int multiCropFormatIndex;
 
 	/** Opens the "ROI Manager" window, or activates it if it is already open.
 	 * @see #RoiManager(boolean)
@@ -180,6 +184,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		addPopupItem("Add Particles");
 		addPopupItem("Multi Measure");
 		addPopupItem("Multi Plot");
+		addPopupItem("Multi Crop");
 		addPopupItem("Sort");
 		addPopupItem("Specify...");
 		addPopupItem("Remove Positions...");
@@ -250,6 +255,8 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 			multiMeasure("");
 		else if (command.equals("Multi Plot"))
 			multiPlot();
+		else if (command.equals("Multi Crop"))
+			multiCrop();
 		else if (command.equals("Sort"))
 			sort();
 		else if (command.equals("Specify..."))
@@ -417,7 +424,7 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		roi.setName(label);
 		Roi roiCopy = (Roi)roi.clone();
 		if (ignorePosition && imp!=null && imp.getStackSize()>1 && imp.getWindow()!=null && isVisible()) {
-			// set ROI position to current stack position if image and RoiManager are visible
+ 			// set ROI position to current stack position if image and RoiManager are visible
 			roiCopy.setPosition(imp);
 		}
 		if (lineWidth>1)
@@ -1286,6 +1293,91 @@ public class RoiManager extends PlugInFrame implements ActionListener, ItemListe
 		imp.unlock();
 	}
 		
+	private void multiCrop() {
+		ImagePlus imp = getImage();
+		if (imp==null)
+			return;
+		int[] indexes = getIndexes();
+		int n = indexes.length;
+		String directory = Prefs.get(MULTI_CROP_DIR, IJ.getDir("downloads")+"stack/");
+		String[] formats = {"tif", "png", "jpg"};
+		GenericDialog gd = new GenericDialog("Multi Crop");
+		gd.setInsets(5, 0, 0);
+		gd.addDirectoryField("Dir:", directory);		
+		gd.setInsets(2, 70, 10);
+		gd.addMessage("drag and drop target", IJ.font10, Color.darkGray);
+		gd.addChoice("Format:", formats, formats[multiCropFormatIndex]);
+		gd.addCheckbox("Show "+n+" cropped images:", multiCropShow);
+		gd.addCheckbox("Save "+n+" cropped images:", multiCropSave);
+		gd.showDialog();
+		if (gd.wasCanceled())
+			return;
+		directory = gd.getNextString();
+		directory = IJ.addSeparator(directory);
+		Prefs.set(MULTI_CROP_DIR, directory);
+		multiCropFormatIndex = gd.getNextChoiceIndex();
+		String format = formats[multiCropFormatIndex];	
+		multiCropShow = gd.getNextBoolean();
+		multiCropSave = gd.getNextBoolean();
+		String options = "";
+		if (multiCropShow) options += " show";
+		if (multiCropSave) {
+			options += " save";
+			options += " "+format;
+		}
+		if (record()) {
+			String dir = Recorder.fixPath(directory);
+			if (Recorder.scriptMode())			
+				Recorder.recordCall("rm.multiCrop(\""+dir+"\", \""+options+"\");");
+			else
+				Recorder.record("RoiManager.multiCrop", dir, options);
+		}
+		multiCrop(directory, options);
+	}
+	
+	public void multiCrop(String directory, String options) {
+		ImagePlus imp = getImage();
+		if (imp==null)
+			return;
+		Roi roiOrig = imp.getRoi();
+		Roi[] rois = getSelectedRoisAsArray();
+		ImagePlus[] images = imp.crop(rois);
+		if (options==null) options = "";
+		if (options.contains("show")) {
+			ImageStack stack = ImageStack.create(images);			
+			ImagePlus imgStack = new ImagePlus("CROPPED_"+getTitle(),stack);
+			Overlay overlay = Overlay.createStackOverlay(rois);
+			imgStack.setOverlay(overlay);
+			imgStack.show();
+			if (roiOrig==null)
+				imp.deleteRoi();
+		}
+		if (options.contains("save")) {
+			String format = "tif";
+			if (options.contains("png")) format = "png";
+			if (options.contains("jpg")) format = "jpg";
+			for (int i=0; i<images.length; i++) {
+				Rectangle bounds = rois[i].getBounds();
+				String title = IJ.pad(bounds.x,4)+"-"+IJ.pad(bounds.y,4);
+				String path = directory + title + "." + format;
+				IJ.saveAs(images[i], format, path);
+			}
+			/*
+			if (options.contains("show")) {
+				int width = 1;
+				int height = 1;
+				for (int i=0; i<rois.length; i++) {
+					Rectangle bounds = rois[i].getBounds();
+					if (bounds.width>width) width = bounds.width;
+					if (bounds.height>height) height = bounds.height;
+				}
+				imp = FolderOpener.open(directory, width, height, "virtual");
+				if (imp!=null) imp.show();
+			}
+			*/
+		}
+	}
+
 	/** Sets the group for the selected ROIs. */ 
 	public void setGroup(int group) {
 		int[] indexes = getIndexes();
