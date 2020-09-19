@@ -1185,8 +1185,8 @@ public class Interpreter implements MacroConstants {
 			if (type==TABLE || type==ROI || type==PROPERTY || type==ROI_MANAGER2) {
 				int token2 = pgm.code[pcLoc+2];
 				String name = pgm.table[token2>>TOK_SHIFT].str;
-				if (func.isStringFunction(name))
-					return true;
+				if (Functions.isStringFunction(name,type))
+					return true; 
 			}
 		}
 		if ((tok&TOK_MASK)!=WORD)

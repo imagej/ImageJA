@@ -71,14 +71,14 @@ The following command line options are recognized by ImageJ:
   -debug
      Runs ImageJ in debug mode
 </pre>
-@author Wayne Rasband (wsr@nih.gov)
+@author Wayne Rasband (rasband@gmail.com)
 */
 public class ImageJ extends Frame implements ActionListener, 
 	MouseListener, KeyListener, WindowListener, ItemListener, Runnable {
 
 	/** Plugins should call IJ.getVersion() or IJ.getFullVersion() to get the version string. */
-	public static final String VERSION = "1.53d";
-	public static final String BUILD = "";  //74
+	public static final String VERSION = "1.53e";
+	public static final String BUILD = "";  //23
 	public static Color backgroundColor = new Color(237,237,237);
 	/** SansSerif, 12-point, plain font. */
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
@@ -505,7 +505,7 @@ public class ImageJ extends Frame implements ActionListener,
 				case KeyEvent.VK_LEFT: case KeyEvent.VK_RIGHT: case KeyEvent.VK_UP: case KeyEvent.VK_DOWN: // arrow keys
 					if (imp==null) return;
 					Roi roi = imp.getRoi();
-					if (IJ.shiftKeyDown()&&imp==Orthogonal_Views.getImage())
+					if (shift&&imp==Orthogonal_Views.getImage())
 						return;
 					if (IJ.isMacOSX() && IJ.isJava18()) {
 						RoiManager rm = RoiManager.getInstance();
@@ -513,8 +513,8 @@ public class ImageJ extends Frame implements ActionListener,
 						if (rmActive && (keyCode==KeyEvent.VK_DOWN||keyCode==KeyEvent.VK_UP))
 						  rm.repaint();
 					}
-					boolean stackKey = imp.getStackSize()>1 && (roi==null||IJ.shiftKeyDown());
-					boolean zoomKey = roi==null || IJ.shiftKeyDown() || IJ.controlKeyDown();
+					boolean stackKey = imp.getStackSize()>1 && (roi==null||shift);
+					boolean zoomKey = roi==null || shift || control;
 					if (stackKey && keyCode==KeyEvent.VK_RIGHT)
 							cmd="Next Slice [>]";
 					else if (stackKey && keyCode==KeyEvent.VK_LEFT)
