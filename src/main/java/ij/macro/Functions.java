@@ -2200,11 +2200,7 @@ public class Functions implements MacroConstants, Measurements {
 		} else if (name.equals("getLimits")) {
 			return getPlotLimits(currentPlot);
 		} else if (name.equals("freeze")) {
-			if (interp.nextNextToken()==')') {
-				interp.getParens();
-				currentPlot.setFrozen(true);
-			} else
-				currentPlot.setFrozen(getBooleanArg());
+			currentPlot.setFrozen(getBooleanArg());
 			return Double.NaN;
 		}  else if (name.equals("addLegend") || name.equals("setLegend")) {
 			return addPlotLegend(currentPlot);
@@ -7811,6 +7807,9 @@ public class Functions implements MacroConstants, Measurements {
 		if (name.equals("size")) {
 			interp.getParens();
 			return new Variable(rm.getCount());
+		} else if (name.equals("selected")) {
+			interp.getParens();
+			return new Variable(rm.selected());
 		} else if (name.equals("select")) {
 			rm.select((int)getArg());
 			return null;
@@ -7922,18 +7921,34 @@ public class Functions implements MacroConstants, Measurements {
 		return sb.toString();
 	}
 	
-	boolean isStringFunction(String name) {
-		if (name.equals("getStrokeColor") || name.equals("getDefaultColor")
-		|| name.equals("getFillColor") || name.equals("getName")
-		|| name.equals("getProperty") || name.equals("getProperties")
-		|| name.equals("getType") || name.equals("getString") || name.equals("title")
-		|| name.equals("headings") || name.equals("allHeadings")
-		|| name.equals("get") || name.equals("getInfo") || name.equals("getSliceLabel")
-		|| name.equals("getDicomTag") || name.equals("getList")
-		|| name.equals("getGroupNames"))
-			return true;
-		else
-			return false;
+	static boolean isStringFunction(String name, int type) {
+		boolean isString = false;
+		switch (type) {
+			case TABLE:
+				if (name.equals("getString") || name.equals("title") || name.equals("headings")
+				|| name.equals("allHeadings"))
+					isString = true;
+				break;
+			case ROI:
+				if (name.equals("getStrokeColor") || name.equals("getDefaultColor")
+				|| name.equals("getFillColor") || name.equals("getName")
+				|| name.equals("getProperty") || name.equals("getProperties")
+				|| name.equals("getGroupNames") || name.equals("getType"))
+					isString = true;
+				break;
+			case PROPERTY:
+				if (name.equals("getProperty") || name.equals("getProperties")
+				|| (name.equals("get")&&type!=TABLE) || name.equals("getInfo")
+				|| name.equals("getList") || name.equals("setSliceLabel")
+				|| name.equals("getDicomTag"))
+					isString = true;
+				break;
+			case ROI_MANAGER2:
+				if (name.equals("getName"))
+					isString = true;
+				break;
+		}
+		return isString;
 	}
 
 } // class Functions
