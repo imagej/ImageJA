@@ -90,6 +90,7 @@
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sonatype-oss-release</releaseProfiles>
+
 	</properties>
 
 	<dependencies>
@@ -100,6 +101,53 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<configuration>
+							<!-- compile everything to ensure module-info contains right entries -->
+							<!-- required when JAVA_HOME is JDK 8 or below -->
+							<jdkToolchain>
+								<version>9</version>
+							</jdkToolchain>
+							<release>9</release>
+						</configuration>
+					</execution>
+					<execution>
+						<id>complete-recompile</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<!-- recompile everything for target VM except the module-info.java -->
+						<configuration>
+							<excludes>
+								<exclude>**/module-info.java</exclude>
+							</excludes>
+
+							<!-- Force recompilation. NB: This is the stupidest bug ever.
+								See https://issues.apache.org/jira/browse/MCOMPILER-209
+							-->
+							<useIncrementalCompilation>true</useIncrementalCompilation>
+						</configuration>
+					</execution>
+				</executions>
+				<!-- defaults for compile and testCompile -->
+				<configuration>
+					<!-- jdkToolchain required when JAVA_HOME is JDK 9 or above -->
+					<jdkToolchain>
+						<version>[1.6,8)</version>
+					</jdkToolchain>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>
