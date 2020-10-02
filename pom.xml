@@ -146,6 +146,18 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<!-- Avoid failing due to IJ1 javadoc errors -->
+					<doclint>none</doclint>
+
+					<!-- Required to build with Java 11+
+					     See https://bugs.openjdk.java.net/browse/JDK-8212233
+					 -->
+					<source>8</source>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
