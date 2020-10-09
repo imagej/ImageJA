@@ -115,6 +115,10 @@
 							<jdkToolchain>
 								<version>9</version>
 							</jdkToolchain>
+							<!-- Exclude MacAdapter because it requires internal packages -->
+							<excludes>
+								<exclude>**/MacAdapter.java</exclude>
+							</excludes>
 							<release>9</release>
 						</configuration>
 					</execution>
