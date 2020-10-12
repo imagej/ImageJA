@@ -160,6 +160,9 @@
 					     See https://bugs.openjdk.java.net/browse/JDK-8212233
 					 -->
 					<source>8</source>
+					<links>
+						<link>https://imagej.nih.gov/ij/developer/api/</link>
+					</links>
 				</configuration>
 			</plugin>
 		</plugins>
