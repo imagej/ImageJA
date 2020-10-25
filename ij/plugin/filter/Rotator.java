@@ -29,6 +29,8 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 		if (imp!=null) {
 			bitDepth = imp.getBitDepth();
 			Roi roi = imp.getRoi();
+			if (roi!=null && roi.isLine())
+				roi = null;
 			Rectangle r = roi!=null?roi.getBounds():null;
 			canEnlarge = r==null || (r.x==0&&r.y==0&&r.width==imp.getWidth()&&r.height==imp.getHeight());
 			if (imp.getDisplayMode()==IJ.COMPOSITE) { // setup Undo for composite color stacks
@@ -36,6 +38,7 @@ public class Rotator implements ExtendedPlugInFilter, DialogListener {
 				flags = flags | NO_UNDO_RESET;
 			}
 			overlay = imp.getOverlay();
+			Undo.saveOverlay(imp);
 			if (overlay==null)
 				overlay = new Overlay();
 		}
