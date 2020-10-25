@@ -316,6 +316,7 @@ public class Functions implements MacroConstants, Measurements {
 			case ROI: var = doRoi(); break;
 			case ROI_MANAGER2: var = doRoiManager(); break;
 			case PROPERTY: var = doProperty(); break;
+			case IMAGE: var = doImage(); break;
 			default:
 				interp.error("Variable function expected");
 		}
@@ -382,6 +383,10 @@ public class Functions implements MacroConstants, Measurements {
 			return Math.acos(arg);
 		else if (name.equals("erf"))
 			return IJMath.erf(arg);
+		else if (name.equals("toRadians"))
+			return Math.toRadians(arg);
+		else if (name.equals("toDegrees"))
+			return Math.toDegrees(arg);
 		else
 			interp.error("Unrecognized function name");
 		return Double.NaN;
@@ -2863,7 +2868,7 @@ public class Functions implements MacroConstants, Measurements {
 		pasteMode = Roi.getCurrentPasteMode();
 		plotWidth = PlotWindow.plotWidth;
 		plotHeight = PlotWindow.plotHeight;
-		plotFontSize = PlotWindow.fontSize;
+		plotFontSize = PlotWindow.getDefaultFontSize();
 		plotInterpolate = PlotWindow.interpolate;
 		plotNoGridLines = PlotWindow.noGridLines;
 		plotNoTicks = PlotWindow.noTicks;
@@ -2902,7 +2907,7 @@ public class Functions implements MacroConstants, Measurements {
 		Roi.setPasteMode(pasteMode);
 		PlotWindow.plotWidth = plotWidth;
 		PlotWindow.plotHeight = plotHeight;
-		PlotWindow.fontSize = plotFontSize;
+		PlotWindow.setDefaultFontSize(plotFontSize);
 		PlotWindow.interpolate = plotInterpolate;
 		PlotWindow.noGridLines = plotNoGridLines;
 		PlotWindow.noTicks = plotNoTicks;
@@ -3618,13 +3623,8 @@ public class Functions implements MacroConstants, Measurements {
 		String s2 = getLastString();
 		boolean isCommand = s2.startsWith("\\");
 		Frame frame = WindowManager.getFrame(title);
-		if (frame==null) {
-			if (isCommand) {
-				interp.done = true;
-				return;
-			} else
-				interp.error("Window not found");
-		}
+		if (frame==null)
+			interp.error("Window not found");
 		boolean isEditor = frame instanceof Editor;
 		if (!(isEditor || frame instanceof TextWindow))
 			interp.error("Window is not text window");
@@ -5903,11 +5903,33 @@ public class Functions implements MacroConstants, Measurements {
 			return deleteArrayValue();
 		else if (name.equals("deleteIndex"))
 			return deleteArrayIndex();
+		else if (name.equals("filter"))
+			return filterArray();
 		else
 			interp.error("Unrecognized Array function");
 		return null;
 	}
 
+	Variable[] filterArray() {
+		ArrayList list = new ArrayList();
+		interp.getLeftParen();
+		Variable[] a1 = getArray();
+		String filter = getLastString();
+		for (int i=0; i<a1.length; i++) {
+			String str = a1[i].getString();
+			boolean contains = false;
+			if (str!=null) {
+				if (filter.startsWith("(") && filter.endsWith(")"))
+					contains = FolderOpener.containsRegex(str, filter, false);
+				else
+			 		contains = str.contains(filter);
+				if (contains)
+					list.add(a1[i]);
+			}		
+		}
+		return (Variable[])list.toArray(new Variable[list.size()]);
+	}
+	
 	Variable[] deleteArrayIndex() {
 		interp.getLeftParen();
 		Variable[] arr1 = getArray();
@@ -7949,6 +7971,33 @@ public class Functions implements MacroConstants, Measurements {
 				break;
 		}
 		return isString;
+	}
+	
+	private Variable doImage() {
+		interp.getToken();
+		if (interp.token!='.')
+			interp.error("'.' expected");
+		interp.getToken();
+		if (!(interp.token==WORD||interp.token==PREDEFINED_FUNCTION))
+			interp.error("Function name expected: ");
+		String name = interp.tokenString;
+		ImagePlus imp = getImage();
+		if (name.equals("width")) {
+			interp.getParens();
+			return new Variable(imp.getWidth());
+		} else if (name.equals("height")) {
+			interp.getParens();
+			return new Variable(imp.getHeight());
+		} else if (name.equals("copy")) {
+			interp.getParens();
+			imp.copy();
+			return null;
+		} else if (name.equals("paste")) {
+			imp.paste((int)getFirstArg(), (int)getLastArg());
+			imp.updateAndDraw();
+			return null;
+		}
+		return null;
 	}
 
 } // class Functions

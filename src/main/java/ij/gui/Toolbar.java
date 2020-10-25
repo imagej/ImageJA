@@ -40,7 +40,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	public static final int CUSTOM6 = 20;
 	public static final int CUSTOM7 = 21;
 	
-	public static final int DOUBLE_CLICK_THRESHOLD = 650;
+	public static final int DOUBLE_CLICK_THRESHOLD = 650; //ms
+	private static final int LONG_PRESS_THRESHOLD = 500; //ms
 
 	public static final int RECT_ROI=0, ROUNDED_RECT_ROI=1, ROTATED_RECT_ROI=2;
 	public static final int OVAL_ROI=0, ELLIPSE_ROI=1, BRUSH_ROI=2;
@@ -85,12 +86,13 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 	private int pc;
 	private String icon;
 	private int startupTime;
-	private PopupMenu rectPopup, ovalPopup, pointPopup, linePopup, pickerPopup, switchPopup;
+	private PopupMenu rectPopup, ovalPopup, pointPopup, linePopup, zoomPopup, pickerPopup, switchPopup;
 	private CheckboxMenuItem rectItem, roundRectItem, rotatedRectItem;
 	private CheckboxMenuItem ovalItem, ellipseItem, brushItem;
 	private CheckboxMenuItem pointItem, multiPointItem;
 	private CheckboxMenuItem straightLineItem, polyLineItem, freeLineItem, arrowItem;
 	private String currentSet = "Startup Macros";
+	private Timer pressTimer;
 
 	private static Color foregroundColor = Prefs.getColor(Prefs.FCOLOR,Color.white);
 	private static Color backgroundColor = Prefs.getColor(Prefs.BCOLOR,Color.black);
@@ -211,6 +213,19 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		linePopup.add(arrowItem);
 		add(linePopup);
 
+		zoomPopup = new PopupMenu();
+		if (Menus.getFontSize()!=0)
+			zoomPopup.setFont(Menus.getFont());
+		addMenuItem(zoomPopup, "Reset Zoom");
+		addMenuItem(zoomPopup, "Zoom In");
+		addMenuItem(zoomPopup, "Zoom Out");
+		addMenuItem(zoomPopup, "View 100%");
+		addMenuItem(zoomPopup, "Zoom To Selection");
+		addMenuItem(zoomPopup, "Scale to Fit");
+		addMenuItem(zoomPopup, "Set...");
+		addMenuItem(zoomPopup, "Maximize");
+		add(zoomPopup);
+
 		pickerPopup = new PopupMenu();
 		if (Menus.getFontSize()!=0)
 			pickerPopup.setFont(Menus.getFont());
@@ -223,9 +238,11 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		addMenuItem(pickerPopup, "Cyan");
 		addMenuItem(pickerPopup, "Magenta");
 		pickerPopup.addSeparator();
-		addMenuItem(pickerPopup, "Color Picker");
+		addMenuItem(pickerPopup, "Foreground...");
+		addMenuItem(pickerPopup, "Background...");
+		addMenuItem(pickerPopup, "Color Picker...");
 		add(pickerPopup);
-
+		
 		switchPopup = new PopupMenu();
 		if (Menus.getFontSize()!=0)
 			switchPopup.setFont(Menus.getFont());
@@ -418,9 +435,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				m(4,10); d(13,10);
 				return; 
 			case MAGNIFIER:
-				xOffset = x; yOffset = y-1;
-				g.drawOval(x, y, 13*scale, 13*scale);
-				m(12,12); d(18,18);
+				xOffset = x; yOffset = y;
+				g.drawOval(x+3, y, 13*scale, 13*scale);
+				m(5,12); d(-1,18);
+				drawTriangle(15,17);
 				return;
 			case HAND:
 				xOffset = x; yOffset = y;
@@ -434,7 +452,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				g.setColor(foregroundColor);
 				g.fillRect(x, y+2*scale, 13*scale, 13*scale);
 				// draw dropper icon		
-				xOffset = x+4; yOffset = y-4;
+				xOffset = x+3; yOffset = y-4;
 				g.setColor(toolColor);
 				m(12,2); d(14,2);
 				m(11,3); d(15,3);
@@ -445,6 +463,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				polyline(9,6,2,13,2,15,4,15,11,8);
 				g.setColor(gray);
 				polygon(9,6,2,13,2,15,4,15,11,8);
+				drawTriangle(12,21);
 				return;
 			case ANGLE:
 				xOffset = x; yOffset = y+3;
@@ -608,8 +627,8 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			IJ.showStatus(name);
 			return;
 		}
-		String hint = " (right click to switch)";
-		String hint2 = " (right click to switch; double click to configure)";
+		String hint = " (long press to switch)";
+		String hint2 = " (long press to switch; double click to configure)";
 		switch (tool) {
 			case RECTANGLE:
 				if (rectType==ROUNDED_RECT_ROI)
@@ -658,7 +677,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				IJ.showStatus("Text tool (double-click to configure)");
 				return;
 			case MAGNIFIER:
-				IJ.showStatus("Magnifying glass (or use \"+\" and \"-\" keys)");
+				IJ.showStatus("Magnifying glass (or \"+\" and \"-\" keys; long press for menu)");
 				return;
 			case HAND:
 				IJ.showStatus("Scrolling tool (or press space bar and drag)");
@@ -666,7 +685,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			case DROPPER:
 				String fg = foregroundColor.getRed() + "," + foregroundColor.getGreen() + "," + foregroundColor.getBlue();
 				String bg = backgroundColor.getRed() + "," + backgroundColor.getGreen() + "," + backgroundColor.getBlue();
-				IJ.showStatus("Color picker " +  fg + "/"+ bg + " (right click for menu)");
+				IJ.showStatus("Color picker " +  fg + "/"+ bg + " (long press for menu)");
 				return;
 			case ANGLE:
 				IJ.showStatus("Angle tool");
@@ -1070,11 +1089,86 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		return x>=(buttonWidth*12) && x<(buttonWidth*12+gapSize);
  	}
 
-	public void mousePressed(MouseEvent e) {
+	public void triggerPopupMenu(int newTool, MouseEvent e, boolean isRightClick, boolean isLongPress) {
+		mpPrevious = current;
+		if (isMacroTool(newTool)) {
+			String name = names[newTool];
+			if (newTool==UNUSED || name.contains("Unused Tool"))
+				return;
+			if (name.indexOf("Action Tool")!=-1) {
+				if (e.isPopupTrigger()||e.isMetaDown()) {
+					name = name.endsWith(" ")?name:name+" ";
+					tools[newTool].runMacroTool(name+"Options");
+				} else {
+					drawTool(newTool, true);
+					IJ.wait(50);
+					drawTool(newTool, false);
+					runMacroTool(newTool);
+				}
+				return;
+			} else {	
+				name = name.endsWith(" ")?name:name+" ";
+				tools[newTool].runMacroTool(name+"Selected");
+			}
+		}
+		if (!isLongPress)
+			setTool2(newTool);
+		int x = e.getX();
+		int y = e.getY();
+		if (current==RECTANGLE && isRightClick) {	
+			rectItem.setState(rectType==RECT_ROI);	
+			roundRectItem.setState(rectType==ROUNDED_RECT_ROI);	
+			rotatedRectItem.setState(rectType==ROTATED_RECT_ROI);	
+			if (IJ.isMacOSX()) IJ.wait(10);	
+			rectPopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}	
+		if (current==OVAL && isRightClick) {	
+			ovalItem.setState(ovalType==OVAL_ROI);	
+			ellipseItem.setState(ovalType==ELLIPSE_ROI);	
+			brushItem.setState(ovalType==BRUSH_ROI);	
+			if (IJ.isMacOSX()) IJ.wait(10);	
+			ovalPopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}	
+		if (current==POINT && isRightClick) {	
+			pointItem.setState(!multiPointMode);	
+			multiPointItem.setState(multiPointMode);	
+			if (IJ.isMacOSX()) IJ.wait(10);	
+			pointPopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}	
+		if (isLine(current) && isRightClick) {	
+			straightLineItem.setState(lineType==LINE&&!arrowMode);	
+			polyLineItem.setState(lineType==POLYLINE);	
+			freeLineItem.setState(lineType==FREELINE);	
+			arrowItem.setState(lineType==LINE&&arrowMode);	
+			if (IJ.isMacOSX()) IJ.wait(10);	
+			linePopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}
+		if (current==MAGNIFIER && isRightClick) {	
+			zoomPopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}				
+		if (current==DROPPER && isRightClick) {	
+			pickerPopup.show(e.getComponent(),x,y);	
+			mouseDownTime = 0L;	
+		}	
+		if (isMacroTool(current) && isRightClick) {	
+			String name = names[current].endsWith(" ")?names[current]:names[current]+" ";	
+			tools[current].runMacroTool(name+"Options");	
+		}	
+		if (isPlugInTool(current) && isRightClick) {	
+			tools[current].showPopupMenu(e, this);	
+		}
+	}
+
+	public void mousePressed(final MouseEvent e) {
 		int x = e.getX();
 		if (inGap(x))
 			return;
- 		int newTool = toolID(x);
+ 		final int newTool = toolID(x);
 		if (newTool==getNumTools()-1) {
 			showSwitchPopupMenu(e);
 			return;
@@ -1085,78 +1179,14 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
             menus[newTool].show(e.getComponent(), e.getX(), e.getY());
 			return;
 		}
+		int flags = e.getModifiers();
+		boolean isRightClick = e.isPopupTrigger()||(!IJ.isMacintosh()&&(flags&Event.META_MASK)!=0);
 		boolean doubleClick = newTool==current && (System.currentTimeMillis()-mouseDownTime)<=DOUBLE_CLICK_THRESHOLD;
  		mouseDownTime = System.currentTimeMillis();
-		if (!doubleClick) {
-			mpPrevious = current;
-			if (isMacroTool(newTool)) {
-				String name = names[newTool];
-				if (newTool==UNUSED || name.contains("Unused Tool"))
-					return;
-				if (name.indexOf("Action Tool")!=-1) {
-					if (e.isPopupTrigger()||e.isMetaDown()) {
-						name = name.endsWith(" ")?name:name+" ";
-						tools[newTool].runMacroTool(name+"Options");
-					} else {
-						drawTool(newTool, true);
-						IJ.wait(50);
-						drawTool(newTool, false);
-						runMacroTool(newTool);
-					}
-					return;
-				} else {	
-					name = name.endsWith(" ")?name:name+" ";
-					tools[newTool].runMacroTool(name+"Selected");
-				}
-			}
-			setTool2(newTool);
-			//boolean isRightClick = e.isPopupTrigger()||e.isMetaDown();
-			int flags = e.getModifiers();
-			boolean isRightClick = e.isPopupTrigger()||(!IJ.isMacintosh()&&(flags&Event.META_MASK)!=0);
-			if (current==RECTANGLE && isRightClick) {
-				rectItem.setState(rectType==RECT_ROI);
-				roundRectItem.setState(rectType==ROUNDED_RECT_ROI);
-				rotatedRectItem.setState(rectType==ROTATED_RECT_ROI);
-				if (IJ.isMacOSX()) IJ.wait(10);
-				rectPopup.show(e.getComponent(),x,y);
-				mouseDownTime = 0L;
-			}
-			if (current==OVAL && isRightClick) {
-				ovalItem.setState(ovalType==OVAL_ROI);
-				ellipseItem.setState(ovalType==ELLIPSE_ROI);
-				brushItem.setState(ovalType==BRUSH_ROI);
-				if (IJ.isMacOSX()) IJ.wait(10);
-				ovalPopup.show(e.getComponent(),x,y);
-				mouseDownTime = 0L;
-			}
-			if (current==POINT && isRightClick) {
-				pointItem.setState(!multiPointMode);
-				multiPointItem.setState(multiPointMode);
-				if (IJ.isMacOSX()) IJ.wait(10);
-				pointPopup.show(e.getComponent(),x,y);
-				mouseDownTime = 0L;
-			}
-			if (isLine(current) && isRightClick) {
-				straightLineItem.setState(lineType==LINE&&!arrowMode);
-				polyLineItem.setState(lineType==POLYLINE);
-				freeLineItem.setState(lineType==FREELINE);
-				arrowItem.setState(lineType==LINE&&arrowMode);
-				if (IJ.isMacOSX()) IJ.wait(10);
-				linePopup.show(e.getComponent(),x,y);
-				mouseDownTime = 0L;
-			}			
-			if (current==DROPPER && isRightClick) {
-				pickerPopup.show(e.getComponent(),x,y);
-				mouseDownTime = 0L;
-			}
-			if (isMacroTool(current) && isRightClick) {
-				String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
-				tools[current].runMacroTool(name+"Options");
-			}
-			if (isPlugInTool(current) && isRightClick) {
-				tools[current].showPopupMenu(e, this);
-			}
-		} else { //double click
+		if (!doubleClick || isRightClick) {
+			triggerPopupMenu(newTool, e, isRightClick, false);
+			if (isRightClick) mouseDownTime = 0L;
+		} else if(!isRightClick) { //double click
 			if (isMacroTool(current)) {
 				String name = names[current].endsWith(" ")?names[current]:names[current]+" ";
 				tools[current].runMacroTool(name+"Options");
@@ -1207,6 +1237,28 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 					break;
 				default:
 			}
+		}
+
+		if (!isRightClick) {
+			if (pressTimer==null)
+				pressTimer = new java.util.Timer();			
+			pressTimer.schedule(new TimerTask() {
+				public void run() {
+					if (pressTimer != null) {
+						pressTimer.cancel();
+						pressTimer = null;
+					}
+					triggerPopupMenu(newTool, e, true, true);
+				}
+			}, LONG_PRESS_THRESHOLD);
+		}
+		
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+		if (pressTimer!=null) {
+			pressTimer.cancel();
+			pressTimer = null;
 		}
 	}
 	
@@ -1346,7 +1398,6 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		return tool>=CUSTOM1 && tool<getNumTools() && tools[tool]!=null;
 	}
 
-	public void mouseReleased(MouseEvent e) {}
 	public void mouseExited(MouseEvent e) {}
 	public void mouseClicked(MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
@@ -1541,6 +1592,28 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		MenuItem item = (MenuItem)e.getSource();
 		String cmd = e.getActionCommand();
 		PopupMenu popup = (PopupMenu)item.getParent();
+		
+		if (zoomPopup==popup) {
+			if ("Zoom In".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "in");
+			else if ("Zoom Out".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "out");
+			else if ("Reset Zoom".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "orig");
+			else if ("View 100%".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "100%");
+			else if ("Zoom To Selection".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "to");
+			else if ("Scale to Fit".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "scale");
+			else if ("Set...".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "set");
+			else if ("Maximize".equals(cmd))
+				IJ.runPlugIn("ij.plugin.Zoom", "max");
+			setTool(previousTool);			
+			return;
+		}
+		
 		if (pickerPopup==popup) {
 			if ("White/Black".equals(cmd)) {
 				setForegroundColor(Color.white);
@@ -1560,6 +1633,10 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 				setForegroundColor(Color.cyan);
 			else if ("Magenta".equals(cmd))
 				setForegroundColor(Color.magenta);
+			else if ("Foreground...".equals(cmd))
+				setForegroundColor(new ColorChooser("Select Foreground Color", foregroundColor, false).getColor());
+			else if ("Background...".equals(cmd))
+				setBackgroundColor(new ColorChooser("Select Background Color", backgroundColor, false).getColor());
 			else
 				IJ.run("Color Picker...", "");
 			if (!"Color Picker".equals(cmd))
@@ -1567,6 +1644,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 			setTool(previousTool);			
 			return;
 		}
+		
 		int tool = -1;
 		for (int i=CUSTOM1; i<getNumTools(); i++) {
 			if (popup==menus[i]) {
@@ -1578,7 +1656,7 @@ public class Toolbar extends Canvas implements MouseListener, MouseMotionListene
 		if (tools[tool]!=null)
 			tools[tool].runMenuTool(names[tool], cmd);
     }
-
+    
 	public Dimension getPreferredSize(){
 		return ps;
 	}

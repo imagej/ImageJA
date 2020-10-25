@@ -2804,7 +2804,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			cr = cRoi.getBounds();
 		if (cr==null)
 			cr = new Rectangle(0, 0, w, h);
-		if (r==null || (cr.width!=r.width || cr.height!=r.height)) {
+		if (r==null || Math.abs(cr.width-r.width)>10 || Math.abs(cr.height-r.height)>10) {
 			// Create a new roi centered on visible part of image, or centered on image if clipboard is >= image
 			ImageCanvas ic = win!=null?ic = win.getCanvas():null;
 			Rectangle srcRect = ic!=null?ic.getSrcRect():new Rectangle(0,0,width,height);
@@ -2841,11 +2841,29 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 		}
 		changes = true;
     }
-
-	/** Returns the internal clipboard or null if the internal clipboard is empty. */
-	public static ImagePlus getClipboard() {
-		return clipboard;
+    
+    /** Inserts the contents of the internal clipboard at the
+    	specified location, without updating the display. */
+	 public void paste(int x, int y) {
+		if (clipboard==null)
+			return;
+		Roi roi = clipboard.getRoi();
+		boolean nonRect = roi!=null && roi.getType()!=Roi.RECTANGLE;
+		if (nonRect)
+			ip.snapshot();
+		ip.insert(clipboard.getProcessor(), x, y);
+		if (nonRect) {
+			ImageProcessor mask = roi.getMask();
+			ip.setRoi(x, y, mask.getWidth(), mask.getHeight());
+			ip.setMask(mask);
+			ip.reset(ip.getMask());
+		}
 	}
+
+    /** Returns the internal clipboard or null if the internal clipboard is empty. */
+    public static ImagePlus getClipboard() {
+        return clipboard;
+    }
 
 	/** Clears the internal clipboard. */
 	public static void resetClipboard() {
