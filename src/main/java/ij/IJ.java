@@ -1027,7 +1027,6 @@ public class IJ {
 	}
 	
 	public static void setKeyDown(int key) {
-		if (debugMode) IJ.log("setKeyDown: "+key);
 		switch (key) {
 			case KeyEvent.VK_CONTROL:
 				controlDown=true;
@@ -1057,7 +1056,6 @@ public class IJ {
 	}
 
 	public static void setKeyUp(int key) {
-		if (debugMode) IJ.log("setKeyUp: "+key);
 		switch (key) {
 			case KeyEvent.VK_CONTROL: controlDown=false; break;
 			case KeyEvent.VK_META: if (isMacintosh()) controlDown=false; break;
@@ -1668,6 +1666,12 @@ public class IJ {
 	/** Sets the transfer mode used by the <i>Edit/Paste</i> command, where mode is "Copy", "Blend", "Average", "Difference", 
 		"Transparent", "Transparent2", "AND", "OR", "XOR", "Add", "Subtract", "Multiply", or "Divide". */
 	public static void setPasteMode(String mode) {
+		Roi.setPasteMode(stringToPasteMode(mode));
+	}
+
+	public static int stringToPasteMode(String mode) {
+		if (mode==null)
+			return Blitter.COPY;
 		mode = mode.toLowerCase(Locale.US);
 		int m = Blitter.COPY;
 		if (mode.startsWith("ble") || mode.startsWith("ave"))
@@ -1696,7 +1700,7 @@ public class IJ {
 			m = Blitter.MIN;
 		else if (mode.startsWith("max"))
 			m = Blitter.MAX;
-		Roi.setPasteMode(m);
+		return m;
 	}
 
 	/** Returns a reference to the active image, or displays an error
@@ -2225,9 +2229,13 @@ public class IJ {
 	 public static ImagePlus createImage(String title, String type, int width, int height, int depth) {
 		type = type.toLowerCase(Locale.US);
 		int bitDepth = 8;
-		if (type.contains("16")) bitDepth = 16;
-		if (type.contains("24")||type.contains("rgb")) bitDepth = 24;
-		if (type.contains("32")) bitDepth = 32;
+		if (type.contains("16"))
+			bitDepth = 16;
+		boolean signedInt = type.contains("32-bit int");
+		if (type.contains("32"))
+			bitDepth = 32;
+		if (type.contains("24") || type.contains("rgb") || signedInt)
+			bitDepth = 24;
 		int options = NewImage.FILL_WHITE;
 		if (bitDepth==16 || bitDepth==32)
 			options = NewImage.FILL_BLACK;
@@ -2240,6 +2248,8 @@ public class IJ {
 		else if (type.contains("noise") || type.contains("random"))
 			options = NewImage.FILL_NOISE;
 		options += NewImage.CHECK_AVAILABLE_MEMORY;
+		if (signedInt)
+			options += NewImage.SIGNED_INT;
 		return NewImage.createImage(title, width, height, depth, bitDepth, options);
 	}
 

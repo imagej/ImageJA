@@ -1240,14 +1240,16 @@ public abstract class ImageProcessor implements Cloneable {
 
 	/** Draws an elliptical shape. */
 	public void drawOval(int x, int y, int width, int height) {
-		if ((long)width*height>4*this.width*this.height) return;
+		if ((long)width*height>4L*this.width*this.height)
+			return;
 		OvalRoi oval = new OvalRoi(x, y, width, height);
 		drawPolygon(oval.getPolygon());
 	}
 
 	/** Fills an elliptical shape. */
 	public void fillOval(int x, int y, int width, int height) {
-		if ((long)width*height>4*this.width*this.height) return;
+		if ((long)width*height>4L*this.width*this.height)
+			return;
 		OvalRoi oval = new OvalRoi(x, y, width, height);
 		fillPolygon(oval.getPolygon());
 	}
@@ -2798,5 +2800,5 @@ public abstract class ImageProcessor implements Cloneable {
 		b[255] = (byte)0;
 		return new IndexColorModel(8, 256, r, g, b);
 	}
-
+	
 }
