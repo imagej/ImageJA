@@ -82,6 +82,11 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			scaler.interpolationMethod = ImageProcessor.NONE;
 		if (options.contains("bicubic"))
 			scaler.interpolationMethod = ImageProcessor.BICUBIC;
+		if (scaler.xscale==0) {
+			scaler.xscale = (double)dstWidth/imp.getWidth();
+			scaler.yscale = (double)dstHeight/imp.getWidth();
+			scaler.zscale = (double)dstDepth/imp.getStackSize();
+		}
 		boolean processStack = imp.getStackSize()>1 && !options.contains("slice");
 		//return new ImagePlus("Untitled", ip.resize(dstWidth, dstHeight, useAveraging));
 		Roi roi = imp.getRoi();
@@ -197,7 +202,7 @@ public class Scaler implements PlugIn, TextListener, FocusListener {
 			options = "bicubic";
 		else
 			options = "bilinear";
-		Recorder.recordCall("imp2 = imp.resize("+w2+", "+h2+(d2>0&&d2!=imp.getStackSize()?", "+d2:"")+", \""+options+"\");");
+		Recorder.recordCall("imp = imp.resize("+w2+", "+h2+(d2>0&&d2!=imp.getStackSize()?", "+d2:"")+", \""+options+"\");");
 	}
 	
 	boolean showDialog(ImageProcessor ip) {

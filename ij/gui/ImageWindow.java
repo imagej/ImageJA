@@ -353,7 +353,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 	    		s += "32-bit";
 	    		break;
 	    	case ImagePlus.COLOR_RGB:
-	    		s += "RGB";
+	    		s += imp.isRGB() ? "RGB" :  "32-bit (int)";
 	    		break;
     	}
     	if (imp.isInvertedLut())

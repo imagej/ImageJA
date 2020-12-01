@@ -86,6 +86,8 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Create an 8-bit AWT image by scaling pixels in the range min-max to 0-255. */
 	public Image createImage() {
+		if (!minMaxSet)
+			findMinAndMax();
 		boolean firstTime = pixels8==null;
 		boolean thresholding = minThreshold!=NO_THRESHOLD && lutUpdateMode<NO_LUT_UPDATE;
 		//ij.IJ.log("createImage: "+firstTime+"  "+lutAnimation+"  "+thresholding);
@@ -261,8 +263,10 @@ public class ShortProcessor extends ImageProcessor {
 	@see ij.IJ#setMinAndMax(ij.ImagePlus,double,double)
 	*/
 	public void setMinAndMax(double minimum, double maximum) {
-		if (minimum==0.0 && maximum==0.0)
-			{resetMinAndMax(); return;}
+		if (minimum==0.0 && maximum==0.0) {
+			resetMinAndMax();
+			return;
+		}
 		if (minimum<0.0)
 			minimum = 0.0;
 		if (maximum>65535.0)
@@ -1247,7 +1251,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		return mask;
 	}
-
+	
 	/** Not implemented. */
 	public void medianFilter() {}
 	/** Not implemented. */
