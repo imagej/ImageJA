@@ -96,7 +96,7 @@ public class Functions implements MacroConstants, Measurements {
 	void doFunction(int type) {
 		switch (type) {
 			case RUN: doRun(); break;
-			case SELECT: IJ.selectWindow(getStringArg()); resetImage(); interp.selectCount++; break;
+			case SELECT: selectWindow(); break;
 			case WAIT: IJ.wait((int)getArg()); break;
 			case BEEP: interp.getParens(); IJ.beep(); break;
 			case RESET_MIN_MAX: interp.getParens(); IJ.resetMinAndMax(); resetImage(); break;
@@ -139,7 +139,7 @@ public class Functions implements MacroConstants, Measurements {
 			case GET_LINE: getLine(); break;
 			case GET_VOXEL_SIZE: getVoxelSize(); break;
 			case GET_HISTOGRAM: getHistogram(); break;
-			case GET_BOUNDING_RECT: case GET_BOUNDS: getBounds(); break;
+			case GET_BOUNDING_RECT: case GET_BOUNDS: getBounds(true); break;
 			case GET_LUT: getLut(); break;
 			case SET_LUT: setLut(); break;
 			case GET_COORDINATES: getCoordinates(); break;
@@ -306,9 +306,8 @@ public class Functions implements MacroConstants, Measurements {
 		return array;
 	}
 
-	// Type must be added to Interpreter.getExpressionType() and
-	// Interpreter.isString(), and functions returning a string must
-	// be added to isStringFunction().
+	// Functions returning a string must be added
+	// to isStringFunction(String,int).
 	Variable getVariableFunction(int type) {
 		Variable var = null;
 		switch (type) {
@@ -317,6 +316,7 @@ public class Functions implements MacroConstants, Measurements {
 			case ROI_MANAGER2: var = doRoiManager(); break;
 			case PROPERTY: var = doProperty(); break;
 			case IMAGE: var = doImage(); break;
+			case COLOR: var = doColor(); break;
 			default:
 				interp.error("Variable function expected");
 		}
@@ -692,6 +692,18 @@ public class Functions implements MacroConstants, Measurements {
 		resetImage();
 		IJ.setKeyUp(IJ.ALL_KEYS);
 		shiftKeyDown = altKeyDown = false;
+	}
+	
+	private void selectWindow() {
+		String title = getStringArg();
+		if (resultsPending && "Results".equals(title)) {
+			ResultsTable rt = ResultsTable.getResultsTable();
+			if (rt!=null && rt.size()>0)
+				rt.show("Results");
+		}
+		IJ.selectWindow(title);
+		resetImage();
+		interp.selectCount++;
 	}
 
 	void setForegroundColor() {
@@ -2678,7 +2690,7 @@ public class Functions implements MacroConstants, Measurements {
 		return Double.NaN;
 	}
 
-	void getBounds() {
+	void getBounds(boolean intValues) {
 		Variable x = getFirstVariable();
 		Variable y = getNextVariable();
 		Variable width = getNextVariable();
@@ -2686,11 +2698,19 @@ public class Functions implements MacroConstants, Measurements {
 		ImagePlus imp = getImage();
 		Roi roi = imp.getRoi();
 		if (roi!=null) {
-			Rectangle2D.Double r = roi.getFloatBounds();
-			x.setValue(r.x);
-			y.setValue(r.y);
-			width.setValue(r.width);
-			height.setValue(r.height);
+			if (intValues) {
+				Rectangle r = roi.getBounds();
+				x.setValue(r.x);
+				y.setValue(r.y);
+				width.setValue(r.width);
+				height.setValue(r.height);
+			} else {
+				Rectangle2D.Double r = roi.getFloatBounds();
+				x.setValue(r.x);
+				y.setValue(r.y);
+				width.setValue(r.width);
+				height.setValue(r.height);
+			}
 		} else {
 			x.setValue(0);
 			y.setValue(0);
@@ -4310,6 +4330,8 @@ public class Functions implements MacroConstants, Measurements {
 			return f.exists()?"1":"0";
 		else if (name.equals("isDirectory"))
 			return f.isDirectory()?"1":"0";
+		else if (name.equals("isFile"))
+			return f.isFile()?"1":"0";
 		else if (name.equals("makeDirectory")||name.equals("mkdir")) {
 			f.mkdir(); return null;
 		} else if (name.equals("lastModified"))
@@ -6623,6 +6645,17 @@ public class Functions implements MacroConstants, Measurements {
 				Analyzer.setResultsTable(rt);
 			else
 				rt.show("Results");
+		} else if (name.equals("fill")) {
+			interp.getLeftParen();
+			Color foreground = getColor();
+			Color background = null;
+			if (interp.nextToken()!=')') {
+				interp.getComma();
+				background = getColor();
+			}
+			interp.getRightParen();
+			overlay.fill(imp, foreground, background);
+			return Double.NaN;
 		} else if (name.equals("flatten")) {
 			IJ.runPlugIn("ij.plugin.OverlayCommands", "flatten");
 			return Double.NaN;
@@ -6664,6 +6697,14 @@ public class Functions implements MacroConstants, Measurements {
  		} else if (name.equals("cropAndSave")) {
  			Roi[] rois = overlay.toArray();
  			imp.cropAndSave(rois, getFirstString(), getLastString());
+			return Double.NaN;
+		} else if (name.equals("xor")) {
+			double[] arg = getFirstArray();
+			interp.getRightParen();
+			int[] indexes = new int[arg.length];
+			for (int i=0; i<arg.length; i++)
+ 				indexes[i] = (int)arg[i];
+ 			imp.setRoi(Roi.xor(overlay.toArray(indexes)));
 			return Double.NaN;
 		} else
 			interp.error("Unrecognized function name");
@@ -7274,7 +7315,7 @@ public class Functions implements MacroConstants, Measurements {
 			rt.saveAs(path);
 		} catch (Exception e) {
 			String msg = e.getMessage();
-			if (!msg.startsWith("Macro canceled"))
+			if (msg!=null && !msg.startsWith("Macro canceled"))
 				interp.error(msg);
 		}
 		return null;
@@ -7566,7 +7607,10 @@ public class Functions implements MacroConstants, Measurements {
 				roiClipboard = (Roi)roiClipboard.clone();
 			return null;
 		} else if (name.equals("getBounds")) {
-			getBounds();
+			getBounds(true);
+			return null;
+		} else if (name.equals("getFloatBounds")) {
+			getBounds(false);
 			return null;
 		} else if (name.equals("getStrokeColor")) {
 			interp.getParens();
@@ -7971,6 +8015,15 @@ public class Functions implements MacroConstants, Measurements {
 				if (name.equals("getName"))
 					isString = true;
 				break;
+			case IMAGE:
+				if (name.equals("title") || name.equals("name"))
+					isString = true;
+				break;
+			case COLOR:
+				if (name.equals("foreground") || name.equals("background")
+				|| name.equals("toString"))
+					isString = true;
+				break;
 		}
 		return isString;
 	}
@@ -8004,7 +8057,79 @@ public class Functions implements MacroConstants, Measurements {
 			imp.paste(x, y, mode);
 			imp.updateAndDraw();
 			return null;
+		} else if (name.equals("title") || name.equals("name")) {
+			interp.getParens();
+			return new Variable(imp.getTitle());
+		} else
+			interp.error("Unrecognized Image function");
+		return null;
+	}
+
+	private Variable doColor() {
+		interp.getToken();
+		if (interp.token!='.')
+			interp.error("'.' expected");
+		interp.getToken();
+		if (!(interp.token==WORD||interp.token==PREDEFINED_FUNCTION||interp.token==STRING_FUNCTION))
+			interp.error("Function name expected: ");
+		String name = interp.tokenString;
+		if (name.equals("set")) {
+			setColor();
+			return null;
+		} else if (name.equals("foreground")) {
+			interp.getParens();
+			Color color = Toolbar.getForegroundColor();
+			return new Variable(Colors.colorToString(color));
+		} else if (name.equals("background")) {
+			interp.getParens();
+			Color color = Toolbar.getBackgroundColor();
+			return new Variable(Colors.colorToString(color));
+		} else if (name.equals("setForeground")) {
+			return setForegroundOrBackground(true);
+		} else if (name.equals("setBackground")) {
+			return setForegroundOrBackground(false);
+		} else if (name.equals("toString")) {
+			int red = (int)getFirstArg();
+			int green = (int)getNextArg();
+			int blue = (int)getLastArg();
+			Color color = Colors.toColor(red, green, blue);
+			return new Variable(Colors.colorToString(color));
+		} else if (name.equals("toArray")) {
+			String color = getStringArg();
+			int rgb = Colors.decode(color, Color.black).getRGB();
+			Variable[] array = new Variable[3];
+			array[0] = new Variable((rgb&0xff0000)>>16);
+			array[1] = new Variable((rgb&0xff00)>>8);
+			array[2] = new Variable(rgb&0xff);
+			return new Variable(array);
+		} else if (name.equals("setLut")) {
+			setLut();
+			return null;
+		} else if (name.equals("getLut")) {
+			getLut();
+			return null;
+		} else
+			interp.error("Unrecognized Color function");
+		return null;
+	}
+	
+	private Variable setForegroundOrBackground(boolean foreground) {
+		interp.getLeftParen();
+		Color color = null;
+		if (isStringArg()) {
+			String arg = getString();
+			interp.getRightParen();
+			color = Colors.decode(arg, Color.black);
+		} else {
+			int red = (int)interp.getExpression();
+			int green = (int)getNextArg();
+			int blue = (int)getLastArg();
+			color = Colors.toColor(red, green, blue);
 		}
+		if (foreground)		
+			Toolbar.setForegroundColor(color);
+		else
+			Toolbar.setBackgroundColor(color);
 		return null;
 	}
 

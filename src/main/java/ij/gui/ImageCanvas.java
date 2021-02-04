@@ -265,6 +265,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	}
 
     private void drawRoi(Roi roi, Graphics g) {
+		if (Interpreter.isBatchMode())
+			return;
 		if (roi==currentRoi) {
 			Color lineColor = roi.getStrokeColor();
 			Color fillColor = roi.getFillColor();
@@ -650,7 +652,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		Overlay o = showAllOverlay;
 		if (o==null)
 			o = imp.getOverlay();
-		if (o==null || !o.isSelectable() || !o.getDrawLabels() || labelRects==null)
+		if (o==null || !o.isSelectable() || !o.isDraggable()|| !o.getDrawLabels() || labelRects==null)
 			return false;
 		for (int i=o.size()-1; i>=0; i--) {
 			if (labelRects!=null&&labelRects[i]!=null&&labelRects[i].contains(sx,sy)) {
@@ -1263,7 +1265,8 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 	
 		
 	private boolean drawingTool() {
-		return Toolbar.getToolId()>=15;
+		int id = Toolbar.getToolId();
+		return id==Toolbar.POLYLINE || id==Toolbar.FREELINE || id>=Toolbar.CUSTOM1;
 	}
 	
 	void zoomToSelection(int x, int y) {
@@ -1303,7 +1306,7 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 			roi.handleMouseUp(sx, sy); // polygon or polyline selection
 			return;
 		}
-		if (roi!=null) {  // show ROI popup?
+		if (roi!=null && !(e.isAltDown()||e.isShiftDown())) {  // show ROI popup?
 			if (roi.contains(ox,oy)) {
 				if (roiPopupMenu==null)
 					addRoiPopupMenu();
@@ -1423,11 +1426,12 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 					imp.createNewRoi(sx,sy);
 				}
 				return;
-			}
-			if ((type==Roi.POLYGON || type==Roi.POLYLINE || type==Roi.ANGLE)
+			}			
+			boolean segmentedTool = tool==Toolbar.POLYGON || tool==Toolbar.POLYLINE || tool==Toolbar.ANGLE;
+			if (segmentedTool && (type==Roi.POLYGON || type==Roi.POLYLINE || type==Roi.ANGLE)
 			&& roi.getState()==roi.CONSTRUCTING)
 				return;
-			if ((tool==Toolbar.POLYGON||tool==Toolbar.POLYLINE||tool==Toolbar.ANGLE)&& !(IJ.shiftKeyDown()||IJ.altKeyDown())) {
+			if (segmentedTool&& !(IJ.shiftKeyDown()||IJ.altKeyDown())) {
 				imp.deleteRoi();
 				return;
 			}

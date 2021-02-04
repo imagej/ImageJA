@@ -415,6 +415,8 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			imp.setDisplayRange(min, max, channels);
 		else
 			imp.setDisplayRange(min, max);
+		if (rgb)
+			plotHistogram(imp);
 	}
 
 	void updatePlot() {
@@ -517,6 +519,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 	}
 
 	void adjustMin(ImagePlus imp, ImageProcessor ip, double minvalue) {
+		resetRGB(ip);
 		min = defaultMin + minvalue*(defaultMax-defaultMin)/(sliderRange-1.0);
 		if (max>defaultMax)
 			max = defaultMax;
@@ -530,6 +533,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 	}
 
 	void adjustMax(ImagePlus imp, ImageProcessor ip, double maxvalue) {
+		resetRGB(ip);
 		max = defaultMin + maxvalue*(defaultMax-defaultMin)/(sliderRange-1.0);
 		//IJ.log("adjustMax: "+maxvalue+"  "+max);
 		if (min<defaultMin)
@@ -541,6 +545,15 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			setThreshold(ip);
 		if (RGBImage) doMasking(imp, ip);
 		updateScrollBars(maxSlider, false);
+	}
+	
+	private void resetRGB(ImageProcessor ip) {
+		if (!(ip instanceof ColorProcessor))
+			return;
+		if (ip.getMin()==0 && ip.getMax()==255 && !((ColorProcessor)ip).caSnapshot()) {
+	 		ip.snapshot();
+	 		((ColorProcessor)ip).caSnapshot(true);
+		}
 	}
 
 	void adjustBrightness(ImagePlus imp, ImageProcessor ip, double bvalue) {
@@ -628,7 +641,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 		if (balance && imp.isComposite())
 			return;
 		int bitDepth = imp.getBitDepth();
-		if (bitDepth!=32 && !IJ.isMacro()) {
+		if ((bitDepth==8||bitDepth==16) && !IJ.isMacro()) {
 			String msg = "WARNING: the pixel values will\nchange if you click \"OK\".";
 			if (!IJ.showMessageWithCancel("Apply Lookup Table?", msg))
 				return;
@@ -723,6 +736,11 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 	}
 
 	void applyRGB(ImagePlus imp, ImageProcessor ip) {
+		recordSetMinAndMax(ip.getMin(), ip.getMax());
+		ip.snapshot();
+		ip.setMinAndMax(0, 255);
+		reset(imp, ip);
+		/*
 		double min = imp.getDisplayRangeMin();
 		double max = imp.getDisplayRangeMax();
  		ip.setRoi(imp.getRoi());
@@ -742,6 +760,7 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 			else
 				Recorder.record("run", "Apply LUT");
 		}
+		*/
 	}
 
 	private void applyRGBStack(ImagePlus imp) {
@@ -1178,8 +1197,10 @@ public class ContrastAdjuster extends PlugInDialog implements Runnable,
 				choice.select(channelLabels.length-1);
 				channels = 7;
 			}
-		} else
+		} else {
+			imp.getProcessor().snapshot();
 			doReset = true;
+		}
 		notify();
 	}
 

@@ -456,7 +456,8 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 		resetCounter = (options&CLEAR_WORKSHEET)!=0;
 		showProgress = (options&SHOW_PROGRESS)!=0;
 		floodFill = (options&INCLUDE_HOLES)==0;
-		//recordStarts = (options&RECORD_STARTS)!=0;
+		if ((options&RECORD_STARTS)!=0)
+			recordStarts = true;
 		showOverlay = (options&OVERLAY)!=0;
 		addToManager = (options&ADD_TO_MANAGER)!=0;
 		if (staticRoiManager!=null) {
@@ -1007,6 +1008,7 @@ public class ParticleAnalyzer implements PlugInFilter, Measurements {
 				overlay = new Overlay();
 				overlay.drawLabels(true);
 				overlay.setLabelFont(new Font("SansSerif", Font.PLAIN, fontSize));
+				overlay.setDraggable(false);
 			}
 			Roi roi2 = (Roi)roi.clone();
 			roi2.setStrokeColor(Color.cyan);
