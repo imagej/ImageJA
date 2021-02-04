@@ -648,10 +648,9 @@ public class IJ {
 			cal = imp.getCalibration();
 			imp.setCalibration(null);
 		}
-		ImageStatistics stats = imp.getStatistics(measurements);
 		ResultsTable rt = new ResultsTable();
 		Analyzer analyzer = new Analyzer(imp, measurements, rt);
-		analyzer.saveResults(stats, imp.getRoi());
+		analyzer.measure();
 		double value = Double.NaN;
 		try {
 			value = rt.getValue(measurement, 0);
@@ -1496,6 +1495,7 @@ public class IJ {
 			ImageWindow win = imp.getWindow();
 			if (win!=null) {
 				win.toFront();
+				win.setState(Frame.NORMAL);
 				WindowManager.setWindow(win);
 			}
 			long start = System.currentTimeMillis();
@@ -1519,8 +1519,10 @@ public class IJ {
 
 	/** Activates the window with the specified title. */
 	public static void selectWindow(String title) {
-		if (title.equals("ImageJ")&&ij!=null)
-			{ij.toFront(); return;}
+		if (title.equals("ImageJ")&&ij!=null) {
+			ij.toFront();
+			return;
+		}
 		long start = System.currentTimeMillis();
 		while (System.currentTimeMillis()-start<3000) { // 3 sec timeout
 			Window win = WindowManager.getWindow(title);
@@ -1545,9 +1547,10 @@ public class IJ {
 	}
 	
 	static void selectWindow(Window win) {
-		if (win instanceof Frame)
+		if (win instanceof Frame) {
 			((Frame)win).toFront();
-		else
+			((Frame)win).setState(Frame.NORMAL);
+		} else
 			((Dialog)win).toFront();
 		long start = System.currentTimeMillis();
 		while (true) {
@@ -1572,9 +1575,7 @@ public class IJ {
 	}
 	
 	static void setColor(int red, int green, int blue, boolean foreground) {
-	    if (red<0) red=0; if (green<0) green=0; if (blue<0) blue=0; 
-	    if (red>255) red=255; if (green>255) green=255; if (blue>255) blue=255;  
-		Color c = new Color(red, green, blue);
+		Color c = Colors.toColor(red, green, blue);
 		if (foreground) {
 			Toolbar.setForegroundColor(c);
 			ImagePlus img = WindowManager.getCurrentImage();
@@ -1756,13 +1757,13 @@ public class IJ {
 	/** Returns the path to the specified directory if <code>title</code> is
 		"home" ("user.home"), "downloads", "startup",  "imagej" (ImageJ directory),
 		"plugins", "macros", "luts", "temp", "current", "default",
-		"image" (directory active image was loaded from) or "file" 
-		(directory most recently used to open or save a file),
-		otherwise displays a dialog and returns the path to the
-		directory selected by the user. Returns null if the specified
-		directory is not found or the user cancels the dialog box.
-		Also aborts the macro if the user cancels
-		the dialog box.*/
+		"image" (directory active image was loaded from), "file" 
+		(directory most recently used to open or save a file) or "cwd"
+		(current working directory), otherwise displays a dialog and
+		returns the path to the directory selected by the user. Returns
+		null if the specified directory is not found or the user cancels the
+		dialog box. Also aborts the macro if the user cancels the
+		dialog box.*/
 	public static String getDirectory(String title) {
 		String dir = null;
 		String title2 = title.toLowerCase(Locale.US);
@@ -1796,9 +1797,11 @@ public class IJ {
 				dir = fi.directory;
 			} else
 				dir = null;
-		} else if (title2.equals("file")) {
+		} else if (title2.equals("file"))
 			dir = OpenDialog.getLastDirectory();
-		} else {
+		else if (title2.equals("cwd"))
+			dir = System.getProperty("user.dir");
+		else {
 			DirectoryChooser dc = new DirectoryChooser(title);
 			dir = dc.getDirectory();
 			if (dir==null) Macro.abort();

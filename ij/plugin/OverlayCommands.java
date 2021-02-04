@@ -7,7 +7,7 @@ import ij.plugin.frame.Recorder;
 import ij.macro.Interpreter;
 import ij.io.RoiDecoder;
 import ij.plugin.filter.PlugInFilter;
-import ij.measure.ResultsTable;
+import ij.measure.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.awt.geom.Rectangle2D;
@@ -44,8 +44,54 @@ public class OverlayCommands implements PlugIn {
 			toRoiManager();
 		else if (arg.equals("list"))
 			list();
+		else if (arg.equals("measure"))
+			measure();
 		else if (arg.equals("options"))
 			options();
+	}
+	
+	private void measure() {
+		ImagePlus imp = IJ.getImage();
+		if (imp==null)
+			return;
+		Overlay overlay = imp.getOverlay();
+		if (overlay==null) {
+			IJ.error("Overlay required");
+			return;
+		}
+		Roi roi0 = imp.getRoi();
+		Roi roi1 = roi0;
+		if (roi0!=null && !roi0.isArea())
+			roi0 = null;
+		boolean isPoints = false;
+		for (int i=0; i<overlay.size(); i++) {
+			Roi roi = (Roi)overlay.get(i).clone();
+			if (roi0!=null && roi instanceof PointRoi) {
+				isPoints = true;
+				PointRoi croppedRoi = ((PointRoi)roi).crop(roi0);
+				imp.setRoi(croppedRoi);
+				IJ.run(imp, "Measure", "");
+			} else {
+				imp.setRoi(roi);
+				ImageStatistics stats = null;
+				if (roi0!=null) {
+					ImageProcessor ip = imp.getProcessor();
+					stats = ImageStatistics.getStatistics(ip, Measurements.CENTROID, null);
+				}
+				if (stats==null || roi0.contains((int)stats.xCentroid,(int)stats.yCentroid)) {
+					if (stats!=null)
+						roi.setFillColor(Color.cyan);
+					IJ.run(imp, "Measure", "");
+				}
+			}
+		}
+		imp.setRoi(roi1);
+		if (roi0!=null && !IJ.isMacro() && !isPoints) {
+			IJ.wait(3000);
+			for (int i=0; i<overlay.size(); i++)
+				overlay.get(i).setFillColor(null);
+			imp.draw();
+		}
 	}
 			
 	void addSelection() {
@@ -355,6 +401,7 @@ public class OverlayCommands implements PlugIn {
 	}
 	
 	public static void listRois(Roi[] rois) {
+		ImagePlus imp = WindowManager.getCurrentImage();
 		ResultsTable rt = new ResultsTable();
 		for (int i=0; i<rois.length; i++) {
 			if (rois[i]==null)
@@ -364,7 +411,7 @@ public class OverlayCommands implements PlugIn {
 			String fill = Colors.colorToString(rois[i].getFillColor());
 			double strokeWidth = rois[i].getStrokeWidth();
 			int digits = strokeWidth==(int)strokeWidth?0:1;
-			String sWidth = IJ.d2s(strokeWidth,digits);
+			String sWidth = IJ.d2s( strokeWidth,digits);
 			String group = ""+rois[i].getGroup();
 			if (group.equals("0"))
 				group = "none";
@@ -372,6 +419,10 @@ public class OverlayCommands implements PlugIn {
 			int c = rois[i].getCPosition();
 			int z = rois[i].getZPosition();
 			int t = rois[i].getTPosition();
+			if (imp!=null && imp.getNChannels()==1 && imp.getNSlices()==1 && imp.getNFrames()>1) {
+				t = z;
+				z = 0;
+			}
 			rt.setValue("Index", i, i);
 			rt.setValue("Name", i, rois[i].getName());
 			rt.setValue("Type", i, rois[i].getTypeAsString());
@@ -395,9 +446,8 @@ public class OverlayCommands implements PlugIn {
 			rt.setValue("Z", i, z);	
 			rt.setValue("T", i, t);	
 		}
-		ImagePlus imp = WindowManager.getCurrentImage();
 		String title = imp!=null?" of "+imp.getTitle():"";
-		rt.show("Overlay Elements"+title);//Marcel Boeglin 2019.10.07
+		rt.show("Overlay Elements"+title);
 	}
 	
 }

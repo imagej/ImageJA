@@ -311,6 +311,7 @@ public class Menus {
 		addExample(submenu, "Circle Tool", "Circle_Tool.ijm");
 		addExample(submenu, "Point Picker", "Point_Picker_Tool.ijm");		
 		addExample(submenu, "Star Tool", "Star_Tool.ijm");
+		addExample(submenu, "Animated Icon Tool", "Animated_Icon_Tool.ijm");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 
@@ -319,6 +320,7 @@ public class Menus {
 		addExample(submenu, "Dialog Box", "Dialog_Box.ijm");
 		addExample(submenu, "Process Folder", "Batch_Process_Folder.ijm");
 		addExample(submenu, "OpenDialog Demo", "OpenDialog_Demo.ijm");
+		addExample(submenu, "Save All Images", "Save_All_Images.ijm");
 		addExample(submenu, "Sine/Cosine Table", "Sine_Cosine_Table.ijm");
 		addExample(submenu, "Non-numeric Table", "Non-numeric_Table.ijm");
 		addExample(submenu, "Overlay", "Overlay.ijm");
@@ -330,6 +332,7 @@ public class Menus {
 		addExample(submenu, "Synthetic Images", "Synthetic_Images.ijm");
 		addExample(submenu, "Spiral Rotation", "Spiral_Rotation.ijm");
 		addExample(submenu, "Curve Fitting", "Curve_Fitting.ijm");
+		addExample(submenu, "Colors of 2021", "Colors_of_2021.ijm");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 
@@ -363,6 +366,7 @@ public class Menus {
 		addExample(submenu, "Overlay Text", "Overlay_Text.js");
 		addExample(submenu, "Crop Multiple Rois", "Crop_Multiple_Rois.js");
 		addExample(submenu, "Show all LUTs", "Show_all_LUTs.js");
+		addExample(submenu, "Dialog Demo", "Dialog_Demo.js");
 		submenu.addActionListener(listener);
 		menu.add(submenu);
 		submenu = new Menu("BeanShell");
@@ -1370,7 +1374,8 @@ public class Menus {
 
 	/** Adds one image to the end of the Window menu. */
 	static synchronized void addWindowMenuItem(ImagePlus imp) {
-		if (ij==null) return;
+		if (ij==null)
+			return;
 		String name = imp.getTitle();
 		String size = ImageWindow.getImageSize(imp);
 		CheckboxMenuItem item = new CheckboxMenuItem(name+" "+size);

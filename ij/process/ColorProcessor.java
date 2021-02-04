@@ -87,7 +87,7 @@ public class ColorProcessor extends ImageProcessor {
 
 	public void setColorModel(ColorModel cm) {
 		if (cm!=null && (cm instanceof IndexColorModel))
-			throw new IllegalArgumentException("DirectColorModel required");
+			throw new IllegalArgumentException("RGB images do not support IndexColorModels");
 		this.cm = cm;
 		rgbSampleModel = null;
 		rgbRaster = null;
@@ -182,7 +182,6 @@ public class ColorProcessor extends ImageProcessor {
 			applyTable(lut, channels);
 	}
 	
-
 	public void snapshot() {
 		snapshotWidth = width;
 		snapshotHeight = height;

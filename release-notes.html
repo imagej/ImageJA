@@ -5,7 +5,82 @@
 </head>
 <body>
 
-<li> <u>1.53g  30 November 2020</u>
+<li> <u>1.53h 03 February 2021</u>
+<ul>
+<li> Thanks to Laura Shankman, added the <i>Image&gt;Overlay&gt;Measure Overlay</i>
+command.
+<li> Thanks to Jerome Mutterer, added the <i>Help&gt;Examples&gt;Macro&gt;Colors of 2021</i>
+example, which runs in batch mode to prevent ROIs from being drawn in 1.53h21 and later.
+<li> Added the <i>Help&gt;Examples&gt;JavaScript&gt;Dialog Demo</i> and
+<i>Help&gt;Examples&gt;Macro&gt;Save All Images</i> examples.
+<li> Thanks to Christophe Leterrier, <i>Image&gt;Type&gt;RGB Color</i>
+converts hyperstacks of HSB stacks to stacks of RGB images.
+<li> Thanks to Alex Zwetsloot, line selections are no longer be activated by double clicks
+with the segmented and freehand line tools.
+<li> Thanks to Norbert Vischer, added the Color.set(string), Color.set(number),
+Color.foreground, Color.background, Color.setForeground(r,g,b),
+Color.setBackground(r,b,g), Color.setForeground(string),Color.setBackground(string),
+Color.toString(r,g,b), Color.toArray(color), Color.setLut(reds, greens, blues) and
+Color.getLut(reds, greens, blues) macro functions. DOCUMENT
+<li> Thanks to Raniere Silva, added the Overlay.xor() macro function. DOCUMENT
+<li> Added the Overlay.fill() macro function. DOCUMENT
+<li> Thanks to Stein Rorvik, added the File.isFile() macro function. DOCUMENT
+<li> Thanks to Raniere Silva, added the getDir("cwd") ("current working directory")
+macro function. DOCUMENT
+<li> Added the Roi.getFloatBounds() and Image.title macro functions. DOCUMENT
+<li> Thanks to Alan Brooks, added the Toolbar.setIcon() method
+ (<a href="http://wsr.imagej.net/macros/tools/ToggleIconTool.txt">example1</a>,
+ <a href="http://wsr.imagej.net/macros/tools/Animated_Icon_Tool.txt">example2</a>,
+ <a href="http://wsr.imagej.net/macros/tools/Googly_Eyes_Tool.txt">example3</a>,
+ <a href="http://wsr.imagej.net/macros/tools/Scrolling_Tool_Icons.txt">example4</a>.
+  <a href="http://wsr.imagej.net/macros/tools/Random_Color_Picker_Tool.txt">example5</a>).
+<li> Added the Overlay.xor() and Roi.xor() methods.
+<li> Thanks to Robert Kasumba, added the OverlayBrushTool.setWidth() method.
+<li> Thanks to Laurent Thomas, added the getColumn(String), getColumnAsStrings(String)
+and getActiveTable() methods to the ResultsTable class.
+<li> Thanks to Dyuks, fixed a bug that caused the TIFF reader to sometimes throw
+an exception when opening LZW-compressed 16-bit TIFFs.
+<li> Thanks to Michael Schmid, fixed a bug that could cause the JpegWriter
+to throw a NullPointerException if JAI ImageIO was installed.
+<li> Thanks to Michael Cammer, fixed a bug that caused the selectWindow(title)
+macro function to not work with minimized windows on Windows.
+<li> Fixed a bug that caused all tools to stop working after attempting
+to use the polygon, segmented line or angle tool on
+<a href="https://ij.imjoy.io/">ImageJ.JS</a>.
+<li> Thanks to Gabriel Landini, fixed a bug that caused the B&C tool
+to sometimes perform an Undo operation on RGB images.
+<li> Thanks to Raniere Silva and Jan Eglinger, fixed a bug that
+caused an exception when saving the table created by
+<i>Image&gt;Overlay&gt;List Elements</i> in .csv format.
+<li> Thanks to Raniere Silva, fixed bugs that caused the open(path)
+and roiManager(“Open”,path) macro functions, in macros run 
+from the command line, to not work as expected when ‘path’
+was just a file name.
+<li> Thanks to Michael Schmid, fixed bugs that caused the roi.getBounds()
+method and getSelectionBounds() macro function to not work 
+as expected with polyline, point and straight line selections on
+images zoomed more than 150%.
+<li> Thanks to Christian Tischer, fixed a bug that caused the
+<i>Image&gt;Overlay&gt;List Elements</i> command to incorrectly
+report positions of time series overlays.
+<li> Thanks to Laurent Thomas, fixed a bug that sometimes caused
+GenericDialogs to not open URLs bound to "Help" buttons.
+<li> Thanks to Jan Eglinger, fixed a bug that caused the selection
+brush tool to behave inconsistantly when the brush width was odd
+and the image was hightly magnified.
+<li> Thanks to Christian Tischer, fixed a bug that caused overlay
+calibration bars to be displayed incorrectly on images zoomed
+less than 100%.
+<li> Thanks to Norbert Vischer, fixed a bug that caused the
+selectWindow("Results") macro function to sometimes not
+work as expected.
+<li> Fixed a 1.53h17 regression, caused by building ij.jar for Java 8,
+that prevented Fiji from launching.
+<li> Thanks to Dominik Schienstock, fixed a 1.52q regression that
+caused some filters to throw exceptions in headless mode.
+</ul>
+
+<li> <u>1.53g  4 December 2020</u>
 <ul>
 <li> Thanks to Jerome Mutterer, added a "Run" button to Editor
  windows when the file name ends with ".ijm", ".js", ".bsh" or ".py".
@@ -20,8 +95,8 @@
  <li> Thanks to Christian Tischer, the Recorder supports Python.
  <li> Thanks to 'Eljonco', the "ExpandableArrays" macro option
  is now enabled by default.
- <l> Thanks to Peter Haub, added the String.pad(n,digits)
- macro function. DOCUMENT
+ <l> Thanks to Peter Haub, added the String.pad(n,length)
+ macro function.
  <li> Thanks to Wilhelm Burger, added the addEnumChoice() and
  getNextEnumChoice() methods to the GenericDialog class
  (<a href="http://wsr.imagej.net/plugins/GenericDialog_With_Enums.java">example</a>).
@@ -58,6 +133,12 @@ not work as expected.
 <li> Thanks to Gilles Vanwalleghem, fixed a bug that caused the
 run(“Reduce Dimensionality…”) macro function to throw a
 null pointer exception in Fiji headless mode.
+<li> Thanks to Laurent Thomas and Hollandi Reka, fixed a bug
+that caused the ROI group of saved composite selections
+to not be restored.
+<li> Thanks to Martin Hohne, fixed a bug that caused the getValue("X")
+and getValue("Y") macro functions to not work as expected with
+line selections.
 <li> Thanks to J Xiong, fixed a v1.50 regression that caused the 
 particle analyzer to not work as expected when when using the
 “Exclude on edges” option and a composite selection.
@@ -72,7 +153,7 @@ sometimes fail on MacOS.
 <li> Thanks to Wei Ouyang, tool bar and image popup menus are
 triggered by long presses in addition to right clicks, needed
 because right clicks are not normally possible when
-<a href="https://ij.imjoy.io/">Image.JS</a>
+<a href="https://ij.imjoy.io/">ImageJ.JS</a>
 is running on Android and iOS devices.
 <li> Thanks to Wei Ouyang, added a popup menu to the
 magnifying glass tool icon.

@@ -1,6 +1,7 @@
 package ij.measure;
 import ij.*;
 import ij.plugin.filter.Analyzer;
+import ij.plugin.frame.Editor;
 import ij.text.*;
 import ij.process.*;
 import ij.gui.Roi;
@@ -104,6 +105,17 @@ public class ResultsTable implements Cloneable {
 			return ((TextWindow)f).getResultsTable();
 		else
 			return null;
+	}
+	
+	/** Returns the active (front most) displayed ResultsTable. */
+	public static ResultsTable getActiveTable() {
+		ResultsTable rt = null;
+		Window win = WindowManager.getActiveTable();
+		if (win!=null && (win instanceof TextWindow)) {
+			TextPanel tp = ((TextWindow)win).getTextPanel();
+			rt = tp.getOrCreateResultsTable();
+		}
+		return rt;
 	}
 		
 	/** Obsolete. */
@@ -291,6 +303,32 @@ public class ResultsTable implements Cloneable {
 			rowLabels = null;
 	}
 	
+	/** Returns a copy of the given column as a double array,
+		or null if the column is not found. */
+	public double[] getColumn(String column) {
+		int col = getColumnIndex(column);
+		if (col==COLUMN_NOT_FOUND || columns[col]==null)
+			throw new IllegalArgumentException("\""+column+"\" column not found");
+		return getColumnAsDoubles(col);
+	}
+
+	/** Returns a copy of the given column as a String array,
+		or null if the column is not found. */
+	public String[] getColumnAsStrings(String column) {
+		String[] array = new String[size()];
+		if ("Label".equals(column) && rowLabels!=null) {
+			for (int i=0; i<size(); i++)
+				array[i] = getLabel(i);
+			return array;
+		}
+		int col = getColumnIndex(column);
+		if (col==COLUMN_NOT_FOUND || columns[col]==null)
+			throw new IllegalArgumentException("\""+column+"\" column not found");
+		for (int i=0; i<size(); i++)
+			array[i] = getStringValue(col, i);
+		return array;
+	}
+
 	/** Returns a copy of the given column as a float array,
 		or null if the column is empty. */
 	public float[] getColumn(int column) {
@@ -643,7 +681,7 @@ public class ResultsTable implements Cloneable {
 			if (columns[i]!=null) {
 				String value = getValueAsString(i,row);
 				if (quoteCommas) {
-					if (value.contains(","))
+					if (value!=null && value.contains(","))
 						value = "\""+value+"\"";
 				}
 				sb.append(value);
