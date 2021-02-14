@@ -436,7 +436,7 @@ public class Opener {
 				imp = openTiff(u.openStream(), name);
 			} else if (lurl.endsWith(".zip"))
 				imp = openZipUsingUrl(u);
-			else if (lurl.endsWith(".jpg") || lurl.endsWith(".gif"))
+			else if (lurl.endsWith(".jpg") || lurl.endsWith(".jpeg") || lurl.endsWith(".gif"))
 				imp = openJpegOrGifUsingURL(name, u);
 			else if (lurl.endsWith(".dcm") || lurl.endsWith(".ima")) {
 				imp = (ImagePlus)IJ.runPlugIn("ij.plugin.DICOM", url);
