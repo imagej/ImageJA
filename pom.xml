@@ -84,8 +84,8 @@
 		<license.licenseName>N/A</license.licenseName>
 		<license.copyrightOwners>N/A</license.copyrightOwners>
 
-		<scijava.jvm.version>1.6</scijava.jvm.version>
-		<scijava.jvm.build.version>1.6</scijava.jvm.build.version>
+		<scijava.jvm.version>6</scijava.jvm.version>
+		<scijava.jvm.build.version>6</scijava.jvm.build.version>
 		<javac.path>${java.home}/../lib/tools.jar</javac.path>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
