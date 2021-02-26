@@ -95,7 +95,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 			stats = new StackStatistics(imp);
 		if (processStack) {
 			ImageStack stack = imp.getStack();
-			for (int i=1; i<=stackSize; i++) {
+			for (int i=1; i<=stack.getSize(); i++) {
 				IJ.showProgress(i, stackSize);
 				ImageProcessor ip = stack.getProcessor(i);
 				ip.setRoi(imp.getRoi());
