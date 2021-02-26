@@ -275,7 +275,7 @@ public class ContrastEnhancer implements PlugIn, Measurements {
 			//int[] mask = imp.getMask();
 			//Rectangle rect = imp.get
 			ImageStack stack = imp.getStack();
-			for (int i=1; i<=stackSize; i++) {
+			for (int i=1; i<=stack.getSize(); i++) {
 				IJ.showProgress(i, stackSize);
 				ImageProcessor ip = stack.getProcessor(i);
 				if (histogram==null)
