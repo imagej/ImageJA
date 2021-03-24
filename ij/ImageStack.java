@@ -256,18 +256,30 @@ public class ImageStack {
 	}
 	
 	/** Returns the label of the specified slice, were 1<=n<=nslices.
-		Returns null if the slice does not have a label. For DICOM
-		and FITS stacks, labels may contain header information. */
+		Returns null if the slice does not have a label or 'n';
+		is out of range. For DICOM and FITS stacks, labels may
+		contain header information.
+	*/
 	public String getSliceLabel(int n) {
 		if (n<1 || n>nSlices)
-			throw new IllegalArgumentException(outOfRange+n);
-		return label[n-1];
+			return null;
+		else
+			return label[n-1];
 	}
 	
-	/** Returns a shortened version (up to the first 60 characters or first newline and 
-		suffix removed) of the label of the specified slice.
-		Returns null if the slice does not have a label. */
+	/** Returns a shortened version (up to the first 60 characters
+	 * or first newline), with the extension removed, of the specified
+	 * slice label, or null if the slice does not have a label.
+	*/
 	public String getShortSliceLabel(int n) {
+		return getShortSliceLabel(n, 60);
+	}
+
+	/** Returns a shortened version (up to the first 'max' characters
+	 * or first newline), with the extension removed, of the specified
+	 * slice label, or null if the slice does not have a label.
+	*/
+	public String getShortSliceLabel(int n, int max) {
 		String shortLabel = getSliceLabel(n);
 		if (shortLabel==null) return null;
     	int newline = shortLabel.indexOf('\n');
@@ -277,11 +289,11 @@ public class ImageStack {
     	int len = shortLabel.length();
 		if (len>4 && shortLabel.charAt(len-4)=='.' && !Character.isDigit(shortLabel.charAt(len-1)))
 			shortLabel = shortLabel.substring(0,len-4);
-		if (shortLabel.length()>60)
-			shortLabel = shortLabel.substring(0, 60);
+		if (shortLabel.length()>max)
+			shortLabel = shortLabel.substring(0, max);
 		return shortLabel;
 	}
-
+	
 	/** Sets the label of the specified slice, were 1<=n<=nslices. */
 	public void setSliceLabel(String label, int n) {
 		if (n<1 || n>nSlices)

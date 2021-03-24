@@ -1,5 +1,4 @@
 package ij.text;
-
 import java.awt.*;
 import java.io.*;
 import java.awt.event.*;
@@ -273,6 +272,17 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		tc.repaint();
  	}
 
+	private void showLinePos() { // show line numbers in status bar (Norbert Visher)
+		int startLine = getSelectionStart() +1;
+		int endLine = getSelectionEnd() + 1;
+		String msg = "Line " + startLine;
+		if (startLine != endLine) {
+			msg += "-" + endLine;
+		}
+		if (!msg.equals("Line 0"))
+			IJ.showStatus(msg);
+	}
+	
 	public void mousePressed (MouseEvent e) {
 		int x=e.getX(), y=e.getY();
 		if (e.isPopupTrigger() || e.isMetaDown())
@@ -405,7 +415,9 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		}
 	}
 
- 	public void mouseReleased (MouseEvent e) {}
+ 	public void mouseReleased (MouseEvent e) {
+			showLinePos();
+	}
 	public void mouseClicked (MouseEvent e) {}
 	public void mouseEntered (MouseEvent e) {}
 
@@ -450,6 +462,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 
 	public void keyReleased (KeyEvent e) {
 		IJ.setKeyUp(e.getKeyCode());
+		showLinePos();
 	}
 
 	public void keyTyped (KeyEvent e) {
@@ -682,8 +695,10 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		if (selStart==-1 || selEnd==-1)
 			return copyAll();
 		StringBuffer sb = new StringBuffer();
+		ResultsTable rt2 = getResultsTable();
+		boolean hasRowNumers = rt2!=null && rt2.showRowNumbers();
 		if (Prefs.copyColumnHeaders && labels!=null && !labels.equals("") && selStart==0 && selEnd==iRowCount-1) {
-			if (Prefs.noRowNumbers) {
+			if (hasRowNumers && Prefs.noRowNumbers) {
 				String s = labels;
 				int index = s.indexOf("\t");
 				if (index!=-1)
@@ -698,7 +713,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 			String s = new String(chars);
 			if (s.endsWith("\t"))
 				s = s.substring(0, s.length()-1);
-			if (Prefs.noRowNumbers && labels!=null && !labels.equals("")) {
+			if (hasRowNumers && Prefs.noRowNumbers && labels!=null && !labels.equals("")) {
 				int index = s.indexOf("\t");
 				if (index!=-1)
 					s = s.substring(index+1, s.length());
@@ -817,6 +832,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 	public void selectAll() {
 		if (selStart==0 && selEnd==iRowCount-1) {
 			resetSelection();
+			IJ.showStatus("");
 			return;
 		}
 		selStart = 0;
@@ -824,6 +840,7 @@ public class TextPanel extends Panel implements AdjustmentListener,
 		selOrigin = 0;
 		tc.repaint();
 		selLine=-1;
+		showLinePos();
 	}
 
 	/** Clears the selection, if any. */

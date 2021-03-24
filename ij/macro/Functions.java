@@ -281,6 +281,7 @@ public class Functions implements MacroConstants, Measurements {
 			case DEBUG: str = debug(); break;
 			case IJ_CALL: str = ijCall(); break;
 			case GET_RESULT_STRING: str = getResultString(null); break;
+			case TRIM: str = trim(); break;
 			default:
 				str="";
 				interp.error("String function expected");
@@ -2834,12 +2835,22 @@ public class Functions implements MacroConstants, Measurements {
 	}
 
 	private void showStatus () {
-		String s = getStringArg();
+		interp.getLeftParen();
+		String s = getString();
+		String options = null;
+		if (interp.nextToken()==',') {
+			interp.getComma();
+			options = getString();
+		}
+		interp.getRightParen();
 		boolean withSign = s.startsWith("!");
 		if (withSign)
 			s = s.substring(1);
 		IJ.protectStatusBar(false);
-		IJ.showStatus(s);
+		if (options!=null)
+			IJ.showStatus(s, options);
+		else
+			IJ.showStatus(s);
 		IJ.protectStatusBar(withSign);
 		interp.statusUpdated = true;
 	}
@@ -3267,7 +3278,7 @@ public class Functions implements MacroConstants, Measurements {
 			if (!others) {
 				//S c a n   N o n - i m a g e s
 				Window[] windows = WindowManager.getAllNonImageWindows();
-				String[] textExtension = ".txt .ijm .js .java .py .bs .csv".split(" ");
+				String[] textExtension = ".txt .ijm .js .java .py .bs .csv .tsv".split(" ");
 				boolean isTextPattern = false;
 				for (int jj = 0; jj < textExtension.length; jj++) {
 					isTextPattern |= pattern.endsWith(textExtension[jj]);
@@ -3875,6 +3886,12 @@ public class Functions implements MacroConstants, Measurements {
 				return null;
 			}
 		}
+	}
+	
+	String trim() {
+		if (interp.nextToken()=='=')
+			interp.error("'trim' is a reserved word");
+		return getStringArg().trim();
 	}
 
 	void floodFill() {
@@ -4841,7 +4858,7 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!='.')
 			interp.error("'.' expected");
 		interp.getToken();
-		if (interp.token!=WORD)
+		if (!(interp.token==WORD||interp.token==STRING_FUNCTION))
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
 		if (name.equals("append"))
@@ -5188,10 +5205,14 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("getOrthoViews"))
 			return getOrthoViews();
 		ImagePlus imp = getImage();
-		if (name.equals("setPosition"))
-			{setPosition(imp); return Double.NaN;}
-		if (name.equals("getPosition"))
-			{getPosition(imp); return Double.NaN;}
+		if (name.equals("setPosition")) {
+			setPosition(imp);
+			return Double.NaN;
+		}
+		if (name.equals("getPosition")) {
+			getPosition(imp);
+			return Double.NaN;
+		}
 		Calibration cal = imp.getCalibration();
 		if (name.equals("getFrameRate"))
 			{interp.getParens(); return cal.fps;}
@@ -5884,7 +5905,7 @@ public class Functions implements MacroConstants, Measurements {
 		if (interp.token!='.')
 			interp.error("'.' expected");
 		interp.getToken();
-		if (!(interp.token==WORD||interp.token==PREDEFINED_FUNCTION))
+		if (!(interp.token==WORD||interp.token==PREDEFINED_FUNCTION||interp.token==STRING_FUNCTION))
 			interp.error("Function name expected: ");
 		String name = interp.tokenString;
 		if (name.equals("copy"))
@@ -6620,6 +6641,11 @@ public class Functions implements MacroConstants, Measurements {
 		else if (name.equals("copy")) {
 			interp.getParens();
 			overlayClipboard = getImage().getOverlay();
+			return Double.NaN;
+		} else if (name.equals("update")) {
+			int index = (int)getArg();
+			checkIndex(index, 0, size-1);
+			overlay.set(imp.getRoi(), index);
 			return Double.NaN;
 		} else if (name.equals("removeSelection")||name.equals("removeRoi")) {
 			int index = (int)getArg();
@@ -7935,8 +7961,14 @@ public class Functions implements MacroConstants, Measurements {
 			imp.setProperty("Info", getStringArg());
 			return null;
 		} else if (name.equals("getSliceLabel")) {
-			String value = imp.getStack().getSliceLabel((int)getArg());
-			Variable v = new Variable(value!=null?value:"");
+			String label = imp.getStack().getSliceLabel(imp.getCurrentSlice());
+			if (interp.nextToken()=='(') {
+				if (interp.nextNextToken()==')')
+					interp.getParens();
+				else
+					label = imp.getStack().getSliceLabel((int)getArg());
+			}
+			Variable v = new Variable(label!=null?label:"");
 			return v;
 		} else if (name.equals("setSliceLabel")) {
 			String label = getFirstString();
@@ -8007,7 +8039,7 @@ public class Functions implements MacroConstants, Measurements {
 			case PROPERTY:
 				if (name.equals("getProperty") || name.equals("getProperties")
 				|| (name.equals("get")&&type!=TABLE) || name.equals("getInfo")
-				|| name.equals("getList") || name.equals("setSliceLabel")
+				|| name.equals("getList") || name.equals("getSliceLabel")
 				|| name.equals("getDicomTag"))
 					isString = true;
 				break;
