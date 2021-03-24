@@ -295,11 +295,11 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     	String s="";
     	if (imp==null)
     		return s;
-    	int nSlices = imp.getStackSize();
-    	if (nSlices>1) {
+    	int stackSize = imp.getStackSize();
+    	if (stackSize>1) {
     		ImageStack stack = imp.getStack();
     		int currentSlice = imp.getCurrentSlice();
-    		s += currentSlice+"/"+nSlices;
+    		s += currentSlice+"/"+stackSize;
     		String label = stack.getShortSliceLabel(currentSlice);
     		if (label!=null && label.length()>0) {
     			if (imp.isHyperStack()) label = label.replace(';', ' ');
@@ -311,6 +311,8 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
     		s += "; ";
 		} else {
 			String label = (String)imp.getProperty("Label");
+			if (label==null && imp.isStack())
+				label = imp.getStack().getSliceLabel(1);
 			if (label!=null && label.length()>0) {
 				int newline = label.indexOf('\n');
 				if (newline>0)
@@ -319,7 +321,7 @@ public class ImageWindow extends Frame implements FocusListener, WindowListener,
 				if (len>4 && label.charAt(len-4)=='.' && !Character.isDigit(label.charAt(len-1)))
 					label = label.substring(0,len-4);
 				if (label.length()>60)
-					label = label.substring(0, 60);
+					label = label.substring(0, 60)+"...";
 				s = "\""+label + "\"; ";
 			}
 		}
