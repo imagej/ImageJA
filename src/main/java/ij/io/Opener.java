@@ -1201,14 +1201,14 @@ public class Opener {
 		if (!((new File(path)).exists()))
 			return("not found");
 		else
-			return Opener.types[(new Opener()).getFileType(path)];
+			return Opener.types[getFileType(path)];
 	}
 	
 	/**
 	Attempts to determine the image file type by looking for
 	'magic numbers' and the file name extension.
 	 */
-	public int getFileType(String path) {
+	public static int getFileType(String path) {
 		if (openUsingPlugins && !path.endsWith(".txt") &&  !path.endsWith(".java"))
 			return UNKNOWN;
 		File file = new File(path);
