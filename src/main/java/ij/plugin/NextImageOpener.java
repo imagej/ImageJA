@@ -136,8 +136,7 @@ public class NextImageOpener implements PlugIn {
 			if (names[candidate].startsWith(".") || nextFile.isDirectory())
 				canOpen = false;
 			if (canOpen) {
-				Opener o = new Opener();
-				int type = o.getFileType(nextPath);
+				int type = Opener.getFileType(nextPath);
 				if (type==Opener.UNKNOWN || type==Opener.JAVA_OR_TEXT
 				||  type==Opener.ROI ||  type==Opener.TEXT)
 					canOpen = false;
