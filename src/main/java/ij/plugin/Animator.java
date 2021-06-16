@@ -359,14 +359,29 @@ public class Animator implements PlugIn {
 
 	void setSlice() {
         GenericDialog gd = new GenericDialog("Set Slice");
-        gd.addNumericField("Slice Number (1-"+nSlices+"):", slice, 0);
+        if (imp.isHyperStack()) {
+        	gd.addNumericField("C", 1);
+        	gd.addNumericField("Z", 1);
+        	gd.addNumericField("T", 1);
+        }
+        else
+        	gd.addNumericField("Slice Number (1-"+nSlices+"):", slice, 0);
+        
         gd.showDialog();
+        
         if (!gd.wasCanceled()) {
-        	int n = (int)gd.getNextNumber();
-        	if (imp.isDisplayedHyperStack())
-        		imp.setPosition(n);
-        	else
+        	
+        	if (imp.isDisplayedHyperStack()) {
+        		int c = (int) gd.getNextNumber();
+	    		int z = (int) gd.getNextNumber();
+	    		int t = (int) gd.getNextNumber();
+        		imp.setPosition(c, z, t);
+        	}
+        		
+        	else {
+            	int n = (int)gd.getNextNumber();
         		imp.setSlice(n);
+        	}
         }
 	}
 
