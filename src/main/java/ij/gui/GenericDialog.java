@@ -642,7 +642,8 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	* @param defaultItem		button initially selected
 	*/
     public void addRadioButtonGroup(String label, String[] items, int rows, int columns, String defaultItem) {
-		addToSameRow = false;
+    	java.util.List<String> radioButtons = Arrays.asList(items).stream().map(item -> "\"" + item + "\"").collect(Collectors.toList());
+    	addToSameRow = false;
     	Panel panel = new Panel();
     	int n = items.length;
      	panel.setLayout(new GridLayout(rows, columns, 0, 0));
@@ -665,6 +666,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			insets.top = 2;
 			insets.left += 10;
 		}
+	   	scriptLines.add(String.format("#@ String (label=%s, options={%s}, value=%s) %s", label, String.join(", ", radioButtons), defaultItem, labelToName(label)));
 		c.gridx = 0; c.gridy++;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.anchor = GridBagConstraints.WEST;
@@ -882,6 +884,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
    		if (label2.indexOf('_')!=-1)
    			label2 = label2.replace('_', ' ');
 		Label fieldLabel = makeLabel(label2);
+	   	scriptLines.add(String.format("#@ Integer (label=%s, value=%s, min=%s, max=%s, stepSize=%s) %s", label2, defaultValue, minValue, maxValue, scale, labelToName(label)));
 		this.lastLabelAdded = fieldLabel;
 		if (addToSameRow) {
 			c.gridx = GridBagConstraints.RELATIVE;
