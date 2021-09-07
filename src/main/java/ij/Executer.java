@@ -21,11 +21,13 @@ public class Executer implements Runnable {
 	private String command;
 	private Thread thread;
 	private boolean repeatingCommand;
+	public static String edCommand;
 
 	/** Create an Executer to run the specified menu command
 		in this thread using the active image. */
 	public Executer(String cmd) {
 		command = cmd;
+		edCommand = command;
 	}
 
 	/** Create an Executer that runs the specified menu
@@ -41,6 +43,7 @@ public class Executer implements Runnable {
 			if (!(cmd.equals("Undo")||cmd.equals("Close")))
 				previousCommand = cmd;
 		}
+		edCommand = command;
 		IJ.resetEscape();
 		thread = new Thread(this, cmd);
 		thread.setPriority(Math.max(thread.getPriority()-2, Thread.MIN_PRIORITY));
@@ -56,6 +59,7 @@ public class Executer implements Runnable {
 			for (int i=0; i<listeners.size(); i++) {
 				CommandListener listener = (CommandListener)listeners.elementAt(i);
 				command = listener.commandExecuting(command);
+				System.out.println("this command " + command + "");
 				if (command==null) return;
 			}
 		}
