@@ -54,7 +54,10 @@ import java.awt.event.TextListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -1423,25 +1426,35 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		return text;
 	}
 
-	/** Displays this dialog box. */
+	/** Displays this dialog box. 
+	 * @throws FileNotFoundException */
 	public void showDialog() {
 		String cmd = Executer.edCommand;
+		String targetFilename = String.format("/home/eevans/Documents/workspaces/pyimagej/js_wrappers/%s.js", cmd);
+		PrintStream out = null;
+		try {
+			out = new PrintStream(new FileOutputStream(targetFilename, false));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		boolean hasImp = (WindowManager.getCurrentImage()!=null
 				&&(cmd.equals("Properties... ")||cmd.equals("Fit Spline")||scriptLines.stream().anyMatch(line -> line.endsWith(" save"))))
 				|| ! scriptLines.stream().anyMatch(line -> line.endsWith(" open"));
 		if (hasImp) {
-			System.out.println("#@ ImagePlus imp");
+			out.println("#@ ImagePlus imp");
 		}
-		scriptLines.forEach(System.out::println);
+		scriptLines.forEach(out::println);
 		if (hasImp) {
-			System.out.println("IJ.run(imp, \"" + cmd + "\",");
+			out.println("IJ.run(imp, \"" + cmd + "\",");
 		} else {
-			System.out.println("IJ.run(\"" + cmd + "\",");
+			out.println("IJ.run(\"" + cmd + "\",");
 		}
 		
-		System.out.println(String.join(" +\n", commandLines) + ");");
+		out.println(String.join(" +\n", commandLines) + ");");
+		out.close();
 		//also print out execution --> find a script that does this
-		//like will need var names.add with scriptLines.add (
+		//like will need var names.add with scriptLines.add
 		showDialogCalled = true;
 		if (macro) {
 			dispose();
