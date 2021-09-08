@@ -1430,12 +1430,13 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	 * @throws FileNotFoundException */
 	public void showDialog() {
 		String cmd = Executer.edCommand;
-		String targetFilename = String.format("/home/eevans/Documents/workspaces/pyimagej/js_wrappers/%s.js", cmd);
+		String cmdName = cmd.replace("...", "");
+		cmdName = cmdName.replace(" ","_");
+		String targetFilename = String.format("/home/eevans/Documents/workspaces/pyimagej/js_wrappers/%s.js", cmdName);
 		PrintStream out = null;
 		try {
 			out = new PrintStream(new FileOutputStream(targetFilename, false));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		boolean hasImp = (WindowManager.getCurrentImage()!=null
@@ -1446,9 +1447,9 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		}
 		scriptLines.forEach(out::println);
 		if (hasImp) {
-			out.println("IJ.run(imp, \"" + cmd + "\",");
+			out.println("importClass(Packages.ij.IJ);\nIJ.run(imp, \"" + cmd + "\",");
 		} else {
-			out.println("IJ.run(\"" + cmd + "\",");
+			out.println("importClass(Packages.ij.IJ);\nIJ.run(\"" + cmd + "\",");
 		}
 		
 		out.println(String.join(" +\n", commandLines) + ");");
