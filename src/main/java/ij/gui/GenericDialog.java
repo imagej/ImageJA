@@ -1432,7 +1432,7 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		String cmd = Executer.edCommand;
 		String cmdName = cmd.replace("...", "");
 		cmdName = cmdName.replace(" ","_");
-		String targetFilename = String.format("/home/eevans/Documents/workspaces/pyimagej/js_wrappers/%s.js", cmdName);
+		String targetFilename = String.format("/home/edward/Documents/scratch/wrapper_scripts/output/%s.js", cmdName);
 		PrintStream out = null;
 		try {
 			out = new PrintStream(new FileOutputStream(targetFilename, false));
