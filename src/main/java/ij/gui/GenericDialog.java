@@ -1,11 +1,4 @@
 package ij.gui;
-<<<<<<< HEAD
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import ij.*;
-import ij.plugin.frame.Recorder;
-=======
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -33,12 +26,6 @@ import java.awt.SystemColor;
 import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -53,10 +40,8 @@ import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,23 +53,16 @@ import java.util.stream.Collectors;
 import ij.CompositeImage;
 import ij.Executer;
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.Macro;
 import ij.Prefs;
 import ij.WindowManager;
-import ij.io.OpenDialog;
 import ij.macro.Interpreter;
 import ij.macro.MacroRunner;
->>>>>>> 57bee6e5... Modify methods create a script line for commands
 import ij.plugin.ScreenGrabber;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.plugin.frame.Recorder;
 import ij.util.Tools;
-<<<<<<< HEAD
-import ij.macro.*;
-=======
->>>>>>> 57bee6e5... Modify methods create a script line for commands
 
 
 /**
@@ -381,8 +359,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
     	this.echoChar = echoChar;
     }
 
-<<<<<<< HEAD
-=======
 	/** Adds a directory text field and "Browse" button, where the
 	 * field width is determined by the length of 'defaultPath', with
 	 * a minimum of 25 columns. Use getNextString to retrieve the
@@ -395,7 +371,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 	}
 
 	public void addDirectoryField(String label, String defaultPath, int columns) {
-		defaultPath = IJ.addSeparator(defaultPath);
 		addStringField(label, defaultPath, columns);
 		String lastLine = scriptLines.remove(scriptLines.size() - 1);
 		scriptLines.add(String.format("#@ File (style=directory, %s", lastLine.substring(11)));
@@ -406,8 +381,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		GridBagLayout layout = (GridBagLayout)getLayout();
 		GridBagConstraints constraints = layout.getConstraints(text);
 		Button button = new TrimmedButton("Browse",IJ.isMacOSX()?10:0);
-		BrowseButtonListener listener = new BrowseButtonListener(label, text, "dir");
-		button.addActionListener(listener);
 		Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		panel.add(text);
@@ -439,8 +412,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 		GridBagLayout layout = (GridBagLayout)getLayout();
 		GridBagConstraints constraints = layout.getConstraints(text);
 		Button button = new TrimmedButton("Browse",IJ.isMacOSX()?10:0);
-		BrowseButtonListener listener = new BrowseButtonListener(label, text, "file");
-		button.addActionListener(listener);
 		Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		panel.add(text);
@@ -451,33 +422,6 @@ FocusListener, ItemListener, KeyListener, AdjustmentListener, WindowListener {
 			saveLabel(panel, label);
 	}
 
-	/** Adds a popup menu that lists the currently open images.
-	 * Call getNextImage() to retrieve the selected
-	 * image. Based on the addImageChoice()
-	 * method in Fiji's GenericDialogPlus class.
-	 * @param label  the label
-	 * @param defaultImage  the image title initially selected in the menu
-	 * or the first image if null
-	*/
-	public void addImageChoice(String label, String defaultImage) {
-		if (windowTitles==null) {
-			windowIDs = WindowManager.getIDList();
-			if (windowIDs==null)
-				windowIDs = new int[0];
-			windowTitles = new String[windowIDs.length];
-			for (int i=0; i<windowIDs.length; i++) {
-				ImagePlus image = WindowManager.getImage(windowIDs[i]);
-				windowTitles[i] = image==null ? "" : image.getTitle();
-			}
-		}
-		addChoice(label, windowTitles, defaultImage);
-	}
-
-	public ImagePlus getNextImage() {
-		return WindowManager.getImage(windowIDs[getNextChoiceIndex()]);
-	}
-
->>>>>>> 57bee6e5... Modify methods create a script line for commands
 	/** Adds a checkbox.
 	* @param label			the label
 	* @param defaultValue	the initial state
