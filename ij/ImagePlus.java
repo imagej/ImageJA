@@ -103,6 +103,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private Plot plot;
 	private Properties imageProperties;
 	private Color borderColor;
+	private boolean temporary;
 
 
     /** Constructs an uninitialized ImagePlus. */
@@ -163,6 +164,14 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 
     private void setID() {
     	ID = --currentID;
+	}
+	
+	public void setTemporary() {
+		if (!temporary) {
+			temporary = true;		
+			currentID++;
+			ID = -Integer.MAX_VALUE;
+		}
 	}
 
 	/** Locks the image so other threads can test to see if it is in use.
@@ -472,7 +481,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	/** Opens a window to display this image and displays
 		'statusMessage' in the status bar. */
 	public void show(String statusMessage) {
-		if (isVisible())
+		if (isVisible() || temporary)
 			return;
 		win = null;
 		if ((IJ.isMacro() && ij==null) || Interpreter.isBatchMode()) {
@@ -820,7 +829,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	private synchronized void setStackNull() {
 		if (oneSliceStack && stack!=null && stack.size()>0) {
 			String label = stack.getSliceLabel(1);
-			setProperty("Label", label);
+			setProp("Slice_Label", label);
 		}
 		stack = null;
 		oneSliceStack = false;
@@ -1681,7 +1690,7 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 			ImageProcessor ip2 = getProcessor();
 			if (ip2==null)
 				return s;
-			String label = (String)getProperty("Label");
+			String label = getProp("Slice_Label");
 			if (label==null) {
 				String info = (String)getProperty("Info");
 				label = info!=null?getTitle()+"\n"+info:null; // DICOM metadata
@@ -2929,6 +2938,8 @@ public class ImagePlus implements ImageObserver, Measurements, Cloneable {
 	}
 
 	protected void notifyListeners(final int id) {
+		if (temporary)
+			return;
 	    final ImagePlus imp = this;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

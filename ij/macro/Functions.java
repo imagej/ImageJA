@@ -1656,7 +1656,7 @@ public class Functions implements MacroConstants, Measurements {
 				ImagePlus imp = getImage();
 				String label = null;
 				if (imp.getStackSize()==1)
-					label = (String)imp.getProperty("Label");
+					label = imp.getProp("Slice_Label");
 				else
 					label = imp.getStack().getShortSliceLabel(imp.getCurrentSlice());
 				return label!=null?label:"";
@@ -2827,7 +2827,7 @@ public class Functions implements MacroConstants, Measurements {
 		String msg = null;
 		if (interp.nextToken()=='(') {
 			interp.getLeftParen();
-			if (isStringArg())
+			if (interp.nextToken()!=')')
 				msg = getString();
 			interp.getRightParen();
 		}
@@ -3098,7 +3098,7 @@ public class Functions implements MacroConstants, Measurements {
 				shiftKeyDown = altKeyDown = false;
 			} else
 				rm.select(index);
-		} else if (cmd.equals("count"))
+		} else if (cmd.equals("count")||cmd.equals("size"))
 			countOrIndex = rm.getCount();
 		else if (cmd.equals("index"))
 			countOrIndex = rm.getSelectedIndex();
@@ -4173,8 +4173,6 @@ public class Functions implements MacroConstants, Measurements {
 			imp.setProperty("Info", metadata);
 		else {
 			imp.getStack().setSliceLabel(metadata, imp.getCurrentSlice());
-			if (imp.getStackSize()==1)
-					imp.setProperty("Label", metadata);
 			if (!Interpreter.isBatchMode()) imp.repaintWindow();
 		}
 	}
@@ -5543,7 +5541,7 @@ public class Functions implements MacroConstants, Measurements {
 		waitForUserDialog.show();
 		interp.waitingForUser = false;
 		Interpreter.setInstance(instance); // works around bug caused by use of drawing tools
-		if (waitForUserDialog.escPressed())
+		if (waitForUserDialog.escPressed() || IJ.escapePressed())
 			throw new RuntimeException(Macro.MACRO_CANCELED);
 	}
 

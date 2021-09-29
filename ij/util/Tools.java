@@ -55,14 +55,14 @@ import java.security.MessageDigest;
 	}
 
 	public static double[] getMinMax(double[] a) {
-		double min = Double.MAX_VALUE;
-		double max = -Double.MAX_VALUE;
+		double min = a[0];
+		double max = a[0];
 		double value;
-		for (int i=0; i<a.length; i++) {
+		for (int i=1; i<a.length; i++) {
 			value = a[i];
 			if (value<min)
 				min = value;
-			if (value>max)
+			else if (value>max)
 				max = value;
 		}
 		double[] minAndMax = new double[2];
@@ -72,14 +72,14 @@ import java.security.MessageDigest;
 	}
 
 	public static double[] getMinMax(float[] a) {
-		double min = Double.MAX_VALUE;
-		double max = -Double.MAX_VALUE;
+		double min = a[0];
+		double max = a[0];
 		double value;
-		for (int i=0; i<a.length; i++) {
+		for (int i=1; i<a.length; i++) {
 			value = a[i];
 			if (value<min)
 				min = value;
-			if (value>max)
+			else if (value>max)
 				max = value;
 		}
 		double[] minAndMax = new double[2];

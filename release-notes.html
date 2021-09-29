@@ -5,6 +5,98 @@
 </head>
 <body>
 
+<li> <li> <u>1.53m 27 September 2021</u>
+<ul>
+<li> Thanks to Zoltan Kis, the <i>File&gt;Import&gt;Image Sequence</i>
+dialog now displays the number of images that will be opened.
+<li> Thanks to Norbert Vischer, exceptions on the Event Dispatch Thread
+are now reported in the Log window.
+<li> Thanks to Remi Berthoz, the <i>Analyze&gt;Tools&gt;Scale Bar</i>
+command now has the ability to draw both vertical and/or
+horizontal scale bars.
+<li> Thanks to Stein Rorvik, added a "Colors..." command to the
+Color Picker dropdown menu and made most of the commands in
+that menu recordable. 
+<li> Thanks to Esteban Fernandez, added a "Fill color:"
+field to the <i>Image&gt;Stacks&gt;Images to Stack</i>
+dialog box.
+<li> Thanks to Barry DeZonia, the findMinAndMax() methods 
+in the Short/Int/Float processors are now faster
+(<i>Plugins&gt;Utilities&gt;Benchmark</i>
+runs 3% faster).
+<li> Thanks to Michael Schmid, added support for
+drag and drop to JFileChooser dialogs.
+<li> Thanks to Nicolas De Francesco, updated the
+<i>Edit&gt;Selection&gt;Fit Rectangle</i> command so that
+it produces more predictable results.
+<li> Thanks to Philippe Carl, <i>File&gt;Import&gt;Image Sequence</i>
+no longer limits the number of files that can be
+imported to 40 when "Open as separate images"
+is enabled.
+<li> Thanks to Fred Damen, improved recording of the 
+ROI Manager's "Open..." and "Save..." commands, and
+made the open(path) and save(path) methods public.
+<li> Thanks to Michael Schmid, the 
+<i>File&gt;Import&gt;Image Sequence</i> command no
+longer creates excessive image IDs.
+<li> Thanks to Michael Schmid, added the FolderOpener.openProcessor()
+method, used by the FileInfoVirtualStack class.
+<li> Thanks to Norbert Vischer, fixed a bug that caused the
+<i>Process&gt;Filters&gt;Convolve</i> command to sometimes not
+be correctly recorded.
+<li> Thanks to Fred Damen, fixed a bug that caused a null pointer
+exception when the <i>File&gt;Import&gt;Results</i> dialog
+was canceled.
+<li> Thanks to Ved Sharma, fixed a bug that caused an invalid
+macro error when assigning a string value returned by a user
+defined function to an array element.
+<li> Thanks to Fred Damen, fixed a bug that caused the RoiManager.save()
+method to always return true.
+<li> Thanks to Ved Sharma, fixed a bug that caused the
+ROI Manager's "OR (Combine)" command to not work as
+expected if the first ROI was composite.
+<li> Thanks to Philippe Carl, fixed a bug that caused the
+<i>File&gt;Import&gt;Image Sequence</i> command to not
+work as expected when importing stacks and the 
+"Open as separate images" option was enabled.
+<li> Thanks to Philippe Carl, fixed a bug that caused the
+<i>Image&gt;Overlay&gt;Flatten</i> command to not work
+with ROIs, or the ROI Manager in "Show All" mode, on
+composite  images.
+<li> Thanks to Rodrigo Goncalves, fixed a bug that caused
+the <i>File&gt;Save As&gt;Image Sequence</i> command to
+display multiple error messages when the specified directory
+did not exist.
+<li> Thanks to Herbie Gluender, fixed a bug the caused the
+exit(msg) macro function to fail when the argument was a
+number or a call to a user-defined function.
+<li> Thanks to Jerome Mutterer, fixed a typo in
+OpenDialog.java that caused the GitHub version of ImageJ
+to fail to compile.
+<li> Thanks to Daniel Nebdal, fixed a bug that caused the
+<i>Plugins&gt;Macros&gt;Edit</i> command to not open
+".py" and ".bsh" files.
+<li> Thanks to Remi Berthoz, fixed a bug that caused the
+<i>Image&gt;Type&gt;RGB Stack</i> command to not work
+correctly with RGB stacks that had multiple slices
+and multiple frames.
+<li> Thanks to Stein Rorvik, fixed a bug that caused
+the Property.setSliceLabel() macro function to sometimes
+not work as expected with single images. 
+<li> Thanks to Ved Sharma, fixed a regression that caused the 
+roiManager("Set Fill Color",color) macro function to fail when
+used with a text selection.
+<li> Thanks to 'natalia', fixed a 1.52p regression that caused
+FITS images to open flipped vertically.
+<li> Thanks to "J Xiong", fixed a regression that caused the
+particle analyzer to not work the same as it did in ImageJ 1.52
+with binary images that were not thresholded and the "Black background"
+options was not set.
+<li> Thanks to Hyung-song Nam, fixed a 1.53f regression that caused
+menus to unexpectedly popup when using the "hand" tool to
+scroll through images.
+</ul>
+
 <li> <u>1.53k 6 July 2021</u>
 <ul>
 <li> Thanks Mike Nelson, 16-bit images are
