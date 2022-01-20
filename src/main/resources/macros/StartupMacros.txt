@@ -1,7 +1,0 @@
-// Default startup macros
-
-  macro "Developer Menu Built-in Tool" {}
-  macro "Brush Built-in Tool" {}
-  macro "Flood Filler Built-in Tool" {}
-  macro "Arrow Built-in Tool" {}
-

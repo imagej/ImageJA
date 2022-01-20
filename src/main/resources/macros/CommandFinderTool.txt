@@ -1,4 +1,0 @@
-   macro "Command Finder Action Tool - C037T0e17CTce17F" {
-      run("Find Commands...");
-   }
-

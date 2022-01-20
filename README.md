@@ -1,16 +1,13 @@
-[![](https://travis-ci.org/imagej/ImageJA.svg?branch=master)](https://travis-ci.org/imagej/ImageJA)
+***THIS PROJECT IS OBSOLETE. PLEASE USE https://github.com/imagej/ImageJ***
 
-ImageJA is a project that provides a clean [Git](https://imagej.net/develop/git/)
-history of the original [ImageJ](https://imagej.net/software/imagej) project,
-with a proper `pom.xml` file so that it can be used with
-[Maven](https://imagej.net/develop/maven) without hassles.
+ImageJA was a project providing a clean Git history of the ImageJ project, with
+a proper `pom.xml` file so that it could be used with Maven without hassles.
 
-See the [ImageJA page](https://imagej.net/libs/imageja) for details.
+Releases of ImageJ up to 1.53j were published to Maven repositories via
+ImageJA, and those tags are
+[archived here](https://github.com/imagej/ImageJA/tags).
+But starting with ImageJ 1.53k, releases are now built and deployed directly
+from the
+[primary ImageJ repository on GitHub](https://github.com/imagej/ImageJ).
 
-## Editing this repository
-
-Because much of the content in this repository is generated automatically, depending on the type of change you want to make your edit should go in one of three places:
-
-* Source file content changes (e.g. bug fixes) should go to the [imagej1 repository](https://github.com/imagej/imagej1). To submit changes in the ImageJ1 repository, see [Contributing#ImageJ](https://imagej.net/contribute/#imagej) on the Wiki.
-* Source file *location* changes (e.g. moving a file to the correct package) go in the [ij1-builds repository](https://github.com/imagej/ij1-builds).
-* Changes to the build structure (e.g. `pom.xml` updates) can be done directly in this repository.
+For further details, see: https://imagej.net/libs/imageja
